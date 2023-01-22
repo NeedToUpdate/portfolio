@@ -8,8 +8,8 @@ export default function DynamicBackground() {
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>
             <radialGradient id="radGrad" fx="10%" fy="0%" r="200%">
-              <stop offset="0%" stop-color="#01ecf722" />
-              <stop offset="50%" stop-color="#00000000" />
+              <stop offset="0%" stopColor="#01ecf722" />
+              <stop offset="50%" stopColor="#00000000" />
             </radialGradient>
           </defs>
           <rect id="rect1" fill="url(#radGrad)" width="100%" height="100%">
@@ -23,8 +23,8 @@ export default function DynamicBackground() {
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>
             <radialGradient id="radGrad2" fx="10%" fy="0%" r="200%">
-              <stop offset="0%" stop-color="#A104F844" />
-              <stop offset="50%" stop-color="#00000000" />
+              <stop offset="0%" stopColor="#A104F844" />
+              <stop offset="50%" stopColor="#00000000" />
             </radialGradient>
           </defs>
           <rect id="rect2" fill="url(#radGrad2)" width="100%" height="100%">
