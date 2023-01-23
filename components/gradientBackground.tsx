@@ -3,7 +3,7 @@ import React from "react";
 export default function GradientBackground() {
   return (
     <>
-      <div className="absolute w-full h-screen z-0 top-0 left-0">
+      <div className="absolute w-full h-[300vh] z-0 top-0 left-0">
         {/*teal coloured moving radial blur*/}
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>
