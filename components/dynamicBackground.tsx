@@ -8,7 +8,7 @@ export default function DynamicBackground() {
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>
             <radialGradient id="radGrad" fx="10%" fy="0%" r="200%">
-              <stop offset="0%" stopColor="#01ecf722" />
+              <stop offset="0%" stopColor="#01ecf733" />
               <stop offset="50%" stopColor="#00000000" />
             </radialGradient>
           </defs>

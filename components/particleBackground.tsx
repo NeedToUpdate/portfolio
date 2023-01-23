@@ -7,7 +7,7 @@ import { Vector } from "./utils/Vector";
 interface props {
   numOfParticles: number;
 }
-const colors = ["#01ECF7", "#F9FF57", "#A104F8"];
+const colors = ["#01ECF7", "#F9FF57", "#A104F8", "#FFFFFF"];
 export default function ParticleBackground(props: props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const particles: Particle[] = [];
@@ -21,7 +21,6 @@ export default function ParticleBackground(props: props) {
       canvas.current.addEventListener("mouseover", (ev) => {
         if (quad.current) {
           let ps = quad.current!.query(ev.clientX | 0, ev.clientY | 0, 20, 4000);
-          console.log(ev);
           ps.forEach((part) => {
             part.acceleration.add(new Vector(ev.clientX | 0, ev.clientY | 0).sub(part.p).limit(0.5));
           });
@@ -32,7 +31,7 @@ export default function ParticleBackground(props: props) {
           let context = canvas.current.getContext("2d");
           if (context) {
             for (let i = 0; i < getRandom(3, 5); i++) {
-              let p = new Particle(ev.clientX, ev.clientY, getRandom(2, 5), getRandom(colors), context);
+              let p = new Particle(ev.clientX, ev.clientY, getRandom(0.5, 2), getRandom(colors), context);
               p.acceleration = Vector.random().mult(2);
               particles.push(p);
             }
@@ -43,13 +42,13 @@ export default function ParticleBackground(props: props) {
         clearInterval(interval);
       };
     }
-  }, [canvas.current]);
+  }, []);
 
   const setup = () => {
     const context = canvas.current!.getContext("2d")!;
     for (let i = 0; i < props.numOfParticles; i++) {
-      let p = new Particle(gaussianRandom(window.innerWidth / 4, window.innerWidth / 7), gaussianRandom((window.innerHeight * 2) / 3, window.innerHeight / 5), getRandom(2, 5), getRandom(colors), context);
-      p.acceleration = Vector.random().mult(0.1);
+      let p = new Particle(gaussianRandom(window.innerWidth / 4, window.innerWidth / 7), gaussianRandom((window.innerHeight * 2) / 3, window.innerHeight / 5), getRandom(0.5, 5), getRandom(colors), context);
+      p.acceleration = Vector.random().limit(0.01);
       particles.push(p);
     }
   };
@@ -68,18 +67,19 @@ export default function ParticleBackground(props: props) {
     for (let i = particles.length - 1; i >= 0; i--) {
       let p = particles[i];
       let attract = quad.current.query(p.x, p.y, 20, 400);
-      attract.forEach((part) => {
-        part.acceleration.add(
-          p.p
-            .copy()
-            .sub(part.p)
-            .limit(0.0003)
-            .mult(p.width ** 2)
-        );
-      });
+      let totalPos = attract.reduce(
+        (a, b) => {
+          return { x: a.x + b.x * b.width, y: a.y + b.y * b.width, size: a.size + b.width };
+        },
+        { x: 0, y: 0, size: 0 }
+      );
+      totalPos.x /= totalPos.size;
+      totalPos.y /= totalPos.size;
+      p.acceleration.add(new Vector(totalPos.x, totalPos.y).copy().sub(p.p).limit(0.003));
+      p.acceleration.add(new Vector(window.innerWidth / 3, (window.innerHeight * 2) / 3).sub(p.p).limit(0.00001));
       let repel = quad.current.query(p.x, p.y, p.width, p.width ** 2);
       repel.forEach((part) => {
-        part.acceleration.clear(); //add(part.p.copy().sub(p.p).limit(0.001).mult(p.width));
+        p.acceleration.add(p.p.copy().sub(part.p).limit(0.001).mult(p.width));
       });
     }
   };

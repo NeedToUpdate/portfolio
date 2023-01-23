@@ -38,8 +38,8 @@ export class Particle {
     this.opacityIncreasing = getRandom(1) == 1;
 
     //========= CONFIG ===========
-    this.MAX_FORCE = 0.5;
-    this.MAX_VELOCITY = 2;
+    this.MAX_FORCE = 1.5 / width ** 2;
+    this.MAX_VELOCITY = 6 / width ** 2;
 
     this.draw();
   }
