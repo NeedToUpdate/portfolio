@@ -244,11 +244,12 @@ export default function Home(props: props) {
           <h4 className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">Skills</h4>
           <div className="flex-1"></div>
           <div className="flex gap-5 p-2 flex-wrap items-center justify-evenly">
-            {skills
-              .sort((a, b) => b.years - a.years)
-              .map((skill, i) => {
-                return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className=" " {...skill}></SkillIcon>;
-              })}
+            {skills &&
+              skills
+                .sort((a, b) => b.years - a.years)
+                .map((skill, i) => {
+                  return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className=" " {...skill}></SkillIcon>;
+                })}
           </div>
           <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
           <div className="flex-1"></div>
