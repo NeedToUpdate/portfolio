@@ -5,6 +5,7 @@ interface props {
   className?: string;
   time: number; //in milliseconds
   delayStart?: number; //in milliseconds
+  onClick?: Function;
 }
 
 function getDelays(text: string, totalTime: number, delayStart?: number) {
@@ -49,5 +50,16 @@ export default function TypedText(props: props) {
       return () => clearTimeout(timer);
     }
   }, [props.children, props.delayStart, props.time, tick, text]);
-  return <p className={props.className}>{"" + text}</p>;
+  return (
+    <p
+      onClick={() => {
+        if (props.onClick) {
+          props.onClick();
+        }
+      }}
+      className={props.className}
+    >
+      {"" + text}
+    </p>
+  );
 }
