@@ -7,4 +7,11 @@ export interface IProject {
   moreImages?: string[];
   techs: TechType[];
   brightImage?: boolean;
+  url: string;
+}
+
+export interface ISkill {
+  tech: TechType;
+  prettyName: string;
+  years: number;
 }
