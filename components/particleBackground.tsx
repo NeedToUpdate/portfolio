@@ -12,26 +12,33 @@ export default function ParticleBackground(props: props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const particles: Particle[] = [];
   const quad = useRef(null as null | Quad);
+  const mousePos = useRef({ x: 100, y: 100 });
+  const mouseMoved = useRef(false);
   useEffect(() => {
     if (canvas.current) {
       canvas.current.width = window.innerWidth;
       canvas.current.height = window.innerHeight;
       setup();
       const interval = setInterval(loop, 16);
-      canvas.current.addEventListener("mouseover", (ev) => {
+      canvas.current.addEventListener("mousemove", (ev) => {
+        mousePos.current = { x: ev.clientX | 0, y: ev.clientY | 0 };
+        mouseMoved.current = true;
         if (quad.current) {
-          let ps = quad.current!.query(ev.clientX | 0, ev.clientY | 0, 20, 4000);
+          let ps = quad.current!.query(ev.clientX | 0, ev.clientY | 0, 20, 400);
           ps.forEach((part) => {
             part.acceleration.add(new Vector(ev.clientX | 0, ev.clientY | 0).sub(part.p).limit(0.5));
           });
         }
+      });
+      canvas.current.addEventListener("mouseleave", (ev) => {
+        mouseMoved.current = false;
       });
       canvas.current.addEventListener("click", (ev) => {
         if (canvas && canvas.current && canvas.current.getContext("2d") !== null) {
           let context = canvas.current.getContext("2d");
           if (context) {
             for (let i = 0; i < getRandom(3, 5); i++) {
-              let p = new Particle(ev.clientX, ev.clientY, getRandom(0.5, 2), getRandom(colors), context);
+              let p = new Particle(ev.clientX, ev.clientY, getRandom(1, 3), getRandom(colors), context);
               p.acceleration = Vector.random().mult(2);
               particles.push(p);
             }
@@ -53,8 +60,9 @@ export default function ParticleBackground(props: props) {
     }
   };
   const loop = () => {
+    if (canvas.current!.getBoundingClientRect().bottom <= 0) return;
     if (quad.current) {
-      quad.current!.clear();
+      quad.current.clear();
     }
     quad.current = new Quad(window.innerWidth, window.innerHeight, 0, 0);
     canvas.current!.getContext("2d")!.clearRect(0, 0, canvas.current!.width, canvas.current!.height);
@@ -66,7 +74,7 @@ export default function ParticleBackground(props: props) {
     }
     for (let i = particles.length - 1; i >= 0; i--) {
       let p = particles[i];
-      let attract = quad.current.query(p.x, p.y, 20, 400);
+      let attract = quad.current.query(p.x, p.y, 40, 1600);
       let totalPos = attract.reduce(
         (a, b) => {
           return { x: a.x + b.x * b.width, y: a.y + b.y * b.width, size: a.size + b.width };
@@ -75,8 +83,12 @@ export default function ParticleBackground(props: props) {
       );
       totalPos.x /= totalPos.size;
       totalPos.y /= totalPos.size;
-      p.acceleration.add(new Vector(totalPos.x, totalPos.y).copy().sub(p.p).limit(0.003));
-      p.acceleration.add(new Vector(window.innerWidth / 3, (window.innerHeight * 2) / 3).sub(p.p).limit(0.00001));
+      p.acceleration.add(new Vector(totalPos.x, totalPos.y).copy().sub(p.p).limit(0.001));
+      if (mouseMoved.current) {
+        p.acceleration.add(new Vector(mousePos.current.x, mousePos.current.y).sub(p.p).limit(0.01));
+      } else {
+        p.acceleration.add(new Vector(window.innerWidth / 3, (window.innerHeight * 2) / 3).sub(p.p).limit(0.0001));
+      }
       let repel = quad.current.query(p.x, p.y, p.width, p.width ** 2);
       repel.forEach((part) => {
         p.acceleration.add(p.p.copy().sub(part.p).limit(0.001).mult(p.width));
@@ -85,7 +97,7 @@ export default function ParticleBackground(props: props) {
   };
 
   return (
-    <div className="absolute w-full h-full z-0">
+    <div className="absolute w-full h-screen z-0">
       <canvas ref={canvas}></canvas>
     </div>
   );
