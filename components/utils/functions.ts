@@ -33,3 +33,11 @@ export function gaussianRandom(mean = 0, stdev = 1) {
   // Transform to the desired mean and standard deviation:
   return z * stdev + mean;
 }
+
+export function get2digitHex(int: number) {
+  let hex = int.toString(16);
+  while (hex.length < 2) {
+    hex = "0" + hex;
+  }
+  return hex;
+}

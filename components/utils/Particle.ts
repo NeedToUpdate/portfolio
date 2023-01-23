@@ -1,5 +1,5 @@
 import { ContextType } from "react";
-import { getRandom } from "./functions";
+import { get2digitHex, getRandom } from "./functions";
 import { Vector } from "./Vector";
 
 export class Particle {
@@ -34,7 +34,7 @@ export class Particle {
     this.timePerStep = 1;
     this.timeStepAccumulator = 0;
     this.dead = false;
-    this.opacity = getRandom(0, 255);
+    this.opacity = getRandom(0, 255) | 0;
     this.opacityIncreasing = getRandom(1) == 1;
 
     //========= CONFIG ===========
@@ -77,15 +77,9 @@ export class Particle {
     }
     this.draw();
   }
-  protected _get2digitHex(int: number) {
-    let hex = int.toString(16);
-    while (hex.length < 2) {
-      hex = "0" + hex;
-    }
-    return hex;
-  }
+
   draw() {
-    this.context.fillStyle = this.color + this._get2digitHex(this.opacity);
+    this.context.fillStyle = this.color + get2digitHex(this.opacity);
     if (this.opacityIncreasing) {
       this.opacity += 1;
       if (this.opacity >= 255) {
