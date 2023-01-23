@@ -31,6 +31,9 @@ module.exports = {
         DEFAULT: "0px 2px 3px var(--tw-shadow-color), 0px 6px 13px var(--tw-shadow-color), 0px 6px 23px var(--tw-shadow-color)",
         lg: " 0px 15px 5px var(--tw-shadow-color), 10px 20px 5px var(--tw-shadow-color), -10px 20px 5px var(--tw-shadow-color)",
       },
+      sideGlow: {
+        DEFAULT: "0px 0px 80px 10px var(--tw-shadow-color), 0px 0px 6px 1px var(--tw-shadow-color)",
+      },
     },
   },
   plugins: [
@@ -42,6 +45,16 @@ module.exports = {
           }),
         },
         { values: theme("textShadow") }
+      );
+    }),
+    plugin(function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          "side-glow": (value) => ({
+            boxShadow: value,
+          }),
+        },
+        { values: theme("sideGlow") }
       );
     }),
   ],
