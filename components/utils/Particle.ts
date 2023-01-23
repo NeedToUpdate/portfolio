@@ -79,6 +79,7 @@ export class Particle {
   }
 
   draw() {
+    if (!this.context) return;
     this.context.fillStyle = this.color + get2digitHex(this.opacity);
     if (this.opacityIncreasing) {
       this.opacity += 1;

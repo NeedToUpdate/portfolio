@@ -134,9 +134,10 @@ export default function Home(props: props) {
           <GradientBackground></GradientBackground>
           <h4 className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">Projects</h4>
           <div className="flex flex-col flex-wrap max-h-[70%] overflow-x-scroll gap-5" {...fullyScrolledProps}>
-            {projects.map((project, i) => {
-              return <ProjectBlurb key={i} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
-            })}
+            {projects &&
+              projects.map((project, i) => {
+                return <ProjectBlurb key={i} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
+              })}
           </div>
           <div className="flex justify-end items-center gap-2">
             {fullyScrolled ? (
