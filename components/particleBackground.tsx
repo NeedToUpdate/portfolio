@@ -62,7 +62,12 @@ export default function ParticleBackground(props: props) {
     if (canvas.current) {
       canvas.current.width = window.innerWidth;
       canvas.current.height = window.innerHeight;
-      setup();
+      try {
+        setup();
+      } catch (e) {
+        //if getContext isnt implemented then this throws errors. just dont use the particles if unavailable
+        return;
+      }
       const interval = setInterval(loop, 16);
       canvas.current.addEventListener("mousemove", (ev) => {
         mousePos.current = { x: ev.clientX | 0, y: ev.clientY | 0 };
