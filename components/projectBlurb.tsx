@@ -35,7 +35,7 @@ export default function ProjectBlurb(props: props) {
           <h2 role={"heading"} aria-level={3} className="font-laco text-xs leading-tight sm:leading-normal sm:text-md text-plasma-100/80  md:text-center">
             {title}
           </h2>
-          <p role={"contentinfo"} className="font-laco text-xs leading-tight sm:leading-normal sm:text-md font-thin text-plasma-100/60 md:text-center">
+          <p role={"note"} className="font-laco text-xs leading-tight sm:leading-normal sm:text-md font-thin text-plasma-100/60 md:text-center">
             {description}
           </p>
         </div>
