@@ -62,7 +62,7 @@ export async function getStaticProps() {
       description: "A tool for a fun classroom.",
       thumbnail: "https://icandoathing.fra1.cdn.digitaloceanspaces.com/media/images/thumbs/i-made-a-motiva_artem_thumb.webp",
       techs: ["angular", "typescript", "mongodb"],
-      url: "https://learninggame.artemnikitin.dev",
+      url: "https://www.icandoathing.com/thing/TV8vmq",
     },
     {
       title: "Breadboard CPU",
