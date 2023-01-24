@@ -15,7 +15,7 @@ interface props {
 export default function ProjectBlurb(props: props) {
   const { title, description, techs, image, url } = props;
   return (
-    <div className="flex flex-1 flex-col gap-2 md:gap-3 min-h-[45%] w-40 md:w-[15rem] h-[12rem] md:h-[15rem] lg:w-[20rem]  object-contain">
+    <div className="flex flex-col gap-2 md:gap-3 min-h-[45%] w-40 md:w-[15rem]  lg:w-[20rem] ">
       <div className="overflow-hidden rounded-md relative">
         <Image style={{ objectFit: "cover" }} className="h-[12rem] md:h-[15rem] w-40 md:w-[18rem]  lg:w-[20rem] object-cover" alt={title} width={200} height={200} src={image}></Image>
         <div className={`absolute bottom-0 right-0 max-w-[50%] w-fit max-h-[26px] px-1 flex gap-1 ${props.bright ? "bg-slate-800/90" : "bg-white/80"} rounded-tl-md`}>
