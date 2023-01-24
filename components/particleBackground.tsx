@@ -10,11 +10,55 @@ interface props {
 const colors = ["#01ECF7", "#F9FF57", "#A104F8", "#FFFFFF"];
 export default function ParticleBackground(props: props) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const particles: Particle[] = [];
   const quad = useRef(null as null | Quad);
   const mousePos = useRef({ x: 100, y: 100 });
   const mouseMoved = useRef(false);
   useEffect(() => {
+    const particles: Particle[] = [];
+    const setup = () => {
+      const context = canvas.current!.getContext("2d")!;
+      for (let i = 0; i < props.numOfParticles; i++) {
+        let p = new Particle(gaussianRandom(window.innerWidth / 4, window.innerWidth / 7), gaussianRandom((window.innerHeight * 2) / 3, window.innerHeight / 5), getRandom(0.5, 5), getRandom(colors), context);
+        p.acceleration = Vector.random().limit(0.01);
+        particles.push(p);
+      }
+    };
+    const loop = () => {
+      if (canvas.current!.getBoundingClientRect().bottom <= 0) return;
+      if (quad.current) {
+        quad.current.clear();
+      }
+      quad.current = new Quad(window.innerWidth, window.innerHeight, 0, 0);
+      canvas.current!.getContext("2d")!.clearRect(0, 0, canvas.current!.width, canvas.current!.height);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.update(1);
+        quad.current.addItem(p);
+      }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        let attract = quad.current.query(p.x, p.y, 40, 1600);
+        let totalPos = attract.reduce(
+          (a, b) => {
+            return { x: a.x + b.x * b.width, y: a.y + b.y * b.width, size: a.size + b.width };
+          },
+          { x: 0, y: 0, size: 0 }
+        );
+        totalPos.x /= totalPos.size;
+        totalPos.y /= totalPos.size;
+        p.acceleration.add(new Vector(totalPos.x, totalPos.y).copy().sub(p.p).limit(0.001));
+        if (mouseMoved.current) {
+          p.acceleration.add(new Vector(mousePos.current.x, mousePos.current.y).sub(p.p).limit(0.01));
+        } else {
+          p.acceleration.add(new Vector(window.innerWidth / 3, (window.innerHeight * 2) / 3).sub(p.p).limit(0.0001));
+        }
+        let repel = quad.current.query(p.x, p.y, p.width, p.width ** 2);
+        repel.forEach((part) => {
+          p.acceleration.add(p.p.copy().sub(part.p).limit(0.001).mult(p.width));
+        });
+      }
+    };
     if (canvas.current) {
       canvas.current.width = window.innerWidth;
       canvas.current.height = window.innerHeight;
@@ -49,52 +93,7 @@ export default function ParticleBackground(props: props) {
         clearInterval(interval);
       };
     }
-  }, []);
-
-  const setup = () => {
-    const context = canvas.current!.getContext("2d")!;
-    for (let i = 0; i < props.numOfParticles; i++) {
-      let p = new Particle(gaussianRandom(window.innerWidth / 4, window.innerWidth / 7), gaussianRandom((window.innerHeight * 2) / 3, window.innerHeight / 5), getRandom(0.5, 5), getRandom(colors), context);
-      p.acceleration = Vector.random().limit(0.01);
-      particles.push(p);
-    }
-  };
-  const loop = () => {
-    if (canvas.current!.getBoundingClientRect().bottom <= 0) return;
-    if (quad.current) {
-      quad.current.clear();
-    }
-    quad.current = new Quad(window.innerWidth, window.innerHeight, 0, 0);
-    canvas.current!.getContext("2d")!.clearRect(0, 0, canvas.current!.width, canvas.current!.height);
-
-    for (let i = particles.length - 1; i >= 0; i--) {
-      let p = particles[i];
-      p.update(1);
-      quad.current.addItem(p);
-    }
-    for (let i = particles.length - 1; i >= 0; i--) {
-      let p = particles[i];
-      let attract = quad.current.query(p.x, p.y, 40, 1600);
-      let totalPos = attract.reduce(
-        (a, b) => {
-          return { x: a.x + b.x * b.width, y: a.y + b.y * b.width, size: a.size + b.width };
-        },
-        { x: 0, y: 0, size: 0 }
-      );
-      totalPos.x /= totalPos.size;
-      totalPos.y /= totalPos.size;
-      p.acceleration.add(new Vector(totalPos.x, totalPos.y).copy().sub(p.p).limit(0.001));
-      if (mouseMoved.current) {
-        p.acceleration.add(new Vector(mousePos.current.x, mousePos.current.y).sub(p.p).limit(0.01));
-      } else {
-        p.acceleration.add(new Vector(window.innerWidth / 3, (window.innerHeight * 2) / 3).sub(p.p).limit(0.0001));
-      }
-      let repel = quad.current.query(p.x, p.y, p.width, p.width ** 2);
-      repel.forEach((part) => {
-        p.acceleration.add(p.p.copy().sub(part.p).limit(0.001).mult(p.width));
-      });
-    }
-  };
+  }, [props.numOfParticles]);
 
   return (
     <div aria-hidden={true} className="absolute w-full h-screen z-0">

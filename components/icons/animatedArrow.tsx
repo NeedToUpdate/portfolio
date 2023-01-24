@@ -7,16 +7,7 @@ const rightEye = ["M83.85,83.6c43.25,0,27.24,0,54.47-.26", "M98.75,65.54c0-25.66
 
 export default function AnimatedArrow(props: { state: 0 | 1; className?: string }) {
   const [activeIndex, setActiveIndex] = useState(props.state);
-  useEffect(() => {
-    setActiveIndex((old) => {
-      api.start({
-        mouth: mouth[props.state],
-        leftEye: leftEye[props.state],
-        rightEye: rightEye[props.state],
-      });
-      return props.state;
-    });
-  }, [props.state]);
+
   const [mouthSpring, api] = useSpring(() => ({
     from: {
       mouth: mouth[0],
@@ -30,6 +21,17 @@ export default function AnimatedArrow(props: { state: 0 | 1; className?: string 
     },
     config: {},
   }));
+
+  useEffect(() => {
+    setActiveIndex((old) => {
+      api.start({
+        mouth: mouth[props.state],
+        leftEye: leftEye[props.state],
+        rightEye: rightEye[props.state],
+      });
+      return props.state;
+    });
+  }, [api, props.state]);
 
   return (
     <>
