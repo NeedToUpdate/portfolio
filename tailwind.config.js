@@ -35,8 +35,8 @@ module.exports = {
         DEFAULT: "0px 0px 80px 10px var(--tw-shadow-color), 0px 0px 6px 1px var(--tw-shadow-color)",
       },
       shine: {
-        DEFAULT: "inset -10px 7px 14px 2px var(--tw-shadow-color),inset -10px 7px 5px -10px var(--tw-shadow-color)",
-        flipped: "inset 8px 5px 14px 2px var(--tw-shadow-color),inset 8px 5px 5px -10px var(--tw-shadow-color)",
+        DEFAULT: "inset 10px -7px 14px 2px #00000022,inset 10px -7px 12px 2px #00000044,inset -10px 7px 5px -10px var(--tw-shadow-color)",
+        flipped: "inset -10px -7px 14px 2px #00000022,inset -10px -7px 12px 2px #00000044,inset 8px 5px 5px -10px var(--tw-shadow-color)",
       },
     },
   },
