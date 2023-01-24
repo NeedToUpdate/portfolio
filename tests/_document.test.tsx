@@ -1,7 +1,7 @@
-import Document from "../pages/_document";
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import Home from "../pages";
+import { IProject, ISkill } from "../components/utils/types";
 jest.mock("next/head", () => {
   return {
     __esModule: true,
@@ -12,7 +12,7 @@ jest.mock("next/head", () => {
 });
 describe("<html/>", () => {
   it("Has my name as title", async () => {
-    render(<Home />, { container: document.head });
+    render(<Home projects={[] as IProject[]} skills={[] as ISkill[]} />);
     await waitFor(() => {
       expect(document.title).toEqual("Artem Nikitin");
     });
