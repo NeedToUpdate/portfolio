@@ -183,14 +183,15 @@ export default function Home(props: props) {
       <ParticleBackground numOfParticles={100}></ParticleBackground>
       <main ref={mainMenuRef} className="relative w-full  z-10 pointer-events-none">
         <div className="flex  items-center w-full h-screen gap-2 flex-col ">
-          <header className="flex flex-col mt-[7.5rem] md:mt-10 lg:mt-[7.5rem] lg:ml-[7.5rem]  items-start w-full pl-10">
+          <header role={"heading"} aria-level={1} className="flex flex-col mt-[7.5rem] md:mt-10 lg:mt-[7.5rem] lg:ml-[7.5rem]  items-start w-full pl-10">
             <TypedText time={2000} className="text-star-100  bg-clip-text font-montserrat font-extralight text-left tracking-tighter text-4xl lg:text-6xl">
               Hi. My name is Art.
             </TypedText>
           </header>
           <div className="spacer flex-1"></div>
-          <div className=" lg:self-end w-fit min-w-[26rem] lg:min-w-[25ch] min-h-[6ch] flex flex-1 flex-col gap-20  pl-40 md:px-40 pointer-events-none text-4xl lg:text-5xl">
+          <div role={"contentinfo"} className=" lg:self-end w-fit min-w-[26rem] md:min-w-[40rem] min-h-[6ch] flex flex-1 flex-col gap-20  pl-40 md:px-40 pointer-events-none text-4xl lg:text-5xl">
             <TypedText
+              aria-label={"Projects"}
               onClick={() => scrollToProjects()}
               time={400}
               delayStart={2000}
@@ -199,6 +200,7 @@ export default function Home(props: props) {
               Projects
             </TypedText>
             <TypedText
+              aria-label={"Skills"}
               onClick={() => scrollToSkills()}
               time={400}
               delayStart={2500}
@@ -207,6 +209,7 @@ export default function Home(props: props) {
               Skills
             </TypedText>
             <TypedText
+              aria-label={"About Me"}
               onClick={() => scrollToAboutMe()}
               time={400}
               delayStart={3000}
@@ -217,11 +220,13 @@ export default function Home(props: props) {
           </div>
           <div className="spacer flex-1"></div>
         </div>
-        <section ref={projectsRef} className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
+        <section ref={projectsRef} aria-labelledby="projects-header" className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
           <GradientBackground></GradientBackground>
-          <h4 className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">Projects</h4>
-          <div className=" max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll lg:overflow-x-auto" {...fullyScrolledProps}>
-            <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] h-fit">
+          <h4 title="Projects" id="projects-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">
+            Projects
+          </h4>
+          <div role={"article"} className=" max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll overflow-y-visible lg:overflow-x-auto  lg:justify-center pointer-events-auto" {...fullyScrolledProps}>
+            <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center pointer-events-auto">
               {projects &&
                 projects.map((project, i) => {
                   return <ProjectBlurb key={i} url={project.url} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
@@ -244,10 +249,12 @@ export default function Home(props: props) {
             <AnimatedArrow state={fullyScrolled ? 1 : 0} className={`w-6 h-6 duration-1000 ${fullyScrolled ? "rotate-0" : "rotate-[360deg]"}`}></AnimatedArrow>
           </div>
         </section>
-        <section ref={skillsRef} className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto">
-          <h4 className="text-4xl select-none text-nebula-100 font-montserrat font-thin leading-3 sm:leading-normal">Skills</h4>
+        <section aria-labelledby="skills-header" ref={skillsRef} className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto">
+          <h4 title="Skills" id="skills-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin leading-3 sm:leading-normal">
+            Skills
+          </h4>
           <div className="flex-1 h-0 sm:h-auto"></div>
-          <div className="flex gap-5 p-2 flex-wrap items-center justify-evenly">
+          <div role={"article"} className="flex gap-5 p-2 flex-wrap items-center justify-evenly">
             {skills &&
               skills
                 .sort((a, b) => b.years - a.years)
@@ -258,10 +265,12 @@ export default function Home(props: props) {
           <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
           <div className="flex-1"></div>
         </section>
-        <section ref={aboutMeRef} className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
-          <h4 className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">About Me</h4>
+        <section ref={aboutMeRef} aria-labelledby={"about-me-header"} className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
+          <h4 title="About Me" id="about-me-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">
+            About Me
+          </h4>
           <div className="flex-1"></div>
-          <div className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
+          <div role={"article"} className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
             <p className="">Hi!</p>
             <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
             <p> Currently open to new work.</p>
@@ -277,7 +286,7 @@ export default function Home(props: props) {
           <div className="flex-1"></div>
           <div className="w-full md:h-[40vh] sm:h-[50vh] h-[40vh] absolute bottom-0 right-0  object-contain">
             {!imageLoaded && (
-              <svg id="artem" data-name="artem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532.72 719.1" className="bottom-0  right-0 absolute  md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto">
+              <svg id="artem-loader" data-name="artem-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532.72 719.1" className="bottom-0  right-0 absolute  md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto">
                 <defs>
                   <linearGradient id="fillAnim" gradientTransform="rotate(70)">
                     <stop offset="0%" stopColor="#0f0f0f" />

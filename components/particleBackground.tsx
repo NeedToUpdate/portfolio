@@ -97,7 +97,7 @@ export default function ParticleBackground(props: props) {
   };
 
   return (
-    <div className="absolute w-full h-screen z-0">
+    <div aria-hidden={true} className="absolute w-full h-screen z-0">
       <canvas ref={canvas}></canvas>
     </div>
   );

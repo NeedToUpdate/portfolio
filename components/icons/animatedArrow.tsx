@@ -33,8 +33,8 @@ export default function AnimatedArrow(props: { state: 0 | 1; className?: string 
 
   return (
     <>
-      <svg id="animated_arrow" data-name="Animated Arrow" aria-labelledby="Animated Arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172.51 172.51" stroke="#FFF" className={props.className}>
-        <circle id="head" cx="86.26" cy="86.26" r="81.26" style={{ strokeMiterlimit: 10, strokeWidth: "10px" }} />
+      <svg id="animated_arrow" data-name="Animated Arrow" xlinkTitle="Animated Arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 172.51 172.51" stroke="#FFF" className={props.className}>
+        <circle id="head" cx="86.26" cy="86.26" r="81.26" fill="none" style={{ strokeMiterlimit: 10, strokeWidth: "10px" }} />
         <animated.path d={mouthSpring.mouth} fill="none" style={{ strokeMiterlimit: 10, strokeWidth: "10px", fill: "none" }} />
         <animated.path d={mouthSpring.leftEye} fill="none" style={{ strokeMiterlimit: 10, strokeWidth: "10px", fill: "none" }} />
         <animated.path d={mouthSpring.rightEye} fill="none" style={{ strokeMiterlimit: 10, strokeWidth: "10px", fill: "none" }} />

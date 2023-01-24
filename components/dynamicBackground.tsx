@@ -3,7 +3,7 @@ import React from "react";
 export default function DynamicBackground() {
   return (
     <>
-      <div className="absolute w-full h-screen z-0">
+      <div aria-hidden={true} className="absolute w-full h-screen z-0">
         {/*teal coloured moving radial blur*/}
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>
@@ -18,7 +18,7 @@ export default function DynamicBackground() {
           </rect>
         </svg>
       </div>
-      <div className="absolute w-full h-screen z-0">
+      <div aria-hidden={true} className="absolute w-full h-screen z-0">
         {/*magenta coloured moving radial blur*/}
         <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" height="100%" width="100%" preserveAspectRatio="xMinYMin meet">
           <defs>

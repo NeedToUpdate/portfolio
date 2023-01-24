@@ -24,7 +24,7 @@ export default function ProjectBlurb(props: props) {
           })}
         </div>
         <div className={`absolute top-0 right-0 p-1 ${props.bright ? "text-slate-600 hover:text-plasma-700" : "text-white hover:text-plasma-100"} duration-300 cursor-pointer hover:rotate-[360deg] hover:translate-y-[-2px]`}>
-          <Link href={url || "/"}>
+          <Link role={"link"} href={url || "/"}>
             <MoreIcon className="w-8 h-8  drop-shadow-sm "></MoreIcon>
           </Link>
         </div>
@@ -32,8 +32,12 @@ export default function ProjectBlurb(props: props) {
       <div className="flex w-full h-fit flex-row overflow-hidden select-none">
         <div className="w-[1px] bg-plasma-500 h-full border-plasma-500 border-[1px] mr-2 side-glow shadow-plasma-500"></div>
         <div className="flex flex-1 gap-2 flex-col leading-4 py-2">
-          <h2 className="font-laco text-xs leading-tight sm:leading-normal sm:text-md text-plasma-100/80  md:text-center">{title}</h2>
-          <p className="font-laco text-xs leading-tight sm:leading-normal sm:text-md font-thin text-plasma-100/60 md:text-center">{description}</p>
+          <h2 role={"heading"} aria-level={3} className="font-laco text-xs leading-tight sm:leading-normal sm:text-md text-plasma-100/80  md:text-center">
+            {title}
+          </h2>
+          <p role={"contentinfo"} className="font-laco text-xs leading-tight sm:leading-normal sm:text-md font-thin text-plasma-100/60 md:text-center">
+            {description}
+          </p>
         </div>
       </div>
     </div>
