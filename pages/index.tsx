@@ -225,8 +225,8 @@ export default function Home(props: props) {
           <h4 title="Projects" id="projects-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">
             Projects
           </h4>
-          <div role={"article"} className="flex max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll overflow-y-visible lg:overflow-x-auto  lg:justify-center pointer-events-auto" {...fullyScrolledProps}>
-            <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center pointer-events-auto">
+          <div role={"article"} className="lg:px-auto max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll overflow-y-visible lg:overflow-x-auto  " {...fullyScrolledProps}>
+            <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
               {projects &&
                 projects.map((project, i) => {
                   return <ProjectBlurb key={i} url={project.url} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
