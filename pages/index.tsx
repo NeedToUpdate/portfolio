@@ -15,7 +15,7 @@ export async function getStaticProps() {
     {
       title: "icandoathing.com",
       description: "A project based social media site.",
-      thumbnail: "https://media.licdn.com/dms/image/C562DAQHSplQ40LYf1Q/profile-treasury-image-shrink_800_800/0/1662108048029?e=1675105200&v=beta&t=GFLqqQEtFSF11aD17dTZi2vFEp7Fe5CQgeKZTR0EM_8",
+      thumbnail: "https://icandoathing.fra1.cdn.digitaloceanspaces.com/media/images/icandoathing-screenshot.jpg",
       brightImage: true,
       techs: ["django", "vuejs", "sass"],
       url: "https://icandoathing.com",
