@@ -184,13 +184,13 @@ export default function Home(props: props) {
         <meta name="author" content="Artem Nikitin" />
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://metatags.io/" />
+        <meta property="og:url" content="https://artemnikitin.dev/" />
         <meta property="og:title" content="Artem Nikitin" />
         <meta property="og:description" content="A self-starter self-taught full stack dev. " />
         <meta property="og:image" content="/images/index.jpg" />
 
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://metatags.io/" />
+        <meta property="twitter:url" content="https://artemnikitin.dev/" />
         <meta property="twitter:title" content="Artem Nikitin" />
         <meta property="twitter:description" content="A self-starter self-taught full stack dev. " />
         <meta property="twitter:image" content="/images/index.jpg" />
