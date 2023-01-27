@@ -174,9 +174,26 @@ export default function Home(props: props) {
     <div className="w-full h-full relative">
       <Head>
         <title>Artem Nikitin</title>
-        <meta name="description" content="The work of Artem" />
+        <meta name="title" content="Artem Nikitin" />
+        <meta name="description" content="A self-starter self-taught full stack dev. " />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="keywords" content="tech, javascript, portfolio, python" />
+        <meta name="robots" content="index, follow" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="language" content="English" />
+        <meta name="author" content="Artem Nikitin" />
 
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://metatags.io/" />
+        <meta property="og:title" content="Artem Nikitin" />
+        <meta property="og:description" content="A self-starter self-taught full stack dev. " />
+        <meta property="og:image" content="/images/index.jpg" />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://metatags.io/" />
+        <meta property="twitter:title" content="Artem Nikitin" />
+        <meta property="twitter:description" content="A self-starter self-taught full stack dev. " />
+        <meta property="twitter:image" content="/images/index.jpg" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <DynamicBackground></DynamicBackground>
