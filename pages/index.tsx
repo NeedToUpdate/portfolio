@@ -201,7 +201,7 @@ export default function Home(props: props) {
       <DynamicBackground></DynamicBackground>
       <ParticleBackground numOfParticles={100}></ParticleBackground>
       <main ref={mainMenuRef} className="relative w-full  z-10 pointer-events-none">
-        <div className="flex  items-center w-full h-screen gap-2 flex-col ">
+        <div className="flex  items-center w-full min-h-screen gap-2 flex-col ">
           <header role={"heading"} aria-level={1} className="flex flex-col mt-[7.5rem] md:mt-10 lg:mt-[7.5rem] lg:ml-[7.5rem]  items-start w-full pl-10">
             <TypedText time={2000} className="text-star-100  bg-clip-text font-montserrat font-extralight text-left tracking-tighter text-4xl lg:text-6xl">
               Hi. My name is Art.
@@ -239,80 +239,81 @@ export default function Home(props: props) {
           </div>
           <div className="spacer flex-1"></div>
         </div>
-        <section ref={projectsRef} aria-labelledby="projects-header" className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
+        <div className="relative">
           <GradientBackground></GradientBackground>
-          <h4 title="Projects" id="projects-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">
-            Projects
-          </h4>
-          <div role={"article"} className="lg:mx-auto max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll overflow-y-visible lg:overflow-x-auto  " {...fullyScrolledProps}>
-            <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
-              {projects &&
-                projects.map((project, i) => {
-                  return <ProjectBlurb key={i} url={project.url} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
-                })}
+          <section ref={projectsRef} aria-labelledby="projects-header" className="relative w-full min-h-screen p-8 flex flex-col gap-5 pointer-events-auto">
+            <h4 title="Projects" id="projects-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">
+              Projects
+            </h4>
+            <div role={"article"} className="lg:mx-auto max-h-[75%] md:max-h-screen lg:max-h-fit h-fit overflow-x-scroll overflow-y-visible lg:overflow-x-auto  " {...fullyScrolledProps}>
+              <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
+                {projects &&
+                  projects.map((project, i) => {
+                    return <ProjectBlurb key={i} url={project.url} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
+                  })}
+              </div>
             </div>
-          </div>
-          <div className="flex justify-end items-center gap-2 lg:hidden">
-            {fullyScrolled ? (
-              <TypedText time={100} className="text-lg font-thin text-nebula-100">
-                More coming soon!
-              </TypedText>
-            ) : (
-              <>
+            <div className="flex justify-end items-center gap-2 lg:hidden">
+              {fullyScrolled ? (
                 <TypedText time={100} className="text-lg font-thin text-nebula-100">
-                  Scroll for more
+                  More coming soon!
                 </TypedText>
-              </>
-            )}
-
-            <AnimatedArrow state={fullyScrolled ? 1 : 0} className={`w-6 h-6 duration-1000 ${fullyScrolled ? "rotate-0" : "rotate-[360deg]"}`}></AnimatedArrow>
-          </div>
-        </section>
-        <section aria-labelledby="skills-header" ref={skillsRef} className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto">
-          <h4 title="Skills" id="skills-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin leading-3 sm:leading-normal">
-            Skills
-          </h4>
-          <div className="flex-1 h-0 sm:h-auto"></div>
-          <div role={"article"} className="flex gap-5 p-2 flex-wrap items-center justify-evenly">
-            {skills &&
-              skills
-                .sort((a, b) => b.years - a.years)
-                .map((skill, i) => {
-                  return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className=" " {...skill}></SkillIcon>;
-                })}
-          </div>
-          <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
-          <div className="flex-1"></div>
-        </section>
-        <section ref={aboutMeRef} aria-labelledby={"about-me-header"} className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
-          <h4 title="About Me" id="about-me-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">
-            About Me
-          </h4>
-          <div className="flex-1"></div>
-          <div role={"article"} className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
-            <p className="">Hi!</p>
-            <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
-            <p> Currently open to new opportunities.</p>
-            <p className="">
-              Email me at:
-              <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
-                {" "}
-                hello@artemnikitin.dev
-              </a>
-            </p>
-            <p>Or find me on my socials:</p>
-            <div className="flex justify-start items-center gap-4">
-              <SocialIcon type="github" url="https://github.com/NeedToUpdate"></SocialIcon>
-              <SocialIcon type="linkedin" url="https://linkedin.com/in/artem-nikitin-dev"></SocialIcon>
+              ) : (
+                <>
+                  <TypedText time={100} className="text-lg font-thin text-nebula-100">
+                    Scroll for more
+                  </TypedText>
+                </>
+              )}
+              <AnimatedArrow state={fullyScrolled ? 1 : 0} className={`w-6 h-6 duration-1000 ${fullyScrolled ? "rotate-0" : "rotate-[360deg]"}`}></AnimatedArrow>
             </div>
-          </div>
-          <div className="flex-1"></div>
-          <div className="flex-1"></div>
-          <div className="w-full md:h-[40vh] sm:h-[50vh] h-[40vh] absolute bottom-0 right-0  object-contain pointer-events-none">
-            {!imageLoaded && <PictureLoader></PictureLoader>}
-            <Image onLoad={() => setImageLoaded(true)} className="absolute bottom-0 right-0 md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto" src={"/images/me.webp"} alt={"A picture of Artem"} width={761} height={1000}></Image>
-          </div>
-        </section>
+          </section>
+          <section aria-labelledby="skills-header" ref={skillsRef} className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto">
+            <h4 title="Skills" id="skills-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin leading-3 sm:leading-normal">
+              Skills
+            </h4>
+            <div className="flex-1 h-0 sm:h-auto"></div>
+            <div role={"article"} className="flex gap-5 p-2 flex-wrap items-center justify-evenly">
+              {skills &&
+                skills
+                  .sort((a, b) => b.years - a.years)
+                  .map((skill, i) => {
+                    return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className=" " {...skill}></SkillIcon>;
+                  })}
+            </div>
+            <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
+            <div className="flex-1"></div>
+          </section>
+          <section ref={aboutMeRef} aria-labelledby={"about-me-header"} className="relative w-full h-screen p-8 flex flex-col gap-5 pointer-events-auto">
+            <h4 title="About Me" id="about-me-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin ">
+              About Me
+            </h4>
+            <div className="flex-1"></div>
+            <div role={"article"} className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
+              <p className="">Hi!</p>
+              <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
+              <p> Currently open to new opportunities.</p>
+              <p className="">
+                Email me at:
+                <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
+                  {" "}
+                  hello@artemnikitin.dev
+                </a>
+              </p>
+              <p>Or find me on my socials:</p>
+              <div className="flex justify-start items-center gap-4">
+                <SocialIcon type="github" url="https://github.com/NeedToUpdate"></SocialIcon>
+                <SocialIcon type="linkedin" url="https://linkedin.com/in/artem-nikitin-dev"></SocialIcon>
+              </div>
+            </div>
+            <div className="flex-1"></div>
+            <div className="flex-1"></div>
+            <div className="w-full md:h-[40vh] sm:h-[50vh] h-[40vh] absolute bottom-0 right-0  object-contain pointer-events-none">
+              {!imageLoaded && <PictureLoader></PictureLoader>}
+              <Image onLoad={() => setImageLoaded(true)} className="absolute bottom-0 right-0 md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto" src={"/images/me.webp"} alt={"A picture of Artem"} width={761} height={1000}></Image>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
