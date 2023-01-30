@@ -292,7 +292,7 @@ export default function Home(props: props) {
           <div role={"article"} className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
             <p className="">Hi!</p>
             <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
-            <p> Currently open to new work.</p>
+            <p> Currently open to new opportunities.</p>
             <p className="">
               Email me at:
               <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
