@@ -12,68 +12,26 @@ import Image from "next/image";
 import SkillIcon from "../components/skillIcon";
 import SocialIcon from "../components/socialIcon";
 import PictureLoader from "../components/pictureLoader";
+import fs from "fs";
+import matter from "gray-matter";
+interface ProjectLink {
+  slug: string;
+  details: IProject;
+}
 export async function getStaticProps() {
-  let projects: IProject[] = [
-    {
-      title: "icandoathing.com",
-      description: "A project based social media site.",
-      thumbnail: "/images/icandoathing.webp",
-      brightImage: true,
-      techs: ["django", "vuejs", "sass"],
-      url: "https://icandoathing.com",
-    },
-    {
-      title: "whatstheword.io",
-      description: "A SaaS game site.",
-      thumbnail: "/images/whatstheword.webp",
-      brightImage: true,
-      techs: ["react", "django", "tailwind"],
-      url: "https://whatstheword.io",
-    },
-    {
-      title: "Invoice Creator",
-      description: "A pdf generator.",
-      thumbnail: "/images/invoice.webp",
-      techs: ["nextjs", "tailwind", "mongodb"],
-      url: "https://invoice.artemnikitin.dev",
-    },
-    {
-      title: "Neural Network Library",
-      description: "A toy NN library with lots of features.",
-      thumbnail: "/images/nn.webp",
-      brightImage: true,
-      techs: ["javascript"],
-      url: "https://www.icandoathing.com/thing/QRkgsb",
-    },
-    {
-      title: "AI Image Tool",
-      description: "Resize, compress, and use AI.",
-      thumbnail: "/images/image_tools.webp",
-      techs: ["html", "python", "pytorch"],
-      url: "https://www.icandoathing.com/thing/sQotUe",
-    },
-    {
-      title: "IoT Devices",
-      description: "An automated apartment using ESP32s.",
-      thumbnail: "/images/automated.webp",
-      techs: ["arduino", "vuejs", "python"],
-      url: "https://www.icandoathing.com/thing/pG7w9I",
-    },
-    {
-      title: "Classroom Game",
-      description: "A tool for a fun classroom.",
-      thumbnail: "/images/classroomgame.webp",
-      techs: ["angular", "typescript", "mongodb"],
-      url: "https://www.icandoathing.com/thing/TV8vmq",
-    },
-    {
-      title: "Breadboard CPU",
-      description: "A full 8-bit CPU made with wires and logic gates.",
-      thumbnail: "/images/8bit.webp",
-      techs: ["wires"],
-      url: "https://www.icandoathing.com/thing/OPJQJ6",
-    },
-  ];
+  const files = fs.readdirSync("_projects");
+  const projects: ProjectLink[] = files.map((fileName) => {
+    const slug = fileName.replace(".md", "");
+
+    const readFile = fs.readFileSync(`_projects/${fileName}`, "utf-8");
+
+    const { data: details } = matter(readFile);
+
+    return {
+      slug,
+      details,
+    } as ProjectLink;
+  });
   const skills: ISkill[] = [
     {
       tech: "react",
@@ -145,7 +103,7 @@ export async function getStaticProps() {
 }
 
 interface props {
-  projects: IProject[];
+  projects: ProjectLink[];
   skills: ISkill[];
 }
 
@@ -248,7 +206,7 @@ export default function Home(props: props) {
             <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
               {projects &&
                 projects.map((project, i) => {
-                  return <ProjectBlurb key={i} url={project.url} title={project.title} description={project.description} techs={project.techs} image={project.thumbnail} bright={project.brightImage}></ProjectBlurb>;
+                  return <ProjectBlurb key={i} {...project.details}></ProjectBlurb>;
                 })}
             </div>
           </div>
