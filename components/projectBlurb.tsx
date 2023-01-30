@@ -4,7 +4,6 @@ import Image from "next/image";
 import MoreIcon from "./icons/moreIcon";
 import Link from "next/link";
 interface props {
-  slug: string;
   title: string;
   description: string;
   techs: TechType[];
@@ -13,7 +12,7 @@ interface props {
   url: string;
 }
 
-export default function ProjectBlurb({ title, description, techs, thumbnail, url, slug, brightImage }: props) {
+export default function ProjectBlurb({ title, description, techs, thumbnail, url, brightImage }: props) {
   return (
     <div className="flex flex-col gap-2 md:gap-3 min-h-[45%] w-40 md:w-[15rem]  lg:w-[20rem] ">
       <div className="overflow-hidden rounded-md relative group">
