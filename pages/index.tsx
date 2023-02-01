@@ -166,7 +166,7 @@ export default function Home(props: props) {
             </TypedText>
           </header>
           <div className="spacer flex-1"></div>
-          <div role={"contentinfo"} className=" lg:self-end w-fit min-w-[26rem] md:min-w-[40rem] min-h-[6ch] flex flex-1 flex-col gap-20  pl-40 md:px-40 pointer-events-none text-4xl lg:text-5xl">
+          <div role={"contentinfo"} className=" lg:self-end w-fit min-w-[26rem] md:min-w-[40rem] min-h-[28rem] lg:min-h-[32rem] flex flex-1 flex-col gap-20  pl-40 md:px-40 pointer-events-none text-4xl lg:text-5xl">
             <TypedText
               aria-label={"Projects"}
               onClick={() => scrollToProjects()}
