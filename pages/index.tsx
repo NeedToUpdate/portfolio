@@ -206,9 +206,11 @@ export default function Home(props: props) {
             <div role={"article"} className="xl:mx-auto max-h-[75%] md:max-h-screen xl:max-h-fit h-fit overflow-x-scroll  xl:overflow-x-auto  " {...fullyScrolledProps}>
               <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
                 {projects &&
-                  projects.map((project, i) => {
-                    return <ProjectBlurb key={i} {...project.details}></ProjectBlurb>;
-                  })}
+                  projects
+                    .sort((a, b) => b.details.priority - a.details.priority)
+                    .map((project, i) => {
+                      return <ProjectBlurb key={i} {...project.details}></ProjectBlurb>;
+                    })}
               </div>
             </div>
             <div className="flex justify-end items-center gap-2 xl:hidden">

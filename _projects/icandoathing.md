@@ -5,6 +5,7 @@ thumbnail: "/images/icandoathing.webp"
 brightImage: true,
 techs: ["django", "vuejs", "sass"]
 url: "https://icandoathing.com"
+priority: 9
 ---
 
 # The main content

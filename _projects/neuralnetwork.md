@@ -5,4 +5,5 @@ thumbnail: "/images/nn.webp"
 brightImage: true
 techs: ["javascript"]
 url: "https://www.icandoathing.com/thing/QRkgsb"
+priority: 4
 ---

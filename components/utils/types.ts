@@ -8,6 +8,7 @@ export interface IProject {
   techs: TechType[];
   brightImage?: boolean;
   url: string;
+  priority: number;
 }
 
 export interface ISkill {
