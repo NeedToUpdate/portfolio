@@ -38,6 +38,24 @@ module.exports = {
         DEFAULT: "inset 10px -7px 14px 2px #00000022,inset 10px -7px 12px 2px #00000044,inset -10px 7px 5px -10px var(--tw-shadow-color)",
         flipped: "inset -10px -7px 14px 2px #00000022,inset -10px -7px 12px 2px #00000044,inset 8px 5px 5px -10px var(--tw-shadow-color)",
       },
+      keyframes: {
+        "fade-in": {
+          "0%": { transform: "translateY(30px)", opacity: 0 },
+          "100%": { transform: "", opacity: 1 },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 1800ms ease-in ",
+      },
+      animationDelay: {
+        none: "0s",
+        75: "75ms",
+        100: "100ms",
+        200: "200ms",
+        500: "500ms",
+        1000: "1000ms",
+        2000: "2000ms",
+      },
     },
   },
   plugins: [
@@ -71,5 +89,22 @@ module.exports = {
         { values: theme("shine") }
       );
     }),
+    plugin(function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          "animation-delay": (value) => {
+            return {
+              animationDelay: value,
+            };
+          },
+        },
+        { values: theme("animationDelay") }
+      );
+    }),
+  ],
+  safelist: [
+    ...Array(12)
+      .fill(0)
+      .map((_, i) => "animation-delay-[" + i * 750 + "ms]"),
   ],
 };
