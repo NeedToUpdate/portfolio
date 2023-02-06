@@ -1,20 +1,21 @@
-import Head from "next/head";
+import fs from "fs";
+import matter from "gray-matter";
 import React, { useRef, useState } from "react";
+import Head from "next/head";
+import Link from "next/link";
+import Image from "next/image";
+import { useInView } from "react-intersection-observer";
+import { useScroll } from "../components/utils/onScrollHook";
+import { IProject, ISkill } from "../components/utils/types";
 import DynamicBackground from "../components/dynamicBackground";
 import GradientBackground from "../components/gradientBackground";
 import AnimatedArrow from "../components/icons/animatedArrow";
 import ParticleBackground from "../components/particleBackground";
 import ProjectBlurb from "../components/projectBlurb";
 import TypedText from "../components/typedText";
-import { useScroll } from "../components/utils/onScrollHook";
-import { IProject, ISkill } from "../components/utils/types";
-import Image from "next/image";
 import SkillIcon from "../components/skillIcon";
 import SocialIcon from "../components/socialIcon";
 import PictureLoader from "../components/pictureLoader";
-import fs from "fs";
-import matter from "gray-matter";
-import Link from "next/link";
 interface ProjectLink {
   slug: string;
   details: IProject;
@@ -131,6 +132,11 @@ export default function Home(props: props) {
     if (aboutMeRef.current) aboutMeRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
+  const [skillsVisibilityRef, skillsInView] = useInView({
+    triggerOnce: true,
+    rootMargin: "0px 0px",
+  });
+
   return (
     <div className="w-full h-full relative">
       <Head>
@@ -229,7 +235,14 @@ export default function Home(props: props) {
               <AnimatedArrow state={fullyScrolled ? 1 : 0} className={`w-6 h-6 duration-1000 ${fullyScrolled ? "rotate-0" : "rotate-[360deg]"}`}></AnimatedArrow>
             </div>
           </section>
-          <section aria-labelledby="skills-header" ref={skillsRef} className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto">
+          <section
+            aria-labelledby="skills-header"
+            ref={(el: HTMLDivElement) => {
+              skillsRef.current = el;
+              skillsVisibilityRef(el);
+            }}
+            className="relative w-full  overflow-hidden h-screen p-8 flex flex-col gap-2 sm:gap-5 pointer-events-auto"
+          >
             <h4 title="Skills" id="skills-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin leading-3 sm:leading-normal">
               Skills
             </h4>
@@ -239,7 +252,7 @@ export default function Home(props: props) {
                 skills
                   .sort((a, b) => b.years - a.years)
                   .map((skill, i) => {
-                    return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} {...skill}></SkillIcon>;
+                    return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className={`${skillsInView ? "animate-fade-in" : ""} animation-delay-[${i * 125}ms]`} {...skill}></SkillIcon>;
                   })}
             </div>
             <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
