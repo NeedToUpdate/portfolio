@@ -134,7 +134,7 @@ export default function Home(props: props) {
     rootMargin: "0px 0px",
   });
 
-  if (!window.IntersectionObserver) {
+  if (typeof window !== "undefined" && !window.IntersectionObserver) {
     //if this page is loaded with jest, the intersection observer is undefined
     return (
       <>
