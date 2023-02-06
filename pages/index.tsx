@@ -14,6 +14,7 @@ import SocialIcon from "../components/socialIcon";
 import PictureLoader from "../components/pictureLoader";
 import fs from "fs";
 import matter from "gray-matter";
+import Link from "next/link";
 interface ProjectLink {
   slug: string;
   details: IProject;
@@ -89,8 +90,8 @@ export async function getStaticProps() {
       years: 1,
     },
     {
-      tech: "numpy",
-      prettyName: "NumPy",
+      tech: "aws",
+      prettyName: "AWS",
       years: 1,
     },
   ];
@@ -238,7 +239,7 @@ export default function Home(props: props) {
                 skills
                   .sort((a, b) => b.years - a.years)
                   .map((skill, i) => {
-                    return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} className=" " {...skill}></SkillIcon>;
+                    return <SkillIcon key={i} background={(i % 3) as 0 | 1 | 2} {...skill}></SkillIcon>;
                   })}
             </div>
             <p className="font-lato font-thin text-nebula-100 text-center">There are a few dozen more that wont fit on here. Email me for inquiries!</p>
@@ -252,14 +253,28 @@ export default function Home(props: props) {
             <div role={"article"} className="flex flex-col gap-5 pointer-events-auto font-lato text-star-100 md:text-lg lg:text-xl lg:pl-40">
               <p className="">Hi!</p>
               <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
-              <p> Currently open to new opportunities.</p>
-              <p className="">
-                Email me at:
-                <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
-                  {" "}
-                  hello@artemnikitin.dev
-                </a>
-              </p>
+              <div className="flex gap-1 w-full justify-between">
+                <div className="flex flex-col gap-2">
+                  <p> Currently open to new opportunities.</p>
+                  <p className="">
+                    Email me at:
+                    <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
+                      {" "}
+                      hello@artemnikitin.dev
+                    </a>
+                  </p>
+                </div>
+                <Link className="group" href="https://www.credly.com/badges/aa792a78-2c50-4375-aa8a-41dbb065beea">
+                  <Image
+                    title="AWS Certified Solutions Architect - Click to Verify!"
+                    className=" group-hover:translate-y-[-1px] duration-300  md:mr-[30%] md:w-[10rem] md:h-[10rem]"
+                    src="images/aws_saa_cert.png"
+                    alt="AWS Certified Solutions Architect"
+                    width="100"
+                    height="100"
+                  ></Image>
+                </Link>{" "}
+              </div>
               <p>Or find me on my socials:</p>
               <div className="flex justify-start items-center gap-4">
                 <SocialIcon type="github" url="https://github.com/NeedToUpdate"></SocialIcon>
