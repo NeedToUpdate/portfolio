@@ -16,3 +16,8 @@ export interface ISkill {
   prettyName: string;
   years: number;
 }
+
+export interface ProjectLink {
+  slug: string;
+  details: IProject;
+}

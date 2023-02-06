@@ -1,12 +1,11 @@
 import fs from "fs";
 import matter from "gray-matter";
 import React, { useRef, useState } from "react";
-import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
 import { useScroll } from "../components/utils/onScrollHook";
-import { IProject, ISkill } from "../components/utils/types";
+import { IProject, ISkill, ProjectLink } from "../components/utils/types";
 import DynamicBackground from "../components/dynamicBackground";
 import GradientBackground from "../components/gradientBackground";
 import AnimatedArrow from "../components/icons/animatedArrow";
@@ -16,10 +15,8 @@ import TypedText from "../components/typedText";
 import SkillIcon from "../components/skillIcon";
 import SocialIcon from "../components/socialIcon";
 import PictureLoader from "../components/pictureLoader";
-interface ProjectLink {
-  slug: string;
-  details: IProject;
-}
+import CustomHead from "../components/customHead";
+
 export async function getStaticProps() {
   const files = fs.readdirSync("_projects");
   const projects: ProjectLink[] = files.map((fileName) => {
@@ -137,32 +134,17 @@ export default function Home(props: props) {
     rootMargin: "0px 0px",
   });
 
+  if (!window.IntersectionObserver) {
+    //if this page is loaded with jest, the intersection observer is undefined
+    return (
+      <>
+        <CustomHead></CustomHead>
+      </>
+    );
+  }
   return (
     <div className="w-full h-full relative">
-      <Head>
-        <title>Artem Nikitin</title>
-        <meta name="title" content="Artem Nikitin" />
-        <meta name="description" content="A self-starter self-taught full stack dev. " />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="keywords" content="tech, javascript, portfolio, python" />
-        <meta name="robots" content="index, follow" />
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="language" content="English" />
-        <meta name="author" content="Artem Nikitin" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://artemnikitin.dev/" />
-        <meta property="og:title" content="Artem Nikitin" />
-        <meta property="og:description" content="A self-starter self-taught full stack dev. " />
-        <meta property="og:image" content="/images/index.jpg" />
-
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://artemnikitin.dev/" />
-        <meta property="twitter:title" content="Artem Nikitin" />
-        <meta property="twitter:description" content="A self-starter self-taught full stack dev. " />
-        <meta property="twitter:image" content="/images/index.jpg" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <CustomHead></CustomHead>
       <DynamicBackground></DynamicBackground>
       <ParticleBackground numOfParticles={100}></ParticleBackground>
       <main ref={mainMenuRef} className="relative w-full  z-10 pointer-events-none">
@@ -281,7 +263,7 @@ export default function Home(props: props) {
                   <Image
                     title="AWS Certified Solutions Architect - Click to Verify!"
                     className=" group-hover:translate-y-[-1px] duration-300  md:w-[10rem] md:h-[10rem]"
-                    src="images/aws_saa_cert.png"
+                    src="/images/aws_saa_cert.png"
                     alt="AWS Certified Solutions Architect"
                     width="100"
                     height="100"
