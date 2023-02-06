@@ -45,7 +45,7 @@ module.exports = {
         },
       },
       animation: {
-        "fade-in": "fade-in 1800ms ease-in ",
+        "fade-in": "fade-in 800ms ease-in both",
       },
       animationDelay: {
         none: "0s",
@@ -105,6 +105,6 @@ module.exports = {
   safelist: [
     ...Array(12)
       .fill(0)
-      .map((_, i) => "animation-delay-[" + i * 750 + "ms]"),
+      .map((_, i) => "animation-delay-[" + i * 125 + "ms]"),
   ],
 };
