@@ -3,7 +3,7 @@ import React from "react";
 export default function PictureLoader() {
   // in the shape of my picture, will load before the image does
   return (
-    <svg id="artem-loader" data-name="artem-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532.72 719.1" className="bottom-0  right-0 absolute  md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto">
+    <svg id="art-loader" data-name="artem-loader" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 532.72 719.1" className="bottom-0  right-0 absolute  md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto">
       <defs>
         <linearGradient id="fillAnim" gradientTransform="rotate(70)">
           <stop offset="0%" stopColor="#0f0f0f" />
