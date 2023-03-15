@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
 import { useScroll } from "../components/utils/onScrollHook";
-import { IProject, ISkill, ProjectLink } from "../components/utils/types";
+import { ISkill, ProjectLink } from "../components/utils/types";
 import DynamicBackground from "../components/dynamicBackground";
 import GradientBackground from "../components/gradientBackground";
 import AnimatedArrow from "../components/icons/animatedArrow";
