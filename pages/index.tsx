@@ -36,12 +36,12 @@ export async function getStaticProps() {
     {
       tech: "react",
       prettyName: "ReactJS",
-      years: 2,
+      years: 3,
     },
     {
       tech: "typescript",
       prettyName: "TypeScript",
-      years: 5,
+      years: 6,
     },
     {
       tech: "python",
@@ -51,12 +51,12 @@ export async function getStaticProps() {
     {
       tech: "html",
       prettyName: "HTML5",
-      years: 5,
+      years: 6,
     },
     {
       tech: "sass",
       prettyName: "CSS/SCSS",
-      years: 5,
+      years: 6,
     },
     {
       tech: "django",
