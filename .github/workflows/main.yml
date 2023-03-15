@@ -16,24 +16,3 @@ jobs:
         run: |
           npm install 
           npm test
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run export
-      - name: Copy out folder to s3
-        uses: prewk/s3-cp-action@v2
-        with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          source: "./out"
-          dest: "s3://portfoliosites3/out"
-          flags: --recursive
