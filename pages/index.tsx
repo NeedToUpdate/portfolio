@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
 import { useScroll } from "../components/utils/onScrollHook";
-import { IProject, ISkill, ProjectLink } from "../components/utils/types";
+import { ISkill, ProjectLink } from "../components/utils/types";
 import DynamicBackground from "../components/dynamicBackground";
 import GradientBackground from "../components/gradientBackground";
 import AnimatedArrow from "../components/icons/animatedArrow";
@@ -32,6 +32,7 @@ export async function getStaticProps() {
     } as ProjectLink;
   });
   const skills: ISkill[] = [
+    //TODO move this to a file
     {
       tech: "react",
       prettyName: "ReactJS",
@@ -280,7 +281,7 @@ export default function Home(props: props) {
             <div className="flex-1"></div>
             <div className="w-full md:h-[40vh] sm:h-[50vh] h-[40vh] absolute bottom-0 right-0  object-contain pointer-events-none">
               {!imageLoaded && <PictureLoader></PictureLoader>}
-              <Image onLoad={() => setImageLoaded(true)} className="absolute bottom-0 right-0 md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto" src={"/images/me.webp"} alt={"A picture of Artem"} width={761} height={1000}></Image>
+              <Image onLoad={() => setImageLoaded(true)} className="absolute bottom-0 right-0 md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto" src={"/images/me.webp"} alt={"A picture of Art"} width={761} height={1000}></Image>
             </div>
           </section>
         </div>
