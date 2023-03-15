@@ -15,16 +15,16 @@ function getDelays(text: string, totalTime: number, delayStart?: number) {
   const tickMap = (letter: string) => {
     switch (letter) {
       case " ":
-        return 0.5;
+        return 0.5; //pause less for spaces
       case ".":
-        return 4;
+        return 4; //pause longer for periods
       default:
         return 1;
     }
   };
   let totalTicksNeeded = letters.reduce((total, letter) => {
     return total + tickMap(letter);
-  }, 0); //pause longer for periods
+  }, 0);
   let timePerTick = totalTime / totalTicksNeeded;
   letters.forEach((letter) => {
     delays.push(timePerTick * tickMap(letter));
