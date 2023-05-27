@@ -193,8 +193,8 @@ export default function Home(props: props) {
             <h4 title="Projects" id="projects-header" role={"heading"} aria-level={2} className="text-4xl select-none text-nebula-100 font-montserrat font-thin mb-10">
               Projects
             </h4>
-            <div role={"article"} className="xl:mx-auto max-h-[75%] md:max-h-screen xl:max-h-fit h-fit overflow-x-scroll  xl:overflow-x-auto  " {...fullyScrolledProps}>
-              <div className=" flex flex-row flex-wrap gap-5 w-[44rem] md:w-[64rem] lg:w-[84rem] min-w-[90vw] h-fit justify-center ">
+            <div role={"article"} className="xl:mx-auto max-h-[75%] md:max-h-screen xl:max-h-fit h-fit overflow-x-auto  xl:overflow-x-auto  " {...fullyScrolledProps}>
+              <div className="grid grid-rows-2 grid-flow-col lg:grid-flow-row grid-cols-none lg:grid-rows-none lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full h-fit justify-items-center ">
                 {projects &&
                   projects
                     .sort((a, b) => b.details.priority - a.details.priority)
@@ -203,7 +203,7 @@ export default function Home(props: props) {
                     })}
               </div>
             </div>
-            <div className="flex justify-end items-center gap-2 xl:hidden">
+            <div className="flex justify-end items-center gap-2 lg:hidden">
               {fullyScrolled ? (
                 <TypedText time={100} className="text-lg font-thin text-nebula-100">
                   More coming soon!
