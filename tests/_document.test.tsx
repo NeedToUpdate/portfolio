@@ -14,7 +14,7 @@ describe("<html/>", () => {
   it("Has my name as title", async () => {
     render(<Home projects={[] as ProjectLink[]} skills={[] as ISkill[]} />);
     await waitFor(() => {
-      expect(document.title).toEqual("Artem Nikitin");
+      expect(document.title).toEqual("Art Nikitin");
     });
   });
 });
