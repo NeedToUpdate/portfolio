@@ -251,9 +251,16 @@ export default function Home(props: props) {
               <p className="">I am a programmer based in Toronto, Canada. I love a good challenge and learning new skills.</p>
               <div className="flex gap-1 w-full justify-between">
                 <div className="flex flex-col gap-2">
-                  <p> Currently open to new opportunities.</p>
-                  <p className="">
-                    Email me at:
+                  <p>
+                    {" "}
+                    Senior Engineer at{" "}
+                    <a className="bg-gradient-to-br from-white to-plasma-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="https://the4d.ca">
+                      The Fourth Dimension
+                    </a>
+                    .
+                  </p>
+                  <p className="pt-5">
+                    Got inquiries? Email me at:
                     <a className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="mailto:hello@artemnikitin.dev">
                       {" "}
                       hello@artemnikitin.dev
