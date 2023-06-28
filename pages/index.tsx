@@ -254,7 +254,7 @@ export default function Home(props: props) {
                   <p>
                     {" "}
                     Senior Engineer at{" "}
-                    <a className="bg-gradient-to-br from-white to-plasma-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="https://the4d.ca">
+                    <a className="bg-gradient-to-br from-white to-plasma-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="https://www.the4d.ca">
                       The Fourth Dimension
                     </a>
                     .
