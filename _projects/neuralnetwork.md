@@ -1,6 +1,6 @@
 ---
 title: "Neural Network Library"
-description: "A toy NN library with lots of features."
+description: "An ML library with lots of features built from scratch."
 thumbnail: "/images/nn.webp"
 brightImage: true
 techs: ["javascript"]
