@@ -36,7 +36,7 @@ export async function getStaticProps() {
     {
       tech: "react",
       prettyName: "ReactJS",
-      years: 3,
+      years: 4,
     },
     {
       tech: "typescript",
@@ -46,7 +46,7 @@ export async function getStaticProps() {
     {
       tech: "python",
       prettyName: "Python",
-      years: 4,
+      years: 5,
     },
     {
       tech: "html",
@@ -66,7 +66,7 @@ export async function getStaticProps() {
     {
       tech: "nodejs",
       prettyName: "Node.js",
-      years: 3,
+      years: 4,
     },
     {
       tech: "vuejs",
@@ -86,12 +86,12 @@ export async function getStaticProps() {
     {
       tech: "nextjs",
       prettyName: "NextJS",
-      years: 1,
+      years: 2,
     },
     {
       tech: "aws",
       prettyName: "AWS",
-      years: 1,
+      years: 2,
     },
   ];
   return {
@@ -253,7 +253,7 @@ export default function Home(props: props) {
                 <div className="flex flex-col gap-2">
                   <p>
                     {" "}
-                    Senior Engineer at{" "}
+                    Senior Engineer & Lead at{" "}
                     <a className="bg-gradient-to-br from-white to-plasma-500 bg-clip-text text-transparent hover:bg-gradient-to-b" href="https://www.the4d.ca">
                       The Fourth Dimension
                     </a>
