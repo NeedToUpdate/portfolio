@@ -46,7 +46,7 @@ export async function getStaticProps() {
     {
       tech: "python",
       prettyName: "Python",
-      years: 5,
+      years: 6,
     },
     {
       tech: "html",
