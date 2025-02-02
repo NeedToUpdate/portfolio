@@ -2,9 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["fra1.digitaloceanspaces.com", "icandoathing.fra1.cdn.digitaloceanspaces.com", "media.licdn.com"],
+    domains: [
+      "fra1.digitaloceanspaces.com",
+      "icandoathing.fra1.cdn.digitaloceanspaces.com",
+      "media.licdn.com",
+    ],
     unoptimized: true,
   },
+  output: "export",
 };
 
 module.exports = nextConfig;
