@@ -23,6 +23,7 @@ export type TechType =
   | "aws"
   | "serverless"
   | "splunk"
+  | "tableau"
   | "redshift";
 
 interface props {
