@@ -5,7 +5,7 @@ export interface ISubHeadingProps {
   id: string;
 }
 
-export function SubHeading(props: ISubHeadingProps) {
+export default function SubHeading(props: ISubHeadingProps) {
   const { title, id } = props;
   return (
     <h4

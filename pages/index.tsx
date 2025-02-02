@@ -22,8 +22,8 @@ import SocialIcon from "../components/socialIcon";
 import PictureLoader from "../components/pictureLoader";
 import CustomHead from "../components/customHead";
 import { skills } from "../components/utils/skills";
-import { SubHeading } from "../components/basic/subheading";
-import { SystemSectionMain } from "../components/systemSectionMain";
+import SubHeading from "../components/basic/subheading";
+import SystemSectionMain from "../components/systemSectionMain";
 
 export async function getStaticProps() {
   const files = fs.readdirSync("_projects");
