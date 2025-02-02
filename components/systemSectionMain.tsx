@@ -10,7 +10,7 @@ export interface ISystemSectionMainProps {
   systems: ISystemLink[];
 }
 
-export function SystemSectionMain(props: ISystemSectionMainProps) {
+export default function SystemSectionMain(props: ISystemSectionMainProps) {
   const { systems, blurb } = props;
 
   const categories = systems.reduce((acc: string[], system) => {
