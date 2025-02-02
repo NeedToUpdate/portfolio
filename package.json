@@ -1,11 +1,11 @@
 {
   "name": "portfolio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "test": "jest",
+    "test": "jest --transformIgnorePatterns \"node_modules/(?!your-module-name)/\"",
     "test:watch": "jest --watch",
     "start": "next start -p 4400",
     "lint": "next lint",
@@ -19,12 +19,14 @@
     "eslint": "8.32.0",
     "eslint-config-next": "13.1.2",
     "gray-matter": "^4.0.3",
-    "next": "13.1.2",
+    "next": "^15.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-intersection-observer": "^9.4.1",
+    "react-markdown": "^9.0.3",
     "react-spring": "^9.6.1",
-    "sharp": "^0.31.3",
+    "remark-gfm": "^4.0.0",
+    "sharp": "^0.33.5",
     "typescript": "4.9.4"
   },
   "devDependencies": {

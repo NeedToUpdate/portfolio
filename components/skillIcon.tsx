@@ -45,13 +45,34 @@ function getTextColor(years: number) {
 export default function SkillIcon(props: props) {
   const { tech, background, className, prettyName, years } = props;
   return (
-    <div className={`${className} flex flex-col gap-1 items-center select-none`}>
-      <div className={`${getBg(background)} relative rounded-full w-[4rem] h-[4rem] sm:w-20 sm:h-20 ease-in flex justify-center items-center`}>
-        <Image className="" width={50} height={50} src={`/hq_icons/${tech}-icon.png`} alt={prettyName} title={`${pluralize(years)} of experience with ${prettyName}`}></Image>
+    <div
+      className={`${className} flex flex-col gap-1 items-center select-none`}
+    >
+      <div
+        className={`${getBg(
+          background
+        )} relative rounded-full w-[4rem] h-[4rem] sm:w-20 sm:h-20 ease-in flex justify-center items-center`}
+      >
+        <Image
+          className=""
+          width={50}
+          height={50}
+          src={`/hq_icons/${tech}-icon.png`}
+          alt={prettyName}
+          title={`${pluralize(years)} of experience with ${prettyName}`}
+        ></Image>
         <div className="absolute rounded-full w-[4rem] h-[4rem] sm:w-20 sm:h-20 ease-in shine shadow-plasma-100/70 hover:shine-flipped duration-100"></div>
       </div>
-      <h2 className="font-montserrat font-extralight text-nebula-100 text-xs sm:text-md">{prettyName}</h2>
-      <p className={`font-montserrat text-transparent font-bold bg-gradient-to-bl from-nebula-100 ${getTextColor(years)} bg-clip-text text-xs sm:text-md`}>{pluralize(years)}</p>
+      <h2 className="font-montserrat font-extralight text-nebula-100 text-xs sm:text-md">
+        {prettyName}
+      </h2>
+      <p
+        className={`font-montserrat text-transparent font-bold bg-gradient-to-bl from-nebula-100 ${getTextColor(
+          years
+        )} bg-clip-text text-xs sm:text-md`}
+      >
+        {pluralize(years)}
+      </p>
     </div>
   );
 }

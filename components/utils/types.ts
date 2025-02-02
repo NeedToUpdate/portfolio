@@ -17,7 +17,28 @@ export interface ISkill {
   years: number;
 }
 
-export interface ProjectLink {
+export interface ISystem {
+  title: string;
+  description: string;
+  techs: TechType[];
+  impact: string;
+  body: string;
+  category: "reporting" | "infrastructure" | "data" | "payments";
+}
+
+export interface IProjectLink {
   slug: string;
   details: IProject;
+}
+
+export interface ISystemLink {
+  slug: string;
+  details: ISystem;
+  body: string;
+}
+
+export interface ISystemBlurb {
+  title: string;
+  sencence: string;
+  body: string;
 }
