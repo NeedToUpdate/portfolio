@@ -10,7 +10,7 @@ export interface ISystemDropdownProps {
   system: ISystemLink;
 }
 
-export function SystemDropdown(props: ISystemDropdownProps) {
+export default function SystemDropdown(props: ISystemDropdownProps) {
   const { system } = props;
 
   const [isOpen, setIsOpen] = useState(false);
