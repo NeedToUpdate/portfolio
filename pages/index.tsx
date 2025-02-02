@@ -199,7 +199,7 @@ export default function Home(props: props) {
             className="relative w-full min-h-screen p-8 flex flex-col gap-5 pointer-events-auto "
           >
             <SubHeading title="Systems" id="systems-header" />
-            <div className="min-h-[80vh] w-full flex flex-col pt-[10vh] items-center">
+            <div className="min-h-[80vh] w-full flex flex-col pt-[2vh] md:pt-[10vh] items-center">
               <SystemSectionMain systems={systems} blurb={systemBlurb} />
             </div>
           </section>
