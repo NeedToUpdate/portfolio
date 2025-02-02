@@ -21,10 +21,10 @@ export default function SystemDropdown(props: ISystemDropdownProps) {
 
   return (
     <div
-      className={`w-full flex relative flex-col border-2 border-white rounded-md p-4 min-h-24 overflow-hidden  transition-[max-height] ease-in-out 
+      className={`w-full flex relative flex-col border-2 border-white rounded-md p-1 md:p-2 lg:p-4 min-h-12 md:min-h-24 overflow-hidden  transition-[max-height] ease-in-out 
         shadow-md shadow-nebula-500/50
         will-change-max-height duration-300
-        ${isOpen ? "max-h-[1000px]" : "max-h-24"}`}
+        ${isOpen ? "max-h-[1000px]" : "max-h-16 md:max-h-24"}`}
       onClick={() => setIsOpen(!isOpen)}
       ref={descriptionRef}
     >
@@ -44,18 +44,21 @@ export default function SystemDropdown(props: ISystemDropdownProps) {
         </p>
       </div>
       <div
-        className={`flex flex-col text-white h-full bg-slate-800/80 my-2 p-2 rounded-md duration-100 max-h-[60vh] overflow-y-auto
+        className={`flex flex-col text-white h-full bg-slate-800/80 my-2 p-1 md:p-2 rounded-md duration-100 max-h-[60vh] overflow-y-auto
              ${isOpen ? "" : "opacity-0"}`}
       >
         <div className="flex flex-col gap-2 ">
-          <div className="flex gap-2 py-2">
+          <p className="visible text-xs sm:hidden md:text-sm text-plasma-100 select-none">
+            {system.details.impact}
+          </p>
+          <div className="flex flex-wrap gap-2 py-1 md:py-2">
             {system.details.techs.map((skill) => (
               <SkillPill key={skill} skill={skill} />
             ))}
           </div>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            className="prose prose-sm prose-white whitespace-pre-wrap"
+            className="prose prose-sm prose-white whitespace-pre-wrap text-sm md:text-md"
           >
             {system.body}
           </ReactMarkdown>
