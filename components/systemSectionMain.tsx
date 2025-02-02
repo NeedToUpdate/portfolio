@@ -26,24 +26,24 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
 
   return (
     <div>
-      <div className="text-center p-8 w-full flex flex-col items-center justify-center gap-5">
+      <div className="text-center p-2 sm:p-8 w-full flex flex-col items-center justify-center gap-5">
         <h2 className="text-xl sm:text-xl md:text-3xl font-thin mb-4 text-plasma-500">
           {blurb.title}
         </h2>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          className="text-sm sm:text-md md:text-lg text-white max-w-2xl"
+          className="text-sm sm:text-md md:text-lg text-white sm:max-w-2xl"
         >
           {blurb.sencence}
         </ReactMarkdown>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
-          className="text-xs sm:text-md md:text-lg text-white text-left max-w-[80vw]"
+          className="text-xs sm:text-md md:text-lg text-white text-left sm:max-w-[80vw]"
         >
           {blurb.body}
         </ReactMarkdown>
       </div>
-      <div className="w-full max-w-5xl mx-auto p-6 space-y-8">
+      <div className="w-full max-w-5xl sm:mx-auto p-2  sm:p-6 space-y-8">
         <div defaultValue="data-pipelines" className="w-full">
           <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-2">
             {categories.map((category) => {
