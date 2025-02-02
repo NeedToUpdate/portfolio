@@ -1,14 +1,15 @@
 ---
 title: "Enterprise Client Integrations"
-techs: ["AWS Lambda", "Python", "TypeScript", "SQL", "S3"]
-impact: "Facilitated seamless integration for large clients, enabling scalable enrollment, reporting, and payment processing."
+techs: ["aws", "python", "serverless"]
+impact: "Enabled seamless enrollment, reporting, and payment processing for large clients."
 priority: 4
 category: infrastructure
 ---
-This system was built to **integrate a major client** into the existing infrastructure, covering:
 
-- **Enrollment Processing**: Fully automated onboarding and **real-time data validation**.
-- **Reporting & Analytics**: Enabled **custom reporting for enterprise clients**.
-- **Payment Processing**: Seamless integration with existing **billing & claims workflows**.
+A major enterprise integration for a high-value client, allowing them to seamlessly enroll customers, process payments, and generate reports. The system included:
 
-Thanks to this architecture, multiple clients were **onboarded faster**, leading to **substantial revenue increases**.
+- **Enrollment Processing**: Automated onboarding and real-time validation.
+- **Data Integrations**: Connected with multiple internal systems to synchronize data.
+- **Payment Processing**: Fully integrated with existing billing and claims workflows.
+
+By implementing this system, the company onboarded two high-value clients, leading to substantial revenue growth.

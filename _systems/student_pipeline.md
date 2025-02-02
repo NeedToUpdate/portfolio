@@ -1,15 +1,16 @@
 ---
-title: "Enrollment & Claims Processing"
-techs: ["AWS Lambda", "S3", "CloudFront", "Python", "TypeScript", "Glue"]
-impact: "Automated enrollment and claims processing for 1M+ users, handling millions in claims monthly."
+title: "Enrollment Processing System"
+techs: ["aws", "typescript", "python", "serverless", "splunk"]
+impact: "Automated enrollment and claims processing for 1M+ users."
 priority: 1
 category: infrastructure
 ---
-This system was designed to **streamline insurance enrollment and claims processing** for a large-scale provider. Built entirely on **AWS serverless architecture**, it integrates multiple components:
 
-- **Admin & User Portals**: A TypeScript-based web platform for both admin and customer interactions.
-- **Data Pipeline**: A robust, Python-based pipeline using **AWS Glue** for ETL processes.
-- **Scalability**: Handles **millions of claims per month**, leveraging **multi-AZ failover** and **disaster recovery**.
-- **Security & Compliance**: Integrated **CloudTrail, SonarQube, and Snyk** to meet strict security requirements.
+Two major insurance companies needed an integration to create a fully automated enrolment and claims processing system to handle over 1 million students. The entire system was built **serverless on AWS**, leveraging:
 
-The result? **Massive efficiency improvements, reducing manual processing times and ensuring scalability for future growth.**
+- **Admin & User Portals**: A TypeScript-based frontend for both admin and customer interactions.
+- **Data Pipeline**: A Python-driven ETL process using AWS Glue.
+- **High Availability**: Designed with multi-AZ failover, disaster recovery, and auto-scaling.
+- **Security & Compliance**: Integrated CloudTrail, SonarQube, and Snyk for enterprise security.
+
+The result was a fully automated, scalable solution that streamlined claims processing and drastically reduced manual workload. This increased customer satisfaction and massively reduced resource costs.

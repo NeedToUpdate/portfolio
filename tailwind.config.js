@@ -1,7 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 const plugin = require("tailwindcss/plugin");
 module.exports = {
-  content: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
@@ -28,15 +31,19 @@ module.exports = {
       textShadow: {
         none: "0px 0px 0px var(--tw-shadow-color), 0px 0px 0px var(--tw-shadow-color), 0px 0px 0px var(--tw-shadow-color)",
         sm: "0px 0px 6px var(--tw-shadow-color)",
-        DEFAULT: "0px 2px 3px var(--tw-shadow-color), 0px 6px 13px var(--tw-shadow-color), 0px 6px 23px var(--tw-shadow-color)",
+        DEFAULT:
+          "0px 2px 3px var(--tw-shadow-color), 0px 6px 13px var(--tw-shadow-color), 0px 6px 23px var(--tw-shadow-color)",
         lg: " 0px 15px 5px var(--tw-shadow-color), 10px 20px 5px var(--tw-shadow-color), -10px 20px 5px var(--tw-shadow-color)",
       },
       sideGlow: {
-        DEFAULT: "0px 0px 80px 10px var(--tw-shadow-color), 0px 0px 6px 1px var(--tw-shadow-color)",
+        DEFAULT:
+          "0px 0px 80px 10px var(--tw-shadow-color), 0px 0px 6px 1px var(--tw-shadow-color)",
       },
       shine: {
-        DEFAULT: "inset 10px -7px 14px 2px #00000022,inset 10px -7px 12px 2px #00000044,inset -10px 7px 5px -10px var(--tw-shadow-color)",
-        flipped: "inset -10px -7px 14px 2px #00000022,inset -10px -7px 12px 2px #00000044,inset 8px 5px 5px -10px var(--tw-shadow-color)",
+        DEFAULT:
+          "inset 10px -7px 14px 2px #00000022,inset 10px -7px 12px 2px #00000044,inset -10px 7px 5px -10px var(--tw-shadow-color)",
+        flipped:
+          "inset -10px -7px 14px 2px #00000022,inset -10px -7px 12px 2px #00000044,inset 8px 5px 5px -10px var(--tw-shadow-color)",
       },
       keyframes: {
         "fade-in": {
@@ -103,7 +110,7 @@ module.exports = {
     }),
   ],
   safelist: [
-    ...Array(12)
+    ...Array(15)
       .fill(0)
       .map((_, i) => "animation-delay-[" + i * 125 + "ms]"),
   ],
