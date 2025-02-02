@@ -13,7 +13,7 @@ export const skills: ISkill[] = [
   },
   {
     tech: "serverless",
-    prettyName: "Serverless Framework",
+    prettyName: "SLS Framework",
     years: 2,
   },
   {
