@@ -323,10 +323,10 @@ export default function Home(props: props) {
                     Got inquiries? Email me at:
                     <a
                       className=" bg-gradient-to-br from-plasma-500 to-star-500 bg-clip-text text-transparent hover:bg-gradient-to-b"
-                      href="mailto:hello@artemnikitin.dev"
+                      href="mailto:hello@artnikitin.dev"
                     >
                       {" "}
-                      hello@artemnikitin.dev
+                      hello@artnikitin.dev
                     </a>
                   </p>
                 </div>
@@ -352,7 +352,7 @@ export default function Home(props: props) {
                 ></SocialIcon>
                 <SocialIcon
                   type="linkedin"
-                  url="https://linkedin.com/in/artem-nikitin-dev"
+                  url="https://linkedin.com/in/art-nikitin-dev"
                 ></SocialIcon>
               </div>
             </div>
