@@ -10,7 +10,7 @@ export default function SkillPill(props: ISkillPillProps) {
   const { skill } = props;
   const prettyName = skills.find((s) => s.tech === skill)?.prettyName;
   return (
-    <div className="flex gap-1 items-center bg-gradient-to-tr from-nebula-700 to-plasma-700 px-2 rounded-full select-none text-star-100 font-thin">
+    <div className="flex gap-1 items-center bg-gradient-to-tr from-nebula-700 to-plasma-700 px-2 rounded-full select-none text-star-100 font-thin text-xs sm:text-sm md:text-md">
       <p>{prettyName}</p>
     </div>
   );
