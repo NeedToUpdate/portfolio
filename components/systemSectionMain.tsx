@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { category_lookup } from "./utils/categories";
 import { ISystemBlurb, ISystemLink } from "./utils/types";
-import { SystemDropdown } from "./systemDropdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import SystemDropdown from "./systemDropdown";
 
 export interface ISystemSectionMainProps {
   blurb: ISystemBlurb;
