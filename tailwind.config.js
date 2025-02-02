@@ -110,7 +110,7 @@ module.exports = {
     }),
   ],
   safelist: [
-    ...Array(15)
+    ...Array(20)
       .fill(0)
       .map((_, i) => "animation-delay-[" + i * 125 + "ms]"),
   ],
