@@ -1,14 +1,15 @@
 ---
-title: "Tableau Integration & Automated Reporting"
-techs: ["Tableau", "AWS EC2", "Python", "Redshift"]
+title: "Tableau Integration"
+techs: ["tableau", "aws", "redshift", "python"]
 impact: "Enabled real-time self-serve analytics, cutting reporting time from 1 month to minutes."
 priority: 5
 category: reporting
 ---
-A **self-service reporting and analytics system** using **Tableau**, designed to integrate seamlessly with the **enterprise data warehouse**. Key components:
 
-- **Tableau Deployment**: Hosted on **AWS EC2 behind a load balancer** in a **private VPC**.
-- **Automated Data Pipeline**: Connected **directly to Redshift**, allowing real-time data access.
-- **Enterprise-Grade Security**: Restricted access via **IAM roles and strict VPC policies**.
+A self-service reporting and analytics platform, allowing the company to run on-demand reports with Tableau. This system included:
 
-With this setup, business teams could **generate reports instantly** instead of waiting weeks for manual data processing.
+- **Tableau Deployment**: Hosted on AWS EC2 behind a load balancer in a private VPC, passing strenuous security checks.
+- **Direct Data Warehouse Integration**: Connected to Redshift data marts, enabling real-time insights.
+- **Role-Based Access Control**: Ensured secure and restricted access.
+
+This system eliminated manual report generation, empowering business teams with real-time data visibility.
