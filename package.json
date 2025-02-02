@@ -9,7 +9,7 @@
     "test:watch": "jest --watch",
     "start": "next start -p 4400",
     "lint": "next lint",
-    "export": "next build && next export"
+    "export": "next build"
   },
   "dependencies": {
     "@next/font": "13.1.2",
