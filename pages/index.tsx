@@ -303,7 +303,7 @@ export default function Home(props: props) {
             >
               <p className="">Hi!</p>
               <p className="">
-                I am an solutions architect based in Toronto, Canada. I love a
+                I am a solutions architect based in Toronto, Canada. I love a
                 good challenge and learning new skills.
               </p>
               <div className="flex gap-1 w-full justify-between">
