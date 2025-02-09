@@ -12,4 +12,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Visit the live site
 
-You can check out [the live site](https://artemnikitin.dev)!
+You can check out [the live site](https://artnikitin.dev)!
