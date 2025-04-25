@@ -24,7 +24,8 @@ export type TechType =
   | "serverless"
   | "splunk"
   | "tableau"
-  | "redshift";
+  | "redshift"
+  | "ai-agents";
 
 interface props {
   tech: TechType;

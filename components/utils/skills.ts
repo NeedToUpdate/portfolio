@@ -2,6 +2,11 @@ import { ISkill } from "./types";
 
 export const skills: ISkill[] = [
   {
+    tech: "ai-agents",
+    prettyName: "AI Agents",
+    years: 2,
+  },
+  {
     tech: "react",
     prettyName: "ReactJS",
     years: 4,
