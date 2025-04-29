@@ -1,0 +1,13 @@
+# Skip Log
+
+This file documents directories and files that were intentionally skipped during the analysis process.
+
+## Skipped Directories
+- `.git/` - Git repository metadata, not relevant to project structure
+- `.next/` - Next.js build artifacts
+- `.swc/` - SWC compiler cache
+- `node_modules/` - Third-party dependencies
+- `out/` - Build output directory
+
+## Skipped Files
+- `package-lock.json` - Auto-generated dependency lock file

@@ -1,0 +1,45 @@
+graph TD
+    %% Core Application Structure
+    NextJS[Next.js Application] --> Pages[Pages]
+    NextJS --> Components[Components]
+    NextJS --> Styles[Styles]
+    NextJS --> StaticGeneration[Static Site Generation]
+    
+    %% Content Structure
+    Content[Content] --> Projects[Projects MD Files]
+    Content --> Systems[Systems MD Files]
+    Content --> SystemsBlurb[Systems Blurb]
+    
+    %% Component Categories
+    Components --> BasicComponents[Basic Components]
+    Components --> BackgroundComponents[Background Effects]
+    Components --> IconComponents[Icon Components]
+    Components --> UtilComponents[Utility Components]
+    
+    %% Content Processing
+    StaticGeneration --> ContentLoading[Content Loading]
+    ContentLoading --> GrayMatter[Gray Matter Parser]
+    GrayMatter --> TypedObjects[Typed Objects]
+    
+    %% Content Rendering
+    Pages --> ContentRendering[Content Rendering]
+    ContentRendering --> Projects
+    ContentRendering --> Systems
+    TypedObjects --> ContentRendering
+    ReactMarkdown[React Markdown] --> ContentRendering
+    
+    %% Animation System
+    Components --> AnimationSystem[Animation System]
+    AnimationSystem --> CustomHooks[Custom React Hooks]
+    AnimationSystem --> ParticleSystem[Particle System]
+    AnimationSystem --> VectorMath[Vector Math]
+    
+    %% Styling and UI
+    Styles --> TailwindCSS[Tailwind CSS]
+    Components --> TailwindCSS
+    TailwindCSS --> CustomPlugins[Custom Plugins]
+    
+    %% Deployment
+    StaticGeneration --> BuildOutput[/out Directory]
+    BuildOutput --> S3Deployment[S3 Deployment]
+    GithubActions[GitHub Actions] --> S3Deployment
