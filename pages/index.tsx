@@ -1,6 +1,6 @@
 import fs from "fs";
 import matter from "gray-matter";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useInView } from "react-intersection-observer";
@@ -19,7 +19,6 @@ import ProjectBlurb from "../components/projectBlurb";
 import TypedText from "../components/typedText";
 import SkillIcon from "../components/skillIcon";
 import SocialIcon from "../components/socialIcon";
-import PictureLoader from "../components/pictureLoader";
 import CustomHead from "../components/customHead";
 import { skills } from "../components/utils/skills";
 import SubHeading from "../components/basic/subheading";
@@ -84,8 +83,6 @@ interface props {
 export default function Home(props: props) {
   const { projects, skills, systems, systemBlurb } = props;
   const [fullyScrolled, fullyScrolledProps] = useScroll(90, "horiz");
-
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   const mainMenuRef = useRef<null | HTMLDivElement>(null);
   const scrollToTop = () => {
@@ -358,17 +355,6 @@ export default function Home(props: props) {
             </div>
             <div className="flex-1"></div>
             <div className="flex-1"></div>
-            <div className="w-full md:h-[40vh] sm:h-[50vh] h-[40vh] absolute bottom-0 right-0  object-contain pointer-events-none">
-              {!imageLoaded && <PictureLoader></PictureLoader>}
-              <Image
-                onLoad={() => setImageLoaded(true)}
-                className="absolute bottom-0 right-0 md:h-[40vh] sm:h-[50vh] h-[40vh] w-auto"
-                src={"/images/me.webp"}
-                alt={"A picture of Art"}
-                width={761}
-                height={1000}
-              ></Image>
-            </div>
           </section>
         </div>
       </main>
