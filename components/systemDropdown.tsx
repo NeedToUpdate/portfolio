@@ -56,12 +56,11 @@ export default function SystemDropdown(props: ISystemDropdownProps) {
               <SkillPill key={skill} skill={skill} />
             ))}
           </div>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            className="prose prose-sm prose-white whitespace-pre-wrap text-sm md:text-md"
-          >
-            {system.body}
-          </ReactMarkdown>
+          <div className="prose prose-sm prose-white whitespace-pre-wrap text-sm md:text-md">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {system.body}
+            </ReactMarkdown>
+          </div>
         </div>
       </div>
     </div>

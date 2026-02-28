@@ -327,19 +327,18 @@ export default function Home(props: props) {
                     </a>
                   </p>
                 </div>
-                <Link
-                  className="group  md:mr-[30%]"
-                  href="https://www.credly.com/badges/aa792a78-2c50-4375-aa8a-41dbb065beea"
+                <div
+                  className="group  md:mr-[10%]"
                 >
                   <Image
-                    title="AWS Certified Solutions Architect - Click to Verify!"
+                    title="AWS Certified Solutions Architect - Associate"
                     className=" group-hover:translate-y-[-1px] duration-300  md:w-[10rem] md:h-[10rem]"
                     src="/images/aws_saa_cert.png"
                     alt="AWS Certified Solutions Architect"
                     width="100"
                     height="100"
                   ></Image>
-                </Link>{" "}
+                </div>{" "}
               </div>
               <p>Or find me on my socials:</p>
               <div className="flex justify-start items-center gap-4">
