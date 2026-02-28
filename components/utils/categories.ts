@@ -1,7 +1,11 @@
 import { ChartBarIcon, CurrencyDollarIcon, DatabaseIcon, ServerIcon } from "../icons/categoryIcons";
 
+type Category = {
+    icon: typeof ChartBarIcon,
+    name: string
+};
 
-export const category_lookup: Record<string, { icon: (props: { className?: string | undefined; }) => JSX.Element, name: string }> = {
+export const category_lookup: Record<string, Category> = {
     "reporting": {
         icon: ChartBarIcon,
         name: "Reporting & Analytics"
