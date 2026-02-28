@@ -1,15 +1,11 @@
 ---
 title: "Tableau Integration"
-techs: ["tableau", "aws", "redshift", "python"]
-impact: "Enabled real-time self-serve analytics, cutting reporting time from 1 month to minutes."
+techs: ["tableau", "aws", "redshift", "python", "ec2"]
+impact: "Tableau, fully automated as infrastructure as code. Business teams get real-time analytics on demand."
 priority: 5
 category: reporting
 ---
 
-A self-service reporting and analytics platform, allowing the company to run on-demand reports with Tableau. This system included:
+Tableau deployments are usually manual, undocumented, and tied to whoever set them up.
 
-- **Tableau Deployment**: Hosted on AWS EC2 behind a load balancer in a private VPC, passing strenuous security checks.
-- **Direct Data Warehouse Integration**: Connected to Redshift data marts, enabling real-time insights.
-- **Role-Based Access Control**: Ensured secure and restricted access.
-
-This system eliminated manual report generation, empowering business teams with real-time data visibility.
+We wrote the entire environment as infrastructure as code. One Serverless Framework file deploys everything: EC2 behind a load balancer, private VPC, role-based access controls, and a direct connection to the Redshift data warehouse. The whole setup is version controlled and can be redeployed from scratch. Business teams get real-time access to the data they need without filing a report request. IT gets an environment they can actually maintain.

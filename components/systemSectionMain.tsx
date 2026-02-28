@@ -30,18 +30,16 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
         <h2 className="text-xl sm:text-xl md:text-3xl font-thin mb-4 text-plasma-500">
           {blurb.title}
         </h2>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          className="text-sm sm:text-md md:text-lg text-white sm:max-w-2xl"
-        >
-          {blurb.sencence}
-        </ReactMarkdown>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          className="text-xs sm:text-md md:text-lg text-white text-left sm:max-w-[80vw]"
-        >
-          {blurb.body}
-        </ReactMarkdown>
+        <div className="text-sm sm:text-md md:text-lg text-white sm:max-w-2xl">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {blurb.sencence}
+          </ReactMarkdown>
+        </div>
+        <div className="text-xs sm:text-md md:text-lg text-white text-left sm:max-w-[80vw]">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {blurb.body}
+          </ReactMarkdown>
+        </div>
       </div>
       <div className="w-full max-w-5xl sm:mx-auto p-2  sm:p-6 space-y-8">
         <div defaultValue="data-pipelines" className="w-full">
