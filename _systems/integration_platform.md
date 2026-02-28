@@ -1,11 +1,11 @@
 ---
-title: "Microservices Integration Platform"
+title: "Unified Cloud Architecture"
 techs: ["azure", "microservices", "iac"]
-impact: "Made the case to build in-house over SaaS. The board approved and hired an 8-person team to deliver it."
+impact: "Built the case from the engineering team to the board. They approved an eight-person in-house build."
 priority: 8
 category: infrastructure
 ---
 
-The business was evaluating another SaaS product to plug a gap in their integration layer. I designed a microservices-based alternative and made the case to the business to build it in-house instead.
+The business was evaluating a SaaS product to fill a gap in the integration layer. I proposed something larger: a unified compute architecture. One language across the stack, containerized, cloud-native, and fully automated through IaC. Homogenous by design, so observability, security, and operations could all run from a single layer.
 
-The argument came down to long-term cost, control, and the fact that off-the-shelf tools would not fit the business. It went up to the board. They approved it. A dedicated engineering team was assembled to build it.
+I led the internal effort and built the case across the organization. They approved it and assembled a dedicated team to deliver it.

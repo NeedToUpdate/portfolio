@@ -20,13 +20,16 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
     return acc;
   }, [] as string[]);
 
+  //sort alphabetically
+  categories.sort((a, b) => a.localeCompare(b));
+
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    categories[0]
+    categories[0],
   );
 
   return (
     <div>
-      <div className="text-center p-2 sm:p-8 w-full flex flex-col items-center justify-center gap-5">
+      <div className="text-center p-2 sm:p-4 w-full flex flex-col items-center justify-center gap-5">
         <h2 className="text-xl sm:text-xl md:text-3xl font-thin mb-4 text-plasma-500">
           {blurb.title}
         </h2>
@@ -41,7 +44,10 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
           </ReactMarkdown>
         </div>
       </div>
-      <div className="w-full max-w-5xl sm:mx-auto p-2  sm:p-6 space-y-8">
+      <div className="w-full max-w-5xl sm:mx-auto p-2  sm:p-4 space-y-8">
+        <p className="italic text-xs sm:text-sm md:text-md text-white/60 sm:max-w-2xl">
+          {blurb.description}
+        </p>
         <div defaultValue="data-pipelines" className="w-full">
           <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-2">
             {categories.map((category) => {
@@ -75,6 +81,7 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
             >
               <div className="grid grid-cols-1 gap-4 mt-4">
                 {systems
+                  .sort((a, b) => a.details.priority - b.details.priority)
                   .filter((system) => system.details.category === category)
                   .map((system) => (
                     <SystemDropdown key={system.slug} system={system} />
