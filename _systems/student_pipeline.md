@@ -1,16 +1,11 @@
 ---
 title: "Enrollment Processing System"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
-impact: "Automated enrollment and claims processing for 1M+ users."
+impact: "Eliminated a week-long manual blackout period for 1M+ student enrollments."
 priority: 1
 category: infrastructure
 ---
 
-Two major insurance companies needed an integration to create a fully automated enrolment and claims processing system to handle over 1 million students. The entire system was built **serverless on AWS**, leveraging:
+Enrolling over a million students into insurance coverage required a week-long blackout period every cycle. The process was manual, the system was effectively down, and errors were common.
 
-- **Admin & User Portals**: A TypeScript-based frontend for both admin and customer interactions.
-- **Data Pipeline**: A Python-driven ETL process using AWS Glue.
-- **High Availability**: Designed with multi-AZ failover, disaster recovery, and auto-scaling.
-- **Security & Compliance**: Integrated CloudTrail, SonarQube, and Snyk for enterprise security.
-
-The result was a fully automated, scalable solution that streamlined claims processing and drastically reduced manual workload. This increased customer satisfaction and massively reduced resource costs.
+We built a Python ETL pipeline connecting the data broker directly to the insurance providers. Enrollment now runs automatically. The blackout period still exists. Now it's used for quality assurance.
