@@ -1,10 +1,10 @@
 ---
-title: "Building Scalable, Secure, and Efficient Enterprise Systems"
-sentence: I specialize in architecting and leading the development of enterprise-scale software solutions. My approach ensures that systems are highly performant, secure and flexible enough to adapt to evolving business needs.
+title: "Architecting Systems That Actually Run Your Business"
+sentence: I design the architecture and lead the team. I'm in from the first whiteboard session through production. What ships has to work under load, under scrutiny, and over time. I've sat in enough executive briefings and engineering reviews to align the business from top to bottom.
 ---
 
-**• End-to-End Leadership** – From concept to deployment, I act as the architect, lead developer, and strategist, ensuring a seamless build.  
-**• Scalability First** – Systems are built to handle high traffic, large datasets, and growing demands.  
-**• Security & Compliance** – Every system is auditable, resilient, and secure, meeting enterprise standards.  
-**• Automation & Efficiency** – Self-service and automation to reduce manual effort while improving accuracy and speed.  
-**• Business-Centric Development** – I bridge the gap between business needs and technical solutions.
+**Ownership** – I find where the breakdown is — strategy, process, or code — and fix it.  
+**Scale** – I build for where the business is going, not where it is.  
+**Security** – I design security from an attacker's point of view.  
+**Automation** – I build systems that replace entire manual workflows, not just individual tasks.  
+**Alignment** – I make sure what engineering builds is what the business asked for.

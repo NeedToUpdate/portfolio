@@ -1,17 +1,11 @@
 ---
 title: "Automated Reporting Suite"
-techs: ["aws", "python", "redshift", "serverless"]
-impact: "Automated enterprise reporting, reducing manual effort from a month to real-time insights."
+techs: ["aws", "python", "redshift", "serverless", "glue"]
+impact: "Replaced a month-long manual reporting process with on-demand, auditable reports."
 priority: 6
 category: reporting
 ---
 
-A fully automated reporting system, drastically reducing the time spent on complex enterprise reports. Features:
+Monthly close at a regulated financial institution meant weeks of manual effort, no audit trail, and no visibility into whether the underlying data had changed.
 
-- **Dynamic Reporting Engine**: Allowed users to generate reports on demand.
-- **Data Validation & Auditing**: Full logging and traceability for compliance.
-- **High Availability & Backup**: Redundant storage on S3 with backup strategies.
-- **Stale Data Detection**: Automatically flagged and identified outdated or inconsistent data in reports.
-- **Closed-Book Audit Tracking**: Implemented detection for modifications on closed books, ensuring financial integrity.
-
-This system cut reporting time from a month to minutes, ensuring data accuracy and business agility.
+We built a reporting engine that generates reports on demand, detects stale or inconsistent data automatically, and logs every modification including post-close changes. Reporting that took a month now takes minutes.
