@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { ChartBarIcon, CurrencyDollarIcon, DatabaseIcon, ServerIcon } from "../icons/categoryIcons";
 
 
