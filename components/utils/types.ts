@@ -23,7 +23,8 @@ export interface ISystem {
   techs: TechType[];
   impact: string;
   body: string;
-  category: "reporting" | "infrastructure" | "data" | "payments";
+  category: string;
+  priority: number;
 }
 
 export interface IProjectLink {
@@ -40,5 +41,6 @@ export interface ISystemLink {
 export interface ISystemBlurb {
   title: string;
   sencence: string;
+  description: string;
   body: string;
 }

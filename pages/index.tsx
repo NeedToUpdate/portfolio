@@ -60,6 +60,7 @@ export async function getStaticProps() {
   const systemBlurb = {
     title: systemBlurbData.data.title,
     sencence: systemBlurbData.data.sentence,
+    description: systemBlurbData.data.description,
     body: systemBlurbData.content,
   };
 
@@ -196,7 +197,7 @@ export default function Home(props: props) {
             className="relative w-full min-h-screen p-8 flex flex-col gap-5 pointer-events-auto "
           >
             <SubHeading title="Systems" id="systems-header" />
-            <div className="min-h-[80vh] w-full flex flex-col pt-[2vh] md:pt-[10vh] items-center">
+            <div className="min-h-[80vh] w-full flex flex-col pt-2 md:pt-4 items-center">
               <SystemSectionMain systems={systems} blurb={systemBlurb} />
             </div>
           </section>
@@ -327,9 +328,7 @@ export default function Home(props: props) {
                     </a>
                   </p>
                 </div>
-                <div
-                  className="group  md:mr-[10%]"
-                >
+                <div className="group  md:mr-[10%]">
                   <Image
                     title="AWS Certified Solutions Architect - Associate"
                     className=" group-hover:translate-y-[-1px] duration-300  md:w-[10rem] md:h-[10rem]"

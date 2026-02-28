@@ -1,30 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-export type TechType =
-  | "react"
-  | "tailwind"
-  | "numpy"
-  | "postgresql"
-  | "django"
-  | "sass"
-  | "nextjs"
-  | "vuejs"
-  | "html"
-  | "mongodb"
-  | "nodejs"
-  | "python"
-  | "typescript"
-  | "javascript"
-  | "pytorch"
-  | "arduino"
-  | "angular"
-  | "wires"
-  | "aws"
-  | "serverless"
-  | "splunk"
-  | "tableau"
-  | "redshift";
+export type TechType = string;
 
 interface props {
   tech: TechType;

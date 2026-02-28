@@ -4,7 +4,7 @@ export const skills: ISkill[] = [
   {
     tech: "react",
     prettyName: "ReactJS",
-    years: 4,
+    years: 7,
   },
   {
     tech: "tableau",
@@ -29,17 +29,17 @@ export const skills: ISkill[] = [
   {
     tech: "typescript",
     prettyName: "TypeScript",
-    years: 6,
+    years: 8,
   },
   {
     tech: "python",
     prettyName: "Python",
-    years: 7,
+    years: 8,
   },
   {
     tech: "html",
     prettyName: "HTML5",
-    years: 6,
+    years: 8,
   },
   {
     tech: "sass",
@@ -54,7 +54,7 @@ export const skills: ISkill[] = [
   {
     tech: "nodejs",
     prettyName: "Node.js",
-    years: 4,
+    years: 7,
   },
   {
     tech: "vuejs",
@@ -74,11 +74,21 @@ export const skills: ISkill[] = [
   {
     tech: "nextjs",
     prettyName: "NextJS",
-    years: 4,
+    years: 5,
   },
   {
     tech: "aws",
     prettyName: "AWS",
     years: 3,
   },
+  {
+    tech: "docker",
+    prettyName: "Docker",
+    years: 3,
+  },
+  {
+    tech: "pandas",
+    prettyName: "Pandas",
+    years: 3,
+  }
 ];
