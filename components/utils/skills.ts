@@ -81,4 +81,14 @@ export const skills: ISkill[] = [
     prettyName: "AWS",
     years: 3,
   },
+  {
+    tech: "docker",
+    prettyName: "Docker",
+    years: 3,
+  },
+  {
+    tech: "pandas",
+    prettyName: "Pandas",
+    years: 3,
+  }
 ];
