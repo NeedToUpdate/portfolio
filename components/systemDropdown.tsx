@@ -21,8 +21,8 @@ export default function SystemDropdown(props: ISystemDropdownProps) {
 
   return (
     <div
-      className={`w-full flex relative flex-col border-2 border-white rounded-md p-1 md:p-2 lg:p-4 min-h-12 md:min-h-24 overflow-hidden  transition-[max-height] ease-in-out 
-        shadow-md shadow-nebula-500/50
+      className={`w-full flex relative flex-col border-[1px] border-white rounded-md p-1 md:p-2 lg:p-4 min-h-12 md:min-h-24 overflow-hidden  transition-[max-height] ease-in-out 
+        shadow-md shadow-nebula-500/30
         will-change-max-height duration-300
         ${isOpen ? "max-h-[1000px]" : "max-h-16 md:max-h-24"}`}
       onClick={() => setIsOpen(!isOpen)}

@@ -55,11 +55,11 @@ export default function SystemSectionMain(props: ISystemSectionMainProps) {
               return (
                 <div
                   key={category}
-                  className={` flex flex-row items-center justify-center gap-2 cursor-pointer p-4 border-2 rounded-md  duration-150 text-center 
-                    shadow-md shadow-nebula-500/50 hover:shadow-nebula-100/50
+                  className={` flex flex-row items-center justify-center gap-2 cursor-pointer p-4 border-[1px] rounded-md  duration-150 text-center 
+                    shadow-md shadow-nebula-500/30 hover:shadow-nebula-100/30
                     ${
                       selectedCategory === category
-                        ? "border-plasma-500 text-white shadow-plasma-500/50"
+                        ? "border-plasma-500 text-white shadow-plasma-500/30"
                         : "border-white text-white hover:border-plasma-100 "
                     }`}
                   onClick={() => setSelectedCategory(category)}
