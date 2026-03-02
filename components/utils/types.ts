@@ -38,9 +38,15 @@ export interface ISystemLink {
   body: string;
 }
 
+export interface ISystemCapability {
+  term: string;
+  description: string;
+}
+
 export interface ISystemBlurb {
   title: string;
   sencence: string;
   description: string;
+  capabilities: ISystemCapability[];
   body: string;
 }

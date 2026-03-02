@@ -21,37 +21,35 @@ export default function SystemDropdown(props: ISystemDropdownProps) {
 
   return (
     <div
-      className={`w-full flex relative flex-col border-2 border-white rounded-md p-1 md:p-2 lg:p-4 min-h-12 md:min-h-24 overflow-hidden  transition-[max-height] ease-in-out 
-        shadow-md shadow-nebula-500/50
+      className={`w-full flex relative flex-col border border-white/10 border-l-2 border-l-plasma-500 rounded-lg p-3 md:p-5 lg:p-6 min-h-28 md:min-h-28 overflow-hidden transition-[max-height] ease-in-out
+        hover:bg-white/[0.03] hover:border-white/20
+        shadow-md shadow-nebula-500/30
         will-change-max-height duration-300
-        ${isOpen ? "max-h-[1000px]" : "max-h-16 md:max-h-24"}`}
+        ${isOpen ? "max-h-[1000px]" : "max-h-28"}`}
       onClick={() => setIsOpen(!isOpen)}
       ref={descriptionRef}
     >
-      <div className="flex flex-col h-16 justify-between hover:cursor-pointer ">
+      <div className="flex flex-col min-h-16 justify-between hover:cursor-pointer">
         <div className="flex flex-row justify-between items-center text-white">
-          <h4 className="text-plasma-500 text-md sm:text-lg lg:text-2xl font-bold select-none">
+          <h4 className="text-plasma-500 text-sm sm:text-xl lg:text-2xl font-semibold select-none leading-tight truncate sm:whitespace-normal">
             {system.details.title}
           </h4>
           <ChevronDownIcon
-            className={`w-6 h-6 duration-150 ${
+            className={`w-5 h-5 text-white/40 duration-200 flex-shrink-0 ml-4 ${
               isOpen ? "transform rotate-180" : ""
             }`}
           />
         </div>
-        <p className=" invisible text-xs sm:visible md:text-sm text-plasma-100 select-none">
+        <p className="text-sm text-white/50 select-none mt-2">
           {system.details.impact}
         </p>
       </div>
       <div
-        className={`flex flex-col text-white h-full bg-slate-800/80 my-2 p-1 md:p-2 rounded-md duration-100 max-h-[60vh] overflow-y-auto
+        className={`flex flex-col text-white h-full bg-white/[0.04] mt-4 p-3 md:p-4 rounded-md duration-150 max-h-[60vh] overflow-y-auto
              ${isOpen ? "" : "opacity-0"}`}
       >
-        <div className="flex flex-col gap-2 ">
-          <p className="visible text-xs sm:hidden md:text-sm text-plasma-100 select-none">
-            {system.details.impact}
-          </p>
-          <div className="flex flex-wrap gap-2 py-1 md:py-2">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2">
             {system.details.techs.map((skill) => (
               <SkillPill key={skill} skill={skill} />
             ))}

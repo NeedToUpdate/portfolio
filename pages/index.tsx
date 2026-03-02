@@ -61,6 +61,7 @@ export async function getStaticProps() {
     title: systemBlurbData.data.title,
     sencence: systemBlurbData.data.sentence,
     description: systemBlurbData.data.description,
+    capabilities: systemBlurbData.data.capabilities ?? [],
     body: systemBlurbData.content,
   };
 
