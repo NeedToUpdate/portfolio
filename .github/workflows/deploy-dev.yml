@@ -1,0 +1,47 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Package standalone build
+        run: python scripts/zip_standalone.py
+
+      - name: Deploy
+        run: npx serverless deploy --stage dev
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEV_CERTIFICATE_ARN: ${{ secrets.DEV_CERTIFICATE_ARN }}
+          DEV_BASIC_AUTH_USERNAME: ${{ secrets.DEV_BASIC_AUTH_USERNAME }}
+          DEV_BASIC_AUTH_PASSWORD: ${{ secrets.DEV_BASIC_AUTH_PASSWORD }}

@@ -2,22 +2,273 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Theme tokens. Edit this block to restyle the whole site.
+ * Values are space-separated RGB so Tailwind can apply alpha.
+ * Palette: deep space, starlight, and three nebula flair colors.
+ */
+:root {
+  --c-base: 8 10 16; /* page background, deep space */
+  --c-surface: 14 17 25; /* panels and code blocks */
+  --c-raised: 21 25 36; /* hover states */
+  --c-line: 42 48 63; /* hairline borders and dividers */
+  --c-ink: 235 237 243; /* primary text, starlight */
+  --c-muted: 150 157 173; /* secondary text */
+  --c-accent: 222 186 108; /* single accent, star gold; links only */
+  --c-accent-ink: 28 22 8; /* text on accent backgrounds */
+
+  /* Flair tokens: gradients, particles, glows. Not for body text. */
+  --c-star: 249 235 170; /* warm starlight */
+  --c-plasma: 96 205 216; /* pale plasma cyan */
+  --c-nebula: 173 128 235; /* soft nebula violet */
+}
+
+/* ---------- Defensive base styles (defensivecss.dev) ---------- */
+
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
-html,
+html {
+  scroll-behavior: smooth;
+  /* Keep layout stable when scrollbars appear. */
+  scrollbar-gutter: stable;
+}
+
 body {
-  max-width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
-  background-color: black;
+  background-color: rgb(var(--c-base, 8 10 16));
+  color: rgb(var(--c-ink, 235 237 243));
+  -webkit-font-smoothing: antialiased;
+  /* Stop scroll chaining into the page from nested scrollers. */
+  overscroll-behavior-y: none;
 }
 
-#__next {
-  max-width: 100vw;
-  height: 100vh;
-  overflow-x: hidden;
+/* Images never distort or overflow, and always have a backdrop
+   while loading or when transparent. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  background-color: rgb(var(--c-surface, 14 17 25));
+}
+
+svg {
+  /* Icons are drawings, not photos; no backdrop. */
+  background-color: transparent;
+}
+
+/* Backgrounds set in one-off styles never tile by accident. */
+* {
+  background-repeat: no-repeat;
+}
+
+/* Long unbroken strings (urls, tokens) never blow out layout. */
+h1,
+h2,
+h3,
+p,
+li,
+dd,
+dt,
+a {
+  overflow-wrap: break-word;
+}
+
+/* Prevent iOS zoom-on-focus by keeping inputs at 16px minimum. */
+input,
+select,
+textarea {
+  font-size: max(16px, 1em);
+}
+
+::selection {
+  background-color: rgb(var(--c-accent) / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Flair utilities ---------- */
+
+/*
+ * Gradient shimmer for text links. Gradient is always applied;
+ * hover slides the gradient across the text. Guarded so touch
+ * devices and reduced-motion users get a static gradient.
+ */
+.link-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    rgb(var(--c-plasma, 96 205 216)),
+    rgb(var(--c-star, 249 235 170)) 45%,
+    rgb(var(--c-nebula, 173 128 235)) 90%,
+    rgb(var(--c-plasma, 96 205 216))
+  );
+  background-size: 250% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (hover: hover) {
+  .link-shimmer:hover {
+    animation: shimmer-slide 1.6s linear infinite;
+  }
+}
+
+@keyframes shimmer-slide {
+  to {
+    background-position: 250% 50%;
+  }
+}
+
+/* Icon glow: a soft accent shadow that answers hover. */
+.icon-glow {
+  filter: drop-shadow(0 0 2px rgb(var(--c-accent) / 0));
+  transition: filter 300ms ease, transform 300ms ease;
+}
+
+@media (hover: hover) {
+  .icon-glow:hover,
+  .group:hover .icon-glow {
+    filter: drop-shadow(0 0 6px rgb(var(--c-accent) / 0.7));
+    transform: translateY(-1px);
+  }
+}
+
+/* ---------- Long-form content (markdown and MDX) ---------- */
+
+.prose {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: rgb(var(--c-ink) / 0.92);
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2 {
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 2.25em;
+  color: rgb(var(--c-ink));
+}
+
+.prose h3 {
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.17rem;
+  font-weight: 600;
+  margin-top: 1.75em;
+  color: rgb(var(--c-ink));
+}
+
+.prose a {
+  color: rgb(var(--c-accent));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--c-accent) / 0.4);
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  text-decoration-color: rgb(var(--c-accent));
+}
+
+.prose strong {
+  color: rgb(var(--c-ink));
+  font-weight: 600;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li + li {
+  margin-top: 0.4em;
+}
+
+.prose blockquote {
+  border-left: 2px solid rgb(var(--c-accent) / 0.6);
+  padding-left: 1.25rem;
+  color: rgb(var(--c-muted));
+}
+
+.prose code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.9em;
+  background-color: rgb(var(--c-raised));
+  border: 1px solid rgb(var(--c-line) / 0.6);
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+}
+
+.prose pre {
+  background-color: rgb(var(--c-surface));
+  border: 1px solid rgb(var(--c-line) / 0.6);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.prose img {
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.prose figure figcaption {
+  font-size: 0.85rem;
+  color: rgb(var(--c-muted));
+  margin-top: 0.5rem;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid rgb(var(--c-line));
+  margin: 2.5em 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgb(var(--c-line));
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: rgb(var(--c-surface));
+  font-weight: 600;
 }
