@@ -1,0 +1,16 @@
+# Dev environment. Secrets come from env vars (GitHub Actions secrets in CI,
+# a local .env file for manual deploys).
+
+domainName: dev.artnikitin.dev
+
+# Must be in us-east-1 for CloudFront.
+certificateArn: ${env:DEV_CERTIFICATE_ARN, ''}
+
+# S3 bucket names are global; change this if the name is taken.
+s3BucketName: portfolio-site-assets-dev
+
+# Basic auth gate. Both values must be set or the site deploys open.
+basicAuthUsername: ${env:DEV_BASIC_AUTH_USERNAME, ''}
+basicAuthPassword: ${env:DEV_BASIC_AUTH_PASSWORD, ''}
+
+lambdaReservedConcurrency: 5

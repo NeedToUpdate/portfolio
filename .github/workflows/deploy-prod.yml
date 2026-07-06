@@ -1,0 +1,45 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Package standalone build
+        run: python scripts/zip_standalone.py
+
+      - name: Deploy
+        run: npx serverless deploy --stage prod
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PROD_CERTIFICATE_ARN: ${{ secrets.PROD_CERTIFICATE_ARN }}

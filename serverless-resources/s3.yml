@@ -1,0 +1,48 @@
+# Static asset and ISR cache bucket. Private; CloudFront reads via OAC.
+
+Resources:
+  AssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:custom.config.s3BucketName}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: CleanupIncompleteUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+          - Id: ExpireStaleIsrCache
+            Status: Enabled
+            Prefix: _cache/
+            ExpirationInDays: 30
+
+  AssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AssetsBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: arn:aws:s3:::${self:custom.config.s3BucketName}/*
+            Condition:
+              StringEquals:
+                "AWS:SourceArn": !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+Outputs:
+  AssetsBucketName:
+    Description: Static assets bucket
+    Value: !Ref AssetsBucket
+    Export:
+      Name: ${self:service}-${self:provider.stage}-assets-bucket

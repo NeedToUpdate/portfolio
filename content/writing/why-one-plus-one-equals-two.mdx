@@ -1,0 +1,90 @@
+---
+title: "Why 1 + 1 = 2"
+description: "The whole of arithmetic rests on five assumptions and two rules. Here they are, with a working proof you can step through."
+date: "2026-07-05"
+tags: ["mathematics", "foundations"]
+---
+
+You learned that 1 + 1 = 2 before you learned to ask why. Most people never circle back to the question. It has a real answer, and the answer fits in one sitting.
+
+The answer also shows how mathematics actually works. Every result, from arithmetic to calculus, sits on a small set of assumptions accepted without proof. Mathematicians call them axioms. Pick the axioms, and everything else follows by mechanical steps.
+
+## The five assumptions
+
+In 1889, Giuseppe Peano wrote down five axioms for the natural numbers. In plain words:
+
+1. Zero is a number.
+2. Every number has a successor. Write it `S(n)`.
+3. Zero is not the successor of any number.
+4. Different numbers have different successors.
+5. If a property holds for zero, and holds for `S(n)` whenever it holds for `n`, then it holds for every number.
+
+That is the entire foundation. No digits, no counting, no number line. Just zero and a way to take one step forward.
+
+## Numbers are shorthand
+
+<FloatImage
+  src="/images/writing/successors.svg"
+  alt="The number line built from successors: 0, S(0), S(S(0)), S(S(S(0)))"
+  caption="Every numeral is a stack of successors on zero."
+  side="right"
+  widthClass="md:w-72"
+/>
+
+The axioms never mention 1 or 2. Those symbols are definitions, introduced for convenience:
+
+```text
+1 := S(0)
+2 := S(S(0))
+3 := S(S(S(0)))
+```
+
+The numeral 7 is shorthand for seven applications of `S` to zero. Try it yourself:
+
+<SuccessorPlayground />
+
+## Two rules for addition
+
+Addition also needs a definition. Peano arithmetic defines it with two rules:
+
+```text
+a + 0    = a         (adding zero changes nothing)
+a + S(b) = S(a + b)  (move one step from b to the answer)
+```
+
+The first rule is the stopping condition. The second rule peels one successor off the right side and wraps it around the whole sum. Any programmer will recognize this shape: it is recursion, with `a + 0 = a` as the base case.
+
+## The proof
+
+Now the machine runs by itself:
+
+```text
+1 + 1
+= 1 + S(0)      definition of 1
+= S(1 + 0)      rule: a + S(b) = S(a + b)
+= S(1)          rule: a + 0 = a
+= 2             definition of 2
+```
+
+Four rewrites, each justified by a definition or a rule. Nothing else is needed. Step through it:
+
+<PeanoAdditionStepper a={1} b={1} />
+
+The same machinery computes any sum. Here is 2 + 3, which takes a few more turns of the crank:
+
+<PeanoAdditionStepper a={2} b={3} />
+
+<Note>
+  Whitehead and Russell reached this result the hard way. Their <em>Principia
+  Mathematica</em> builds up from pure logic and arrives at 1 + 1 = 2 several hundred
+  pages in. Their remark on the completed proof: "The above proposition is
+  occasionally useful."
+</Note>
+
+## Why this matters outside mathematics
+
+Every system rests on axioms. In software they go by other names: the schema you trust, the SLA you assume, the boundary you treat as secure. Nobody proves them inside the system. They are chosen, and everything downstream inherits the choice.
+
+Most production incidents I have worked trace back to an axiom nobody wrote down. The data was assumed clean. The upstream service was assumed available. The clock was assumed monotonic. The fix is almost always the same: find the unstated assumption, then prove it or remove it.
+
+Peano needed five axioms to carry all of arithmetic. Know how many yours are carrying.

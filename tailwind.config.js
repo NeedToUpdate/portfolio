@@ -1,67 +1,59 @@
+/**
+ * Design tokens live here and in styles/globals.css.
+ * Colors reference CSS variables so the whole theme can be
+ * changed by editing the :root block in globals.css.
+ */
+
 /** @type {import('tailwindcss').Config} */
 const plugin = require("tailwindcss/plugin");
+
 module.exports = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx}",
+    "./content/**/*.mdx",
   ],
   theme: {
     extend: {
       colors: {
-        plasma: {
-          100: "#D1FDFF",
-          500: "#01ECF7",
-          700: "#081D1E",
-        },
-        star: {
-          100: "#FEFEEF",
-          500: "#F9FF57",
-          700: "#30310D",
-        },
-        nebula: {
-          100: "#F5E4FE",
-          500: "#A104F8",
-          700: "#190A21",
-        },
+        // Semantic tokens. Values defined in styles/globals.css.
+        base: "rgb(var(--c-base) / <alpha-value>)",
+        surface: "rgb(var(--c-surface) / <alpha-value>)",
+        raised: "rgb(var(--c-raised) / <alpha-value>)",
+        line: "rgb(var(--c-line) / <alpha-value>)",
+        ink: "rgb(var(--c-ink) / <alpha-value>)",
+        muted: "rgb(var(--c-muted) / <alpha-value>)",
+        accent: "rgb(var(--c-accent) / <alpha-value>)",
+        "accent-ink": "rgb(var(--c-accent-ink) / <alpha-value>)",
+        // Flair tokens: gradients, particles, glows. Not for body text.
+        star: "rgb(var(--c-star) / <alpha-value>)",
+        plasma: "rgb(var(--c-plasma) / <alpha-value>)",
+        nebula: "rgb(var(--c-nebula) / <alpha-value>)",
       },
       fontFamily: {
-        montserrat: ["Montserrat", "sans-serif"],
-        lato: ["Lato", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
-      textShadow: {
-        none: "0px 0px 0px var(--tw-shadow-color), 0px 0px 0px var(--tw-shadow-color), 0px 0px 0px var(--tw-shadow-color)",
-        sm: "0px 0px 6px var(--tw-shadow-color)",
-        DEFAULT:
-          "0px 2px 3px var(--tw-shadow-color), 0px 6px 13px var(--tw-shadow-color), 0px 6px 23px var(--tw-shadow-color)",
-        lg: " 0px 15px 5px var(--tw-shadow-color), 10px 20px 5px var(--tw-shadow-color), -10px 20px 5px var(--tw-shadow-color)",
-      },
-      sideGlow: {
-        DEFAULT:
-          "0px 0px 80px 10px var(--tw-shadow-color), 0px 0px 6px 1px var(--tw-shadow-color)",
-      },
-      shine: {
-        DEFAULT:
-          "inset 10px -7px 14px 2px #00000022,inset 10px -7px 12px 2px #00000044,inset -10px 7px 5px -10px var(--tw-shadow-color)",
-        flipped:
-          "inset -10px -7px 14px 2px #00000022,inset -10px -7px 12px 2px #00000044,inset 8px 5px 5px -10px var(--tw-shadow-color)",
+      maxWidth: {
+        content: "72rem",
+        prose: "42rem",
       },
       keyframes: {
         "fade-in": {
-          "0%": { transform: "translateY(30px)", opacity: 0 },
-          "100%": { transform: "", opacity: 1 },
+          "0%": { transform: "translateY(12px)", opacity: 0 },
+          "100%": { transform: "translateY(0)", opacity: 1 },
         },
       },
       animation: {
-        "fade-in": "fade-in 800ms ease-in both",
+        "fade-in": "fade-in 600ms ease-out both",
       },
       animationDelay: {
         none: "0s",
-        75: "75ms",
         100: "100ms",
         200: "200ms",
+        300: "300ms",
         500: "500ms",
-        1000: "1000ms",
-        2000: "2000ms",
       },
     },
   },
@@ -69,49 +61,10 @@ module.exports = {
     plugin(function ({ matchUtilities, theme }) {
       matchUtilities(
         {
-          "text-shadow": (value) => ({
-            textShadow: value,
-          }),
-        },
-        { values: theme("textShadow") }
-      );
-    }),
-    plugin(function ({ matchUtilities, theme }) {
-      matchUtilities(
-        {
-          "side-glow": (value) => ({
-            boxShadow: value,
-          }),
-        },
-        { values: theme("sideGlow") }
-      );
-    }),
-    plugin(function ({ matchUtilities, theme }) {
-      matchUtilities(
-        {
-          shine: (value) => ({
-            boxShadow: value,
-          }),
-        },
-        { values: theme("shine") }
-      );
-    }),
-    plugin(function ({ matchUtilities, theme }) {
-      matchUtilities(
-        {
-          "animation-delay": (value) => {
-            return {
-              animationDelay: value,
-            };
-          },
+          "animation-delay": (value) => ({ animationDelay: value }),
         },
         { values: theme("animationDelay") }
       );
     }),
-  ],
-  safelist: [
-    ...Array(20)
-      .fill(0)
-      .map((_, i) => "animation-delay-[" + i * 125 + "ms]"),
   ],
 };

@@ -1,0 +1,105 @@
+# CloudFront distribution: Lambda function URL for pages, S3 for static assets.
+
+Resources:
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: ${self:service}-${self:provider.stage}-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # Respects origin Cache-Control headers. Includes Authorization in the
+  # cache key so basic auth reaches the Lambda on dev. Prod requests carry
+  # no Authorization header, so the cache key is unaffected there.
+  AppCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: ${self:service}-${self:provider.stage}-app
+        Comment: Next.js pages, origin-controlled TTL, auth-aware
+        DefaultTTL: 3600
+        MaxTTL: 31536000
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          QueryStringsConfig:
+            QueryStringBehavior: none
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Authorization
+          CookiesConfig:
+            CookieBehavior: none
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: ${self:service}-${self:provider.stage}
+        Aliases:
+          - ${self:custom.config.domainName}
+        HttpVersion: http2and3
+        DefaultRootObject: ""
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt AssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !Ref OriginAccessControl
+          - Id: LambdaOrigin
+            DomainName:
+              !Select [2, !Split ["/", !GetAtt WebLambdaFunctionUrl.FunctionUrl]]
+            CustomOriginConfig:
+              HTTPPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: LambdaOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          CachePolicyId: !Ref AppCachePolicy
+          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AllViewerExceptHostHeader
+          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
+          Compress: true
+        CacheBehaviors:
+          - PathPattern: "/_next/static/*"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed CachingOptimized
+            Compress: true
+          - PathPattern: "/images/*"
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed CachingOptimized
+            Compress: true
+        ViewerCertificate:
+          AcmCertificateArn: ${self:custom.config.certificateArn}
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+
+Outputs:
+  CloudFrontDistributionId:
+    Description: CloudFront distribution id (used by cache invalidation)
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: ${self:service}-${self:provider.stage}-cf-id
+  CloudFrontDomain:
+    Description: CloudFront domain for DNS CNAME setup
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: ${self:service}-${self:provider.stage}-cf-domain

@@ -1,0 +1,90 @@
+service: portfolio
+
+frameworkVersion: "3"
+
+useDotenv: true
+
+plugins:
+  - serverless-s3-sync
+  - serverless-cloudfront-invalidate
+
+custom:
+  # Stage-specific values: domain, cert, bucket, auth.
+  config: ${file(./serverless.${self:provider.stage}.yml)}
+
+  s3Sync:
+    # Hashed immutable build assets.
+    - bucketName: ${self:custom.config.s3BucketName}
+      localDir: .next/static
+      bucketPrefix: _next/static/
+      acl: private
+      deleteRemoved: true
+      defaultContentType: application/javascript
+      params:
+        - "**/*.js":
+            CacheControl: "public, max-age=31536000, immutable"
+            ContentType: "application/javascript"
+        - "**/*.css":
+            CacheControl: "public, max-age=31536000, immutable"
+            ContentType: "text/css"
+    # Public assets served from the CDN.
+    - bucketName: ${self:custom.config.s3BucketName}
+      localDir: public/images
+      bucketPrefix: images/
+      acl: private
+      deleteRemoved: true
+      params:
+        - "**/*":
+            CacheControl: "public, max-age=604800"
+
+  cloudfrontInvalidate:
+    - distributionIdKey: CloudFrontDistributionId
+      items:
+        - "/*"
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  deploymentBucket:
+    blockPublicAccess: true
+  iam:
+    role:
+      statements:
+        # ISR cache reads and writes under _cache/.
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource: !Sub "arn:aws:s3:::${self:custom.config.s3BucketName}/_cache/*"
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+          Resource: !Sub "arn:aws:s3:::${self:custom.config.s3BucketName}"
+
+functions:
+  web:
+    # Lambda Web Adapter runs the Next.js standalone server as-is.
+    handler: run.cjs
+    timeout: 28
+    memorySize: 1024
+    reservedConcurrency: ${self:custom.config.lambdaReservedConcurrency, 10}
+    layers:
+      - arn:aws:lambda:${aws:region}:753240598075:layer:LambdaAdapterLayerX86:20
+    environment:
+      AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
+      PORT: 8080
+      RUST_LOG: info
+      SITE_URL: https://${self:custom.config.domainName}
+      S3_CACHE_BUCKET_NAME: ${self:custom.config.s3BucketName}
+      BASIC_AUTH_USERNAME: ${self:custom.config.basicAuthUsername, ''}
+      BASIC_AUTH_PASSWORD: ${self:custom.config.basicAuthPassword, ''}
+    package:
+      artifact: .next/standalone.zip
+    url: true
+
+resources:
+  - ${file(serverless-resources/s3.yml)}
+  - ${file(serverless-resources/cloudfront.yml)}

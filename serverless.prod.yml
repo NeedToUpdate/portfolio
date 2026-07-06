@@ -1,0 +1,11 @@
+# Prod environment. Public, no basic auth.
+
+domainName: artnikitin.dev
+
+# Must be in us-east-1 for CloudFront.
+certificateArn: ${env:PROD_CERTIFICATE_ARN, ''}
+
+# S3 bucket names are global; change this if the name is taken.
+s3BucketName: portfolio-site-assets-prod
+
+lambdaReservedConcurrency: 10
