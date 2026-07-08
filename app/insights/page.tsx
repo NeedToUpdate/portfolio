@@ -8,7 +8,7 @@ import { getInsights } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Insights",
   description:
-    "Essays and deep dives on systems, architecture, and engineering decisions. Some of them interactive.",
+    "Essays and interactive models about systems, assumptions, architecture, and engineering judgment.",
 };
 
 export default function InsightsPage() {
@@ -18,8 +18,8 @@ export default function InsightsPage() {
     <PageShell>
       <SectionHeading
         eyebrow="Insights"
-        title="Notes on systems and decisions"
-        description="Essays on systems, architecture, and decisions. Some include working models."
+        title="Essays on the assumptions systems run on"
+        description="Writing about architecture, reliability, decision-making, and the hidden premises that shape production software. Some essays include working models."
         asPageTitle
       />
       <DividedList borderTop className="mt-10">
