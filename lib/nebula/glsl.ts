@@ -1,28 +1,22 @@
 /**
- * Deep-space background, three physical layers plus stars:
+ * Shaders for the deep-space background.
  *
- * 1. Molecular clouds (foreground) - dense, partially opaque, irregular
- *    volumes, ray-marched with emission-absorption integration. The only
- *    layer that morphs into section glyphs on hover.
- * 2. H II regions (mid) - large oblong emission fields of ionized
- *    hydrogen glowing behind the clouds.
- * 3. Galactic cirrus (far) - faint diffuse wisps of the interstellar
- *    medium, domain-warped noise masked into sparse patches.
- *
- * Each layer sits at its own parallax depth against the pointer.
+ * Two passes:
+ * 1. Background quad - near-black sky, blackbody stars in parallax
+ *    layers, H II emission fields, and galactic cirrus wisps.
+ * 2. Point-cloud nebulae - thousands of soft gaussian sprites in
+ *    emulated 3D. Dust particles alpha-blend (they occlude the
+ *    background); emission particles add (they glow). Colors come from
+ *    a per-particle ionization calculation in the vertex shader.
  *
  * Physics used:
- * - Beer-Lambert extinction for transmittance: T *= exp(-sigma * dt).
- *   The final sightline transmittance occludes everything behind a cloud.
- * - Emission-line palette: H-alpha 656nm, H-beta 486nm, OIII 501nm.
- * - Star colors from a blackbody fit of the Planckian locus (after
- *   Tanner Helland); temperatures skewed like a stellar initial mass
- *   function; luminosity rising with temperature (Stefan-Boltzmann).
- * - Volume rendering after the Shadertoy dusty-nebula lineage (Duke),
- *   as described in Toni Sagrista's Gaia Sky writeup.
- * - Density model: fog/core split and gradient-limited noise erosion
- *   (Blender volume-nebula breakdown); fbm per Book of Shaders ch.13
- *   and iquilezles.org/articles/warp.
+ * - Star colors: blackbody fit of the Planckian locus (after Tanner
+ *   Helland), temperatures skewed like a stellar initial mass function;
+ *   luminosity rises with temperature (Stefan-Boltzmann flavored).
+ * - Gas colors approximate emission lines (H-alpha, H-beta, OIII)
+ *   via the palette anchors.
+ * - Noise: value-noise fbm per Book of Shaders ch.13; cirrus uses
+ *   iq-style domain warping (iquilezles.org/articles/warp).
  */
 
 export const VERTEX_SRC = `
@@ -32,40 +26,33 @@ void main() {
 }
 `;
 
-export const FRAGMENT_SRC = `
+export const BACKGROUND_FRAGMENT_SRC = `
 precision highp float;
 
 uniform vec2 uRes;          // canvas resolution in device px
 uniform float uTime;        // seconds
-uniform vec2 uMouse;        // pointer in uv space (0..1, y up), eased in JS
-uniform float uMouseActive; // eased 0..1; scales parallax
+uniform vec2 uMouse;        // pointer in uv space (0..1, y up)
+uniform float uMouseActive; // eased 0..1
 uniform vec4 uSeed;         // per-load randoms
-uniform vec4 uCloud0;       // molecular clouds: xy = uv pos, z = radius, w = strength
+uniform vec4 uCloud0;       // particle cloud anchors: xy uv, z radius, w strength
 uniform vec4 uCloud1;
 uniform vec4 uCloud2;
-uniform vec4 uHii0;         // H II regions: xy = uv pos, z = radius, w = strength
+uniform vec4 uHii0;         // H II regions: xy uv, z radius, w strength
 uniform vec4 uHii1;
-uniform vec3 uColCore;      // emission of dense cores
-uniform vec3 uColMid;       // main outer-gas emission
-uniform vec3 uColFil;       // filament emission accent
-uniform float uDust;        // dust absorption strength
-uniform sampler2D uShape;   // distance field: 0 inside shape -> 1 far
-uniform float uShapeMix;    // eased 0..1 glyph morph strength
+// Two palettes: A tints the lower half, B the upper half. Emission is
+// lerped by screen height so bottom clouds glow one color, top another.
+uniform vec3 uColCoreA;
+uniform vec3 uColCoreB;
+uniform vec3 uColMidA;
+uniform vec3 uColMidB;
+uniform vec3 uColFilA;
+uniform vec3 uColFilB;
+uniform vec3 uColBlue;  // reflection-blue accent for the gradient wash
 
-// Few steps + per-pixel jitter reads as smooth gas at a fraction of the cost.
-const int MARCH_STEPS = 16;
-
-// ---------- hashes and noise ----------
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32);
   return fract(p.x * p.y);
-}
-
-float hash13(vec3 p) {
-  p = fract(p * 0.1031);
-  p += dot(p, p.zyx + 31.32);
-  return fract((p.x + p.y) * p.z);
 }
 
 float noise2(vec2 p) {
@@ -90,30 +77,7 @@ float fbm2(vec2 p) {
   return v; // ~0..0.875
 }
 
-float noise3(vec3 p) {
-  vec3 i = floor(p);
-  vec3 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  float n000 = hash13(i);
-  float n100 = hash13(i + vec3(1.0, 0.0, 0.0));
-  float n010 = hash13(i + vec3(0.0, 1.0, 0.0));
-  float n110 = hash13(i + vec3(1.0, 1.0, 0.0));
-  float n001 = hash13(i + vec3(0.0, 0.0, 1.0));
-  float n101 = hash13(i + vec3(1.0, 0.0, 1.0));
-  float n011 = hash13(i + vec3(0.0, 1.0, 1.0));
-  float n111 = hash13(i + vec3(1.0, 1.0, 1.0));
-  return mix(
-    mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),
-    mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y),
-    f.z
-  );
-}
-
-float fbm3_2(vec3 p) {
-  return 0.6 * noise3(p) + 0.4 * noise3(p * 2.11 + vec3(5.2, 9.1, 3.3));
-}
-
-// ---------- blackbody color (Planckian locus fit, ~2000K..30000K) ----------
+// Blackbody color, Planckian locus fit (~2000K..30000K).
 vec3 blackbody(float kelvin) {
   float u = clamp(kelvin, 1500.0, 30000.0) / 100.0;
   vec3 c;
@@ -129,7 +93,6 @@ vec3 blackbody(float kelvin) {
   return c;
 }
 
-// ---------- the sea of stars ----------
 vec3 starLayer(vec2 px, float cell, float extraDensity, float brightness, vec2 seed) {
   vec2 g = floor(px / cell);
   vec2 f = fract(px / cell);
@@ -140,6 +103,7 @@ vec3 starLayer(vec2 px, float cell, float extraDensity, float brightness, vec2 s
   vec2 starPos = 0.15 + 0.7 * vec2(hash21(g + 1.3 + seed), hash21(g + 2.7 + seed));
   vec2 d = f - starPos;
   float massRand = hash21(g + 7.7 + seed);
+  // IMF-like skew: hot blue giants are rare.
   float kelvin = 2300.0 + 27000.0 * pow(massRand, 3.5);
   float lum = mix(0.10, 1.4, pow(massRand, 2.5)) * brightness;
   float twinkle = 0.9 + 0.1 * sin(uTime * (0.3 + h) + h * 40.0);
@@ -157,8 +121,8 @@ vec3 starLayer(vec2 px, float cell, float extraDensity, float brightness, vec2 s
   return blackbody(kelvin) * star * lum * twinkle;
 }
 
-// ---------- layer 3: galactic cirrus ----------
-// Gaussian proximity to the molecular clouds: cirrus lives around them.
+// Gaussian proximity to a particle cloud: cirrus and star formation
+// gather around the clouds.
 float cloudProximity(vec2 pc, vec4 cloud) {
   if (cloud.w <= 0.0) return 0.0;
   float minRes = min(uRes.x, uRes.y);
@@ -168,39 +132,46 @@ float cloudProximity(vec2 pc, vec4 cloud) {
   return exp(-dot(d, d) / (reach * reach));
 }
 
-// Faint diffuse ISM wisps: double-warped fbm, gathered around the
-// molecular clouds and masked into patches. Light gas: the pointer
+// Faint diffuse ISM wisps around the clouds. Light gas: the pointer
 // pushes it the most.
-vec3 galacticCirrus(vec2 pc, vec2 look, vec2 push) {
-  float prox = cloudProximity(pc, uCloud0)
-             + cloudProximity(pc, uCloud1)
-             + cloudProximity(pc, uCloud2);
-  prox = min(prox, 1.0);
-  if (prox < 0.02) return vec3(0.0); // black sky costs nothing
-
-  vec2 p = (pc - push * 1.4) * 2.1 + uSeed.xy * 23.0 - look * 0.001; // deepest parallax
+vec3 galacticCirrus(vec2 pc, vec2 look, vec2 push, float prox, vec3 midCol, vec3 filCol) {
+  vec2 p = (pc - push * 1.4) * 2.1 + uSeed.xy * 23.0 - look * 0.001;
   float t = uTime * 0.008;
   vec2 q = vec2(fbm2(p + t), fbm2(p + vec2(4.2, 1.9)));
   vec2 r = vec2(fbm2(p + 2.3 * q + vec2(8.1, 2.7) - t), fbm2(p + 2.3 * q + vec2(1.4, 6.6)));
   float f = fbm2(p + 2.5 * r);
   float wisp = smoothstep(0.40, 0.92, f);
   float patch = smoothstep(0.34, 0.72, fbm2(p * 0.5 + uSeed.zw * 17.0));
-  vec3 tint = uColMid * 0.7 + uColFil * 0.3;
+  vec3 tint = midCol * 0.7 + filCol * 0.3;
   return tint * wisp * patch * prox * 0.11;
 }
 
-// ---------- layer 2: H II regions ----------
-// Large oblong emission fields behind the clouds. 2D, no march: an
-// anisotropic lumpy envelope with a shell rim and cloudy texture.
-vec3 hiiRegion(vec2 pc, vec4 region, float which, vec2 look, out float envOut) {
+// A broad gradient wash: overlapping soft Gaussian color fields that
+// give a smooth colored backdrop behind the stars and clouds.
+float glowField(vec2 pc, vec2 c, float r) {
+  vec2 d = pc - c;
+  return exp(-dot(d, d) / (r * r));
+}
+
+vec3 gradientNebula(vec2 pc, vec2 push) {
+  vec2 p = pc - push * 0.6; // the pointer nudges the wash gently
+  vec3 g = vec3(0.0);
+  g += uColMidA * glowField(p, vec2(0.5, -0.32), 0.8) * 0.13;   // warm, lower-right
+  g += uColBlue * glowField(p, vec2(-0.55, -0.2), 0.62) * 0.11; // blue, lower-left
+  g += uColMidB * glowField(p, vec2(-0.2, 0.4), 0.72) * 0.10;   // red, upper
+  g += uColCoreA * glowField(p, vec2(0.2, 0.08), 0.95) * 0.055; // teal center haze
+  return g;
+}
+
+// Large oblong emission fields behind everything.
+vec3 hiiRegion(vec2 pc, vec4 region, float which, vec2 look, vec3 midCol, vec3 coreCol, out float envOut) {
   envOut = 0.0;
   if (region.w <= 0.0) return vec3(0.0);
 
   float minRes = min(uRes.x, uRes.y);
   vec2 regionPc = (region.xy - 0.5) * uRes / minRes;
-  vec2 lp = (pc - regionPc - look * 0.004) / region.z; // mid parallax
+  vec2 lp = (pc - regionPc - look * 0.004) / region.z;
 
-  // Oblong: squash one seeded axis.
   float ax = 0.55 + 0.5 * hash21(vec2(which, uSeed.x));
   float angle = hash21(vec2(which, uSeed.y)) * 6.28;
   float cs = cos(angle);
@@ -213,7 +184,6 @@ vec3 hiiRegion(vec2 pc, vec4 region, float which, vec2 look, out float envOut) {
   vec2 dir = lp / max(r, 1e-4);
   vec2 seedOff = uSeed.zw * 31.0 + which * 7.7;
 
-  // Lumpy boundary: radius depends on direction.
   float boundary = fbm2(dir * 1.6 + seedOff);
   float g = 1.0 - r / (0.5 + 0.75 * boundary);
   if (g <= 0.0) return vec3(0.0);
@@ -225,163 +195,9 @@ vec3 hiiRegion(vec2 pc, vec4 region, float which, vec2 look, out float envOut) {
   float shell = exp(-pow((g - shellLevel) * 6.0, 2.0)) * (0.4 + 0.6 * tex);
 
   envOut = body * region.w;
-  vec3 emission = uColMid * (body * 0.55 + shell * 0.5)
-                + uColCore * body * body * 0.25;
-  return emission * region.w * 0.32; // dim: it sits behind everything
-}
-
-// ---------- layer 1: molecular clouds ----------
-// Density: fog + core + shell + spokes + opaque dust, inside an
-// irregular bounding gradient (anisotropy, direction-warped radius,
-// two-lobe union). The gradient morphs into the hovered glyph's
-// distance field, so the same cloud re-bounds itself on hover.
-// Polynomial smooth maximum: merges lobe gradients like touching globs.
-float smax(float a, float b, float k) {
-  float h = clamp(0.5 + 0.5 * (a - b) / k, 0.0, 1.0);
-  return mix(b, a, h) + k * h * (1.0 - h);
-}
-
-// The domain warp and the lobes are computed once per ray and passed in.
-// Density model after the Pillars of Creation: several blobby lobes
-// smooth-merged into an irregular mass, interior filled with dark dust,
-// a thin bright photoevaporation rim right at the surface, faint outer
-// fog, and rare hot knots deep inside.
-// Both kinds of gas share one mass: lobes 0-1 are bright ionized
-// emission gas, lobes 2-3 are dark molecular dust. The rim lights the
-// combined surface.
-float cloudDensity(vec3 lpIn, vec3 seedOff, vec3 aniso, vec3 warp,
-                   vec4 lobe0, vec4 lobe1, vec4 lobe2, vec4 lobe3,
-                   out float coreFrac, out float rim, out float glow, out float dust) {
-  coreFrac = 0.0;
-  rim = 0.0;
-  glow = 0.0;
-  dust = 0.0;
-
-  vec3 lp = lpIn / aniso; // elongate: aniso >= 1 stretches that axis
-  vec3 lw = lp + warp * 0.35;
-
-  // Metaball unions: globs stuck to each other, no particular shape.
-  float gBright = smax(1.0 - length(lw - lobe0.xyz) / lobe0.w,
-                       1.0 - length(lw - lobe1.xyz) / lobe1.w, 0.18);
-  float gDark = smax(1.0 - length(lw - lobe2.xyz) / lobe2.w,
-                     1.0 - length(lw - lobe3.xyz) / lobe3.w, 0.18);
-
-  if (uShapeMix > 0.004) {
-    float sdS = texture2D(uShape, lpIn.xy * 0.5 + 0.5).r;
-    float gShape = clamp(1.0 - sdS * 2.8, 0.0, 1.0) * clamp(1.0 - abs(lpIn.z) * 1.6, 0.0, 1.0);
-    // The glyph forms from the bright gas; the dust thins away.
-    gBright = mix(gBright, gShape, uShapeMix);
-    gDark = mix(gDark, gShape * 0.35 - 0.2, uShapeMix);
-  }
-
-  float g = smax(gBright, gDark, 0.18); // the combined surface
-  if (g <= -0.15) return 0.0;
-
-  float n = fbm3_2(lw * 2.6 + seedOff + uTime * 0.012);
-
-  // Thin bright rim at the combined surface, broken up by the noise.
-  rim = exp(-pow((g - 0.045 - 0.10 * (n - 0.5)) * 11.0, 2.0));
-
-  // Dark gas: dust mass filling its lobes. Absorbs, barely emits.
-  dust = smoothstep(0.06, 0.40, gDark - (n - 0.5) * 0.30) * 2.6;
-
-  // Bright gas: glowing ionized interior of its lobes.
-  glow = smoothstep(0.0, 0.55, gBright - (n - 0.5) * 0.45);
-
-  // Faint fog hugging the outside of everything.
-  float fog = smoothstep(-0.12, 0.25, g) * (0.25 + 0.5 * n);
-
-  // Hot knots deep inside the bright gas, where new stars ignite.
-  float core = pow(max(gBright - 0.45 - (n - 0.5) * 0.4, 0.0), 2.0) * 1.2;
-
-  coreFrac = clamp(core * 2.0, 0.0, 1.0);
-  return fog * 0.25 + rim * 0.80 + glow * 0.75 + core;
-}
-
-vec3 marchMolecularCloud(vec2 pc, vec4 cloud, float which, vec2 look, vec2 push,
-                         out float envOut, out float transOut) {
-  envOut = 0.0;
-  transOut = 1.0;
-  if (cloud.w <= 0.0) return vec3(0.0);
-
-  float minRes = min(uRes.x, uRes.y);
-  vec2 cloudPc = (cloud.xy - 0.5) * uRes / minRes;
-  // The pointer pushes the gas aside; parallax stays subtle.
-  vec2 lp2d = (pc - push - cloudPc - look * 0.012) / cloud.z;
-  if (dot(lp2d, lp2d) > 1.45) return vec3(0.0);
-
-  // No rotation: the clouds hang still, drifting only through their noise.
-  vec3 roV = vec3(lp2d, -2.2);
-  vec3 rdV = normalize(vec3(look * 0.06, 1.0)); // gentle ray tilt
-
-  float b = dot(roV, rdV);
-  float c2 = dot(roV, roV) - 1.0;
-  float h = b * b - c2;
-  if (h < 0.0) return vec3(0.0);
-  h = sqrt(h);
-  float t0 = -b - h;
-  float t1 = -b + h;
-  float dt = (t1 - t0) / float(MARCH_STEPS);
-
-  vec3 seedOff = vec3(uSeed.xy * 37.0, uSeed.z * 21.0) + which * 9.3;
-  vec3 aniso = vec3(
-    1.0 + 0.5 * hash13(seedOff + 11.0),
-    1.0 + 0.5 * hash13(seedOff + 13.0),
-    1.0
-  );
-  vec2 dustDir = normalize(vec2(hash21(seedOff.xy) - 0.5, hash21(seedOff.xy + 3.1) - 0.5) + 1e-3);
-
-  // Seeded metaball lobes: centers and radii, once per ray.
-  vec4 lobe0 = vec4((vec3(hash13(seedOff + 1.0), hash13(seedOff + 2.0), hash13(seedOff + 3.0)) - 0.5) * 0.6,
-                    0.22 + 0.2 * hash13(seedOff + 4.0));
-  vec4 lobe1 = vec4((vec3(hash13(seedOff + 5.0), hash13(seedOff + 6.0), hash13(seedOff + 7.0)) - 0.5) * 0.6,
-                    0.20 + 0.2 * hash13(seedOff + 8.0));
-  vec4 lobe2 = vec4((vec3(hash13(seedOff + 9.0), hash13(seedOff + 10.0), hash13(seedOff + 12.0)) - 0.5) * 0.6,
-                    0.18 + 0.22 * hash13(seedOff + 14.0));
-  vec4 lobe3 = vec4((vec3(hash13(seedOff + 15.0), hash13(seedOff + 16.0), hash13(seedOff + 17.0)) - 0.5) * 0.6,
-                    0.16 + 0.24 * hash13(seedOff + 18.0));
-
-  // Domain warp for this ray, from its midpoint through the volume.
-  // Low frequency, so per-ray is indistinguishable from per-step.
-  vec3 midl = (roV + rdV * (0.5 * (t0 + t1))) / aniso;
-  float wx = fbm3_2(midl * 1.4 + seedOff + 31.0);
-  float wy = fbm3_2(midl * 1.4 + seedOff + 57.0);
-  vec3 warp = vec3(wx - 0.5, wy - 0.5, (wx - wy) * 0.5);
-
-  // Per-pixel jitter hides banding from the low step count.
-  float jitter = hash21(gl_FragCoord.xy + which) - 0.5;
-
-  vec3 acc = vec3(0.0);
-  float trans = 1.0;
-  for (int i = 0; i < MARCH_STEPS; i++) {
-    vec3 pos = roV + rdV * (t0 + (float(i) + 0.5 + jitter) * dt);
-    float coreFrac;
-    float rim;
-    float glow;
-    float dustD;
-    float d = cloudDensity(pos, seedOff, aniso, warp, lobe0, lobe1, lobe2, lobe3,
-                           coreFrac, rim, glow, dustD);
-    if (d > 0.001 || dustD > 0.001) {
-      float aEmit = d * cloud.w * 3.2 * dt;
-      float lane = 0.4 + 1.2 * smoothstep(-0.4, 0.7, dot(pos.xy, dustDir));
-      float aDust = dustD * cloud.w * (2.5 + uDust * 7.0) * lane * dt;
-
-      // Both gases: glowing ionized lobes, dark dusty lobes, and a
-      // bright thin rim where the shared surface catches the light.
-      vec3 emission = uColMid * (0.30 + glow * 1.0)
-                    + uColFil * rim * 1.8
-                    + uColCore * coreFrac * 1.2;
-      acc += emission * aEmit * trans;
-      acc += uColMid * dustD * 0.05 * aDust * trans;
-
-      trans *= exp(-(aEmit * 0.55 + aDust)); // Beer-Lambert
-      if (trans < 0.01) break;
-    }
-  }
-
-  envOut = (1.0 - trans) * cloud.w;
-  transOut = trans;
-  return acc;
+  vec3 emission = midCol * (body * 0.55 + shell * 0.5)
+                + coreCol * body * body * 0.25;
+  return emission * region.w * 0.32;
 }
 
 void main() {
@@ -390,33 +206,34 @@ void main() {
   vec2 look = (uMouse - 0.5) * uMouseActive;
   vec2 pc = (gl_FragCoord.xy - 0.5 * uRes) / minRes;
 
-  // The pointer pushes gas aside, like a hand through fog: a radial
-  // displacement with gaussian falloff around the cursor. Sampling is
-  // offset against the push, so the gas bulges away and eases back.
+  // The pointer pushes the light gas aside within a small radius.
   vec2 mousePc = (uMouse - 0.5) * uRes / minRes;
   vec2 fromMouse = pc - mousePc;
-  float pushFall = exp(-dot(fromMouse, fromMouse) * 20.0);
+  float pushFall = exp(-dot(fromMouse, fromMouse) * 500.0);
   vec2 push = normalize(fromMouse + 1e-4) * pushFall * 0.11 * uMouseActive;
 
-  // Layer 1: molecular clouds (foreground, opaque, glyph-morphing).
-  float env0; float env1; float env2;
-  float trans0; float trans1; float trans2;
-  vec3 clouds = marchMolecularCloud(pc, uCloud0, 0.0, look, push, env0, trans0)
-              + marchMolecularCloud(pc, uCloud1, 1.0, look, push, env1, trans1)
-              + marchMolecularCloud(pc, uCloud2, 2.0, look, push, env2, trans2);
-  float sightline = trans0 * trans1 * trans2; // background light that survives
+  float prox = min(
+    cloudProximity(pc, uCloud0) + cloudProximity(pc, uCloud1) + cloudProximity(pc, uCloud2),
+    1.0
+  );
 
-  // Layer 2: H II regions (mid, glowing fields). Too far away to push.
+  // Lerp emission tint by screen height: A below, B above.
+  float fy0 = smoothstep(0.35, 0.65, uHii0.y);
+  float fy1 = smoothstep(0.35, 0.65, uHii1.y);
+  float fyf = smoothstep(0.35, 0.65, uv.y);
+
   float hiiEnv0; float hiiEnv1;
-  vec3 hii = hiiRegion(pc, uHii0, 0.0, look, hiiEnv0)
-           + hiiRegion(pc, uHii1, 1.0, look, hiiEnv1);
+  vec3 hii = hiiRegion(pc, uHii0, 0.0, look,
+               mix(uColMidA, uColMidB, fy0), mix(uColCoreA, uColCoreB, fy0), hiiEnv0)
+           + hiiRegion(pc, uHii1, 1.0, look,
+               mix(uColMidA, uColMidB, fy1), mix(uColCoreA, uColCoreB, fy1), hiiEnv1);
 
-  // Layer 3: galactic cirrus (far, faint wisps; pushed the most).
-  vec3 cirrus = galacticCirrus(pc, look, push);
+  vec3 cirrus = prox < 0.02 ? vec3(0.0)
+    : galacticCirrus(pc, look, push, prox,
+        mix(uColMidA, uColMidB, fyf), mix(uColFilA, uColFilB, fyf));
 
-  // Star formation clusters inside clouds and H II regions.
-  float env = min(env0 + env1 + env2 + (hiiEnv0 + hiiEnv1) * 0.5, 1.0);
-  float formation = clamp(env * 0.14, 0.0, 0.3);
+  // Star formation clusters near the clouds and inside H II regions.
+  float formation = clamp(prox * 0.10 + (hiiEnv0 + hiiEnv1) * 0.06, 0.0, 0.25);
   vec2 px = gl_FragCoord.xy;
   vec3 starCol =
       starLayer(px - look * minRes * 0.002, 190.0, formation, 0.55, uSeed.zw + 11.0)
@@ -424,15 +241,205 @@ void main() {
     + starLayer(px - look * minRes * 0.008, 62.0, formation, 1.0, uSeed.zw + 37.0)
     + starLayer(px - look * minRes * 0.012, 36.0, formation, 0.7, uSeed.zw + 51.0);
 
-  // Compose back to front: everything behind the molecular clouds is
-  // dimmed by the sightline transmittance (dust blocks the stars).
-  vec3 background = vec3(0.003, 0.004, 0.008) + cirrus + hii + starCol;
-  vec3 col = background * sightline + clouds;
+  vec3 col = vec3(0.003, 0.004, 0.008); // near-black sky
+  col += gradientNebula(pc, push); // broad gradient color wash
+  col += cirrus + hii + starCol;
 
   float vig = 1.0 - 0.30 * dot(uv - 0.5, uv - 0.5);
   col *= vig;
   col = col / (1.0 + col); // Reinhard
 
   gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+// Sparse bright stars drawn in front of the nebulae: the nearest layer.
+// Additively blended after the particles, so they sit on top of the gas.
+export const FOREGROUND_FRAGMENT_SRC = `
+precision highp float;
+
+uniform vec2 uRes;
+uniform float uTime;
+uniform vec2 uMouse;
+uniform float uMouseActive;
+uniform vec4 uSeed;
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+vec3 blackbody(float kelvin) {
+  float u = clamp(kelvin, 1500.0, 30000.0) / 100.0;
+  vec3 c;
+  if (u <= 66.0) {
+    c.r = 1.0;
+    c.g = clamp(0.3900816 * log(u) - 0.6318414, 0.0, 1.0);
+    c.b = u <= 19.0 ? 0.0 : clamp(0.5432068 * log(u - 10.0) - 1.1962541, 0.0, 1.0);
+  } else {
+    c.r = clamp(1.2929362 * pow(u - 60.0, -0.1332047), 0.0, 1.0);
+    c.g = clamp(1.1298909 * pow(u - 60.0, -0.0755148), 0.0, 1.0);
+    c.b = 1.0;
+  }
+  return c;
+}
+
+// Rare, bright, spiked: foreground stars carry the depth cue.
+vec3 foregroundStars(vec2 px, float cell, float brightness, vec2 seed) {
+  vec2 g = floor(px / cell);
+  vec2 f = fract(px / cell);
+  float h = hash21(g + seed);
+  if (h < 0.93) return vec3(0.0);
+
+  vec2 starPos = 0.2 + 0.6 * vec2(hash21(g + 1.3 + seed), hash21(g + 2.7 + seed));
+  vec2 d = f - starPos;
+  float massRand = hash21(g + 7.7 + seed);
+  float kelvin = 2300.0 + 27000.0 * pow(massRand, 3.0);
+  float twinkle = 0.88 + 0.12 * sin(uTime * (0.4 + h * 1.2) + h * 40.0);
+
+  float core = exp(-dot(d, d) * cell * cell * 0.40);
+  float halo = exp(-dot(d, d) * cell * cell * 0.035) * 0.08;
+  float spikes = exp(-abs(d.x) * cell * 1.1) * exp(-abs(d.y) * cell * 0.16)
+               + exp(-abs(d.y) * cell * 1.1) * exp(-abs(d.x) * cell * 0.16);
+
+  return blackbody(kelvin) * (core + halo + spikes * 0.30) * brightness * twinkle;
+}
+
+void main() {
+  float minRes = min(uRes.x, uRes.y);
+  vec2 look = (uMouse - 0.5) * uMouseActive;
+  vec2 px = gl_FragCoord.xy;
+
+  // Nearest layers: the strongest parallax on the page.
+  vec3 col = foregroundStars(px - look * minRes * 0.018, 260.0, 1.5, uSeed.zw + 71.0)
+           + foregroundStars(px - look * minRes * 0.026, 170.0, 1.0, uSeed.zw + 89.0);
+
+  col = col / (1.0 + col); // keep additive highlights soft
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+export const PARTICLE_VERTEX_SRC = `
+precision highp float;
+
+attribute vec3 aPos;    // local offset in cloud-radius units; z is depth
+attribute vec3 aData;   // size (radius units), seed, kind (0 emission, 1 dust)
+attribute vec3 aCloud;  // cloud center uv xy, radius (min-axis units)
+attribute vec2 aTarget; // glyph target in [-1,1] glyph space
+attribute vec2 aShade;  // rim (0 core..1 surface), facing (-1 backlit..1 lit)
+attribute float aPalette; // palette index: 0 pillars, 1 red, 2 blue
+attribute float aBright;  // per-cloud brightness multiplier
+
+uniform vec2 uRes;
+uniform float uTime;
+uniform vec2 uMouse;        // uv, y up
+uniform float uMouseActive; // eased 0..1
+uniform float uShapeMix;    // eased 0..1 glyph morph
+// Three palettes per particle, chosen by aPalette.
+uniform vec3 uCore[3];  // hot core / cool backlit rim
+uniform vec3 uMid[3];   // main gas
+uniform vec3 uFil[3];   // filament sparks
+uniform vec3 uWarm[3];  // warm lit rim
+uniform float uDustS[3];
+
+varying vec4 vColor;
+varying float vSoft; // 0 = small & sharp, 1 = large & soft
+
+void main() {
+  float minRes = min(uRes.x, uRes.y);
+  float isDust = step(0.5, aData.z);
+  float depth01 = aPos.z * 0.5 + 0.5;
+
+  // Resolve this particle's palette.
+  int pi = int(aPalette + 0.5);
+  vec3 uColCore = uCore[pi];
+  vec3 uColMid = uMid[pi];
+  vec3 uColFil = uFil[pi];
+  vec3 uColWarm = uWarm[pi];
+  float uDust = uDustS[pi];
+
+  // Slow individual drift: the cloud breathes without global rotation.
+  float t = uTime * 0.05 + aData.y * 6.28;
+  vec2 drift = vec2(cos(t), sin(t * 0.83)) * 0.035 * (0.4 + 0.6 * depth01);
+  vec2 local = aPos.xy + drift;
+
+  // Glyph morph: emission particles fly to the shape; dust mostly stays.
+  float morphAmt = uShapeMix * mix(1.0, 0.25, isDust);
+  vec2 shaped = mix(local, aTarget * 1.05, morphAmt);
+
+  // Cloud-local to aspect-corrected screen coords, with depth parallax.
+  vec2 look = (uMouse - 0.5) * uMouseActive;
+  vec2 pc = (aCloud.xy - 0.5) * uRes / minRes + shaped * aCloud.z;
+  pc -= look * (0.010 + 0.014 * depth01);
+
+  // The pointer pushes particles aside within a small radius.
+  vec2 mousePc = (uMouse - 0.5) * uRes / minRes;
+  vec2 dm = pc - mousePc;
+  float pushFall = exp(-dot(dm, dm) * 500.0);
+  pc += normalize(dm + 1e-4) * pushFall * 0.11 * uMouseActive * (1.0 - 0.4 * isDust);
+
+  gl_Position = vec4(pc * 2.0 * minRes / uRes, 0.0, 1.0);
+
+  // Size: nearer particles render larger; the glyph tightens slightly.
+  float depthScale = 0.8 + 0.5 * depth01;
+  float tighten = 1.0 - 0.35 * morphAmt * (1.0 - isDust);
+  gl_PointSize = clamp(aData.x * aCloud.z * minRes * depthScale * tighten, 1.5, 120.0);
+
+  // Blur and opacity follow sprite size: large sprites are soft and faint
+  // (volume fill), small sprites are sharp and opaque (outline detail).
+  vSoft = clamp((gl_PointSize - 6.0) / 44.0, 0.0, 1.0);
+  float sizeOpacity = mix(1.5, 0.55, vSoft);
+
+  // Rim lighting: cores stay near-black, only the thin surface catches
+  // light (warm where it faces the source, cool cyan where backlit).
+  float rim = clamp(aShade.x, 0.0, 1.0);
+  float facing = aShade.y;
+  float lit = max(facing, 0.0);
+  float back = max(-facing, 0.0);
+  float surf = smoothstep(0.55, 1.0, rim);
+  float twinkle = 0.9 + 0.1 * sin(uTime * 0.6 + aData.y * 40.0);
+
+  if (aData.z < 0.5) {
+    // Emission: ambient nebula glow, brighter and warmer at lit rims.
+    // Keep the hue close to the main gas so additive overlap stays clean;
+    // only the innermost gas leans toward the core color.
+    float ion = clamp(1.0 - length(aPos.xy) * 0.7, 0.0, 1.0);
+    vec3 col = mix(uColMid, uColCore, ion * ion * (0.2 + 0.35 * aData.y));
+    col = mix(col, uColWarm, surf * lit * 0.6 * (1.0 - uShapeMix));
+    col = mix(col, uColFil, step(0.94, aData.y) * 0.7); // rare hot sparks
+    float alpha = (0.014 + 0.026 * aData.y) * twinkle * sizeOpacity * aBright;
+    alpha *= 1.0 + uShapeMix * 0.7; // the glyph glows a little brighter
+    vColor = vec4(col, alpha);
+  } else {
+    // Molecular dust: near-black in the dense core, warming as it thins.
+    vec3 dark = uColMid * 0.05 + vec3(0.006);
+    vec3 col = mix(dark, uColMid * 0.24, smoothstep(0.30, 0.95, rim));
+    col += uColWarm * surf * pow(lit, 1.5) * 0.7;   // gold lit edges
+    col += uColCore * surf * pow(back, 2.0) * 0.24; // cyan backlit edges
+    float alpha = (0.06 + 0.10 * aData.y) * clamp(uDust, 0.3, 1.2) * sizeOpacity * aBright;
+    alpha *= 1.0 - uShapeMix * 0.85; // dust clears while a glyph is up
+    vColor = vec4(col, alpha);
+  }
+}
+`;
+
+export const PARTICLE_FRAGMENT_SRC = `
+precision mediump float;
+
+varying vec4 vColor;
+varying float vSoft;
+
+void main() {
+  // Gaussian sprite; softness follows size. Small sprites are tight and
+  // crisp (outline detail), large sprites are wide and soft (volume).
+  // Premultiplied: dust draws (ONE, ONE_MINUS_SRC_ALPHA), emission (ONE, ONE).
+  vec2 d = gl_PointCoord - 0.5;
+  float r2 = dot(d, d);
+  float k = mix(30.0, 8.0, vSoft);
+  float edge = mix(0.10, 0.17, vSoft);
+  float fall = exp(-r2 * k) * smoothstep(0.25, edge, r2);
+  float a = vColor.a * fall;
+  gl_FragColor = vec4(vColor.rgb * a, a);
 }
 `;

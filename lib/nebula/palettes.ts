@@ -8,12 +8,14 @@
 
 export interface NebulaPalette {
   name: string;
-  /** Emission near the ionizing core. */
+  /** Emission near the ionizing core; also the cool backlit rim tint. */
   core: [number, number, number];
   /** Main emission of the outer gas. */
   mid: [number, number, number];
   /** Filament emission. */
   filament: [number, number, number];
+  /** Warm rim: the color a pillar edge glows where it faces the light. */
+  warm: [number, number, number];
   /** Dust extinction strength, 0..1.2. */
   dust: number;
 }
@@ -40,6 +42,11 @@ const blend = (
   a[2] + (b[2] - a[2]) * t,
 ];
 
+// Warm rim tones for lit pillar edges.
+const OCHRE = rgb(198, 150, 96);
+const RUST = rgb(210, 120, 70);
+const PALE = rgb(200, 215, 240);
+
 export const nebulaPalettes: NebulaPalette[] = [
   {
     // Teal OIII heart with red-orange filaments.
@@ -47,6 +54,7 @@ export const nebulaPalettes: NebulaPalette[] = [
     core: OIII,
     mid: blend(H_ALPHA, SII, 0.4),
     filament: SII,
+    warm: RUST,
     dust: 0.55,
   },
   {
@@ -55,15 +63,18 @@ export const nebulaPalettes: NebulaPalette[] = [
     core: blend(H_ALPHA, H_BETA, 0.25),
     mid: H_ALPHA,
     filament: blend(H_ALPHA, SII, 0.6),
+    warm: rgb(220, 150, 110),
     dust: 1.1,
   },
   {
-    // Hubble-palette golds and teals, strong dust pillars.
+    // The Pillars of Creation, from the reference photo: rust-and-ochre
+    // dust columns backlit by cyan H II glow.
     name: "pillars",
-    core: blend(OIII, H_BETA, 0.3),
-    mid: blend(SII, rgb(214, 172, 90), 0.55),
-    filament: H_ALPHA,
-    dust: 0.85,
+    core: rgb(94, 167, 179), // cyanGlow, the surrounding backlit halo
+    mid: rgb(161, 108, 79), // warmDust, the body of the columns
+    filament: rgb(101, 72, 62), // rustDust
+    warm: rgb(195, 155, 104), // ochreRim, lit edges
+    dust: 0.95,
   },
   {
     // Cool reflection nebula: starlight scattered by dust, mostly blue.
@@ -71,6 +82,7 @@ export const nebulaPalettes: NebulaPalette[] = [
     core: rgb(160, 200, 255),
     mid: H_BETA,
     filament: blend(H_BETA, OIII, 0.45),
+    warm: PALE,
     dust: 0.35,
   },
   {
@@ -79,6 +91,7 @@ export const nebulaPalettes: NebulaPalette[] = [
     core: OIII,
     mid: blend(H_ALPHA, H_BETA, 0.45),
     filament: H_ALPHA,
+    warm: RUST,
     dust: 0.3,
   },
 ];
