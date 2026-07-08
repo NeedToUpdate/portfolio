@@ -32,12 +32,13 @@ export default function HomePage() {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
             {/* Hero */}
             <section
-              data-nebula-shape="spark"
               className={`grid min-h-[20rem] items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem] ${homeCardClass}`}
             >
               <div className="min-w-0">
                 <Text variant="muted" className="mb-5">
-                  {site.name} · {site.location}
+                  <span data-nebula-shape="spark">
+                    {site.name} · {site.location}
+                  </span>
                 </Text>
                 <Heading size="hero" className="max-w-3xl">
                   I design the systems enterprises run on.
@@ -52,7 +53,6 @@ export default function HomePage() {
             {latestInsight && (
               <section
                 aria-labelledby="home-latest-insight"
-                data-nebula-shape="book"
                 className={`flex min-h-[18rem] flex-col justify-between gap-8 ${homeCardClass}`}
               >
                 <div className="min-w-0">
@@ -79,13 +79,16 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
-                <ArrowLink href={`/insights/${latestInsight.slug}`} label="Read the essay" />
+                <ArrowLink
+                  href={`/insights/${latestInsight.slug}`}
+                  label="Read the essay"
+                  nebulaShape="book"
+                />
               </section>
             )}
 
             <section
               aria-label="About Art"
-              data-nebula-shape="plane"
               className={`grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)] ${homeCardClass}`}
             >
               <div className="min-w-0">
@@ -94,7 +97,7 @@ export default function HomePage() {
                   where systems, teams, and messy production constraints meet.
                 </Text>
                 <div className="mt-4">
-                  <ArrowLink href="/about" label="About me" />
+                  <ArrowLink href="/about" label="About me" nebulaShape="bars" />
                 </div>
               </div>
               <div className="hidden sm:block">
@@ -107,9 +110,8 @@ export default function HomePage() {
             eyebrow="Case studies"
             title="Systems that changed how the business runs"
             id="home-work"
-            nebulaShape="hex"
             className={homeCardClass}
-            action={<ArrowLink href="/work" label="All case studies" />}
+            action={<ArrowLink href="/work" label="All case studies" nebulaShape="hex" />}
           >
             <DividedList className="mt-6">
               {featured.map((caseStudy) => (
@@ -123,9 +125,8 @@ export default function HomePage() {
               eyebrow="More insights"
               title="More notes on systems and decisions"
               id="home-insights"
-              nebulaShape="book"
               className={homeCardClass}
-              action={<ArrowLink href="/insights" label="All insights" />}
+              action={<ArrowLink href="/insights" label="All insights" nebulaShape="book" />}
             >
               <DividedList className="mt-6">
                 {insights.map((insight) => (
@@ -138,14 +139,19 @@ export default function HomePage() {
           <Section
             title="I like hard modernization problems."
             id="home-contact"
-            nebulaShape="plane"
             className={homeCardClass}
           >
             <Text variant="muted" className="mt-4 max-w-prose">
               If you have one, email{" "}
-              <TextLink href={`mailto:${site.email}`}>{site.email}</TextLink> or find me on{" "}
-              <TextLink href={site.linkedin}>LinkedIn</TextLink>. More ways to reach me are on the{" "}
-              <TextLink href="/contact">contact page</TextLink>.
+              <TextLink href={`mailto:${site.email}`} nebulaShape="plane">
+                {site.email}
+              </TextLink>{" "}
+              or find me on <TextLink href={site.linkedin}>LinkedIn</TextLink>. More ways to reach
+              me are on the{" "}
+              <TextLink href="/contact" nebulaShape="plane">
+                contact page
+              </TextLink>
+              .
             </Text>
           </Section>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import Markdown from "@/components/composites/Markdown";
 import TagList from "@/components/composites/TagList";
@@ -47,6 +48,8 @@ export default async function CaseStudyPage({ params }: PageProps) {
 
   return (
     <PageShell narrow>
+      {/* Narrow centered article: the upper-right margin is open. */}
+      <NebulaBackground variant="mini" corner="top-right" miniShape="helix" color="frost" />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Work", path: "/work" },
@@ -81,7 +84,10 @@ export default async function CaseStudyPage({ params }: PageProps) {
         <Text variant="small">
           The details behind this work are confidential. I can walk through the technical
           decisions in a conversation. Email{" "}
-          <TextLink href={`mailto:${site.email}`}>{site.email}</TextLink>.
+          <TextLink href={`mailto:${site.email}`} nebulaShape="plane">
+            {site.email}
+          </TextLink>
+          .
         </Text>
       </div>
     </PageShell>

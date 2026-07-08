@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import MdxContent from "@/components/composites/MdxContent";
 import TagList from "@/components/composites/TagList";
@@ -43,6 +44,8 @@ export default async function InsightPage({ params }: PageProps) {
 
   return (
     <PageShell narrow>
+      {/* Narrow centered article: the lower-left margin is open. */}
+      <NebulaBackground variant="mini" corner="bottom-left" miniShape="orion" color="aurora" />
       <JsonLd data={articleSchema(insight)} />
       <JsonLd
         data={breadcrumbSchema([

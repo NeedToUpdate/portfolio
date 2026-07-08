@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import CapabilityList from "@/components/composites/CapabilityList";
 import DividedList from "@/components/composites/DividedList";
@@ -19,6 +20,8 @@ export default function WorkPage() {
 
   return (
     <PageShell>
+      {/* The intro is capped at prose width, leaving the upper-right open. */}
+      <NebulaBackground variant="mini" corner="top-right" miniShape="orion" color="solar" />
       <div className="max-w-prose">
         <SectionHeading eyebrow="Case studies" title={intro.title} asPageTitle />
         <Text variant="muted" className="mt-5">

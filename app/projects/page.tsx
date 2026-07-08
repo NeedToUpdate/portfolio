@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import ProjectCard from "@/components/composites/ProjectCard";
 import { getProjectsByEra } from "@/lib/content";
@@ -16,6 +17,9 @@ export default function ProjectsPage() {
 
   return (
     <PageShell>
+      {/* The heading block is left-aligned; the upper-right is open
+          before the card grid begins. */}
+      <NebulaBackground variant="mini" corner="top-right" miniShape="crab" color="frost" />
       {postAi.length > 0 && (
         <section aria-labelledby="projects-current" className="mb-20">
           <SectionHeading

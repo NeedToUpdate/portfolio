@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import JsonLd from "@/components/ui/JsonLd";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
@@ -24,6 +25,8 @@ export default function AboutPage() {
 
   return (
     <PageShell narrow>
+      {/* The prose column is centered, so the lower-left corner is open. */}
+      <NebulaBackground variant="mini" corner="bottom-left" miniShape="orion" color="aurora" />
       <JsonLd data={personSchema()} />
 
       <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">

@@ -10,8 +10,6 @@ interface SectionProps {
   className?: string;
   /** Optional element rendered opposite the heading, e.g. an ArrowLink. */
   action?: ReactNode;
-  /** Shape key the nebula background condenses into while hovered. */
-  nebulaShape?: string;
   children: ReactNode;
 }
 
@@ -23,13 +21,11 @@ export default function Section({
   id,
   className = "",
   action,
-  nebulaShape,
   children,
 }: SectionProps) {
   return (
     <section
       aria-labelledby={id}
-      data-nebula-shape={nebulaShape}
       className={`border-t border-line/60 py-16 ${className}`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-4">
