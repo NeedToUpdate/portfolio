@@ -28,8 +28,8 @@ export interface Project {
   era: ProjectEra;
 }
 
-/** Blog post metadata. Source: content/writing/*.mdx frontmatter */
-export interface PostMeta {
+/** Insight metadata. Source: content/insights/*.mdx frontmatter */
+export interface InsightMeta {
   slug: string;
   title: string;
   description: string;
@@ -39,8 +39,8 @@ export interface PostMeta {
   readingTimeMinutes: number;
 }
 
-/** A full blog post: metadata plus raw MDX source. */
-export interface Post extends PostMeta {
+/** A full insight: metadata plus raw MDX source. */
+export interface Insight extends InsightMeta {
   body: string;
 }
 

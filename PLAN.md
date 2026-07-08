@@ -2,49 +2,45 @@
 
 ## Goal
 
-Create a procedural WebGL background that reads as layered astronomical gas rather than a field of particles.
+Create a procedural WebGL background made from layered blobular nebulae rather than simple puffy clouds.
 
-The scene should contain three visual families:
+Each nebula should have visible internal structure: a broad outer mass, a defined shell, darker cavities, inner circular formations, embedded wisps, and luminous regions. The result should resemble the Rosette and Orion nebulae, where gas forms rings, shells, arcs, and broken boundaries around brighter or darker centres.
 
-**Pillars:** dense, vertical dust columns based on the Pillars of Creation.
+Individual particles should disappear into the final image. The viewer should see continuous gas, not dots.
 
-**Blob nebulae:** broad, round or irregular clouds based on the Rosette and Orion nebulae.
-
-**Background atmosphere:** faint colour fields, stars, stellar glow, and distant gas.
-
-All gas should be built from overlapping soft sprites. Individual particles should disappear into the whole. No layer should look like a collection of hard circles.
-
-The gas must remain dynamic. It should drift slowly, react to the mouse, and morph into SVG shapes while retaining its cloudy texture.
+The nebulae must remain dynamic. They should drift slowly, deform around the mouse, and morph into SVG shapes while preserving their layered structure.
 
 ---
 
-# Global scene layers
+# Global scene
 
-## 1. Deep-space background
+## Deep-space background
 
-Use a near-black background with a slight blue or violet bias rather than pure black.
-
-Suggested colours:
+Use a near-black background with a slight blue, violet, or burgundy bias.
 
 ```text
 #020308
-#040611
-#080814
+#050611
+#090812
 ```
 
-Add a very weak radial or directional gradient so the empty areas do not look flat.
+Add broad, weak colour gradients behind the main nebulae. These should keep the empty space from appearing flat without making the whole screen colourful.
 
-Opacity should remain close to fully opaque. Colour variation should be subtle enough that it is only noticeable beside the stars and gas.
+Background colour fields can use deep navy, muted violet, dark crimson, and faint teal at very low opacity.
+
+```text
+Opacity: 0.02–0.08
+```
+
+Large areas should remain almost black.
 
 ---
 
-## 2. Distant stars
+## Distant stars
 
-Scatter small stars across the full scene.
+Scatter small stars throughout the scene.
 
-Most stars should be tiny, dim, and neutral white. A smaller number can be blue-white, warm yellow, or faint red.
-
-Suggested colours:
+Most stars should be dim and tiny. Only a small number should be bright enough to have a visible halo or diffraction spikes.
 
 ```text
 Neutral white: #DDE7F2
@@ -53,348 +49,138 @@ Warm white:    #FFD5A0
 Faint red:     #FF9A8D
 ```
 
-Most stars should use low opacity:
-
 ```text
-Dim background stars: 0.15–0.45
-Normal stars:         0.45–0.75
-Bright stars:         0.80–1.00
+Dim stars:     0.15–0.40
+Normal stars:  0.40–0.75
+Bright stars:  0.80–1.00
 ```
 
-Only a few stars should have visible glow or diffraction spikes. Bright stars should remain sparse so they do not compete with the nebula.
+The star distribution should be irregular. Nebula regions can contain more visible stars, while empty areas should remain sparse.
 
 ---
 
-## 3. Background emission fields
+## Background emission
 
-Behind the main clouds, render very large, low-resolution colour fields.
+Behind each nebula, place a very broad colour field larger than the visible cloud.
 
-These should resemble distant illuminated gas rather than visible objects. They should be broad, soft, and uneven, with no clear outline.
+This layer should suggest distant illuminated gas. It should not have a defined shape or edge.
 
-Use low-frequency noise and overlapping gradients.
+```text
+Deep blue:    #12375A
+Muted cyan:   #1B6877
+Dusty violet: #503B61
+Dark crimson: #54232E
+Muted gold:   #70542F
+```
+
+```text
+Opacity: 0.03–0.12
+```
+
+This layer should move very slowly and should remain less detailed than the main nebula.
+
+---
+
+# Blobular nebula structure
+
+Each nebula should be constructed from several overlapping elliptical or irregular regions rather than a single circle.
+
+The overall shape can be round, oval, broken, asymmetric, or stretched. The structure should still suggest that the gas once expanded outward from a central region.
+
+The visible nebula should contain seven distinct layers.
+
+---
+
+## 1. Outer volume
+
+The outer volume establishes the full size and rough silhouette of the nebula.
+
+Use very large, round, soft particles with heavy overlap. The outer boundary should dissolve gradually into the background.
+
+The density should be uneven. Some sections should extend farther outward, while others should fade early or appear interrupted.
 
 Suggested colours:
 
 ```text
-Deep blue:       #12375A
-Muted cyan:      #1B6C79
-Dusty violet:    #563F68
-Dark crimson:    #5A202A
-Muted gold:      #75572C
-```
-
-Opacity should stay low:
-
-```text
-0.03–0.12
-```
-
-These fields should often occupy large parts of the screen, but remain almost invisible in dark areas.
-
----
-
-# Area 1: Pillars
-
-The pillars are the main foreground structure. They should feel dense, tall, heavy, and carved by light.
-
-Their shape should be generated from curved, tapered columns. Each column should widen toward its base and narrow toward its tip. The silhouette should contain bulges, cuts, cavities, overhangs, and small secondary branches.
-
-The reference colour structure is:
-
-```text
-Dark brown and burgundy inside
-Grey-blue smoke across the surface
-Warm amber along illuminated edges
-Cyan or blue around exposed tips
-Soft turquoise glow behind the columns
-```
-
-## 1. Volume
-
-The volume layer establishes the full mass of each pillar.
-
-Use large, round, very soft sprites. They should overlap heavily and form a continuous column.
-
-The centre should be denser than the edge. The bottom should be broader and more opaque than the top.
-
-Suggested colours:
-
-```text
-Dark brown:      #24161B
-Dusty burgundy:  #3A1820
-Smoky grey:      #42424A
-Muted blue-grey: #344858
-```
-
-Suggested opacity per sprite:
-
-```text
-0.015–0.06
-```
-
-The layer becomes visible through accumulation rather than strong individual particles.
-
-The edges should remain blurred. This layer should not define the silhouette sharply.
-
----
-
-## 2. Body and fill
-
-The body layer gives the pillar its visible texture and colour.
-
-Use large, wide wisps mixed with soft round particles. The wisps should be thick and cloudy rather than narrow or string-like.
-
-They should flow mostly upward along the pillar, but bend around cavities and protrusions.
-
-Suggested colours:
-
-```text
-Deep red-brown:  #4A2027
-Dusty plum:      #5B3440
-Warm grey:       #62585A
-Blue-grey:       #496274
-Muted ochre:     #87633C
+Deep blue:      #183A57
+Muted teal:     #28545D
+Dusty violet:   #4D395B
+Muted crimson:  #5F2D38
+Warm brown:     #5B4036
 ```
 
 Suggested opacity:
 
 ```text
-0.04–0.14
+0.01–0.06
 ```
 
-The darker colours should sit deeper inside the pillar. Grey, ochre, and blue-grey should appear closer to the surface.
+This layer should be broad and quiet. It defines scale, not detail.
 
-Avoid even colour distribution. The reference pillars contain dark channels, pale smoky regions, and irregular warm patches.
+Avoid creating a clean circular edge.
 
 ---
 
-## 3. Cavities and internal shadows
+## 2. Outer shell
 
-The pillars should contain negative space, not only added particles.
+The outer shell represents the expanding boundary of the nebula.
 
-Create darker channels and holes by reducing particle density in selected regions.
+It should appear as an incomplete ring or collection of curved arcs around the outer volume. It may be stronger on one side, broken into several segments, or distorted into an oval.
 
-These cavities should be elongated and irregular. Some should follow the direction of the pillar. Others should cut across it.
+This layer distinguishes the nebula from a generic cloud.
 
-Use almost-black red and purple tones around cavity edges:
-
-```text
-#160D12
-#211019
-#2B1720
-```
-
-The cavities should not become flat black holes. Leave a small amount of low-opacity smoke inside them.
-
----
-
-## 4. Detail and outline
-
-This layer defines the pillar silhouette.
-
-Use smaller, sharper wisps near the boundary. They should trace selected sections of the outer edge, exposed ridges, and the tops of the pillars.
-
-Do not outline the entire pillar evenly. The illuminated side should be stronger than the shadow side.
-
-Suggested warm edge colours:
-
-```text
-Amber:       #E6A64A
-Pale gold:   #F2CC77
-Warm cream:  #FFE5A5
-Muted orange:#C87536
-```
-
-Suggested cool tip colours:
-
-```text
-Cyan:        #6EE4E8
-Blue-cyan:   #58BFD8
-Pale blue:   #A1EAF2
-```
-
-Suggested opacity:
-
-```text
-Warm edge details: 0.15–0.45
-Blue tip details:  0.18–0.55
-Shadow details:    0.06–0.20
-```
-
-The brightest lines should remain narrow and rare.
-
-The blue and cyan colour should be concentrated around exposed tips and upper edges. It should fade quickly into the brown body.
-
----
-
-## 5. Fine wisps and hanging material
-
-Add a small number of thin strands below ledges and between columns.
-
-These should look like torn gas or dust being pulled away.
-
-Use dark red, grey, and faint blue.
-
-Opacity should stay around:
-
-```text
-0.04–0.16
-```
-
-They should remain sparse. Too many strands will make the pillar look hairy rather than dense.
-
----
-
-## 6. Emission glow
-
-Render a separate soft glow behind the pillar edges and tips.
-
-The strongest glow should sit behind the silhouette, not directly on top of the body.
+The shell should contain brighter gas along its inner-facing edge and darker material behind it. It should look like a thick wall of compressed gas rather than a thin outline.
 
 Suggested colours:
 
 ```text
-Turquoise:   #3BC3C7
-Blue:        #397FAE
-Pale cyan:   #8AE5DB
-Muted gold:  #D8A94D
+Warm orange:  #C8753B
+Muted gold:   #D49B4A
+Dusty red:    #8A3D43
+Cool cyan:    #4A9DAA
+Blue-grey:    #48677A
 ```
 
 Suggested opacity:
 
 ```text
-0.03–0.15
+Main shell mass:   0.04–0.14
+Brighter sections: 0.12–0.28
+Faded sections:    0.02–0.07
 ```
 
-Use additive blending for this layer.
+The shell should vary in width. Some regions can be thick and cloudy, while others narrow into brighter arcs.
 
-The glow should be broad and diffuse. It should make the pillar feel backlit without producing a neon outline.
+Do not trace the entire circumference. Leave gaps and allow the shell to merge back into the outer volume.
 
 ---
 
-# Area 2: Blob nebulae
+## 3. Body and core gas
 
-Blob nebulae should feel broad, soft, layered, and luminous.
+The body fills the main interior of the nebula.
 
-They should be built from overlapping elliptical cloud regions rather than a single circle.
+Use medium and large round particles concentrated around selected regions rather than evenly across the centre.
 
-Their outlines should dissolve into space. No sharp detail layer should trace their perimeter.
+Some nebulae can have a bright central core. Others can have a darker centre surrounded by brighter gas.
 
-The Rosette reference suggests a circular shell with a cooler centre. The Orion reference suggests a bright, chaotic core with red, violet, blue, and grey gas spreading outward.
-
-## 1. Volume
-
-Use large round sprites to create the full outer shape.
-
-Each cloud should contain several overlapping lobes with different sizes and orientations.
-
-Suggested opacity:
+For an Orion-style nebula:
 
 ```text
-0.015–0.07
+Hot pink:     #C95A88
+Magenta:      #9C4C7F
+Pale violet:  #AA8ACA
+Warm cream:   #E8BE98
+Blue-white:   #A7D7E5
 ```
 
-The outermost gas should be very soft and nearly transparent.
-
-Suggested colours:
+For a Rosette-style nebula:
 
 ```text
-Deep blue:      #183D5E
-Muted teal:     #285E67
-Dusty violet:   #503A64
-Muted crimson:  #642937
-Warm brown:     #674234
-```
-
----
-
-## 2. Body and core
-
-The body should be denser toward the centre or around selected internal structures.
-
-Use round sprites rather than pillar-like wisps.
-
-Suggested opacity:
-
-```text
-0.05–0.18
-```
-
-For an Orion-style cloud, the brightest core can contain:
-
-```text
-Hot pink:       #D35D91
-Magenta:        #A94D87
-Pale violet:    #B995D8
-Warm cream:     #F1C8A1
-Blue-white:     #A9DCEA
-```
-
-For a Rosette-style cloud, use:
-
-```text
-Cool centre:    #4C94B5
-Cyan shell:     #49AEB6
-Warm rim:       #D58B46
-Red dust:       #8A3D3E
-Dark outer gas: #30232E
-```
-
-The brightest colour should occupy only a small part of the cloud.
-
----
-
-## 3. Soft cloudy texture
-
-Add broad internal variation using large, soft patches.
-
-This layer should create the appearance of overlapping puffs, folds, and translucent gas.
-
-It should not create visible dots or hard boundaries.
-
-Use small changes in opacity and colour:
-
-```text
-Opacity variation: 0.02–0.08
-Contrast change:   roughly 10–25%
-```
-
-Texture should occur at several broad scales. Large variation defines major cloud lobes. Medium variation creates puffy internal structure.
-
-Avoid fine high-frequency noise in this layer.
-
----
-
-## 4. Internal wisps
-
-Add flowing wisps inside the brighter regions.
-
-These should bend around the core and follow curved paths. They should fade before reaching the outer boundary.
-
-For Orion-style clouds, use pink, violet, blue-grey, and warm beige.
-
-Suggested opacity:
-
-```text
-0.04–0.16
-```
-
-The wisps should feel embedded inside the cloud rather than drawn over it.
-
----
-
-## 5. Dark dust lanes
-
-Add broad, irregular dark bands through parts of the blob.
-
-These should partially obscure the brighter gas underneath.
-
-Suggested colours:
-
-```text
-Dark violet: #1D1424
-Brown-black: #211619
-Blue-black:  #101A24
+Cool blue:    #4787A5
+Cyan:         #4899A5
+Warm amber:   #C68143
+Dusty red:    #7D3C42
+Dark violet:  #312434
 ```
 
 Suggested opacity:
@@ -403,21 +189,95 @@ Suggested opacity:
 0.04–0.18
 ```
 
-These lanes create depth and stop the cloud from becoming a uniform colourful glow.
+The brightest colours should occupy small areas. Most of the body should use darker, muted versions of the palette.
+
+The body should contain clear variation in density. Avoid filling the entire inner area with equal opacity.
 
 ---
 
-## 6. Emission glow
+## 4. Inner cavity and circular shell
 
-Add soft additive glow around bright cores and selected internal arcs.
+Create a darker cavity or lower-density region inside the nebula.
+
+Around that cavity, form one or more incomplete inner rings. These should resemble expanding bubbles, circular gas walls, or nested shells.
+
+The inner circle should not be geometrically perfect. Distort it using broad noise so that it becomes irregular, broken, and different in thickness around its circumference.
+
+The cavity can be dark blue, violet, brown, or nearly black.
+
+```text
+Dark blue:    #111B28
+Dark violet:  #201526
+Brown-black:  #241719
+Muted grey:   #34363D
+```
+
+Suggested opacity for dark material:
+
+```text
+0.04–0.16
+```
+
+The surrounding inner shell can use brighter colours:
+
+```text
+Cyan:         #55B3BD
+Blue:         #4A84B0
+Warm orange:  #D18348
+Pink:         #BC5E83
+Pale cream:   #E8C697
+```
+
+Suggested opacity:
+
+```text
+0.08–0.24
+```
+
+The cavity should not be completely empty. Leave faint gas and occasional stars inside it.
+
+The inner shell can overlap the main body, disappear behind dust lanes, and reappear elsewhere.
+
+---
+
+## 5. Soft cloudy texture
+
+Add broad internal variation across the body, shell, and cavity.
+
+This layer should create large puffs, translucent folds, and gradual changes in density.
+
+Use large texture regions rather than small noise.
+
+```text
+Opacity variation: 0.02–0.08
+Contrast variation: 10–25%
+```
+
+The texture should operate at several broad scales.
+
+Large variation defines the major lobes of the nebula. Medium variation creates internal cloud structure. Fine variation should remain weak.
+
+This layer should not produce hard dots or visible particle edges.
+
+---
+
+## 6. Internal wisps and circular filaments
+
+Add curved wisps inside the nebula.
+
+Many of these wisps should follow the inner rings and shell arcs. Others can spiral around the central cavity or connect different bright regions.
+
+The filaments should be embedded inside the gas rather than drawn over the top.
 
 Suggested colours:
 
 ```text
-Pink glow:    #D95B91
-Violet glow:  #8B66D1
-Blue glow:    #4DAED0
-Warm glow:    #E59A63
+Dusty pink:    #A75074
+Muted violet:  #725581
+Blue-grey:     #527080
+Warm beige:    #B88D6B
+Pale cyan:     #7BC4C7
+Dark crimson:  #552532
 ```
 
 Suggested opacity:
@@ -426,126 +286,164 @@ Suggested opacity:
 0.03–0.16
 ```
 
-The glow should spread farther than the body particles but remain less opaque.
+The wisps should vary in thickness. Most should be wide and soft. A small number can be narrower and brighter near active regions.
+
+They should fade before reaching empty space. They should not form a sharp outer outline.
+
+Some filaments can form partial circles inside the nebula. These should reinforce the impression of nested shells and expanding gas.
 
 ---
 
-# Foreground stars and stellar objects
+## 7. Emission glow
 
-Place a small number of bright blue-white stars in front of the gas.
+Render soft additive glow around bright shell sections, inner rings, stellar regions, and active cores.
 
-Some stars should sit inside the nebula, while others appear in empty space.
+The glow should extend farther than the visible gas but use lower opacity.
 
-Use:
-
-```text
-Core:        #FFFFFF
-Inner glow:  #CDEBFF
-Outer glow:  #5AA8E8
-```
-
-The central star sprite can approach full opacity. The outer glow should remain around:
+Suggested colours:
 
 ```text
-0.03–0.20
+Pink glow:    #D55D91
+Violet glow:  #8963C4
+Blue glow:    #4CA3C2
+Cyan glow:    #58C2C5
+Warm glow:    #DB8E57
 ```
 
-Supernova-like objects should be rare. Use a bright centre, a soft coloured halo, and optional narrow diffraction spikes.
+Suggested opacity:
 
-Do not place bright stars uniformly. Group some near active nebula regions and leave quieter parts of the scene sparse.
+```text
+0.02–0.14
+```
+
+The strongest glow should appear around small active regions rather than across the full nebula.
+
+Do not increase body opacity to simulate light. Keep the emission layer separate.
+
+---
+
+# Dark dust lanes
+
+Dark dust should cross through the body, shells, and inner circles.
+
+These lanes create depth by obscuring brighter layers underneath.
+
+They should be wide, irregular, and partially transparent.
+
+```text
+Dark violet: #1B1320
+Brown-black: #211619
+Blue-black:  #101923
+```
+
+```text
+Opacity: 0.04–0.18
+```
+
+Dust lanes can divide the inner ring, hide parts of the shell, or create dark channels through the core.
+
+They should not appear as solid black lines.
+
+---
+
+# Colour behaviour
+
+Avoid fully saturated colour across large areas.
+
+Most colours should be dark, muted, and translucent. Brighter cyan, gold, magenta, and blue should be limited to shell edges, inner rings, stars, and active cores.
+
+Warm and cool colours should overlap. A shell can move from red to amber, then disappear into blue-grey gas.
+
+Colour should also change with density.
+
+Dense gas should become darker and less saturated. Thin illuminated gas can become brighter and more colourful.
+
+The nebula should contain neutral greys, browns, and dark blues between the brighter colours. Without these neutral regions, it will look like a rainbow cloud.
+
+---
+
+# Opacity behaviour
+
+The image should gain density through overlapping particles.
+
+A single gas particle should rarely be visible.
+
+```text
+Background emission: 0.02–0.08
+Outer volume:        0.01–0.06
+Outer shell:         0.04–0.28
+Body and core:       0.04–0.18
+Inner shell:         0.08–0.24
+Cloud texture:       0.02–0.08
+Internal wisps:      0.03–0.16
+Dark dust:           0.04–0.18
+Emission glow:       0.02–0.14
+```
+
+Opacity should vary between particles and across regions.
+
+The outside of the nebula should fade gradually. Shells and inner rings can be clearer, but should still feel gaseous rather than sharply drawn.
 
 ---
 
 # Motion
 
-All layers should move slowly.
+The entire nebula should move slowly.
 
-The volume layers should drift at the lowest speed. Their motion should be broad and barely noticeable.
+The outer volume should drift at the lowest speed.
 
-Body particles should move slightly faster and follow curved flow fields.
+The outer shell should expand, contract, or shift almost imperceptibly.
 
-Detail wisps should react most strongly to local turbulence.
+The body should circulate through broad flow fields.
 
-Stars should remain mostly fixed, with only subtle brightness variation.
+Inner rings and filaments should move along curved paths around the cavity.
 
-The gas should never boil or jitter. Motion should resemble slow atmospheric circulation.
+Fine wisps should react more visibly than the main gas.
+
+The motion should never jitter or boil. It should resemble very slow atmospheric circulation.
+
+The nested shells should retain their general shape while moving. They can deform, but should not dissolve.
 
 ---
 
 # Mouse interaction
 
-The pointer should displace the gas locally.
+The pointer should displace gas locally.
 
-Large volume particles should move slowly and over a wide radius.
+The outer volume should move slowly and over a broad area.
 
-Body particles should move more visibly.
+Shell sections should bend rather than scatter.
 
-Fine wisps should bend, trail, and return faster.
+Internal filaments should trail behind the pointer and curl around its path.
 
-The pointer should create a soft wake rather than a circular hole. Gas near the centre of the pointer path should move aside, while nearby particles curl around the direction of travel.
+The pointer should produce a soft wake rather than a clean circular hole.
 
-After the pointer leaves, the cloud should return gradually to its original structure.
+When the pointer passes through an inner ring, the ring should stretch and distort while remaining connected.
 
-The interaction must preserve the overall silhouette. A pillar should bend and distort without breaking apart.
+After the pointer leaves, the gas should return gradually to its original structure.
+
+The return should be slower for the outer volume and faster for internal wisps.
 
 ---
 
 # SVG morphing
 
-Each cloud should have a normal procedural position and an optional SVG target position.
+Each nebula particle should have a normal procedural position and an optional SVG target.
 
-When a hover or page event activates the morph, particles move toward sampled points inside the SVG shape.
+When an event activates the morph, the nebula moves toward the SVG shape while retaining its internal layers.
 
-Round volume particles fill the SVG interior.
+The outer volume should create a soft boundary around the SVG.
 
-Body particles create internal colour and density.
+The outer shell should move toward the outer edge of the SVG shape.
 
-Detail particles move toward the SVG boundary only when the source cloud is a pillar.
+The body particles should fill its interior.
 
-Blob particles should keep a soft outer edge even while forming a symbol.
+The inner cavity and ring particles should form smaller internal shapes or nested contours within the SVG.
 
-The morph should not produce a perfectly clean logo. Some particles should remain slightly displaced, and low-strength flow should continue inside the shape.
+Internal wisps should remain curved and irregular inside the result.
 
-The result should look like a nebula temporarily taking the form of the SVG.
+The SVG should not become perfectly clean or flat. Some gas should extend beyond its boundary, and low-strength motion should continue throughout the morph.
 
-When the event ends, the gas should return to its original shape using the same slow, spring-like motion.
+When the event ends, all layers should return to the original nebula while preserving their roles.
 
----
-
-# Global colour rules
-
-Avoid using fully saturated colours across large areas.
-
-Most gas colours should be dark, muted, and partially transparent. Saturated cyan, gold, magenta, and blue should appear only around illuminated details, active cores, and stellar glow.
-
-Warm and cool colours should overlap rather than occupy cleanly separated regions.
-
-Dark layers should remain visible inside bright gas. This creates depth.
-
-The scene should contain large areas of near-black space. The nebula should not fill every part of the canvas.
-
----
-
-# Global opacity rules
-
-Volume comes from accumulation.
-
-A single particle should rarely be visible by itself.
-
-Use very low opacity for large sprites, moderate opacity for body particles, and higher opacity only for narrow detail lines and star cores.
-
-Approximate ranges:
-
-```text
-Background gas:     0.01–0.05
-Volume gas:         0.015–0.07
-Body particles:     0.04–0.18
-Internal texture:   0.02–0.10
-Detail wisps:       0.10–0.45
-Emission glow:      0.03–0.16
-Bright star cores:  0.75–1.00
-```
-
-Opacity should vary per particle. Uniform opacity will make the cloud look synthetic.
-
-The final image should read first as large masses of gas, then reveal smaller texture and light when viewed closely.
+The result should look like a structured nebula temporarily taking the form of the SVG, not a generic particle cloud filling a mask.

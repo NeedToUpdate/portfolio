@@ -6,6 +6,8 @@ interface SectionProps {
   eyebrow?: string;
   description?: string;
   id: string;
+  /** Extra classes for page-specific layout treatments. */
+  className?: string;
   /** Optional element rendered opposite the heading, e.g. an ArrowLink. */
   action?: ReactNode;
   /** Shape key the nebula background condenses into while hovered. */
@@ -19,6 +21,7 @@ export default function Section({
   eyebrow,
   description,
   id,
+  className = "",
   action,
   nebulaShape,
   children,
@@ -27,7 +30,7 @@ export default function Section({
     <section
       aria-labelledby={id}
       data-nebula-shape={nebulaShape}
-      className="border-t border-line/60 py-16"
+      className={`border-t border-line/60 py-16 ${className}`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <SectionHeading eyebrow={eyebrow} title={title} description={description} id={id} />

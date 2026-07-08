@@ -6,7 +6,7 @@ interface InteractiveFigureProps {
   caption: string;
 }
 
-/** The frame every interactive element in a post sits in. */
+/** The frame every interactive element in an insight sits in. */
 export default function InteractiveFigure({ children, caption }: InteractiveFigureProps) {
   return (
     <figure className="my-8">

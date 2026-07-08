@@ -1,5 +1,5 @@
 import { site } from "./site";
-import { PostMeta } from "./types";
+import { InsightMeta } from "./types";
 
 /**
  * JSON-LD builders. Each returns a plain object ready for
@@ -23,19 +23,19 @@ export function personSchema() {
   };
 }
 
-export function articleSchema(post: PostMeta) {
+export function articleSchema(insight: InsightMeta) {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
+    headline: insight.title,
+    description: insight.description,
+    datePublished: insight.date,
     author: {
       "@type": "Person",
       name: site.name,
       url: site.url,
     },
-    mainEntityOfPage: `${site.url}/writing/${post.slug}`,
+    mainEntityOfPage: `${site.url}/insights/${insight.slug}`,
   };
 }
 

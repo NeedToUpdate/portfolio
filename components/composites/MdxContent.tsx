@@ -8,7 +8,7 @@ interface MdxContentProps {
   source: string;
 }
 
-/** Server-side MDX renderer for blog posts. */
+/** Server-side MDX renderer for insights. */
 export default function MdxContent({ source }: MdxContentProps) {
   return (
     <Prose>
