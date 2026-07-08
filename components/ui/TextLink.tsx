@@ -8,6 +8,8 @@ interface TextLinkProps {
   children: ReactNode;
   variant?: TextLinkVariant;
   className?: string;
+  /** Shape key the nebula background condenses into while hovered. */
+  nebulaShape?: string;
 }
 
 const variantClasses: Record<TextLinkVariant, string> = {
@@ -25,6 +27,7 @@ export default function TextLink({
   children,
   variant = "accent",
   className = "",
+  nebulaShape,
 }: TextLinkProps) {
   const classes = `${variantClasses[variant]} ${className}`;
   const external = href.startsWith("http") || href.startsWith("mailto:");
@@ -34,6 +37,7 @@ export default function TextLink({
       <a
         href={href}
         className={classes}
+        data-nebula-shape={nebulaShape}
         {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       >
         {children}
@@ -41,7 +45,7 @@ export default function TextLink({
     );
   }
   return (
-    <Link href={href} className={classes}>
+    <Link href={href} className={classes} data-nebula-shape={nebulaShape}>
       {children}
     </Link>
   );

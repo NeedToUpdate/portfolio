@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import DividedList from "@/components/composites/DividedList";
 import InsightListItem from "@/components/composites/InsightListItem";
@@ -16,6 +17,14 @@ export default function InsightsPage() {
 
   return (
     <PageShell>
+      {/* List rows keep their text left; the lower-right corner is calm. */}
+      <NebulaBackground
+        variant="mini"
+        corner="bottom-right"
+        miniShape="helix"
+        color="aurora"
+        size="lg"
+      />
       <SectionHeading
         eyebrow="Insights"
         title="Essays on the assumptions systems run on"

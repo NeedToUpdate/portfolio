@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
+import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import TextLink from "@/components/ui/TextLink";
 import Icon from "@/components/ui/Icon";
@@ -19,6 +20,7 @@ const channels = [
     value: site.email,
     href: `mailto:${site.email}`,
     note: "The fastest way to reach me. I read everything.",
+    shape: "plane",
   },
   {
     icon: "linkedin" as const,
@@ -26,6 +28,7 @@ const channels = [
     value: "art-nikitin-dev",
     href: site.linkedin,
     note: "For introductions and professional context.",
+    shape: "spark",
   },
   {
     icon: "github" as const,
@@ -33,12 +36,16 @@ const channels = [
     value: "NeedToUpdate",
     href: site.github,
     note: "Code, experiments, and this site's source.",
+    shape: "hex",
   },
 ];
 
 export default function ContactPage() {
   return (
     <PageShell>
+      {/* Channels fill the left column; the lower-right stays open
+          below the portrait. */}
+      <NebulaBackground variant="mini" corner="bottom-right" miniShape="crab" color="solar" />
       <div className="grid gap-12 lg:grid-cols-[1fr_minmax(16rem,24rem)]">
         <div className="min-w-0">
           <SectionHeading
@@ -56,7 +63,11 @@ export default function ContactPage() {
                 </span>
                 <div className="min-w-0">
                   <Text variant="small">{channel.label}</Text>
-                  <TextLink href={channel.href} className="text-lg font-semibold">
+                  <TextLink
+                    href={channel.href}
+                    className="text-lg font-semibold"
+                    nebulaShape={channel.shape}
+                  >
                     {channel.value}
                   </TextLink>
                   <Text variant="small" className="mt-1">

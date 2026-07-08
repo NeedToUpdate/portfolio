@@ -96,6 +96,68 @@ export const CRAB: ProfilePalette = {
   bg: { core: hex("#62AFD2"), mid: hex("#4E7EA1"), fil: hex("#D96729") },
 };
 
+/** Aurora variant: green/cyan active regions over a cool violet body. */
+export const AURORA: ProfilePalette = {
+  volume: [hex("#102C2D"), hex("#14243B"), hex("#251B3E"), hex("#163A38")],
+  shell: [hex("#29A88E"), hex("#49C6B0"), hex("#5865B8")],
+  shellBright: [hex("#8EF5D2"), hex("#63E0B2")],
+  body: [hex("#263E6B"), hex("#315C7E"), hex("#416B71"), hex("#4BBE98"), hex("#7FE7C5")],
+  bodyBright: [hex("#B8FFE5"), hex("#8EF5D2"), hex("#54D6A4")],
+  inner: [hex("#35B99A"), hex("#6E73C8"), hex("#48D0B0")],
+  innerBright: [hex("#B8FFE5"), hex("#7FE7C5")],
+  wisp: [hex("#39B08F"), hex("#5CC5BE"), hex("#6A6DB6"), hex("#345C78")],
+  filament: [hex("#1F6D64"), hex("#32A887"), hex("#55D6AA"), hex("#9EF2D4")],
+  filamentBright: [hex("#C7FFE9"), hex("#8EF5D2")],
+  dust: [hex("#071719"), hex("#111329"), hex("#101C24")],
+  cavity: [hex("#081B27"), hex("#12172B"), hex("#172936")],
+  glow: [hex("#6FF0C4"), hex("#36CFA4"), hex("#6C8EEB"), hex("#C7FFE9")],
+  bg: { core: hex("#6FF0C4"), mid: hex("#315C7E"), fil: hex("#6E73C8") },
+};
+
+/** Solar variant: gold, ember, and crimson with restrained dark dust. */
+export const SOLAR: ProfilePalette = {
+  volume: [hex("#3A2118"), hex("#4A1E22"), hex("#543017"), hex("#281A20")],
+  shell: [hex("#C76724"), hex("#E89D34"), hex("#8D2B20")],
+  shellBright: [hex("#FFD27A"), hex("#FFAB45")],
+  body: [hex("#5E2B2B"), hex("#8D3A27"), hex("#B75926"), hex("#E38D34"), hex("#F4C169")],
+  bodyBright: [hex("#FFE0A0"), hex("#F4C169"), hex("#FF9E3D")],
+  inner: [hex("#C94D2D"), hex("#E98635"), hex("#F4B95D")],
+  innerBright: [hex("#FFE0A0"), hex("#FFB454")],
+  wisp: [hex("#AB3F2B"), hex("#D66C2F"), hex("#E49B43"), hex("#6E2A25")],
+  filament: [hex("#742119"), hex("#B64024"), hex("#E16A28"), hex("#F4B95D")],
+  filamentBright: [hex("#FFE0A0"), hex("#F4B95D")],
+  dust: [hex("#1F0D0D"), hex("#281211"), hex("#35130E")],
+  cavity: [hex("#1C1016"), hex("#28191D"), hex("#2F1C12")],
+  glow: [hex("#FFD27A"), hex("#F29635"), hex("#D7472C"), hex("#FFE0A0")],
+  bg: { core: hex("#F29635"), mid: hex("#8D2B20"), fil: hex("#FFD27A") },
+};
+
+/** Frost variant: blue, white, and violet with small magenta highlights. */
+export const FROST: ProfilePalette = {
+  volume: [hex("#16263D"), hex("#20234A"), hex("#26384B"), hex("#171C33")],
+  shell: [hex("#4A7CB6"), hex("#79A7D8"), hex("#766FC4")],
+  shellBright: [hex("#D9F1FF"), hex("#A8D8F7")],
+  body: [hex("#314C73"), hex("#4D77A9"), hex("#7DAFD2"), hex("#B7DDF2"), hex("#CBB8F2")],
+  bodyBright: [hex("#E6F7FF"), hex("#B7DDF2"), hex("#D0B9FF")],
+  inner: [hex("#6296C2"), hex("#8B83D6"), hex("#AFCDEA")],
+  innerBright: [hex("#E6F7FF"), hex("#CBB8F2")],
+  wisp: [hex("#5577A8"), hex("#75668D"), hex("#8B83D6"), hex("#79A7D8")],
+  filament: [hex("#345C88"), hex("#5A83BD"), hex("#8B83D6"), hex("#CBB8F2")],
+  filamentBright: [hex("#E6F7FF"), hex("#D0B9FF")],
+  dust: [hex("#0B1220"), hex("#10182A"), hex("#18142A")],
+  cavity: [hex("#0B1626"), hex("#121A30"), hex("#1C1833")],
+  glow: [hex("#A8D8F7"), hex("#D9F1FF"), hex("#A78BFA"), hex("#F1D9FF")],
+  bg: { core: hex("#A8D8F7"), mid: hex("#4D77A9"), fil: hex("#A78BFA") },
+};
+
 export const profilePalettes = { orion: ORION, helix: HELIX, crab: CRAB } as const;
 
+export const miniPalettes = {
+  profile: null,
+  aurora: AURORA,
+  solar: SOLAR,
+  frost: FROST,
+} as const;
+
 export type ProfileName = keyof typeof profilePalettes;
+export type MiniPaletteName = keyof typeof miniPalettes;

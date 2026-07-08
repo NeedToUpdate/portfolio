@@ -15,7 +15,12 @@ import {
   CloudSpec,
   ShapePools,
 } from "@/lib/nebula/particles";
-import { profilePalettes } from "@/lib/nebula/palettes";
+import {
+  miniPalettes,
+  profilePalettes,
+  type MiniPaletteName,
+  type ProfileName,
+} from "@/lib/nebula/palettes";
 
 const TARGET_POOL = 1024; // glyph sample points per shape
 const BASE_RENDER_SCALE = 0.66;
@@ -31,6 +36,44 @@ const MOUSE_VEL_RATE = 7; // 1/s, velocity smoothing for the wake
 // the jitter without making the wake feel laggy.
 const MOUSE_POS_RATE = 12; // 1/s
 
+export type NebulaCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+export type NebulaMiniShape = ProfileName | "random";
+export type NebulaMiniSize = "md" | "lg" | "xl";
+
+interface NebulaBackgroundProps {
+  /**
+   * "full" is the home-page scene: opaque sky, stars, and three
+   * structured nebulae. "mini" is one small random-profile cloud on a
+   * transparent canvas, tucked into a corner over the DOM starfield.
+   */
+  variant?: "full" | "mini";
+  /** Where the mini cloud sits (mini only). */
+  corner?: NebulaCorner;
+  /** Structural profile for the mini cloud. Defaults to random. */
+  miniShape?: NebulaMiniShape;
+  /** Palette family for the mini cloud. Defaults to profile-native colors. */
+  color?: MiniPaletteName | "random";
+  /** Decorative mini footprint. Defaults to a larger medium. */
+  size?: NebulaMiniSize;
+}
+
+const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
+  // uv space, y up; pulled in from the edges so the gas has room.
+  "top-left": [0.16, 0.76],
+  "top-right": [0.84, 0.76],
+  "bottom-left": [0.16, 0.24],
+  "bottom-right": [0.84, 0.24],
+};
+
+const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number }> = {
+  md: { mobile: 0.15, desktop: 0.19 },
+  lg: { mobile: 0.18, desktop: 0.23 },
+  xl: { mobile: 0.22, desktop: 0.28 },
+};
+
+const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
+const MINI_COLORS: Exclude<MiniPaletteName, "profile">[] = ["aurora", "solar", "frost"];
+
 /**
  * Procedurally generated deep-space background, unique per page load.
  * A cheap fullscreen pass draws sky, stars, H II fields, and cirrus;
@@ -43,17 +86,25 @@ const MOUSE_POS_RATE = 12; // 1/s
  * Shaders compile asynchronously; the canvas fades in when ready.
  * Falls back to nothing if WebGL is unavailable (the starfield remains).
  */
-export default function NebulaBackground() {
+export default function NebulaBackground({
+  variant = "full",
+  corner = "bottom-right",
+  miniShape = "random",
+  color = "profile",
+  size = "md",
+}: NebulaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const isMini = variant === "mini";
 
     let gl: WebGLRenderingContext | null = null;
     try {
       gl = canvas.getContext("webgl", {
-        alpha: false,
+        // The mini variant composites over the DOM starfield.
+        alpha: isMini,
         antialias: false,
         powerPreference: "high-performance",
       });
@@ -62,18 +113,13 @@ export default function NebulaBackground() {
     }
     if (!gl) return;
 
-    let bgProgram: WebGLProgram;
-    let particleProgram: WebGLProgram;
-    let fgProgram: WebGLProgram;
-    try {
-      bgProgram = beginProgram(gl, VERTEX_SRC, BACKGROUND_FRAGMENT_SRC);
-      particleProgram = beginProgram(gl, PARTICLE_VERTEX_SRC, PARTICLE_FRAGMENT_SRC);
-      fgProgram = beginProgram(gl, VERTEX_SRC, FOREGROUND_FRAGMENT_SRC);
-    } catch (error) {
-      console.error("Nebula shaders failed, keeping starfield only:", error);
-      return;
-    }
-    const parallelCompile = gl.getExtension("KHR_parallel_shader_compile");
+    // Assigned in boot(), which always runs before any closure reads them.
+    // The mini variant only ever compiles the particle program.
+    let bgProgram!: WebGLProgram;
+    let particleProgram!: WebGLProgram;
+    let fgProgram!: WebGLProgram;
+    let activePrograms: WebGLProgram[] = [];
+    let parallelCompile: KHR_parallel_shader_compile | null = null;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -136,12 +182,14 @@ export default function NebulaBackground() {
       canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
       canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
       gl!.viewport(0, 0, canvas.width, canvas.height);
-      gl!.useProgram(bgProgram);
-      gl!.uniform2f(bgU.res, canvas.width, canvas.height);
+      if (!isMini) {
+        gl!.useProgram(bgProgram);
+        gl!.uniform2f(bgU.res, canvas.width, canvas.height);
+        gl!.useProgram(fgProgram);
+        gl!.uniform2f(fgU.res, canvas.width, canvas.height);
+      }
       gl!.useProgram(particleProgram);
       gl!.uniform2f(pU.res, canvas.width, canvas.height);
-      gl!.useProgram(fgProgram);
-      gl!.uniform2f(fgU.res, canvas.width, canvas.height);
       if (reducedMotion) renderFrame(12000, 0.016);
     };
 
@@ -182,17 +230,24 @@ export default function NebulaBackground() {
 
       const time = timeMs / 1000;
 
-      // Pass 1: background (sky, stars, H II, cirrus).
-      gl!.disable(gl!.BLEND);
-      gl!.useProgram(bgProgram);
-      gl!.uniform1f(bgU.time, time);
-      gl!.uniform2f(bgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
-      gl!.uniform1f(bgU.mouseActive, state.mouseActive);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
-      const quadLoc = gl!.getAttribLocation(bgProgram, "aPosition");
-      gl!.enableVertexAttribArray(quadLoc);
-      gl!.vertexAttribPointer(quadLoc, 2, gl!.FLOAT, false, 0, 0);
-      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      if (isMini) {
+        // Transparent canvas: the DOM starfield shows through.
+        gl!.disable(gl!.BLEND);
+        gl!.clearColor(0, 0, 0, 0);
+        gl!.clear(gl!.COLOR_BUFFER_BIT);
+      } else {
+        // Pass 1: background (sky, stars, H II, cirrus).
+        gl!.disable(gl!.BLEND);
+        gl!.useProgram(bgProgram);
+        gl!.uniform1f(bgU.time, time);
+        gl!.uniform2f(bgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
+        gl!.uniform1f(bgU.mouseActive, state.mouseActive);
+        gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
+        const quadLoc = gl!.getAttribLocation(bgProgram, "aPosition");
+        gl!.enableVertexAttribArray(quadLoc);
+        gl!.vertexAttribPointer(quadLoc, 2, gl!.FLOAT, false, 0, 0);
+        gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      }
 
       // Pass 2 + 3: particle nebulae.
       gl!.useProgram(particleProgram);
@@ -221,15 +276,17 @@ export default function NebulaBackground() {
       }
 
       // Pass 4: foreground stars, additive, in front of the gas.
-      gl!.useProgram(fgProgram);
-      gl!.uniform1f(fgU.time, time);
-      gl!.uniform2f(fgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
-      gl!.uniform1f(fgU.mouseActive, state.mouseActive);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
-      const fgLoc = gl!.getAttribLocation(fgProgram, "aPosition");
-      gl!.enableVertexAttribArray(fgLoc);
-      gl!.vertexAttribPointer(fgLoc, 2, gl!.FLOAT, false, 0, 0);
-      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      if (!isMini) {
+        gl!.useProgram(fgProgram);
+        gl!.uniform1f(fgU.time, time);
+        gl!.uniform2f(fgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
+        gl!.uniform1f(fgU.mouseActive, state.mouseActive);
+        gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
+        const fgLoc = gl!.getAttribLocation(fgProgram, "aPosition");
+        gl!.enableVertexAttribArray(fgLoc);
+        gl!.vertexAttribPointer(fgLoc, 2, gl!.FLOAT, false, 0, 0);
+        gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      }
     };
 
     const loop = (time: number) => {
@@ -290,9 +347,7 @@ export default function NebulaBackground() {
     // Runs once all programs have finished compiling in the background.
     const start = () => {
       try {
-        finishProgram(gl!, bgProgram);
-        finishProgram(gl!, particleProgram);
-        finishProgram(gl!, fgProgram);
+        for (const program of activePrograms) finishProgram(gl!, program);
       } catch (error) {
         console.error("Nebula shaders failed, keeping starfield only:", error);
         return;
@@ -314,33 +369,55 @@ export default function NebulaBackground() {
       const heroR = Math.min(0.52, (isDesktop ? 0.28 : 0.24) * vRatio);
       const ringR = isDesktop ? 0.21 : 0.17;
       const webR = isDesktop ? 0.16 : 0.13;
+      const miniRadius = MINI_SIZE_RADIUS[size] ?? MINI_SIZE_RADIUS.md;
+      const miniR = (isDesktop ? miniRadius.desktop : miniRadius.mobile) + Math.random() * 0.025;
 
-      const clouds: CloudSpec[] = [
-        {
-          // The hero: an Orion-like structured cloud in the lower-right.
-          x: 0.74 + jitter(),
-          y: 0.26 + jitter(),
-          radius: heroR,
-          profile: "orion",
-          count: countFor(heroR, 95000),
-        },
-        {
-          // A Helix-like broken ring up top, opposite the hero.
-          x: (Math.random() < 0.5 ? 0.2 : 0.84) + jitter(),
-          y: 0.8 + jitter(),
-          radius: ringR,
-          profile: "helix",
-          count: countFor(ringR, 160000),
-        },
-        {
-          // A Crab-like filament web anchoring the bottom-left.
-          x: 0.14 + jitter(),
-          y: 0.22 + jitter(),
-          radius: webR,
-          profile: "crab",
-          count: countFor(webR, 170000),
-        },
-      ];
+      const [miniX, miniY] = MINI_CORNERS[corner];
+      const pickedMiniShape =
+        miniShape === "random"
+          ? MINI_PROFILES[Math.floor(Math.random() * MINI_PROFILES.length)]
+          : miniShape;
+      const pickedMiniColor =
+        color === "random" ? MINI_COLORS[Math.floor(Math.random() * MINI_COLORS.length)] : color;
+      const clouds: CloudSpec[] = isMini
+        ? [
+            {
+              // One decorative cloud with independently selectable shape
+              // and palette, larger than the original corner accent.
+              x: miniX + jitter(),
+              y: miniY + jitter(),
+              radius: miniR,
+              profile: pickedMiniShape,
+              palette: miniPalettes[pickedMiniColor] ?? undefined,
+              count: countFor(miniR, 155000),
+            },
+          ]
+        : [
+            {
+              // The hero: an Orion-like structured cloud in the lower-right.
+              x: 0.74 + jitter(),
+              y: 0.26 + jitter(),
+              radius: heroR,
+              profile: "orion",
+              count: countFor(heroR, 95000),
+            },
+            {
+              // A Helix-like broken ring up top, opposite the hero.
+              x: (Math.random() < 0.5 ? 0.2 : 0.84) + jitter(),
+              y: 0.8 + jitter(),
+              radius: ringR,
+              profile: "helix",
+              count: countFor(ringR, 160000),
+            },
+            {
+              // A Crab-like filament web anchoring the bottom-left.
+              x: 0.14 + jitter(),
+              y: 0.22 + jitter(),
+              radius: webR,
+              profile: "crab",
+              count: countFor(webR, 170000),
+            },
+          ];
 
       // Particle buffers.
       const particles = generateParticles(clouds);
@@ -371,45 +448,47 @@ export default function NebulaBackground() {
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
       gl!.bufferData(gl!.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl!.STATIC_DRAW);
 
-      // Uniforms: background program. The wash tints come from the
-      // profiles: A follows the hero (lower half), B the ring (upper).
-      const palA = profilePalettes[clouds[0].profile].bg;
-      const palB = profilePalettes[clouds[1].profile].bg;
-      const palC = profilePalettes[clouds[2].profile].bg;
-      gl!.useProgram(bgProgram);
-      bgU = {
-        res: gl!.getUniformLocation(bgProgram, "uRes"),
-        time: gl!.getUniformLocation(bgProgram, "uTime"),
-        mouse: gl!.getUniformLocation(bgProgram, "uMouse"),
-        mouseActive: gl!.getUniformLocation(bgProgram, "uMouseActive"),
-      };
-      gl!.uniform4f(gl!.getUniformLocation(bgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
-      clouds.forEach((c, i) => {
-        gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, 1);
-      });
-      const hiiSpots: [number, number][] = [
-        [0.5, 0.9],
-        [0.15, 0.5],
-        [0.85, 0.55],
-        [0.5, 0.1],
-      ];
-      hiiSpots.sort(() => Math.random() - 0.5);
-      for (let i = 0; i < 2; i++) {
-        gl!.uniform4f(
-          gl!.getUniformLocation(bgProgram, `uHii${i}`),
-          hiiSpots[i][0] + jitter(),
-          hiiSpots[i][1] + jitter(),
-          0.55 + Math.random() * 0.35,
-          0.5 + Math.random() * 0.4
-        );
+      if (!isMini) {
+        // Uniforms: background program. The wash tints come from the
+        // profiles: A follows the hero (lower half), B the ring (upper).
+        const palA = profilePalettes[clouds[0].profile].bg;
+        const palB = profilePalettes[clouds[1].profile].bg;
+        const palC = profilePalettes[clouds[2].profile].bg;
+        gl!.useProgram(bgProgram);
+        bgU = {
+          res: gl!.getUniformLocation(bgProgram, "uRes"),
+          time: gl!.getUniformLocation(bgProgram, "uTime"),
+          mouse: gl!.getUniformLocation(bgProgram, "uMouse"),
+          mouseActive: gl!.getUniformLocation(bgProgram, "uMouseActive"),
+        };
+        gl!.uniform4f(gl!.getUniformLocation(bgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
+        clouds.forEach((c, i) => {
+          gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, 1);
+        });
+        const hiiSpots: [number, number][] = [
+          [0.5, 0.9],
+          [0.15, 0.5],
+          [0.85, 0.55],
+          [0.5, 0.1],
+        ];
+        hiiSpots.sort(() => Math.random() - 0.5);
+        for (let i = 0; i < 2; i++) {
+          gl!.uniform4f(
+            gl!.getUniformLocation(bgProgram, `uHii${i}`),
+            hiiSpots[i][0] + jitter(),
+            hiiSpots[i][1] + jitter(),
+            0.55 + Math.random() * 0.35,
+            0.5 + Math.random() * 0.4
+          );
+        }
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreA"), ...palA.core);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreB"), ...palB.core);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidA"), ...palA.mid);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidB"), ...palB.mid);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.fil);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.fil);
+        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColBlue"), ...palC.core);
       }
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreA"), ...palA.core);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreB"), ...palB.core);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidA"), ...palA.mid);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidB"), ...palB.mid);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.fil);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.fil);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColBlue"), ...palC.core);
 
       // Uniforms and attributes: particle program.
       gl!.useProgram(particleProgram);
@@ -431,14 +510,16 @@ export default function NebulaBackground() {
       };
 
       // Uniforms: foreground star program.
-      gl!.useProgram(fgProgram);
-      fgU = {
-        res: gl!.getUniformLocation(fgProgram, "uRes"),
-        time: gl!.getUniformLocation(fgProgram, "uTime"),
-        mouse: gl!.getUniformLocation(fgProgram, "uMouse"),
-        mouseActive: gl!.getUniformLocation(fgProgram, "uMouseActive"),
-      };
-      gl!.uniform4f(gl!.getUniformLocation(fgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
+      if (!isMini) {
+        gl!.useProgram(fgProgram);
+        fgU = {
+          res: gl!.getUniformLocation(fgProgram, "uRes"),
+          time: gl!.getUniformLocation(fgProgram, "uTime"),
+          mouse: gl!.getUniformLocation(fgProgram, "uMouse"),
+          mouseActive: gl!.getUniformLocation(fgProgram, "uMouseActive"),
+        };
+        gl!.uniform4f(gl!.getUniformLocation(fgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
+      }
 
       state.started = true;
       resize();
@@ -459,9 +540,9 @@ export default function NebulaBackground() {
       if (state.disposed) return;
       if (
         parallelCompile &&
-        (!gl!.getProgramParameter(bgProgram, parallelCompile.COMPLETION_STATUS_KHR) ||
-          !gl!.getProgramParameter(particleProgram, parallelCompile.COMPLETION_STATUS_KHR) ||
-          !gl!.getProgramParameter(fgProgram, parallelCompile.COMPLETION_STATUS_KHR))
+        activePrograms.some(
+          (program) => !gl!.getProgramParameter(program, parallelCompile!.COMPLETION_STATUS_KHR)
+        )
       ) {
         state.frame = requestAnimationFrame(waitForCompile);
         return;
@@ -469,27 +550,74 @@ export default function NebulaBackground() {
       start();
     };
 
+    // Compiles the programs and kicks off the async-compile poll. Runs
+    // either immediately or after a parked context is restored.
+    const boot = () => {
+      if (state.disposed) return;
+      try {
+        particleProgram = beginProgram(gl!, PARTICLE_VERTEX_SRC, PARTICLE_FRAGMENT_SRC);
+        activePrograms = [particleProgram];
+        if (!isMini) {
+          bgProgram = beginProgram(gl!, VERTEX_SRC, BACKGROUND_FRAGMENT_SRC);
+          fgProgram = beginProgram(gl!, VERTEX_SRC, FOREGROUND_FRAGMENT_SRC);
+          activePrograms.push(bgProgram, fgProgram);
+        }
+      } catch (error) {
+        console.error("Nebula shaders failed, keeping starfield only:", error);
+        return;
+      }
+      parallelCompile = gl!.getExtension("KHR_parallel_shader_compile");
+      waitForCompile();
+    };
+    const onContextRestored = () => boot();
+    // Without preventDefault here, a lost context can never be restored.
+    const onContextLost = (e: Event) => e.preventDefault();
+
     window.addEventListener("resize", resize);
     document.addEventListener("pointerover", onPointerOver, { passive: true });
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
     if (!reducedMotion) {
       window.addEventListener("pointermove", onPointerMove, { passive: true });
       document.documentElement.addEventListener("pointerleave", onPointerLeave);
       document.addEventListener("visibilitychange", onVisibility);
     }
-    waitForCompile();
+
+    if (gl.isContextLost()) {
+      // The context died while the router kept this canvas alive (e.g.
+      // GPU eviction). A canvas only ever has one context, so ask for
+      // that same one back; boot() runs from the restored event.
+      gl.getExtension("WEBGL_lose_context")?.restoreContext();
+    } else {
+      boot();
+    }
 
     return () => {
       state.disposed = true;
       state.running = false;
       cancelAnimationFrame(state.frame);
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("resize", resize);
       document.removeEventListener("pointerover", onPointerOver);
       window.removeEventListener("pointermove", onPointerMove);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       document.removeEventListener("visibilitychange", onVisibility);
-      gl?.getExtension("WEBGL_lose_context")?.loseContext();
+      // Do NOT loseContext() here: the router keeps this canvas alive
+      // across navigations and a parked context cannot reliably be
+      // revived, which left the page nebula-less on return. Free the
+      // heavy GPU resources instead and let the context idle.
+      if (gl && !gl.isContextLost()) {
+        for (const buffer of Object.values(buffers)) {
+          if (buffer) gl.deleteBuffer(buffer);
+        }
+        if (quadBuffer) gl.deleteBuffer(quadBuffer);
+        for (const program of activePrograms) {
+          gl.deleteProgram(program);
+        }
+      }
     };
-  }, []);
+  }, [variant, corner, miniShape, color, size]);
 
   return (
     <canvas

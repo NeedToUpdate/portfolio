@@ -42,6 +42,8 @@ export interface CloudSpec {
   /** Radius in min-axis units. */
   radius: number;
   profile: ProfileName;
+  /** Optional palette override; used by mini decorative variants. */
+  palette?: ProfilePalette;
   /** Total particle budget for this cloud. */
   count: number;
   /** Overall brightness multiplier. */
@@ -612,7 +614,7 @@ export function generateParticles(clouds: CloudSpec[]): ParticleBuffers {
   const emissionFlat: { p: RawParticle; c: CloudSpec }[] = [];
 
   for (const c of clouds) {
-    const out = profiles[c.profile](rng, c.count, profilePalettes[c.profile]);
+    const out = profiles[c.profile](rng, c.count, c.palette ?? profilePalettes[c.profile]);
     for (const p of out.dust) dustFlat.push({ p, c });
     for (const p of out.emission) emissionFlat.push({ p, c });
   }
