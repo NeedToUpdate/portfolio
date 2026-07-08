@@ -9,8 +9,13 @@ import {
   VERTEX_SRC,
 } from "@/lib/nebula/glsl";
 import { beginProgram, finishProgram } from "@/lib/nebula/webgl";
-import { generateParticles, sampleShapeTargets, CloudSpec } from "@/lib/nebula/particles";
-import { nebulaPalettes } from "@/lib/nebula/palettes";
+import {
+  generateParticles,
+  sampleShapeTargets,
+  CloudSpec,
+  ShapePools,
+} from "@/lib/nebula/particles";
+import { profilePalettes } from "@/lib/nebula/palettes";
 
 const TARGET_POOL = 1024; // glyph sample points per shape
 const BASE_RENDER_SCALE = 0.66;
@@ -18,15 +23,22 @@ const REDUCED_RENDER_SCALE = 0.45; // adaptive fallback for slow GPUs
 const FRAME_INTERVAL_MS = 16;
 const SLOW_FRAME_MS = 55;
 const MIX_RATE = 2.5; // 1/s, ease toward the glyph target (slower morph)
-const MOUSE_FADE_RATE = 4; // 1/s, push fade only; position is direct
+const MOUSE_FADE_RATE = 4; // 1/s, push fade only
+const MOUSE_VEL_RATE = 7; // 1/s, velocity smoothing for the wake
+// Pointer position smoothing. Raw pointer events arrive quantized to
+// device pixels; feeding them straight to the parallax makes the whole
+// screen step visibly during slow movement. ~80ms of easing removes
+// the jitter without making the wake feel laggy.
+const MOUSE_POS_RATE = 12; // 1/s
 
 /**
  * Procedurally generated deep-space background, unique per page load.
  * A cheap fullscreen pass draws sky, stars, H II fields, and cirrus;
- * the nebulae themselves are thousands of soft point sprites (dust
- * alpha-blended, emission additive). Hovering an element with
- * data-nebula-shape="<key>" flies the emission particles into that
- * glyph. The pointer pushes particles aside like a hand through fog.
+ * the nebulae are thousands of soft point sprites arranged by
+ * structural profiles (Orion-like arcs, a Helix-like broken ring, a
+ * Crab-like filament web). Hovering an element with
+ * data-nebula-shape="<key>" flies the structured layers into that
+ * glyph. The pointer carves a directional wake through the gas.
  *
  * Shaders compile asynchronously; the canvas fades in when ready.
  * Falls back to nothing if WebGL is unavailable (the starfield remains).
@@ -77,6 +89,9 @@ export default function NebulaBackground() {
       activeShape: null as string | null,
       pendingShape: null as string | null,
       mouse: { x: 0.5, y: 0.5 },
+      smoothMouse: { x: 0.5, y: 0.5 },
+      lastMouse: { x: 0.5, y: 0.5 },
+      mouseVel: { x: 0, y: 0 },
       mouseActive: 0,
       mouseActiveTarget: 0,
     };
@@ -88,20 +103,26 @@ export default function NebulaBackground() {
     let quadBuffer: WebGLBuffer | null = null;
     let buffers: Record<string, WebGLBuffer | null> = {};
     let particleSeeds: Float32Array = new Float32Array(0);
+    let particleRoles: Uint8Array = new Uint8Array(0);
     let particleCount = 0;
     let dustCount = 0;
-    const targetCache = new Map<string, Float32Array>();
+    const targetCache = new Map<string, ShapePools>();
 
     const uploadTargets = (key: string | null) => {
       if (!key) return; // mix eases to 0; stale targets are invisible
-      let pool = targetCache.get(key);
-      if (!pool) {
-        pool = sampleShapeTargets(key, TARGET_POOL);
-        targetCache.set(key, pool);
+      let pools = targetCache.get(key);
+      if (!pools) {
+        pools = sampleShapeTargets(key, TARGET_POOL);
+        targetCache.set(key, pools);
       }
+      const { edge, interior } = pools;
+      if (edge.length === 0 && interior.length === 0) return;
       const targets = new Float32Array(particleCount * 2);
       for (let i = 0; i < particleCount; i++) {
-        const idx = Math.floor(particleSeeds[i] * (TARGET_POOL - 1));
+        // Shell/filament particles trace the outline; body gas fills it.
+        const pool = particleRoles[i] === 1 && edge.length > 0 ? edge : interior;
+        const pairs = pool.length / 2;
+        const idx = Math.min(pairs - 1, Math.floor(particleSeeds[i] * pairs));
         targets[i * 2] = pool[idx * 2];
         targets[i * 2 + 1] = pool[idx * 2 + 1];
       }
@@ -133,6 +154,7 @@ export default function NebulaBackground() {
     const renderFrame = (timeMs: number, dtSec: number) => {
       const mixEase = 1 - Math.exp(-MIX_RATE * dtSec);
       const fadeEase = 1 - Math.exp(-MOUSE_FADE_RATE * dtSec);
+      const velEase = 1 - Math.exp(-MOUSE_VEL_RATE * dtSec);
 
       const wantsSwap = state.pendingShape !== state.activeShape;
       const mixTarget = wantsSwap ? 0 : state.activeShape ? 1 : 0;
@@ -143,13 +165,28 @@ export default function NebulaBackground() {
       }
       state.mouseActive += (state.mouseActiveTarget - state.mouseActive) * fadeEase;
 
+      // Eased pointer position: everything downstream (parallax, wake,
+      // velocity) reads this, never the raw quantized events.
+      const posEase = 1 - Math.exp(-MOUSE_POS_RATE * dtSec);
+      state.smoothMouse.x += (state.mouse.x - state.smoothMouse.x) * posEase;
+      state.smoothMouse.y += (state.mouse.y - state.smoothMouse.y) * posEase;
+
+      // Smoothed pointer velocity drives the directional wake. It decays
+      // on its own when the pointer rests, so the gas settles back.
+      const instVx = (state.smoothMouse.x - state.lastMouse.x) / dtSec;
+      const instVy = (state.smoothMouse.y - state.lastMouse.y) / dtSec;
+      state.lastMouse.x = state.smoothMouse.x;
+      state.lastMouse.y = state.smoothMouse.y;
+      state.mouseVel.x += (instVx - state.mouseVel.x) * velEase;
+      state.mouseVel.y += (instVy - state.mouseVel.y) * velEase;
+
       const time = timeMs / 1000;
 
       // Pass 1: background (sky, stars, H II, cirrus).
       gl!.disable(gl!.BLEND);
       gl!.useProgram(bgProgram);
       gl!.uniform1f(bgU.time, time);
-      gl!.uniform2f(bgU.mouse, state.mouse.x, state.mouse.y);
+      gl!.uniform2f(bgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
       gl!.uniform1f(bgU.mouseActive, state.mouseActive);
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
       const quadLoc = gl!.getAttribLocation(bgProgram, "aPosition");
@@ -160,22 +197,24 @@ export default function NebulaBackground() {
       // Pass 2 + 3: particle nebulae.
       gl!.useProgram(particleProgram);
       gl!.uniform1f(pU.time, time);
-      gl!.uniform2f(pU.mouse, state.mouse.x, state.mouse.y);
+      gl!.uniform2f(pU.mouse, state.smoothMouse.x, state.smoothMouse.y);
+      gl!.uniform2f(pU.mouseVel, state.mouseVel.x, state.mouseVel.y);
       gl!.uniform1f(pU.mouseActive, state.mouseActive);
       gl!.uniform1f(pU.shapeMix, state.mix);
       bindParticleAttribute("aPos", buffers.position, 3);
       bindParticleAttribute("aData", buffers.data, 3);
       bindParticleAttribute("aCloud", buffers.cloud, 3);
-      bindParticleAttribute("aShade", buffers.shade, 2);
-      bindParticleAttribute("aPalette", buffers.palette, 1);
-      bindParticleAttribute("aBright", buffers.bright, 1);
+      bindParticleAttribute("aColor", buffers.color, 4);
+      bindParticleAttribute("aMotion", buffers.motion, 3);
       bindParticleAttribute("aTarget", buffers.target, 2);
 
       gl!.enable(gl!.BLEND);
       // Dust first: premultiplied over, so it occludes stars behind it.
+      // Generation order layers it: volume under body under shells,
+      // dark dust lanes on top.
       gl!.blendFunc(gl!.ONE, gl!.ONE_MINUS_SRC_ALPHA);
       if (dustCount > 0) gl!.drawArrays(gl!.POINTS, 0, dustCount);
-      // Emission: additive glow.
+      // Emission: additive glow and filament webs.
       gl!.blendFunc(gl!.ONE, gl!.ONE);
       if (particleCount > dustCount) {
         gl!.drawArrays(gl!.POINTS, dustCount, particleCount - dustCount);
@@ -184,7 +223,7 @@ export default function NebulaBackground() {
       // Pass 4: foreground stars, additive, in front of the gas.
       gl!.useProgram(fgProgram);
       gl!.uniform1f(fgU.time, time);
-      gl!.uniform2f(fgU.mouse, state.mouse.x, state.mouse.y);
+      gl!.uniform2f(fgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
       gl!.uniform1f(fgU.mouseActive, state.mouseActive);
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
       const fgLoc = gl!.getAttribLocation(fgProgram, "aPosition");
@@ -248,7 +287,7 @@ export default function NebulaBackground() {
       }
     };
 
-    // Runs once both programs have finished compiling in the background.
+    // Runs once all programs have finished compiling in the background.
     const start = () => {
       try {
         finishProgram(gl!, bgProgram);
@@ -259,80 +298,55 @@ export default function NebulaBackground() {
         return;
       }
 
-      // Per-load identity: seed and three palettes.
-      //   0 = pillars (ochre/teal), 1 = red H-alpha, 2 = reflection blue.
       const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
-      const findPal = (name: string, fallback: number) =>
-        nebulaPalettes.find((p) => p.name === name) ?? nebulaPalettes[fallback];
-      const palA = findPal("pillars", 0);
-      const palB = findPal("horsehead", 1);
-      const palC = findPal("reflection", 3);
-      const palettes = [palA, palB, palC];
-
-      // Wider viewports get more, bigger pillars.
       const isDesktop = window.innerWidth >= 768;
       const jitter = () => (Math.random() - 0.5) * 0.06;
 
-      // Particle count scales with footprint so density stays constant:
-      // big clouds do not go transparent, small clouds do not blow out.
-      const countFor = (r: number, shape: "pillar" | "round", spread = 1) => {
-        const density = 92000;
-        const area = r * r * (shape === "pillar" ? spread : 0.9);
-        return Math.max(900, Math.min(30000, Math.round(density * area)));
-      };
+      // Particle count scales with footprint; the smaller clouds carry
+      // finer structure, so they get a higher areal density.
+      const countFor = (r: number, density: number) =>
+        Math.max(1200, Math.min(24000, Math.round(density * r * r)));
 
       // Size the hero at ~30vmax, expressed in our min-axis radius units.
       const vRatio =
         Math.max(window.innerWidth, window.innerHeight) /
         Math.min(window.innerWidth, window.innerHeight);
-      const heroR = Math.min(0.58, (isDesktop ? 0.3 : 0.26) * vRatio);
-      const heroSpread = isDesktop ? 1.35 : 1.1; // narrower: upright columns, not a fan
-      const topR = 0.2;
-      const cornerR = 0.15;
+      const heroR = Math.min(0.52, (isDesktop ? 0.28 : 0.24) * vRatio);
+      const ringR = isDesktop ? 0.21 : 0.17;
+      const webR = isDesktop ? 0.16 : 0.13;
 
       const clouds: CloudSpec[] = [
         {
-          // The hero: a big, wide bank of pillars in the lower-right.
-          // Finer sprites so the larger cloud stays crisp, not blurry.
-          x: 0.8 + jitter(),
-          y: 0.17 + jitter(),
+          // The hero: an Orion-like structured cloud in the lower-right.
+          x: 0.74 + jitter(),
+          y: 0.26 + jitter(),
           radius: heroR,
-          strength: 1.0 + Math.random() * 0.3,
-          paletteGroup: 0,
-          shape: "pillar",
-          fingerCount: isDesktop ? 4 : 2 + Math.floor(Math.random() * 2),
-          spread: heroSpread,
-          count: countFor(heroR, "pillar", heroSpread),
-          sizeScale: 0.8,
+          profile: "orion",
+          count: countFor(heroR, 95000),
         },
         {
-          // An irregular round red cloud up top.
-          x: (Math.random() < 0.5 ? 0.18 : 0.82) + jitter(),
-          y: 0.82 + jitter(),
-          radius: topR,
-          strength: 0.8 + Math.random() * 0.3,
-          paletteGroup: 1,
-          shape: "round",
-          count: countFor(topR, "round"),
-          bright: 2.2,
+          // A Helix-like broken ring up top, opposite the hero.
+          x: (Math.random() < 0.5 ? 0.2 : 0.84) + jitter(),
+          y: 0.8 + jitter(),
+          radius: ringR,
+          profile: "helix",
+          count: countFor(ringR, 160000),
         },
         {
-          // A smaller irregular blue cloud anchoring the bottom-left.
-          x: 0.16 + jitter(),
-          y: 0.2 + jitter(),
-          radius: cornerR,
-          strength: 0.65 + Math.random() * 0.3,
-          paletteGroup: 2,
-          shape: "round",
-          count: countFor(cornerR, "round"),
-          bright: 2.2,
+          // A Crab-like filament web anchoring the bottom-left.
+          x: 0.14 + jitter(),
+          y: 0.22 + jitter(),
+          radius: webR,
+          profile: "crab",
+          count: countFor(webR, 170000),
         },
       ];
 
       // Particle buffers.
-      const particles = generateParticles(clouds.filter((c) => c.strength > 0));
+      const particles = generateParticles(clouds);
       particleCount = particles.count;
       dustCount = particles.dustCount;
+      particleRoles = particles.roles;
       particleSeeds = new Float32Array(particleCount);
       for (let i = 0; i < particleCount; i++) {
         particleSeeds[i] = particles.data[i * 3 + 1];
@@ -348,9 +362,8 @@ export default function NebulaBackground() {
         position: makeBuffer(particles.position),
         data: makeBuffer(particles.data),
         cloud: makeBuffer(particles.cloud),
-        shade: makeBuffer(particles.shade),
-        palette: makeBuffer(particles.palette),
-        bright: makeBuffer(particles.bright),
+        color: makeBuffer(particles.color),
+        motion: makeBuffer(particles.motion),
         target: makeBuffer(new Float32Array(particleCount * 2)),
       };
 
@@ -358,7 +371,11 @@ export default function NebulaBackground() {
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
       gl!.bufferData(gl!.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl!.STATIC_DRAW);
 
-      // Uniforms: background program.
+      // Uniforms: background program. The wash tints come from the
+      // profiles: A follows the hero (lower half), B the ring (upper).
+      const palA = profilePalettes[clouds[0].profile].bg;
+      const palB = profilePalettes[clouds[1].profile].bg;
+      const palC = profilePalettes[clouds[2].profile].bg;
       gl!.useProgram(bgProgram);
       bgU = {
         res: gl!.getUniformLocation(bgProgram, "uRes"),
@@ -368,7 +385,7 @@ export default function NebulaBackground() {
       };
       gl!.uniform4f(gl!.getUniformLocation(bgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
       clouds.forEach((c, i) => {
-        gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, c.strength);
+        gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, 1);
       });
       const hiiSpots: [number, number][] = [
         [0.5, 0.9],
@@ -390,8 +407,8 @@ export default function NebulaBackground() {
       gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreB"), ...palB.core);
       gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidA"), ...palA.mid);
       gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidB"), ...palB.mid);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.filament);
-      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.filament);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.fil);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.fil);
       gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColBlue"), ...palC.core);
 
       // Uniforms and attributes: particle program.
@@ -400,23 +417,16 @@ export default function NebulaBackground() {
         res: gl!.getUniformLocation(particleProgram, "uRes"),
         time: gl!.getUniformLocation(particleProgram, "uTime"),
         mouse: gl!.getUniformLocation(particleProgram, "uMouse"),
+        mouseVel: gl!.getUniformLocation(particleProgram, "uMouseVel"),
         mouseActive: gl!.getUniformLocation(particleProgram, "uMouseActive"),
         shapeMix: gl!.getUniformLocation(particleProgram, "uShapeMix"),
       };
-      palettes.forEach((p, i) => {
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uCore${i}`), ...p.core);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uMid${i}`), ...p.mid);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uFil${i}`), ...p.filament);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uWarm${i}`), ...p.warm);
-        gl!.uniform1f(gl!.getUniformLocation(particleProgram, `uDustS${i}`), p.dust);
-      });
       pAttr = {
         aPos: gl!.getAttribLocation(particleProgram, "aPos"),
         aData: gl!.getAttribLocation(particleProgram, "aData"),
         aCloud: gl!.getAttribLocation(particleProgram, "aCloud"),
-        aShade: gl!.getAttribLocation(particleProgram, "aShade"),
-        aPalette: gl!.getAttribLocation(particleProgram, "aPalette"),
-        aBright: gl!.getAttribLocation(particleProgram, "aBright"),
+        aColor: gl!.getAttribLocation(particleProgram, "aColor"),
+        aMotion: gl!.getAttribLocation(particleProgram, "aMotion"),
         aTarget: gl!.getAttribLocation(particleProgram, "aTarget"),
       };
 

@@ -1,7 +1,8 @@
 import { chamferDistance, distancesToBytes, emptyField } from "@/lib/nebula/sdf";
 import { nebulaShapes } from "@/lib/nebula/shapes";
-import { nebulaPalettes, pickPalette } from "@/lib/nebula/palettes";
-import { generateParticles } from "@/lib/nebula/particles";
+import { profilePalettes } from "@/lib/nebula/palettes";
+import { generateParticles, CloudSpec } from "@/lib/nebula/particles";
+import { arcShell, filamentWeb, lobeCluster, periodicNoise, stroke } from "@/lib/nebula/structures";
 
 describe("chamferDistance", () => {
   it("is zero inside the shape", () => {
@@ -54,48 +55,130 @@ describe("emptyField", () => {
   });
 });
 
+describe("structure emitters", () => {
+  const rng = () => Math.random();
+
+  it("lobeCluster respects the density mask", () => {
+    const particles = lobeCluster(rng, {
+      count: 400,
+      lobes: [{ cx: 0, cy: 0, r: 0.5 }],
+      colors: [[1, 0, 0]],
+      alpha: [0.02, 0.1],
+      size: [0.1, 0.2],
+      drift: 0.02,
+      pointer: 0.5,
+      morph: 1,
+      // Everything inside r=0.3 of the origin is carved away.
+      mask: (x, y) => (Math.hypot(x, y) < 0.3 ? 0 : 1),
+    });
+    expect(particles.length).toBeGreaterThan(0);
+    for (const p of particles) {
+      expect(Math.hypot(p.x, p.y)).toBeGreaterThanOrEqual(0.3);
+    }
+  });
+
+  it("arcShell deposits near the requested radius and marks outline role", () => {
+    const particles = arcShell(rng, {
+      count: 300,
+      cx: 0,
+      cy: 0,
+      r: 0.7,
+      a0: 0,
+      a1: Math.PI * 2,
+      width: 0.08,
+      wobble: 0.1,
+      gaps: 0.3,
+      colors: [[1, 0.5, 0]],
+      alpha: [0.05, 0.15],
+      size: [0.04, 0.08],
+      drift: 0.02,
+      pointer: 0.6,
+      morph: 1,
+    });
+    expect(particles.length).toBeGreaterThan(100);
+    for (const p of particles) {
+      const r = Math.hypot(p.x, p.y);
+      expect(r).toBeGreaterThan(0.25);
+      expect(r).toBeLessThan(1.3);
+      expect(p.role).toBe(1);
+    }
+  });
+
+  it("filamentWeb stays within reach and fades", () => {
+    const particles = filamentWeb(rng, {
+      count: 500,
+      roots: 10,
+      origin: [0.1, 0.3],
+      reach: 1.0,
+      step: 0.04,
+      curl: 0.5,
+      branch: 0.1,
+      colors: [[0.8, 0.3, 0.1]],
+      brightColors: [[1, 0.7, 0.3]],
+      alpha: [0.05, 0.15],
+      size: [0.02, 0.05],
+      drift: 0.03,
+      pointer: 0.9,
+      morph: 1,
+    });
+    expect(particles.length).toBeGreaterThan(50);
+    for (const p of particles) {
+      expect(Math.hypot(p.x, p.y)).toBeLessThan(1.15);
+      expect(p.alpha).toBeGreaterThan(0);
+      expect(p.alpha).toBeLessThanOrEqual(0.15 * 1.4 + 1e-9);
+    }
+  });
+
+  it("stroke fades its ends", () => {
+    const particles = stroke(rng, {
+      count: 300,
+      from: [-0.5, 0],
+      ctrl: [0, 0.4],
+      to: [0.5, 0],
+      width: 0.05,
+      colors: [[0.1, 0.05, 0.08]],
+      alpha: [0.1, 0.1],
+      size: [0.05, 0.1],
+      drift: 0.02,
+      pointer: 0.5,
+      morph: 0.1,
+    });
+    const nearEnd = particles.filter((p) => p.x < -0.45);
+    const middle = particles.filter((p) => Math.abs(p.x) < 0.1);
+    const avg = (list: typeof particles) =>
+      list.reduce((s, p) => s + p.alpha, 0) / Math.max(list.length, 1);
+    expect(avg(middle)).toBeGreaterThan(avg(nearEnd));
+  });
+
+  it("periodicNoise wraps around 2*PI", () => {
+    const n = periodicNoise(() => Math.random(), 8);
+    expect(n(0)).toBeCloseTo(n(Math.PI * 2), 5);
+    const v = n(1.3);
+    expect(v).toBeGreaterThanOrEqual(0);
+    expect(v).toBeLessThanOrEqual(1);
+  });
+});
+
 describe("generateParticles", () => {
-  const clouds = [
-    { x: 0.2, y: 0.2, radius: 0.2, strength: 1, paletteGroup: 0 as const, shape: "pillar" as const },
-    { x: 0.8, y: 0.8, radius: 0.15, strength: 1, paletteGroup: 1 as const, shape: "round" as const },
+  const clouds: CloudSpec[] = [
+    { x: 0.7, y: 0.3, radius: 0.4, profile: "orion", count: 2000 },
+    { x: 0.2, y: 0.8, radius: 0.2, profile: "helix", count: 1500 },
+    { x: 0.15, y: 0.2, radius: 0.15, profile: "crab", count: 1500 },
   ];
 
-  it("produces the requested particle count across clouds", () => {
-    const p = generateParticles(clouds, 500);
-    expect(p.count).toBe(1000);
-    expect(p.position).toHaveLength(3000);
-    expect(p.data).toHaveLength(3000);
-    expect(p.cloud).toHaveLength(3000);
-    expect(p.shade).toHaveLength(2000);
-    expect(p.palette).toHaveLength(1000);
-    expect(p.bright).toHaveLength(1000);
-  });
-
-  it("tags particles with their cloud's palette group", () => {
-    const p = generateParticles(clouds, 500);
-    // Every particle's palette group is 0 or 1.
-    for (let i = 0; i < p.count; i++) {
-      expect([0, 1]).toContain(p.palette[i]);
-    }
-    // Both groups are present across the two clouds.
-    expect(Array.from(p.palette)).toContain(0);
-    expect(Array.from(p.palette)).toContain(1);
-  });
-
-  it("keeps rim in [0,1] and facing in [-1,1]", () => {
-    const p = generateParticles(clouds, 500);
-    for (let i = 0; i < p.count; i++) {
-      const rim = p.shade[i * 2];
-      const facing = p.shade[i * 2 + 1];
-      expect(rim).toBeGreaterThanOrEqual(0);
-      expect(rim).toBeLessThanOrEqual(1);
-      expect(facing).toBeGreaterThanOrEqual(-1);
-      expect(facing).toBeLessThanOrEqual(1);
-    }
+  it("packs matching buffer lengths", () => {
+    const p = generateParticles(clouds);
+    expect(p.count).toBeGreaterThan(1000);
+    expect(p.position).toHaveLength(p.count * 3);
+    expect(p.data).toHaveLength(p.count * 3);
+    expect(p.cloud).toHaveLength(p.count * 3);
+    expect(p.color).toHaveLength(p.count * 4);
+    expect(p.motion).toHaveLength(p.count * 3);
+    expect(p.roles).toHaveLength(p.count);
   });
 
   it("orders dust particles before emission particles", () => {
-    const p = generateParticles(clouds, 500);
+    const p = generateParticles(clouds);
     expect(p.dustCount).toBeGreaterThan(0);
     expect(p.dustCount).toBeLessThan(p.count);
     // kind lives at data[i*3+2]: 1 for dust in the first range, 0 after.
@@ -103,12 +186,38 @@ describe("generateParticles", () => {
     expect(p.data[(p.count - 1) * 3 + 2]).toBe(0);
   });
 
-  it("skips clouds with zero strength", () => {
-    const p = generateParticles(
-      [{ x: 0.5, y: 0.5, radius: 0.2, strength: 0, paletteGroup: 0, shape: "pillar" }],
-      500
-    );
-    expect(p.count).toBe(0);
+  it("keeps every particle translucent: volume comes from accumulation", () => {
+    const p = generateParticles(clouds);
+    for (let i = 0; i < p.count; i++) {
+      const alpha = p.color[i * 4 + 3];
+      expect(alpha).toBeGreaterThan(0);
+      expect(alpha).toBeLessThan(0.5);
+    }
+  });
+
+  it("gives every profile both outline and interior morph roles", () => {
+    const p = generateParticles(clouds);
+    const roles = new Set<number>();
+    for (let i = 0; i < p.count; i++) roles.add(p.roles[i]);
+    expect(roles.has(0)).toBe(true);
+    expect(roles.has(1)).toBe(true);
+  });
+
+  it("produces different silhouettes per profile, not one recolored blob", () => {
+    // Compare radial density histograms: the helix ring must be
+    // hollow-centred relative to the orion body.
+    const radialFill = (profile: CloudSpec["profile"]) => {
+      const p = generateParticles([{ x: 0.5, y: 0.5, radius: 0.3, profile, count: 3000 }]);
+      let inner = 0;
+      let total = 0;
+      for (let i = 0; i < p.count; i++) {
+        const r = Math.hypot(p.position[i * 3], p.position[i * 3 + 1]);
+        if (r < 0.35) inner++;
+        total++;
+      }
+      return inner / total;
+    };
+    expect(radialFill("helix")).toBeLessThan(radialFill("orion"));
   });
 });
 
@@ -119,8 +228,21 @@ describe("nebula shapes and palettes", () => {
     }
   });
 
-  it("picks a palette deterministically across the 0..1 range", () => {
-    expect(pickPalette(0)).toBe(nebulaPalettes[0]);
-    expect(pickPalette(0.999)).toBe(nebulaPalettes[nebulaPalettes.length - 1]);
+  it("keeps one coherent palette per profile with every layer present", () => {
+    for (const pal of Object.values(profilePalettes)) {
+      expect(pal.volume.length).toBeGreaterThan(0);
+      expect(pal.shell.length).toBeGreaterThan(0);
+      expect(pal.body.length).toBeGreaterThan(0);
+      expect(pal.dust.length).toBeGreaterThan(0);
+      expect(pal.glow.length).toBeGreaterThan(0);
+      for (const layer of [pal.volume, pal.shell, pal.body, pal.dust, pal.glow]) {
+        for (const c of layer) {
+          for (const ch of c) {
+            expect(ch).toBeGreaterThanOrEqual(0);
+            expect(ch).toBeLessThanOrEqual(1);
+          }
+        }
+      }
+    }
   });
 });
