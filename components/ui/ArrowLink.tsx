@@ -5,7 +5,7 @@ interface ArrowLinkProps {
   label: string;
 }
 
-/** Small forward link, e.g. "All work" at the end of a section. */
+/** Small forward link, e.g. "All case studies" at the end of a section. */
 export default function ArrowLink({ href, label }: ArrowLinkProps) {
   return (
     <Link

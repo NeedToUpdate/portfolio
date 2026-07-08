@@ -404,11 +404,11 @@ export default function NebulaBackground() {
         shapeMix: gl!.getUniformLocation(particleProgram, "uShapeMix"),
       };
       palettes.forEach((p, i) => {
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uCore[${i}]`), ...p.core);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uMid[${i}]`), ...p.mid);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uFil[${i}]`), ...p.filament);
-        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uWarm[${i}]`), ...p.warm);
-        gl!.uniform1f(gl!.getUniformLocation(particleProgram, `uDustS[${i}]`), p.dust);
+        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uCore${i}`), ...p.core);
+        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uMid${i}`), ...p.mid);
+        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uFil${i}`), ...p.filament);
+        gl!.uniform3f(gl!.getUniformLocation(particleProgram, `uWarm${i}`), ...p.warm);
+        gl!.uniform1f(gl!.getUniformLocation(particleProgram, `uDustS${i}`), p.dust);
       });
       pAttr = {
         aPos: gl!.getAttribLocation(particleProgram, "aPos"),
