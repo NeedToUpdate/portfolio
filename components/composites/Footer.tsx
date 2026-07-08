@@ -1,9 +1,9 @@
-import Icon from "@/components/ui/Icon";
+import SocialIcon from "@/components/composites/SocialIcon";
 import Text from "@/components/ui/Text";
 import { site } from "@/lib/site";
 
 const socials = [
-  { icon: "mail" as const, label: "Email", href: `mailto:${site.email}` },
+  { icon: "email" as const, label: "Email", href: `mailto:${site.email}` },
   { icon: "github" as const, label: "GitHub", href: site.github },
   { icon: "linkedin" as const, label: "LinkedIn", href: site.linkedin },
 ];
@@ -15,18 +15,18 @@ export default function Footer() {
         <Text variant="small" className="min-w-0">
           {site.name} · {site.location}
         </Text>
-        <ul className="flex items-center gap-5">
+        <ul className="flex items-center gap-4">
           {socials.map((social) => (
             <li key={social.label}>
               <a
                 href={social.href}
                 aria-label={social.label}
-                className="text-muted transition-colors hover:text-ink"
+                className="block rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                 {...(social.href.startsWith("http")
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
               >
-                <Icon name={social.icon} size={18} className="icon-glow" />
+                <SocialIcon name={social.icon} />
               </a>
             </li>
           ))}
