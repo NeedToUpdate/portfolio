@@ -6,8 +6,8 @@
  *    layers, H II emission fields, and galactic cirrus wisps.
  * 2. Point-cloud nebulae - thousands of soft gaussian sprites in
  *    emulated 3D. Dust particles alpha-blend (they occlude the
- *    background); emission particles add (they glow). Colors come from
- *    a per-particle ionization calculation in the vertex shader.
+ *    background); emission particles add (they glow). Colors and layer
+ *    behavior come precomputed per particle from the generator.
  *
  * Physics used:
  * - Star colors: blackbody fit of the Planckian locus (after Tanner
@@ -326,34 +326,16 @@ precision highp float;
 attribute vec3 aPos;    // local offset in cloud-radius units; z is depth
 attribute vec3 aData;   // size (radius units), seed, kind (0 emission, 1 dust)
 attribute vec3 aCloud;  // cloud center uv xy, radius (min-axis units)
+attribute vec4 aColor;  // layer color from the generator, straight alpha
+attribute vec3 aMotion; // drift amplitude, pointer response, morph weight
 attribute vec2 aTarget; // glyph target in [-1,1] glyph space
-attribute vec2 aShade;  // rim (0 core..1 surface), facing (-1 backlit..1 lit)
-attribute float aPalette; // palette index: 0 pillars, 1 red, 2 blue
-attribute float aBright;  // per-cloud brightness multiplier
 
 uniform vec2 uRes;
 uniform float uTime;
 uniform vec2 uMouse;        // uv, y up
+uniform vec2 uMouseVel;     // uv/s, smoothed on the CPU
 uniform float uMouseActive; // eased 0..1
 uniform float uShapeMix;    // eased 0..1 glyph morph
-// Three palettes per particle, chosen by aPalette.
-// Kept as discrete uniforms: WebGL 1 drivers can reject variable indexing
-// into uniform arrays in vertex shaders with only an opaque link error.
-uniform vec3 uCore0;  // hot core / cool backlit rim
-uniform vec3 uCore1;
-uniform vec3 uCore2;
-uniform vec3 uMid0;   // main gas
-uniform vec3 uMid1;
-uniform vec3 uMid2;
-uniform vec3 uFil0;   // filament sparks
-uniform vec3 uFil1;
-uniform vec3 uFil2;
-uniform vec3 uWarm0;  // warm lit rim
-uniform vec3 uWarm1;
-uniform vec3 uWarm2;
-uniform float uDustS0;
-uniform float uDustS1;
-uniform float uDustS2;
 
 varying vec4 vColor;
 varying float vSoft; // 0 = small & sharp, 1 = large & soft
@@ -363,84 +345,85 @@ void main() {
   float minRes = min(uRes.x, uRes.y);
   float isDust = step(0.5, aData.z);
   float depth01 = aPos.z * 0.5 + 0.5;
+  float seed = aData.y;
 
-  // Resolve this particle's palette without dynamic uniform indexing.
-  float w0 = 1.0 - step(0.5, aPalette);
-  float w1 = 1.0 - step(0.5, abs(aPalette - 1.0));
-  float w2 = step(1.5, aPalette);
-  float isPillar = w0;
-  vec3 uColCore = uCore0 * w0 + uCore1 * w1 + uCore2 * w2;
-  vec3 uColMid = uMid0 * w0 + uMid1 * w1 + uMid2 * w2;
-  vec3 uColFil = uFil0 * w0 + uFil1 * w1 + uFil2 * w2;
-  vec3 uColWarm = uWarm0 * w0 + uWarm1 * w1 + uWarm2 * w2;
-  float uDust = uDustS0 * w0 + uDustS1 * w1 + uDustS2 * w2;
+  // Ambient motion: a slow personal orbit plus a broad shared
+  // circulation field. Amplitude comes per-layer from the generator,
+  // so the outer volume barely moves while wisps circulate visibly.
+  float t = uTime * 0.05 + seed * 6.2832;
+  vec2 drift = vec2(cos(t), sin(t * 0.83));
+  vec2 circ = vec2(
+    sin(aPos.y * 1.9 + uTime * 0.030 + seed * 2.1),
+    sin(aPos.x * 1.7 - uTime * 0.026 + seed * 4.7)
+  );
+  vec2 local = aPos.xy + (drift * 0.55 + circ * 0.45) * aMotion.x * (0.5 + 0.5 * depth01);
 
-  // Slow individual drift: the cloud breathes without global rotation.
-  float t = uTime * 0.05 + aData.y * 6.28;
-  vec2 drift = vec2(cos(t), sin(t * 0.83)) * 0.035 * (0.4 + 0.6 * depth01);
-  vec2 local = aPos.xy + drift;
-
-  // Glyph morph: emission particles fly to the shape; dust mostly stays.
-  float morphAmt = uShapeMix * mix(1.0, 0.25, isDust);
-  vec2 shaped = mix(local, aTarget * 1.05, morphAmt);
+  // Glyph morph, weighted per layer: body/shells fly, volume lingers.
+  float morphAmt = uShapeMix * aMotion.z;
+  vec2 shaped = mix(local, aTarget * 1.05 + drift * 0.02, morphAmt);
 
   // Cloud-local to aspect-corrected screen coords, with depth parallax.
   vec2 look = (uMouse - 0.5) * uMouseActive;
   vec2 pc = (aCloud.xy - 0.5) * uRes / minRes + shaped * aCloud.z;
   pc -= look * (0.010 + 0.014 * depth01);
 
-  // The pointer pushes particles aside within a small radius.
+  // Pointer wake, like an object moving through water: the influence
+  // region is a teardrop, not a circle. A rounded head sits at the
+  // cursor and a tapering tail trails behind the recent motion; at
+  // rest it relaxes into a softly wobbling blob.
   vec2 mousePc = (uMouse - 0.5) * uRes / minRes;
   vec2 dm = pc - mousePc;
-  float pushFall = exp(-dot(dm, dm) * 500.0);
-  pc += normalize(dm + 1e-4) * pushFall * 0.11 * uMouseActive * (1.0 - 0.4 * isDust);
+  float speed = min(length(uMouseVel), 3.0);
+  float moving = clamp(speed * 2.5, 0.0, 1.0);
+  vec2 vn = speed > 0.05 ? uMouseVel / speed : vec2(1.0, 0.0);
+  vec2 vperp = vec2(-vn.y, vn.x);
+
+  // Boundary wobble: even the resting dent is never a clean circle.
+  float ang = atan(dm.y, dm.x);
+  float wob = 1.0 + 0.24 * sin(ang * 3.0 + uTime * 0.8)
+                  + 0.14 * sin(ang * 5.0 - uTime * 1.3);
+
+  // Teardrop metric: compressed reach ahead of the head, a tail
+  // stretching ~4x farther behind, narrowing toward its tip.
+  // (along, side) is dm in the motion frame; the anisotropy blends in
+  // via the scale factors, never by mixing vectors across bases —
+  // that cancels at intermediate speeds and lights up distant gas.
+  float along = dot(dm, vn);
+  float side = dot(dm, vperp);
+  float behind = max(-along, 0.0);
+  float axis = along > 0.0
+    ? along * mix(1.0, 1.4, moving)
+    : along / (1.0 + 3.5 * moving);
+  float taper = 1.0 + behind * 1.8 * moving;
+  vec2 warped = vec2(axis, side * taper) / wob;
+  float fall = exp(-dot(warped, warped) * 260.0);
+
+  vec2 dir = normalize(dm + 1e-4);
+  vec2 wake = dir * (0.30 + 0.30 * speed)                    // bow push at the head
+            + vperp * dot(dir, vperp) * 0.55 * speed         // gas parting around the path
+            + vn * max(dot(dir, -vn), 0.0) * 0.45 * speed;   // tail dragged along
+  pc += wake * fall * 0.09 * uMouseActive * aMotion.y;
 
   gl_Position = vec4(pc * 2.0 * minRes / uRes, 0.0, 1.0);
 
   // Size: nearer particles render larger; the glyph tightens slightly.
   float depthScale = 0.8 + 0.5 * depth01;
-  float tighten = 1.0 - 0.35 * morphAmt * (1.0 - isDust);
-  gl_PointSize = clamp(aData.x * aCloud.z * minRes * depthScale * tighten, 1.5, 120.0);
+  float tighten = 1.0 - 0.3 * morphAmt;
+  gl_PointSize = clamp(aData.x * aCloud.z * minRes * depthScale * tighten, 1.5, 180.0);
 
-  // Blur and opacity follow sprite size: large sprites are soft and faint
-  // (volume fill), small sprites are sharp and opaque (outline detail).
-  vSoft = clamp((gl_PointSize - 3.0) / 38.0, 0.08, 1.0);
-  vSeed = aData.y;
-  float sizeOpacity = mix(0.85, 0.32, vSoft);
+  // Blur follows sprite size: large sprites soft, small sprites sharp.
+  vSoft = clamp((gl_PointSize - 3.0) / 44.0, 0.08, 1.0);
+  vSeed = seed;
 
-  // Rim lighting: cores stay near-black, only the thin surface catches
-  // light (warm where it faces the source, cool cyan where backlit).
-  float rim = clamp(aShade.x, 0.0, 1.0);
-  float facing = aShade.y;
-  float lit = max(facing, 0.0);
-  float back = max(-facing, 0.0);
-  float surf = smoothstep(0.55, 1.0, rim);
-  float twinkle = 0.9 + 0.1 * sin(uTime * 0.6 + aData.y * 40.0);
-
-  if (aData.z < 0.5) {
-    // Emission: ambient nebula glow, brighter and warmer at lit rims.
-    // Keep the hue close to the main gas so additive overlap stays clean;
-    // only the innermost gas leans toward the core color.
-    float ion = clamp(1.0 - length(aPos.xy) * 0.7, 0.0, 1.0);
-    vec3 col = mix(uColMid, uColCore, ion * ion * (0.2 + 0.35 * aData.y));
-    col = mix(col, uColWarm, surf * lit * 0.6 * (1.0 - uShapeMix));
-    col = mix(col, uColFil, step(0.94, aData.y) * 0.7); // rare hot sparks
-    float alpha = (0.006 + 0.014 * aData.y) * twinkle * sizeOpacity * aBright;
-    alpha *= mix(1.0, 0.38 + 0.42 * surf, isPillar);
-    alpha *= 1.0 + uShapeMix * 0.7; // the glyph glows a little brighter
-    vColor = vec4(col, alpha);
-  } else {
-    // Molecular dust: near-black in the dense core, warming as it thins.
-    vec3 dark = mix(uColMid * 0.05 + vec3(0.006), vec3(0.030, 0.014, 0.018), isPillar);
-    vec3 body = mix(uColMid * 0.24, vec3(0.18, 0.105, 0.09), isPillar);
-    vec3 col = mix(dark, body, smoothstep(0.30, 0.95, rim));
-    col += uColWarm * surf * pow(lit, 1.5) * mix(0.7, 0.9, isPillar);   // gold lit edges
-    col += uColCore * surf * pow(back, 2.0) * mix(0.24, 0.34, isPillar); // cyan backlit edges
-    float alpha = (0.022 + 0.052 * aData.y) * clamp(uDust, 0.3, 1.2) * sizeOpacity * aBright;
-    alpha *= mix(1.0, 2.8, isPillar);
-    alpha *= 1.0 - uShapeMix * 0.85; // dust clears while a glyph is up
-    vColor = vec4(col, alpha);
-  }
+  // Layer color comes precomputed; only brightness lives here.
+  float twinkle = 1.0 - 0.08 * (1.0 - isDust) * sin(uTime * 0.6 + seed * 40.0);
+  float alpha = aColor.a * twinkle;
+  // Gas that is not part of the glyph thins while a glyph is up, and
+  // glyph gas glows slightly brighter, so the shape emerges from the
+  // nebula instead of replacing it.
+  alpha *= 1.0 - uShapeMix * (1.0 - aMotion.z) * 0.75;
+  alpha *= 1.0 + morphAmt * 0.5;
+  vColor = vec4(aColor.rgb, alpha);
 }
 `;
 

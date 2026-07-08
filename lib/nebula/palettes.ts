@@ -1,106 +1,101 @@
 /**
- * Emission-line palettes modeled on real nebulae. Colors approximate
- * the dominant spectral lines:
- *   H-alpha 656nm (deep red), H-beta 486nm (blue),
- *   OIII 500.7nm (teal-green), SII 672nm (red-orange).
- * `dust` scales Beer-Lambert extinction (dark lanes).
+ * Layer palettes for the three structural nebula profiles, taken from
+ * PLAN.md. Each profile keeps one coherent family of colors: most gas
+ * stays dark and muted, the saturated hues are reserved for small
+ * active regions (bright shell sections, cores, filament crossings).
  */
 
-export interface NebulaPalette {
-  name: string;
-  /** Emission near the ionizing core; also the cool backlit rim tint. */
-  core: [number, number, number];
-  /** Main emission of the outer gas. */
-  mid: [number, number, number];
-  /** Filament emission. */
-  filament: [number, number, number];
-  /** Warm rim: the color a pillar edge glows where it faces the light. */
-  warm: [number, number, number];
-  /** Dust extinction strength, 0..1.2. */
-  dust: number;
+export type RGB = [number, number, number];
+
+const hex = (h: string): RGB => [
+  parseInt(h.slice(1, 3), 16) / 255,
+  parseInt(h.slice(3, 5), 16) / 255,
+  parseInt(h.slice(5, 7), 16) / 255,
+];
+
+export interface ProfilePalette {
+  /** Broad soft silhouette gas. */
+  volume: RGB[];
+  /** Compressed outer boundary: broken rings, crescents, walls. */
+  shell: RGB[];
+  /** Rare bright compressed shell sections. */
+  shellBright: RGB[];
+  /** Interior gas, ordered dark -> bright (indexed by local density). */
+  body: RGB[];
+  /** Small luminous core regions. */
+  bodyBright: RGB[];
+  /** Inner arcs / broken inner rings. */
+  inner: RGB[];
+  innerBright: RGB[];
+  /** Soft curved wisps buried in the body. */
+  wisp: RGB[];
+  /** Branching filament network (remnant profiles only). */
+  filament: RGB[];
+  filamentBright: RGB[];
+  /** Dark dust lanes that occlude gas beneath them. */
+  dust: RGB[];
+  /** Faint material inside low-density cavities. */
+  cavity: RGB[];
+  /** Additive emission glow. */
+  glow: RGB[];
+  /** Tints handed to the background pass (distant haze + H II fields). */
+  bg: { core: RGB; mid: RGB; fil: RGB };
 }
 
-const rgb = (r: number, g: number, b: number): [number, number, number] => [
-  r / 255,
-  g / 255,
-  b / 255,
-];
+/** Orion-like: pink/violet centre, cool blue exterior, opposing arcs. */
+export const ORION: ProfilePalette = {
+  volume: [hex("#3B1822"), hex("#29203B"), hex("#26384B"), hex("#4A3B5C")],
+  shell: [hex("#5577A8"), hex("#766AA1"), hex("#A94778")],
+  shellBright: [hex("#DF4F92"), hex("#F2A8C8")],
+  body: [hex("#4A3B5C"), hex("#577DAA"), hex("#8877AF"), hex("#8B315F"), hex("#D94C8A")],
+  bodyBright: [hex("#F3A4C5"), hex("#F2A8C8"), hex("#D94C8A")],
+  inner: [hex("#8B72B2"), hex("#668BB4"), hex("#D84B8B")],
+  innerBright: [hex("#F0A0C2"), hex("#D84B8B")],
+  wisp: [hex("#9A416D"), hex("#C85B87"), hex("#75668D"), hex("#536A84")],
+  filament: [],
+  filamentBright: [],
+  dust: [hex("#1A101C"), hex("#211313"), hex("#260E12"), hex("#0D1722")],
+  cavity: [hex("#10182A"), hex("#1A1122"), hex("#252B35")],
+  glow: [hex("#E64D92"), hex("#8C63BF"), hex("#4E91C4"), hex("#F5A8CA")],
+  bg: { core: hex("#DF4F92"), mid: hex("#8B315F"), fil: hex("#8C63BF") },
+};
 
-// Approximate line colors.
-const H_ALPHA = rgb(255, 60, 38);
-const H_BETA = rgb(90, 150, 255);
-const OIII = rgb(45, 240, 190);
-const SII = rgb(230, 90, 40);
+/** Helix-like: cool blue cavity inside a thick broken amber ring. */
+export const HELIX: ProfilePalette = {
+  volume: [hex("#3B2924"), hex("#51232B"), hex("#3B1822"), hex("#4C131A")],
+  shell: [hex("#C35A25"), hex("#E28B35"), hex("#742126")],
+  shellBright: [hex("#F2B85A"), hex("#E28B35")],
+  body: [hex("#3E4F91"), hex("#4269A4"), hex("#55539A"), hex("#569CC2")],
+  bodyBright: [hex("#569CC2"), hex("#6296C2")],
+  inner: [hex("#E49B43"), hex("#C9582C"), hex("#6296C2")],
+  innerBright: [hex("#F3C56D"), hex("#E49B43")],
+  wisp: [hex("#B9582B"), hex("#C88542"), hex("#692124"), hex("#526C88")],
+  filament: [],
+  filamentBright: [],
+  dust: [hex("#260E12"), hex("#211313"), hex("#1A101C")],
+  cavity: [hex("#10182A"), hex("#252B35"), hex("#1A1122")],
+  glow: [hex("#477AB2"), hex("#54A5C4"), hex("#E5963E"), hex("#CF6128")],
+  bg: { core: hex("#E28B35"), mid: hex("#742126"), fil: hex("#F2B85A") },
+};
 
-const blend = (
-  a: [number, number, number],
-  b: [number, number, number],
-  t: number
-): [number, number, number] => [
-  a[0] + (b[0] - a[0]) * t,
-  a[1] + (b[1] - a[1]) * t,
-  a[2] + (b[2] - a[2]) * t,
-];
+/** Crab-like: blue-white core under a branching orange filament web. */
+export const CRAB: ProfilePalette = {
+  volume: [hex("#26384B"), hex("#29203B"), hex("#51232B")],
+  shell: [hex("#C84422"), hex("#D16B2D"), hex("#6E1B16")],
+  shellBright: [hex("#F0A043")],
+  body: [hex("#4E7EA1"), hex("#6AAFD1"), hex("#90C6E8"), hex("#D5ECF6")],
+  bodyBright: [hex("#D5ECF6"), hex("#A6D6EE")],
+  inner: [hex("#E27B32"), hex("#E65F24"), hex("#F2B15E")],
+  innerBright: [hex("#F2B15E")],
+  wisp: [hex("#B9582B"), hex("#526C88"), hex("#75668D")],
+  filament: [hex("#681B18"), hex("#B84D24"), hex("#D96227"), hex("#EB913E")],
+  filamentBright: [hex("#F3B969"), hex("#EB913E")],
+  dust: [hex("#211313"), hex("#0D1722"), hex("#1A101C")],
+  cavity: [hex("#10182A"), hex("#252B35")],
+  glow: [hex("#A6D6EE"), hex("#62AFD2"), hex("#D96729"), hex("#EC9B42")],
+  bg: { core: hex("#62AFD2"), mid: hex("#4E7EA1"), fil: hex("#D96729") },
+};
 
-// Warm rim tones for lit pillar edges.
-const OCHRE = rgb(198, 150, 96);
-const RUST = rgb(210, 120, 70);
-const PALE = rgb(200, 215, 240);
+export const profilePalettes = { orion: ORION, helix: HELIX, crab: CRAB } as const;
 
-export const nebulaPalettes: NebulaPalette[] = [
-  {
-    // Teal OIII heart with red-orange filaments.
-    name: "crab",
-    core: OIII,
-    mid: blend(H_ALPHA, SII, 0.4),
-    filament: SII,
-    warm: RUST,
-    dust: 0.55,
-  },
-  {
-    // Deep H-alpha glow with heavy dust silhouettes.
-    name: "horsehead",
-    core: blend(H_ALPHA, H_BETA, 0.25),
-    mid: H_ALPHA,
-    filament: blend(H_ALPHA, SII, 0.6),
-    warm: rgb(220, 150, 110),
-    dust: 1.1,
-  },
-  {
-    // The Pillars of Creation, from the reference photo: rust-and-ochre
-    // dust columns backlit by cyan H II glow.
-    name: "pillars",
-    core: rgb(94, 167, 179), // cyanGlow, the surrounding backlit halo
-    mid: rgb(161, 108, 79), // warmDust, the body of the columns
-    filament: rgb(101, 72, 62), // rustDust
-    warm: rgb(195, 155, 104), // ochreRim, lit edges
-    dust: 0.95,
-  },
-  {
-    // Cool reflection nebula: starlight scattered by dust, mostly blue.
-    name: "reflection",
-    core: rgb(160, 200, 255),
-    mid: H_BETA,
-    filament: blend(H_BETA, OIII, 0.45),
-    warm: PALE,
-    dust: 0.35,
-  },
-  {
-    // Supernova remnant lacework: cyan and red interleaved.
-    name: "veil",
-    core: OIII,
-    mid: blend(H_ALPHA, H_BETA, 0.45),
-    filament: H_ALPHA,
-    warm: RUST,
-    dust: 0.3,
-  },
-];
-
-/** Deterministic pick given a 0..1 random value. */
-export function pickPalette(random: number): NebulaPalette {
-  const index = Math.min(
-    nebulaPalettes.length - 1,
-    Math.floor(random * nebulaPalettes.length)
-  );
-  return nebulaPalettes[index];
-}
+export type ProfileName = keyof typeof profilePalettes;
