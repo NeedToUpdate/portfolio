@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { CaseStudy, Post, PostMeta, Project, WorkIntro } from "./types";
+import { CaseStudy, Insight, InsightMeta, Project, WorkIntro } from "./types";
 
 /**
  * Content loaders. Every page reads content through these functions,
@@ -72,7 +72,7 @@ export function getProjectsByEra(era: Project["era"]): Project[] {
   return getProjects().filter((p) => p.era === era);
 }
 
-function toPostMeta(slug: string, data: Record<string, unknown>, content: string): PostMeta {
+function toInsightMeta(slug: string, data: Record<string, unknown>, content: string): InsightMeta {
   const words = content.split(/\s+/).filter(Boolean).length;
   return {
     slug,
@@ -84,17 +84,17 @@ function toPostMeta(slug: string, data: Record<string, unknown>, content: string
   };
 }
 
-export function getPosts(): PostMeta[] {
-  return readCollection("writing")
-    .map(({ slug, data, content }) => toPostMeta(slug, data, content))
+export function getInsights(): InsightMeta[] {
+  return readCollection("insights")
+    .map(({ slug, data, content }) => toInsightMeta(slug, data, content))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export function getPost(slug: string): Post | undefined {
-  const entry = readCollection("writing").find((e) => e.slug === slug);
+export function getInsight(slug: string): Insight | undefined {
+  const entry = readCollection("insights").find((e) => e.slug === slug);
   if (!entry) return undefined;
   return {
-    ...toPostMeta(entry.slug, entry.data, entry.content),
+    ...toInsightMeta(entry.slug, entry.data, entry.content),
     body: entry.content,
   };
 }

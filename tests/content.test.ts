@@ -1,8 +1,8 @@
 import {
   getCaseStudies,
   getCaseStudy,
-  getPost,
-  getPosts,
+  getInsight,
+  getInsights,
   getProjectsByEra,
   getWorkIntro,
 } from "@/lib/content";
@@ -28,16 +28,16 @@ describe("content loaders", () => {
     expect(preAi.every((p) => p.era === "pre-ai")).toBe(true);
   });
 
-  it("loads posts with computed reading time", () => {
-    const posts = getPosts();
-    expect(posts.length).toBeGreaterThan(0);
-    expect(posts[0].readingTimeMinutes).toBeGreaterThanOrEqual(1);
+  it("loads insights with computed reading time", () => {
+    const insights = getInsights();
+    expect(insights.length).toBeGreaterThan(0);
+    expect(insights[0].readingTimeMinutes).toBeGreaterThanOrEqual(1);
   });
 
-  it("loads a full post body by slug", () => {
-    const post = getPost("why-one-plus-one-equals-two");
-    expect(post).toBeDefined();
-    expect(post?.body).toContain("Peano");
+  it("loads a full insight body by slug", () => {
+    const insight = getInsight("why-one-plus-one-equals-two");
+    expect(insight).toBeDefined();
+    expect(insight?.body).toContain("Peano");
   });
 
   it("loads the work intro with capabilities", () => {

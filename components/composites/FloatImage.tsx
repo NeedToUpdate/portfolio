@@ -10,7 +10,7 @@ interface FloatImageProps {
 
 /**
  * An image the surrounding text wraps around.
- * Used inside MDX posts: <FloatImage src="..." alt="..." side="right" />
+ * Used inside MDX insights: <FloatImage src="..." alt="..." side="right" />
  */
 export default function FloatImage({
   src,

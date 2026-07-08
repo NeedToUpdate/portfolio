@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
 import SectionHeading from "@/components/composites/SectionHeading";
-import GradientLink from "@/components/ui/GradientLink";
+import TextLink from "@/components/ui/TextLink";
 import Icon from "@/components/ui/Icon";
 import Text from "@/components/ui/Text";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
@@ -56,9 +56,9 @@ export default function ContactPage() {
                 </span>
                 <div className="min-w-0">
                   <Text variant="small">{channel.label}</Text>
-                  <GradientLink href={channel.href} className="text-lg">
+                  <TextLink href={channel.href} className="text-lg font-semibold">
                     {channel.value}
-                  </GradientLink>
+                  </TextLink>
                   <Text variant="small" className="mt-1">
                     {channel.note}
                   </Text>

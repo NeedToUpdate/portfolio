@@ -27,11 +27,11 @@ Everything renders from files in `content/`. No CMS.
 | Directory | What it is | Format |
 | --- | --- | --- |
 | `content/work/` | Professional case studies | Markdown + frontmatter |
-| `content/writing/` | Blog posts | MDX + frontmatter |
+| `content/insights/` | Insights | MDX + frontmatter |
 | `content/projects/` | Personal projects, split by `era` (`pre-ai` / `post-ai`) | Markdown + frontmatter |
 
-A blog post is one `.mdx` file. Interactive components registered in
-`components/content/mdx-components.tsx` are available in every post without imports.
+An insight is one `.mdx` file. Interactive components registered in
+`components/content/mdx-components.tsx` are available in every insight without imports.
 
 All site copy follows [TONE.md](TONE.md).
 

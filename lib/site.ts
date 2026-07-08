@@ -22,7 +22,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { label: "Work", href: "/work" },
-  { label: "Writing", href: "/writing" },
+  { label: "Insights", href: "/insights" },
   { label: "Projects", href: "/projects" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

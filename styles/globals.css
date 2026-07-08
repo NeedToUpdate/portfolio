@@ -101,38 +101,6 @@ textarea {
 
 /* ---------- Flair utilities ---------- */
 
-/*
- * Gradient shimmer for text links. Gradient is always applied;
- * hover slides the gradient across the text. Guarded so touch
- * devices and reduced-motion users get a static gradient.
- */
-.link-shimmer {
-  background-image: linear-gradient(
-    110deg,
-    rgb(var(--c-plasma, 96 205 216)),
-    rgb(var(--c-star, 249 235 170)) 45%,
-    rgb(var(--c-nebula, 173 128 235)) 90%,
-    rgb(var(--c-plasma, 96 205 216))
-  );
-  background-size: 250% 100%;
-  background-position: 0% 50%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@media (hover: hover) {
-  .link-shimmer:hover {
-    animation: shimmer-slide 1.6s linear infinite;
-  }
-}
-
-@keyframes shimmer-slide {
-  to {
-    background-position: 250% 50%;
-  }
-}
-
 /* Icon glow: a soft accent shadow that answers hover. */
 .icon-glow {
   filter: drop-shadow(0 0 2px rgb(var(--c-accent) / 0));
