@@ -276,7 +276,7 @@ export default function NebulaBackground() {
       // Particle count scales with footprint so density stays constant:
       // big clouds do not go transparent, small clouds do not blow out.
       const countFor = (r: number, shape: "pillar" | "round", spread = 1) => {
-        const density = 68000;
+        const density = 92000;
         const area = r * r * (shape === "pillar" ? spread : 0.9);
         return Math.max(900, Math.min(30000, Math.round(density * area)));
       };
