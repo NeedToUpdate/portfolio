@@ -19,8 +19,8 @@
 import { rasterizePathToMask } from "./sdf";
 import { nebulaShapes } from "./shapes";
 
-/** Global sprite-size multiplier: smaller = finer, higher-resolution gas. */
-const GLOBAL_SIZE = 0.7;
+/** Global sprite-size multiplier: larger, softer sprites accumulate into gas. */
+const GLOBAL_SIZE = 1.05;
 
 export interface CloudSpec {
   /** Center in uv space (0..1). */
@@ -175,10 +175,10 @@ interface Layer {
 }
 
 const LAYERS: Layer[] = [
-  { frac: 0.3, emission: false, sizeMin: 0.18, sizeVar: 0.14, surface: false, magPow: 0.4, magMul: 1.25 }, // volume
-  { frac: 0.28, emission: false, sizeMin: 0.08, sizeVar: 0.05, surface: false, magPow: 0.5, magMul: 1.0 }, // body
-  { frac: 0.22, emission: false, sizeMin: 0.028, sizeVar: 0.026, surface: true, magPow: 0.5, magMul: 1.0 }, // detail / outline
-  { frac: 0.2, emission: true, sizeMin: 0.12, sizeVar: 0.2, surface: false, magPow: 0.4, magMul: 1.5 }, // glow
+  { frac: 0.44, emission: false, sizeMin: 0.2, sizeVar: 0.18, surface: false, magPow: 0.36, magMul: 1.34 }, // volume
+  { frac: 0.34, emission: false, sizeMin: 0.095, sizeVar: 0.075, surface: false, magPow: 0.46, magMul: 1.08 }, // body
+  { frac: 0.07, emission: false, sizeMin: 0.04, sizeVar: 0.035, surface: true, magPow: 0.5, magMul: 1.0 }, // sparse detail / outline
+  { frac: 0.15, emission: true, sizeMin: 0.15, sizeVar: 0.24, surface: false, magPow: 0.36, magMul: 1.62 }, // emission glow
 ];
 
 /** Deposits layered particles along tapered Bezier pillars. */

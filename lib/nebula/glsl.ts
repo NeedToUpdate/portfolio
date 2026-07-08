@@ -345,6 +345,7 @@ uniform float uDustS[3];
 
 varying vec4 vColor;
 varying float vSoft; // 0 = small & sharp, 1 = large & soft
+varying float vSeed;
 
 void main() {
   float minRes = min(uRes.x, uRes.y);
@@ -353,6 +354,7 @@ void main() {
 
   // Resolve this particle's palette.
   int pi = int(aPalette + 0.5);
+  float isPillar = 1.0 - step(0.5, aPalette);
   vec3 uColCore = uCore[pi];
   vec3 uColMid = uMid[pi];
   vec3 uColFil = uFil[pi];
@@ -388,8 +390,9 @@ void main() {
 
   // Blur and opacity follow sprite size: large sprites are soft and faint
   // (volume fill), small sprites are sharp and opaque (outline detail).
-  vSoft = clamp((gl_PointSize - 6.0) / 44.0, 0.0, 1.0);
-  float sizeOpacity = mix(1.5, 0.55, vSoft);
+  vSoft = clamp((gl_PointSize - 3.0) / 38.0, 0.08, 1.0);
+  vSeed = aData.y;
+  float sizeOpacity = mix(0.85, 0.32, vSoft);
 
   // Rim lighting: cores stay near-black, only the thin surface catches
   // light (warm where it faces the source, cool cyan where backlit).
@@ -408,16 +411,19 @@ void main() {
     vec3 col = mix(uColMid, uColCore, ion * ion * (0.2 + 0.35 * aData.y));
     col = mix(col, uColWarm, surf * lit * 0.6 * (1.0 - uShapeMix));
     col = mix(col, uColFil, step(0.94, aData.y) * 0.7); // rare hot sparks
-    float alpha = (0.014 + 0.026 * aData.y) * twinkle * sizeOpacity * aBright;
+    float alpha = (0.006 + 0.014 * aData.y) * twinkle * sizeOpacity * aBright;
+    alpha *= mix(1.0, 0.38 + 0.42 * surf, isPillar);
     alpha *= 1.0 + uShapeMix * 0.7; // the glyph glows a little brighter
     vColor = vec4(col, alpha);
   } else {
     // Molecular dust: near-black in the dense core, warming as it thins.
-    vec3 dark = uColMid * 0.05 + vec3(0.006);
-    vec3 col = mix(dark, uColMid * 0.24, smoothstep(0.30, 0.95, rim));
-    col += uColWarm * surf * pow(lit, 1.5) * 0.7;   // gold lit edges
-    col += uColCore * surf * pow(back, 2.0) * 0.24; // cyan backlit edges
-    float alpha = (0.06 + 0.10 * aData.y) * clamp(uDust, 0.3, 1.2) * sizeOpacity * aBright;
+    vec3 dark = mix(uColMid * 0.05 + vec3(0.006), vec3(0.030, 0.014, 0.018), isPillar);
+    vec3 body = mix(uColMid * 0.24, vec3(0.18, 0.105, 0.09), isPillar);
+    vec3 col = mix(dark, body, smoothstep(0.30, 0.95, rim));
+    col += uColWarm * surf * pow(lit, 1.5) * mix(0.7, 0.9, isPillar);   // gold lit edges
+    col += uColCore * surf * pow(back, 2.0) * mix(0.24, 0.34, isPillar); // cyan backlit edges
+    float alpha = (0.022 + 0.052 * aData.y) * clamp(uDust, 0.3, 1.2) * sizeOpacity * aBright;
+    alpha *= mix(1.0, 2.8, isPillar);
     alpha *= 1.0 - uShapeMix * 0.85; // dust clears while a glyph is up
     vColor = vec4(col, alpha);
   }
@@ -429,16 +435,31 @@ precision mediump float;
 
 varying vec4 vColor;
 varying float vSoft;
+varying float vSeed;
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
 
 void main() {
-  // Gaussian sprite; softness follows size. Small sprites are tight and
-  // crisp (outline detail), large sprites are wide and soft (volume).
+  // Feathered, slightly irregular gaussian sprite. This avoids visible
+  // particle dots while still letting thousands of sprites accumulate
+  // into cloudy astronomical gas.
   // Premultiplied: dust draws (ONE, ONE_MINUS_SRC_ALPHA), emission (ONE, ONE).
   vec2 d = gl_PointCoord - 0.5;
+  float angle = atan(d.y, d.x);
+  float lobe = 1.0
+    + 0.11 * sin(angle * 3.0 + vSeed * 18.0)
+    + 0.07 * sin(angle * 7.0 - vSeed * 31.0);
+  d /= lobe;
+
   float r2 = dot(d, d);
-  float k = mix(30.0, 8.0, vSoft);
-  float edge = mix(0.10, 0.17, vSoft);
-  float fall = exp(-r2 * k) * smoothstep(0.25, edge, r2);
+  float k = mix(18.0, 4.8, vSoft);
+  float feather = smoothstep(0.34, mix(0.12, 0.02, vSoft), r2);
+  float grain = 0.9 + 0.1 * hash21(gl_PointCoord * 13.0 + vSeed);
+  float fall = exp(-r2 * k) * feather * grain;
   float a = vColor.a * fall;
   gl_FragColor = vec4(vColor.rgb * a, a);
 }
