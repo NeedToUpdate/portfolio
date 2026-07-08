@@ -1,5 +1,7 @@
 /** Minimal WebGL helpers: compile, link, fullscreen quad, texture upload. */
 
+const programShaders = new WeakMap<WebGLProgram, WebGLShader[]>();
+
 export function compileShader(
   gl: WebGLRenderingContext,
   type: number,
@@ -42,7 +44,12 @@ export function beginProgram(
   if (!program) throw new Error("Failed to create program");
   const vs = gl.createShader(gl.VERTEX_SHADER);
   const fs = gl.createShader(gl.FRAGMENT_SHADER);
-  if (!vs || !fs) throw new Error("Failed to create shaders");
+  if (!vs || !fs) {
+    if (vs) gl.deleteShader(vs);
+    if (fs) gl.deleteShader(fs);
+    gl.deleteProgram(program);
+    throw new Error("Failed to create shaders");
+  }
   gl.shaderSource(vs, vertexSrc);
   gl.compileShader(vs);
   gl.shaderSource(fs, fragmentSrc);
@@ -50,15 +57,36 @@ export function beginProgram(
   gl.attachShader(program, vs);
   gl.attachShader(program, fs);
   gl.linkProgram(program);
+  programShaders.set(program, [vs, fs]);
   return program;
 }
 
 /** Validates a program begun with beginProgram. Throws on failure. */
 export function finishProgram(gl: WebGLRenderingContext, program: WebGLProgram): void {
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const log = gl.getProgramInfoLog(program);
+    const log = gl.getProgramInfoLog(program) || "no program info log";
+    const shaderLogs =
+      programShaders
+        .get(program)
+        ?.map((shader, index) => {
+          const kind = index === 0 ? "vertex" : "fragment";
+          const ok = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+          return `${kind} compile ${ok ? "ok" : "failed"}: ${
+            gl.getShaderInfoLog(shader) || "no shader info log"
+          }`;
+        })
+        .join("; ") || "no attached shader info";
     gl.deleteProgram(program);
-    throw new Error(`Program link failed: ${log}`);
+    throw new Error(`Program link failed: ${log}; ${shaderLogs}`);
+  }
+
+  const shaders = programShaders.get(program);
+  if (shaders) {
+    for (const shader of shaders) {
+      gl.detachShader(program, shader);
+      gl.deleteShader(shader);
+    }
+    programShaders.delete(program);
   }
 }
 

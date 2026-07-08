@@ -20,7 +20,7 @@ export default function WorkPage() {
   return (
     <PageShell>
       <div className="max-w-prose">
-        <SectionHeading eyebrow="Selected work" title={intro.title} asPageTitle />
+        <SectionHeading eyebrow="Case studies" title={intro.title} asPageTitle />
         <Text variant="muted" className="mt-5">
           {intro.sentence}
         </Text>

@@ -3,7 +3,7 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 
 interface SectionHeadingProps {
-  /** Small label above the title, e.g. "Selected work". */
+  /** Small label above the title, e.g. "Case studies". */
   eyebrow?: string;
   title: string;
   description?: string;

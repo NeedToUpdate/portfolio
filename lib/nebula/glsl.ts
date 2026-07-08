@@ -337,11 +337,23 @@ uniform vec2 uMouse;        // uv, y up
 uniform float uMouseActive; // eased 0..1
 uniform float uShapeMix;    // eased 0..1 glyph morph
 // Three palettes per particle, chosen by aPalette.
-uniform vec3 uCore[3];  // hot core / cool backlit rim
-uniform vec3 uMid[3];   // main gas
-uniform vec3 uFil[3];   // filament sparks
-uniform vec3 uWarm[3];  // warm lit rim
-uniform float uDustS[3];
+// Kept as discrete uniforms: WebGL 1 drivers can reject variable indexing
+// into uniform arrays in vertex shaders with only an opaque link error.
+uniform vec3 uCore0;  // hot core / cool backlit rim
+uniform vec3 uCore1;
+uniform vec3 uCore2;
+uniform vec3 uMid0;   // main gas
+uniform vec3 uMid1;
+uniform vec3 uMid2;
+uniform vec3 uFil0;   // filament sparks
+uniform vec3 uFil1;
+uniform vec3 uFil2;
+uniform vec3 uWarm0;  // warm lit rim
+uniform vec3 uWarm1;
+uniform vec3 uWarm2;
+uniform float uDustS0;
+uniform float uDustS1;
+uniform float uDustS2;
 
 varying vec4 vColor;
 varying float vSoft; // 0 = small & sharp, 1 = large & soft
@@ -352,14 +364,16 @@ void main() {
   float isDust = step(0.5, aData.z);
   float depth01 = aPos.z * 0.5 + 0.5;
 
-  // Resolve this particle's palette.
-  int pi = int(aPalette + 0.5);
-  float isPillar = 1.0 - step(0.5, aPalette);
-  vec3 uColCore = uCore[pi];
-  vec3 uColMid = uMid[pi];
-  vec3 uColFil = uFil[pi];
-  vec3 uColWarm = uWarm[pi];
-  float uDust = uDustS[pi];
+  // Resolve this particle's palette without dynamic uniform indexing.
+  float w0 = 1.0 - step(0.5, aPalette);
+  float w1 = 1.0 - step(0.5, abs(aPalette - 1.0));
+  float w2 = step(1.5, aPalette);
+  float isPillar = w0;
+  vec3 uColCore = uCore0 * w0 + uCore1 * w1 + uCore2 * w2;
+  vec3 uColMid = uMid0 * w0 + uMid1 * w1 + uMid2 * w2;
+  vec3 uColFil = uFil0 * w0 + uFil1 * w1 + uFil2 * w2;
+  vec3 uColWarm = uWarm0 * w0 + uWarm1 * w1 + uWarm2 * w2;
+  float uDust = uDustS0 * w0 + uDustS1 * w1 + uDustS2 * w2;
 
   // Slow individual drift: the cloud breathes without global rotation.
   float t = uTime * 0.05 + aData.y * 6.28;

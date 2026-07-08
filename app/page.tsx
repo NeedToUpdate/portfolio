@@ -69,12 +69,12 @@ export default function HomePage() {
           </section>
 
           <Section
-            eyebrow="Selected work"
+            eyebrow="Case studies"
             title="Systems that changed how the business runs"
             id="home-work"
             nebulaShape="hex"
             className={homeCardClass}
-            action={<ArrowLink href="/work" label="All work" />}
+            action={<ArrowLink href="/work" label="All case studies" />}
           >
             <DividedList className="mt-6">
               {featured.map((caseStudy) => (
