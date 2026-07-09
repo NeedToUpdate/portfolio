@@ -1,4 +1,5 @@
 ---
+nebulaShape: stack
 title: "Server Case"
 description: "A 3d printed server case."
 thumbnail: "/images/server.webp"

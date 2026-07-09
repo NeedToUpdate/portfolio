@@ -1,51 +1,49 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import SuccessorPlayground from "@/components/composites/SuccessorPlayground";
-import PeanoAdditionStepper from "@/components/composites/PeanoAdditionStepper";
+import RequestPathExplorer from "@/components/composites/RequestPathExplorer";
+import MinWidthDemo from "@/components/composites/MinWidthDemo";
+import StarfieldDemo from "@/components/composites/StarfieldDemo";
 
-describe("SuccessorPlayground", () => {
-  it("starts at zero", () => {
-    render(<SuccessorPlayground />);
-    expect(screen.getByTestId("peano-value")).toHaveTextContent("0");
-    expect(screen.getByTestId("peano-expression")).toHaveTextContent("0");
+describe("RequestPathExplorer", () => {
+  it("starts on the page path through Lambda", () => {
+    render(<RequestPathExplorer />);
+    expect(screen.getByTestId("path-explanation")).toHaveTextContent(/renders the HTML/i);
   });
 
-  it("applies the successor function on click", () => {
-    render(<SuccessorPlayground />);
-    fireEvent.click(screen.getByRole("button", { name: /apply s/i }));
-    expect(screen.getByTestId("peano-value")).toHaveTextContent("1");
-    expect(screen.getByTestId("peano-expression")).toHaveTextContent("S(0)");
+  it("routes static assets to S3", () => {
+    render(<RequestPathExplorer />);
+    fireEvent.click(screen.getByRole("button", { name: /static asset/i }));
+    expect(screen.getByTestId("path-explanation")).toHaveTextContent(/S3/);
   });
 
-  it("resets to zero", () => {
-    render(<SuccessorPlayground />);
-    fireEvent.click(screen.getByRole("button", { name: /apply s/i }));
-    fireEvent.click(screen.getByRole("button", { name: /reset/i }));
-    expect(screen.getByTestId("peano-value")).toHaveTextContent("0");
+  it("serves repeat visits from the edge", () => {
+    render(<RequestPathExplorer />);
+    fireEvent.click(screen.getByRole("button", { name: /repeat visit/i }));
+    expect(screen.getByTestId("path-explanation")).toHaveTextContent(/edge/i);
   });
 });
 
-describe("PeanoAdditionStepper", () => {
-  it("starts at the plain expression", () => {
-    render(<PeanoAdditionStepper a={1} b={1} />);
-    expect(screen.getByTestId("step-expression")).toHaveTextContent("1 + 1");
+describe("MinWidthDemo", () => {
+  it("starts in the broken state", () => {
+    render(<MinWidthDemo />);
+    expect(screen.getByTestId("minwidth-explanation")).toHaveTextContent(/runs off the edge/i);
+    expect(screen.getByTestId("minwidth-content")).not.toHaveClass("min-w-0");
   });
 
-  it("steps forward through the rewrite and reaches the sum", () => {
-    render(<PeanoAdditionStepper a={1} b={1} />);
-    const next = screen.getByRole("button", { name: /next step|done/i });
-    for (let i = 0; i < 10; i++) {
-      if (!(next as HTMLButtonElement).disabled) {
-        fireEvent.click(next);
-      }
-    }
-    expect(screen.getByTestId("step-expression")).toHaveTextContent("2");
+  it("applies min-width: 0 on toggle", () => {
+    render(<MinWidthDemo />);
+    fireEvent.click(screen.getByRole("button", { name: /apply min-width/i }));
+    expect(screen.getByTestId("minwidth-content")).toHaveClass("min-w-0");
+    expect(screen.getByTestId("minwidth-explanation")).toHaveTextContent(/truncates/i);
   });
+});
 
-  it("steps backward", () => {
-    render(<PeanoAdditionStepper a={1} b={1} />);
-    fireEvent.click(screen.getByRole("button", { name: /next step/i }));
-    fireEvent.click(screen.getByRole("button", { name: /back/i }));
-    expect(screen.getByTestId("step-expression")).toHaveTextContent("1 + 1");
+describe("StarfieldDemo", () => {
+  // jsdom has no canvas context; the component must survive that.
+  it("renders and regenerates without a canvas context", () => {
+    render(<StarfieldDemo />);
+    const button = screen.getByRole("button", { name: /generate a new sky/i });
+    expect(button).toBeInTheDocument();
+    fireEvent.click(button);
   });
 });

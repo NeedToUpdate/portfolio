@@ -99,6 +99,7 @@ export default function AboutPage() {
           alt="AWS Certified Solutions Architect Associate badge"
           width={72}
           height={72}
+          data-nebula-shape="cloud"
           className="shrink-0 icon-glow"
         />
       </section>

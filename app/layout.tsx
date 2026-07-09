@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Lato, Montserrat } from "next/font/google";
+import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import Nav from "@/components/composites/Nav";
 import Footer from "@/components/composites/Footer";
 import StarField from "@/components/composites/StarField";
 import { site } from "@/lib/site";
 import "@/styles/globals.css";
 
-const display = Montserrat({
+// Space Grotesk carries the space theme in the display sizes;
+// Inter keeps body copy plain and legible for long reads.
+const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
 });
 
-const body = Lato({
+const body = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
   variable: "--font-body",
 });
 

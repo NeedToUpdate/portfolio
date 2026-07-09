@@ -35,9 +35,9 @@ describe("content loaders", () => {
   });
 
   it("loads a full insight body by slug", () => {
-    const insight = getInsight("why-one-plus-one-equals-two");
+    const insight = getInsight("how-this-site-works");
     expect(insight).toBeDefined();
-    expect(insight?.body).toContain("Peano");
+    expect(insight?.body).toContain("Lambda");
   });
 
   it("loads the work intro with capabilities", () => {

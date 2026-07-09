@@ -63,13 +63,24 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
           Where I have worked
         </Heading>
         <Button variant="outline" shape="pill" onClick={() => setSplit((s) => !s)} aria-pressed={split}>
-          {split ? "Merge the streams" : "Split the streams"}
+          {split ? "Merge into one timeline" : "Split into two tracks"}
         </Button>
       </div>
       <Text variant="small" className="mt-2">
-        {split
-          ? "Two tracks, one career: engineering on the left, teaching and leadership on the right."
-          : "One timeline, two skill sets. Hover or use the button to split it."}
+        {split ? (
+          "Engineering on one track. Teaching and leadership on the other, rooted in the psychology degree."
+        ) : (
+          <>
+            Two careers share this timeline: engineering, and teaching that became leadership.{" "}
+            {/* Hover only exists on hover devices; phones get button-only copy. */}
+            <span className="hidden [@media(hover:hover)]:inline">
+              Hover the timeline or press the button to see them side by side.
+            </span>
+            <span className="[@media(hover:hover)]:hidden">
+              Press the button to see them separately.
+            </span>
+          </>
+        )}
       </Text>
 
       {/* The hidden layer goes absolute so only the visible one sets the

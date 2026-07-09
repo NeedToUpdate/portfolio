@@ -51,7 +51,7 @@ export const socialChannels: SocialChannel[] = [
     value: "NeedToUpdate",
     href: site.github,
     note: "Code, experiments, and this site's source.",
-    shape: "hex",
+    shape: "branch",
   },
 ];
 

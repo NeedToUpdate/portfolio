@@ -1,4 +1,5 @@
 ---
+nebulaShape: db
 title: "AI Image Toolkit"
 description: "Resize, compress, and use AI."
 thumbnail: "/images/image_tools.webp"

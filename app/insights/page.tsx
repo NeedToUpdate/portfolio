@@ -9,7 +9,7 @@ import { getInsights } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Insights",
   description:
-    "Essays and interactive models about systems, assumptions, architecture, and engineering judgment.",
+    "Essays on architecture, AI, and engineering decisions, written from real projects.",
 };
 
 export default function InsightsPage() {
@@ -27,8 +27,8 @@ export default function InsightsPage() {
       />
       <SectionHeading
         eyebrow="Insights"
-        title="Essays on the assumptions systems run on"
-        description="Writing about architecture, reliability, decision-making, and the hidden premises that shape production software. Some essays include working models."
+        title="Essays from production"
+        description="Architecture, AI, and engineering decisions, written from real projects. Some essays include working models."
         asPageTitle
       />
       <DividedList borderTop className="mt-10">

@@ -1,4 +1,5 @@
 ---
+nebulaShape: spark
 title: "This Site"
 description: "Portfolio 2.0. Next.js on Lambda with ISR, an MDX blog with interactive elements, and a two-stage CI/CD pipeline."
 techs: ["nextjs", "aws", "serverless"]

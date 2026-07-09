@@ -1,4 +1,5 @@
 ---
+nebulaShape: book
 title: "whatstheword.io"
 description: "An ESL SaaS game site."
 thumbnail: "/images/whatstheword.webp"
