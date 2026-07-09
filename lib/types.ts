@@ -65,3 +65,54 @@ export interface WorkIntro {
   capabilitiesTitle: string;
   capabilities: Capability[];
 }
+
+/** One column of a career entry: a job title, org, and its bullet points. */
+export interface StreamView {
+  title: string;
+  org: string;
+  points: string[];
+}
+
+/**
+ * One period on the career timeline. Source: content/career/*.md
+ *
+ * `merged` is the single-timeline version, mixing tech and leadership.
+ * `tech` and `lead` are the same period split into the engineering
+ * side and the teaching/leadership side; an entry with only one side
+ * appears on just that stream when split.
+ */
+export interface CareerEntry {
+  slug: string;
+  /** Lower number = later on the timeline (sorts newest first). */
+  order: number;
+  period: string;
+  merged: StreamView;
+  tech?: StreamView;
+  lead?: StreamView;
+}
+
+/** One tool or practice inside a skill domain. */
+export interface Skill {
+  name: string;
+  /** First year used in real work. */
+  since: number;
+  /** Where it was used, for tooltips. */
+  context?: string;
+}
+
+/**
+ * One category on the skills chart. Source: content/skills/*.md
+ * Names must render without truncation in the chart's label column;
+ * keep them short and put the detail in a skill's "context" field.
+ */
+export interface SkillDomain {
+  slug: string;
+  /** Lower number = higher on the chart's legend. */
+  order: number;
+  title: string;
+  /** One sentence: what I do with this domain. TONE.md applies. */
+  summary: string;
+  /** Nebula glyph the domain's legend entry condenses into on hover. */
+  nebulaShape: string;
+  skills: Skill[];
+}

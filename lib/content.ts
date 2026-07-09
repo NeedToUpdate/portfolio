@@ -1,7 +1,16 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { CaseStudy, Insight, InsightMeta, Project, WorkIntro } from "./types";
+import {
+  CareerEntry,
+  CaseStudy,
+  Insight,
+  InsightMeta,
+  Project,
+  SkillDomain,
+  StreamView,
+  WorkIntro,
+} from "./types";
 
 /**
  * Content loaders. Every page reads content through these functions,
@@ -30,6 +39,22 @@ function requireString(entry: ContentEntry, field: string): string {
     throw new Error(`content/${entry.source}: missing required frontmatter field "${field}"`);
   }
   return value;
+}
+
+/** Validates a nested { title, org, points } block, e.g. career.merged. */
+function requireStreamView(entry: ContentEntry, field: string): StreamView {
+  const value = entry.data[field] as Partial<StreamView> | undefined;
+  if (!value || typeof value.title !== "string" || typeof value.org !== "string") {
+    throw new Error(
+      `content/${entry.source}: "${field}" must have a "title" and "org" string`
+    );
+  }
+  return { title: value.title, org: value.org, points: value.points ?? [] };
+}
+
+/** Same shape, but the field is optional (career's tech/lead streams). */
+function optionalStreamView(entry: ContentEntry, field: string): StreamView | undefined {
+  return entry.data[field] ? requireStreamView(entry, field) : undefined;
 }
 
 // Collections are immutable at runtime in production; in dev they are
@@ -130,6 +155,32 @@ export function getInsight(slug: string): Insight | undefined {
     ...toInsightMeta(entry),
     body: entry.content,
   };
+}
+
+export function getCareerEntries(): CareerEntry[] {
+  return readCollection("career")
+    .map((entry) => ({
+      slug: entry.slug,
+      order: (entry.data.order as number) ?? 99,
+      period: requireString(entry, "period"),
+      merged: requireStreamView(entry, "merged"),
+      tech: optionalStreamView(entry, "tech"),
+      lead: optionalStreamView(entry, "lead"),
+    }))
+    .sort((a, b) => a.order - b.order);
+}
+
+export function getSkillDomains(): SkillDomain[] {
+  return readCollection("skills")
+    .map((entry) => ({
+      slug: entry.slug,
+      order: (entry.data.order as number) ?? 99,
+      title: requireString(entry, "title"),
+      summary: requireString(entry, "summary"),
+      nebulaShape: requireString(entry, "nebulaShape"),
+      skills: (entry.data.skills as SkillDomain["skills"]) ?? [],
+    }))
+    .sort((a, b) => a.order - b.order);
 }
 
 export function getWorkIntro(): WorkIntro {

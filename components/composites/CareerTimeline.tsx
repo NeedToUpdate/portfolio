@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
-import { CareerEntry, StreamView } from "@/lib/career";
+import { CareerEntry, StreamView } from "@/lib/types";
 
 interface CareerTimelineProps {
   entries: CareerEntry[];
@@ -101,7 +101,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
         >
           {entries.map((entry, index) => (
             <li
-              key={entry.id}
+              key={entry.slug}
               className={`relative transition-all duration-500 ease-out ${
                 split ? "-translate-x-5 opacity-0" : "translate-x-0 opacity-100"
               }`}
@@ -138,7 +138,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
           <ol className="space-y-10">
             {entries.map((entry, index) => (
               <li
-                key={entry.id}
+                key={entry.slug}
                 className={`grid gap-6 transition-all duration-500 ease-out sm:grid-cols-2 ${
                   split ? "translate-x-0 opacity-100" : "-translate-x-5 opacity-0"
                 }`}
