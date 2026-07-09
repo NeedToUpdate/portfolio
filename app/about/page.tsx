@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
@@ -9,6 +10,7 @@ import CapabilityList from "@/components/composites/CapabilityList";
 import SkillSpans from "@/components/composites/SkillSpans";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
+import Panel from "@/components/ui/Panel";
 import { getCareerEntries, getSkillDomains, getWorkIntro } from "@/lib/content";
 import { personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -74,6 +76,27 @@ export default function AboutPage() {
           not beneath it.
         </p>
       </div>
+
+      <Link href="/work" className="group mt-8 block" data-nebula-shape="hex">
+        <Panel className="transition-colors group-hover:border-line">
+          <Text variant="muted" className="mb-2 text-sm uppercase tracking-wide">
+            Case studies
+          </Text>
+          <Heading size="small" className="transition-colors group-hover:text-accent">
+            Systems that changed how the business runs
+          </Heading>
+          <Text variant="small" className="mt-2 max-w-prose">
+            Selected work across modernization, data platforms, delivery systems, and
+            production architecture.
+          </Text>
+          <span className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent">
+            View case studies
+            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+              →
+            </span>
+          </span>
+        </Panel>
+      </Link>
 
       <section aria-labelledby="principles" className="mt-14">
         <Heading size="sub" id="principles">
