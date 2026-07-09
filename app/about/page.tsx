@@ -77,7 +77,7 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <Link href="/work" className="group mt-8 block" data-nebula-shape="hex">
+      <Link href="/work" className="group mt-8 block">
         <Panel className="transition-colors group-hover:border-line">
           <Text variant="muted" className="mb-2 text-sm uppercase tracking-wide">
             Case studies
@@ -89,7 +89,10 @@ export default function AboutPage() {
             Selected work across modernization, data platforms, delivery systems, and
             production architecture.
           </Text>
-          <span className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent">
+          <span
+            data-nebula-shape="hex"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
+          >
             View case studies
             <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
               →

@@ -4,6 +4,7 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import MdxContent from "@/components/composites/MdxContent";
+import AdjacentNav from "@/components/composites/AdjacentNav";
 import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import JsonLd from "@/components/ui/JsonLd";
@@ -42,6 +43,12 @@ export default async function InsightPage({ params }: PageProps) {
   const insight = getInsight(slug);
   if (!insight) notFound();
 
+  // Date order, newest first, same as the /insights list.
+  const all = getInsights();
+  const index = all.findIndex((i) => i.slug === slug);
+  const newer = index > 0 ? all[index - 1] : undefined;
+  const older = index >= 0 && index < all.length - 1 ? all[index + 1] : undefined;
+
   return (
     <PageShell narrow>
       {/* Narrow centered article: the lower-left margin is open. */}
@@ -73,6 +80,15 @@ export default async function InsightPage({ params }: PageProps) {
       <article className="mt-10">
         <MdxContent source={insight.body} />
       </article>
+
+      <AdjacentNav
+        previous={
+          newer && { href: `/insights/${newer.slug}`, title: newer.title, hint: "Newer write-up" }
+        }
+        next={
+          older && { href: `/insights/${older.slug}`, title: older.title, hint: "Older write-up" }
+        }
+      />
     </PageShell>
   );
 }

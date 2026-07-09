@@ -23,6 +23,23 @@ describe("content loaders", () => {
     expect(getCaseStudy(first.slug)?.title).toBe(first.title);
   });
 
+  it("loads a role and a context scorecard for every case study", () => {
+    const studies = getCaseStudies();
+    for (const study of studies) {
+      expect(study.role).toBeTruthy();
+      expect(study.context?.length).toBeGreaterThanOrEqual(2);
+      expect(study.context?.every((row) => row.term && row.value)).toBe(true);
+    }
+  });
+
+  it("gives every case study a result section for the exhibit split", () => {
+    // The detail page slots the architecture exhibit before this
+    // heading; a study without it would render the exhibit last.
+    for (const study of getCaseStudies()) {
+      expect(study.body).toContain("## The result");
+    }
+  });
+
   it("splits projects by era", () => {
     const preAi = getProjectsByEra("pre-ai");
     const postAi = getProjectsByEra("post-ai");

@@ -1,5 +1,11 @@
 /** Typed frontmatter schemas for every content collection. */
 
+/** One row of a case study's context scorecard, e.g. Client / Scale. */
+export interface ScorecardEntry {
+  term: string;
+  value: string;
+}
+
 /** A professional case study. Source: content/work/*.md */
 export interface CaseStudy {
   slug: string;
@@ -9,6 +15,12 @@ export interface CaseStudy {
   category: string;
   /** Lower number = higher prominence. 1 is the flagship. */
   priority: number;
+  /** My span of influence, one line, e.g. "Led architecture and delivery". */
+  role?: string;
+  /** Context scorecard rows: client, scale, environment. Facts only. */
+  context?: ScorecardEntry[];
+  /** Path to an architecture diagram image, once one exists. */
+  diagram?: string;
   body: string;
 }
 

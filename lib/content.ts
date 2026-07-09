@@ -95,6 +95,9 @@ export function getCaseStudies(): CaseStudy[] {
       techs: (entry.data.techs as string[]) ?? [],
       category: (entry.data.category as string) ?? "systems",
       priority: (entry.data.priority as number) ?? 99,
+      role: entry.data.role as string | undefined,
+      context: entry.data.context as CaseStudy["context"],
+      diagram: entry.data.diagram as string | undefined,
       body: entry.content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);
