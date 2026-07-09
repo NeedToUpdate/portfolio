@@ -10,8 +10,7 @@ import CapabilityList from "@/components/composites/CapabilityList";
 import SkillSpans from "@/components/composites/SkillSpans";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
-import { getWorkIntro } from "@/lib/content";
-import { careerEntries } from "@/lib/career";
+import { getCareerEntries, getSkillDomains, getWorkIntro } from "@/lib/content";
 import { personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -23,6 +22,8 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   const { capabilities } = getWorkIntro();
+  const careerEntries = getCareerEntries();
+  const skillDomains = getSkillDomains();
 
   return (
     <PageShell narrow>
@@ -75,7 +76,7 @@ export default function AboutPage() {
         <Text variant="small" className="mt-2">
           Every skill, from first real use to today. Hover a row.
         </Text>
-        <SkillSpans className="mt-6" />
+        <SkillSpans domains={skillDomains} className="mt-6" />
       </section>
 
       <div className="mt-14">

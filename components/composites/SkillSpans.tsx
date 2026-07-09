@@ -1,6 +1,7 @@
-import { skillDomains, Skill, SkillDomain } from "@/lib/skills";
+import { Skill, SkillDomain } from "@/lib/types";
 
 interface SkillSpansProps {
+  domains: SkillDomain[];
   className?: string;
 }
 
@@ -18,18 +19,19 @@ const TICKS = [
 ];
 
 /**
- * Chart ink per domain, in the order of skillDomains. Darker steps of
- * the site's flair hues, validated for the dark surface (#080a10):
- * OKLCH lightness band, chroma floor, adjacent-pair CVD >= 12, and
- * 3:1 contrast all pass. Keep color on the bar only; text stays in
- * text tokens.
+ * Chart bar/dot color per domain slug, in content/skills/*.md order.
+ * Darker steps of the site's flair hues, validated for the dark
+ * surface (#080a10): OKLCH lightness band, chroma floor, adjacent-pair
+ * CVD >= 12, and 3:1 contrast all pass. Keep color on the bar only;
+ * text stays in text tokens. The nebula glyph itself is content
+ * (domain.nebulaShape), not a design decision, so it lives in the CMS.
  */
-const DOMAIN_INK: Record<string, { bar: string; dot: string; shape: string }> = {
-  ai: { bar: "bg-[#8f5fd6]", dot: "bg-[#8f5fd6]", shape: "nodes" },
-  cloud: { bar: "bg-[#5b87c9]", dot: "bg-[#5b87c9]", shape: "cloud" },
-  data: { bar: "bg-[#b8893a]", dot: "bg-[#b8893a]", shape: "db" },
-  software: { bar: "bg-[#1ba4b0]", dot: "bg-[#1ba4b0]", shape: "branch" },
-  architecture: { bar: "bg-[#c05f8f]", dot: "bg-[#c05f8f]", shape: "stack" },
+const DOMAIN_COLOR: Record<string, string> = {
+  ai: "#8f5fd6",
+  cloud: "#5b87c9",
+  data: "#b8893a",
+  software: "#1ba4b0",
+  architecture: "#c05f8f",
 };
 
 const pct = (year: number) => ((year - START_YEAR) / (END_YEAR - START_YEAR)) * 100;
@@ -41,14 +43,14 @@ interface Row {
 
 /** Newest first: the top of the chart is the current wave, the bottom
  *  is the foundation. Same-year rows group by domain so color runs. */
-function buildRows(): Row[] {
-  const domainIndex = new Map(skillDomains.map((d, i) => [d.id, i]));
-  return skillDomains
+function buildRows(domains: SkillDomain[]): Row[] {
+  const domainIndex = new Map(domains.map((d, i) => [d.slug, i]));
+  return domains
     .flatMap((domain) => domain.skills.map((skill) => ({ skill, domain })))
     .sort(
       (a, b) =>
         b.skill.since - a.skill.since ||
-        (domainIndex.get(a.domain.id) ?? 0) - (domainIndex.get(b.domain.id) ?? 0) ||
+        (domainIndex.get(a.domain.slug) ?? 0) - (domainIndex.get(b.domain.slug) ?? 0) ||
         a.skill.name.localeCompare(b.skill.name)
     );
 }
@@ -58,21 +60,25 @@ function buildRows(): Row[] {
  * Reads top-down as a story: the recent AI wave stacked over a
  * decade-old foundation. Hover a row for the detail line.
  */
-export default function SkillSpans({ className = "" }: SkillSpansProps) {
-  const rows = buildRows();
+export default function SkillSpans({ domains, className = "" }: SkillSpansProps) {
+  const rows = buildRows(domains);
 
   return (
     <figure className={className}>
       {/* Legend: identity also lives in each row's tooltip, so color is
           never alone. Each entry doubles as a small nebula trigger. */}
       <div className="flex flex-wrap gap-x-5 gap-y-1.5">
-        {skillDomains.map((domain) => (
+        {domains.map((domain) => (
           <span
-            key={domain.id}
-            data-nebula-shape={DOMAIN_INK[domain.id].shape}
+            key={domain.slug}
+            data-nebula-shape={domain.nebulaShape}
             className="flex items-center gap-2 text-xs text-muted"
           >
-            <span aria-hidden className={`h-2 w-2 rounded-full ${DOMAIN_INK[domain.id].dot}`} />
+            <span
+              aria-hidden
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: DOMAIN_COLOR[domain.slug] }}
+            />
             {domain.title}
           </span>
         ))}
@@ -110,7 +116,7 @@ export default function SkillSpans({ className = "" }: SkillSpansProps) {
         <div className="space-y-0.5">
           {rows.map(({ skill, domain }) => (
             <div
-              key={`${domain.id}-${skill.name}`}
+              key={`${domain.slug}-${skill.name}`}
               className="group relative flex items-center gap-3"
             >
               {/* Sized to fit the longest skill name in full; never truncates. */}
@@ -125,8 +131,8 @@ export default function SkillSpans({ className = "" }: SkillSpansProps) {
               <div className="relative h-5 min-w-0 flex-1">
                 <span
                   aria-hidden
-                  className={`absolute right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full opacity-80 transition-opacity group-hover:opacity-100 ${DOMAIN_INK[domain.id].bar}`}
-                  style={{ left: `${pct(skill.since)}%` }}
+                  className="absolute right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full opacity-80 transition-opacity group-hover:opacity-100"
+                  style={{ left: `${pct(skill.since)}%`, backgroundColor: DOMAIN_COLOR[domain.slug] }}
                 />
                 {/* Hover detail card. Anchored to the track's left edge and
                     allowed to wrap, so it can never widen the page. */}

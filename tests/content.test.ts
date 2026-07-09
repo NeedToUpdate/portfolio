@@ -1,9 +1,11 @@
 import {
+  getCareerEntries,
   getCaseStudies,
   getCaseStudy,
   getInsight,
   getInsights,
   getProjectsByEra,
+  getSkillDomains,
   getWorkIntro,
 } from "@/lib/content";
 
@@ -44,5 +46,19 @@ describe("content loaders", () => {
     const intro = getWorkIntro();
     expect(intro.title).toBeTruthy();
     expect(intro.capabilities.length).toBeGreaterThan(0);
+  });
+
+  it("loads career entries sorted newest first, with a merged view each", () => {
+    const entries = getCareerEntries();
+    expect(entries.length).toBeGreaterThan(0);
+    const orders = entries.map((e) => e.order);
+    expect(orders).toEqual([...orders].sort((a, b) => a - b));
+    expect(entries.every((e) => e.merged.title && e.merged.points.length > 0)).toBe(true);
+  });
+
+  it("loads skill domains with a nebula shape and at least one skill each", () => {
+    const domains = getSkillDomains();
+    expect(domains.length).toBeGreaterThan(0);
+    expect(domains.every((d) => d.nebulaShape && d.skills.length > 0)).toBe(true);
   });
 });
