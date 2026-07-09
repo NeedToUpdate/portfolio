@@ -72,16 +72,19 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
           : "One timeline, two skill sets. Hover or use the button to split it."}
       </Text>
 
+      {/* The hidden layer goes absolute so only the visible one sets the
+          container height; stacking both in one grid cell reserved the
+          taller (split) layout's height and left a dead gap below. */}
       <div
         onMouseEnter={() => hoverAllowed() && setSplit(true)}
         onMouseLeave={() => hoverAllowed() && setSplit(false)}
-        className="mt-8 grid transition-all duration-500 ease-out"
+        className="relative mt-8"
       >
         <ol
           aria-hidden={split}
-          className={`col-start-1 row-start-1 space-y-8 border-l border-line/70 pl-6 transition-all duration-500 ease-out ${
+          className={`space-y-8 border-l border-line/70 pl-6 transition-all duration-500 ease-out ${
             split
-              ? "pointer-events-none -translate-x-4 opacity-0 blur-sm"
+              ? "pointer-events-none absolute inset-x-0 top-0 -translate-x-4 opacity-0 blur-sm"
               : "translate-x-0 opacity-100 blur-0"
           }`}
         >
@@ -105,12 +108,14 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
           ))}
         </ol>
 
+        {/* Hidden-state shifts must stay negative (leftward): rightward
+            translates on the invisible layer widen the page scroll area. */}
         <div
           aria-hidden={!split}
-          className={`col-start-1 row-start-1 transition-all duration-700 ease-out ${
+          className={`transition-all duration-700 ease-out ${
             split
               ? "translate-x-0 opacity-100 blur-0 delay-100"
-              : "pointer-events-none translate-x-4 opacity-0 blur-sm"
+              : "pointer-events-none absolute inset-x-0 top-0 -translate-x-4 opacity-0 blur-sm"
           }`}
         >
           {/* Two columns need room; below sm the streams stack per entry
@@ -124,7 +129,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
               <li
                 key={entry.id}
                 className={`grid gap-6 transition-all duration-500 ease-out sm:grid-cols-2 ${
-                  split ? "translate-x-0 opacity-100" : "translate-x-5 opacity-0"
+                  split ? "translate-x-0 opacity-100" : "-translate-x-5 opacity-0"
                 }`}
                 style={staggerStyle(index, entries.length, split)}
               >

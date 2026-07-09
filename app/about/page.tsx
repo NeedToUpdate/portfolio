@@ -7,6 +7,7 @@ import JsonLd from "@/components/ui/JsonLd";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import CareerTimeline from "@/components/composites/CareerTimeline";
 import CapabilityList from "@/components/composites/CapabilityList";
+import SkillSpans from "@/components/composites/SkillSpans";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import { getWorkIntro } from "@/lib/content";
@@ -65,6 +66,16 @@ export default function AboutPage() {
           Operating principles
         </Heading>
         <CapabilityList capabilities={capabilities} columnsClass="sm:grid-cols-2 mt-6" />
+      </section>
+
+      <section aria-labelledby="skill-spans" className="mt-14">
+        <Heading size="sub" id="skill-spans">
+          What I work with
+        </Heading>
+        <Text variant="small" className="mt-2">
+          Every skill, from first real use to today. Hover a row.
+        </Text>
+        <SkillSpans className="mt-6" />
       </section>
 
       <div className="mt-14">

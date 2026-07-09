@@ -105,6 +105,15 @@ export default function StarField() {
       pointer.y = e.clientY / window.innerHeight - 0.5;
     };
 
+    // Touch pans cancel pointer events; passive touchmove keeps the
+    // parallax following the finger on phones.
+    const onTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      pointer.x = touch.clientX / window.innerWidth - 0.5;
+      pointer.y = touch.clientY / window.innerHeight - 0.5;
+    };
+
     const onVisibility = () => {
       running = document.visibilityState === "visible" && !reducedMotion;
       if (running) frame = requestAnimationFrame(loop);
@@ -116,6 +125,7 @@ export default function StarField() {
 
     if (!reducedMotion) {
       window.addEventListener("pointermove", onPointerMove, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: true });
       document.addEventListener("visibilitychange", onVisibility);
       frame = requestAnimationFrame(loop);
     }
@@ -125,6 +135,7 @@ export default function StarField() {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
