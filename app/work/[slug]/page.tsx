@@ -4,15 +4,18 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import Markdown from "@/components/composites/Markdown";
-import TagList from "@/components/composites/TagList";
+import AdjacentNav from "@/components/composites/AdjacentNav";
+import CaseScorecard from "@/components/composites/CaseScorecard";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
 import TextLink from "@/components/ui/TextLink";
+import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
-import PlaceholderImage from "@/components/ui/PlaceholderImage";
+import { categoryShape } from "@/lib/nebula/shapes";
 import JsonLd from "@/components/ui/JsonLd";
 import { getCaseStudies, getCaseStudy } from "@/lib/content";
+import { splitAtHeading } from "@/lib/format";
 import { breadcrumbSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -46,6 +49,20 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const caseStudy = getCaseStudy(slug);
   if (!caseStudy) notFound();
 
+  // Priority order, same as the /work list, so prev/next walk the
+  // same sequence the reader arrived through.
+  const all = getCaseStudies();
+  const index = all.findIndex((c) => c.slug === slug);
+  const previous = index > 0 ? all[index - 1] : undefined;
+  const next = index >= 0 && index < all.length - 1 ? all[index + 1] : undefined;
+
+  // The exhibit belongs to the solution: problem, then solution, then
+  // the diagram it just described, then the result.
+  const { before: problemAndSolution, after: result } = splitAtHeading(
+    caseStudy.body,
+    "## The result"
+  );
+
   return (
     <PageShell narrow>
       {/* Narrow centered article: the upper-right margin is open. */}
@@ -60,25 +77,47 @@ export default async function CaseStudyPage({ params }: PageProps) {
         items={[{ label: "Work", href: "/work" }, { label: caseStudy.title }]}
       />
 
-      <Eyebrow icon={categoryIcon(caseStudy.category)} className="mb-3">
-        {caseStudy.category}
-      </Eyebrow>
-      <Heading size="page">{caseStudy.title}</Heading>
-      <p className="mt-6 border-l-2 border-line pl-5 text-lg leading-relaxed text-ink/90">
-        {caseStudy.impact}
-      </p>
-      <TagList tags={caseStudy.techs} className="mt-5" />
-
-      <div className="mt-8">
-        <PlaceholderImage
-          label={`Architecture diagram — ${caseStudy.title}`}
+      <header>
+        <Eyebrow
           icon={categoryIcon(caseStudy.category)}
+          pill
+          nebulaShape={categoryShape(caseStudy.category)}
+        >
+          {caseStudy.category}
+        </Eyebrow>
+        <Heading size="page" className="mt-4">
+          {caseStudy.title}
+        </Heading>
+        <Text variant="emphasis" className="mt-5 max-w-prose">
+          {caseStudy.impact}
+        </Text>
+
+        <CaseScorecard
+          entries={caseStudy.context ?? []}
+          techs={caseStudy.techs}
+          role={caseStudy.role}
         />
-      </div>
+      </header>
 
       <div className="mt-10">
-        <Markdown>{caseStudy.body}</Markdown>
+        <Markdown>{problemAndSolution}</Markdown>
       </div>
+
+      {/* Every study gets a diagram; the slot stands reserved until
+          each one is drawn. */}
+      <Exhibit
+        src={caseStudy.diagram}
+        alt={`Solution architecture — ${caseStudy.title}`}
+        label={`Architecture diagram — ${caseStudy.title}`}
+        icon={categoryIcon(caseStudy.category)}
+        caption={caseStudy.diagram ? "Exhibit: solution architecture." : undefined}
+      />
+
+      {result && (
+        <div className="mt-10">
+          <Markdown>{result}</Markdown>
+        </div>
+      )}
 
       <div className="mt-14 border-t border-line/60 pt-8">
         <Text variant="small">
@@ -90,6 +129,19 @@ export default async function CaseStudyPage({ params }: PageProps) {
           .
         </Text>
       </div>
+
+      <AdjacentNav
+        previous={
+          previous && {
+            href: `/work/${previous.slug}`,
+            title: previous.title,
+            hint: "Previous case study",
+          }
+        }
+        next={
+          next && { href: `/work/${next.slug}`, title: next.title, hint: "Next case study" }
+        }
+      />
     </PageShell>
   );
 }

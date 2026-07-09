@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Section from "@/components/composites/Section";
@@ -99,7 +100,11 @@ export default function HomePage() {
                   <ArrowLink href="/about" label="About me" nebulaShape="bars" />
                 </div>
               </div>
-              <div className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-xl border border-line/50 sm:block">
+              <Link
+                href="/about"
+                aria-label="About Art"
+                className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-xl border border-line/50 sm:block"
+              >
                 <Image
                   src="/images/portrait.webp"
                   alt={site.name}
@@ -107,7 +112,7 @@ export default function HomePage() {
                   sizes="(max-width: 1024px) 12rem, 10rem"
                   className="object-cover"
                 />
-              </div>
+              </Link>
             </Panel>
           </div>
 
