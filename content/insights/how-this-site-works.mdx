@@ -41,7 +41,15 @@ The background is not an image and not a particle library. It is raw WebGL: tens
 
 Each nebula follows a structural profile modeled on a real object. The large cloud follows Orion: shell arcs, a bright core, dark dust lanes. The ring follows the Helix: a broken circular wall with a thin cavity. The web follows the Crab: filaments strung between glow spots. A cloud is built in layers with fixed opacity budgets: outer volume, shell, body gas, inner cavity, wisps, emission glow, and dust. Gas blends additively. Dust blends over it and occludes the stars behind.
 
-The shaders compile in the background while a lightweight canvas starfield covers the wait. When compilation finishes, the nebula fades in over it. Hover a link and the gas condenses into a glyph: a signed distance field built from an SVG path pulls the shell and filament particles onto the outline while the body gas fills the interior. Move the pointer and it carves a wake through the gas, which settles back on its own.
+The shaders compile in the background while a lightweight canvas starfield covers the wait. When compilation finishes, the nebula fades in over it.
+
+Every nebula is a literal point cloud: thousands of particles, each one nothing more than a position, a size, a color, and a role (outer volume, shell, body, filament, dust). There is no mesh and no pre-rendered image behind any of it.
+
+Each particle also carries a second, optional position: a point sampled from a signed distance field built out of an SVG path. Hover an element that names a shape, and every particle in the scene eases toward its target over about half a second. Shell and filament particles land on the outline. Body particles fill the interior. Stop hovering and the same easing runs in reverse, back into the nebula's normal drift.
+
+<ShapeMorphButtons />
+
+Move the pointer anywhere on the page and it carves a directional wake through the gas: a bow push at the front, gas parting to the sides, a trailing pull behind. The wake settles back on its own once the pointer moves on.
 
 The scene respects the machine it runs on. Slow GPUs get a reduced render scale after a few dropped frames. Phones get thinner gas and a smaller hero cloud, because a narrow screen stacks the same particles into a brighter image. Users with reduced motion get a still frame.
 
