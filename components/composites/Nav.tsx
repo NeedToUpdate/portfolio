@@ -9,9 +9,11 @@ export default function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line/60 bg-base/85 backdrop-blur">
+      {/* min-height + wrapping: on narrow phones the links flow to a
+          second row instead of scrolling off-screen invisibly. */}
       <nav
         aria-label="Main"
-        className="mx-auto flex h-14 max-w-content items-center justify-between px-5 md:px-8"
+        className="mx-auto flex min-h-14 max-w-content flex-wrap items-center justify-between gap-x-6 px-5 py-2 md:px-8"
       >
         <Link
           href="/"
@@ -19,7 +21,7 @@ export default function Nav() {
         >
           {site.name}
         </Link>
-        <ul className="flex min-w-0 items-center gap-4 overflow-x-auto md:gap-7">
+        <ul className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 md:gap-x-7">
           {navItems.map((item) => {
             const active =
               pathname === item.href || pathname?.startsWith(item.href + "/");

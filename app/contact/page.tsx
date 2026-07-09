@@ -3,42 +3,22 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import TextLink from "@/components/ui/TextLink";
-import Icon from "@/components/ui/Icon";
+import Icon, { IconName } from "@/components/ui/Icon";
 import Text from "@/components/ui/Text";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
-import { site } from "@/lib/site";
+import { site, socialChannels, SocialChannel } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "How to reach Art Nikitin: email, LinkedIn, and GitHub.",
 };
 
-const channels = [
-  {
-    icon: "mail" as const,
-    label: "Email",
-    value: site.email,
-    href: `mailto:${site.email}`,
-    note: "The fastest way to reach me. I read everything.",
-    shape: "plane",
-  },
-  {
-    icon: "linkedin" as const,
-    label: "LinkedIn",
-    value: "art-nikitin-dev",
-    href: site.linkedin,
-    note: "For introductions and professional context.",
-    shape: "spark",
-  },
-  {
-    icon: "github" as const,
-    label: "GitHub",
-    value: "NeedToUpdate",
-    href: site.github,
-    note: "Code, experiments, and this site's source.",
-    shape: "hex",
-  },
-];
+/** Channel data lives in lib/site.ts; only the icon choice is local. */
+const channelIcons: Record<SocialChannel["key"], IconName> = {
+  email: "mail",
+  linkedin: "linkedin",
+  github: "github",
+};
 
 export default function ContactPage() {
   return (
@@ -56,10 +36,10 @@ export default function ContactPage() {
           />
 
           <ul className="mt-12 space-y-8">
-            {channels.map((channel) => (
-              <li key={channel.label} className="group flex items-start gap-4">
+            {socialChannels.map((channel) => (
+              <li key={channel.key} className="group flex items-start gap-4">
                 <span className="mt-1 text-muted">
-                  <Icon name={channel.icon} size={20} className="icon-glow" />
+                  <Icon name={channelIcons[channel.key]} size={20} className="icon-glow" />
                 </span>
                 <div className="min-w-0">
                   <Text variant="small">{channel.label}</Text>

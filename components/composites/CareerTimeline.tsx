@@ -113,7 +113,9 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
               : "pointer-events-none translate-x-4 opacity-0 blur-sm"
           }`}
         >
-          <div className="mb-6 grid grid-cols-2 gap-6">
+          {/* Two columns need room; below sm the streams stack per entry
+              with their own labels instead of cramming side by side. */}
+          <div className="mb-6 hidden grid-cols-2 gap-6 sm:grid">
             <Eyebrow>Engineering</Eyebrow>
             <Eyebrow className="border-l border-line/70 pl-6">Teaching &amp; leadership</Eyebrow>
           </div>
@@ -121,21 +123,32 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
             {entries.map((entry, index) => (
               <li
                 key={entry.id}
-                className={`grid grid-cols-2 gap-6 transition-all duration-500 ease-out ${
+                className={`grid gap-6 transition-all duration-500 ease-out sm:grid-cols-2 ${
                   split ? "translate-x-0 opacity-100" : "translate-x-5 opacity-0"
                 }`}
                 style={staggerStyle(index, entries.length, split)}
               >
                 <div
                   className={`transition-all duration-500 ease-out ${
+                    entry.tech ? "" : "hidden sm:block"
+                  } ${
                     split && entry.tech ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
                   }`}
                   aria-hidden={!entry.tech}
                   style={staggerStyle(index, entries.length, split)}
                 >
-                  {entry.tech && <EntryCard view={entry.tech} period={entry.period} />}
+                  {entry.tech && (
+                    <>
+                      <Eyebrow className="mb-2 sm:hidden">Engineering</Eyebrow>
+                      <EntryCard view={entry.tech} period={entry.period} />
+                    </>
+                  )}
                 </div>
-                <div className="relative border-l border-line/70 pl-6 transition-colors duration-700">
+                <div
+                  className={`relative border-l border-line/70 pl-6 transition-colors duration-700 ${
+                    entry.lead ? "" : "hidden sm:block"
+                  }`}
+                >
                   {entry.lead && (
                     <>
                       <span
@@ -145,6 +158,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                         }`}
                         style={staggerStyle(index, entries.length, split)}
                       />
+                      <Eyebrow className="mb-2 sm:hidden">Teaching &amp; leadership</Eyebrow>
                       <EntryCard view={entry.lead} period={entry.period} />
                     </>
                   )}
