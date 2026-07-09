@@ -131,6 +131,12 @@ export default function NebulaBackground({
       renderScale: BASE_RENDER_SCALE,
       lastRenderTime: 0,
       slowFrameStreak: 0,
+      // Backing size this boot has uploaded to the programs. Not read
+      // from the canvas: the router can hand us back a canvas whose
+      // attributes are already right while the freshly compiled
+      // programs still have zeroed uniforms.
+      uploadedW: 0,
+      uploadedH: 0,
       mix: 0,
       activeShape: null as string | null,
       pendingShape: null as string | null,
@@ -179,8 +185,16 @@ export default function NebulaBackground({
     const resize = () => {
       if (!state.started) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * state.renderScale;
-      canvas.width = Math.max(1, Math.round(window.innerWidth * dpr));
-      canvas.height = Math.max(1, Math.round(window.innerHeight * dpr));
+      // Size from the lvh-fixed element, not window.innerHeight: the
+      // mobile URL bar collapsing fires resize without changing the
+      // element, and re-rendering then makes the sky visibly snap.
+      const width = Math.max(1, Math.round((canvas.clientWidth || window.innerWidth) * dpr));
+      const height = Math.max(1, Math.round((canvas.clientHeight || window.innerHeight) * dpr));
+      if (width === state.uploadedW && height === state.uploadedH) return;
+      state.uploadedW = width;
+      state.uploadedH = height;
+      canvas.width = width;
+      canvas.height = height;
       gl!.viewport(0, 0, canvas.width, canvas.height);
       if (!isMini) {
         gl!.useProgram(bgProgram);
@@ -323,8 +337,10 @@ export default function NebulaBackground({
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      state.mouse.x = e.clientX / window.innerWidth;
-      state.mouse.y = 1 - e.clientY / window.innerHeight;
+      // Map against the canvas, which can outsize the visual viewport
+      // by the collapsed URL bar's height on mobile.
+      state.mouse.x = e.clientX / (canvas.clientWidth || window.innerWidth);
+      state.mouse.y = 1 - e.clientY / (canvas.clientHeight || window.innerHeight);
       state.mouseActiveTarget = 1;
     };
 
@@ -339,8 +355,8 @@ export default function NebulaBackground({
     const onTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (!touch) return;
-      state.mouse.x = touch.clientX / window.innerWidth;
-      state.mouse.y = 1 - touch.clientY / window.innerHeight;
+      state.mouse.x = touch.clientX / (canvas.clientWidth || window.innerWidth);
+      state.mouse.y = 1 - touch.clientY / (canvas.clientHeight || window.innerHeight);
       state.mouseActiveTarget = 1;
     };
 
@@ -395,9 +411,21 @@ export default function NebulaBackground({
       const vRatio =
         Math.max(window.innerWidth, window.innerHeight) /
         Math.min(window.innerWidth, window.innerHeight);
-      const heroR = Math.min(0.52, (isDesktop ? 0.28 : 0.24) * vRatio);
+      // Portrait squeezes the layout horizontally while radii stay in
+      // min-axis units: at the 0.52 cap the hero spans the full screen
+      // width and overlaps the crab web, and the additive gas stacks
+      // into an over-bright blob. Cap it smaller and (below) spread the
+      // clouds vertically, where portrait has room.
+      const portrait = window.innerHeight > window.innerWidth;
+      const heroR = Math.min(portrait ? 0.42 : 0.52, (isDesktop ? 0.28 : 0.24) * vRatio);
+      // Per-pixel brightness scales linearly with areal density, so
+      // each cloud gets its own portrait factor (1 = desktop look):
+      // the big purple hero runs hot on phones, while the small crab
+      // web goes invisible behind the glass cards without a boost.
+      const sceneDensity = (base: number, portraitFactor: number) =>
+        portrait ? base * portraitFactor : base;
       const ringR = isDesktop ? 0.21 : 0.17;
-      const webR = isDesktop ? 0.16 : 0.13;
+      const webR = isDesktop ? 0.16 : portrait ? 0.145 : 0.13;
       const miniRadius = MINI_SIZE_RADIUS[size] ?? MINI_SIZE_RADIUS.md;
       const miniR = (isDesktop ? miniRadius.desktop : miniRadius.mobile) + Math.random() * 0.025;
 
@@ -424,11 +452,13 @@ export default function NebulaBackground({
         : [
             {
               // The hero: an Orion-like structured cloud in the lower-right.
-              x: 0.74 + jitter(),
-              y: 0.26 + jitter(),
+              // Portrait pulls it inward: at x 0.74 nearly half the disc
+              // hangs off the narrow screen and only a blank glow shows.
+              x: (portrait ? 0.66 : 0.74) + jitter(),
+              y: (portrait ? 0.32 : 0.26) + jitter(),
               radius: heroR,
               profile: "orion",
-              count: countFor(heroR, 95000),
+              count: countFor(heroR, sceneDensity(95000, 0.55)),
             },
             {
               // A Helix-like broken ring up top, opposite the hero.
@@ -436,15 +466,17 @@ export default function NebulaBackground({
               y: 0.8 + jitter(),
               radius: ringR,
               profile: "helix",
-              count: countFor(ringR, 160000),
+              count: countFor(ringR, sceneDensity(160000, 0.7)),
             },
             {
-              // A Crab-like filament web anchoring the bottom-left.
-              x: 0.14 + jitter(),
-              y: 0.22 + jitter(),
+              // A Crab-like filament web anchoring the bottom-left,
+              // tucked into the corner on portrait, clear of the hero.
+              // Boosted there so it reads through the glass cards.
+              x: (portrait ? 0.12 : 0.14) + jitter(),
+              y: (portrait ? 0.08 : 0.22) + jitter(),
               radius: webR,
               profile: "crab",
-              count: countFor(webR, 170000),
+              count: countFor(webR, sceneDensity(170000, 1.35)),
             },
           ];
 
@@ -551,6 +583,11 @@ export default function NebulaBackground({
       }
 
       state.started = true;
+      // Fresh programs know nothing: force the next resize to upload
+      // even if the backing size is unchanged (context restore reuses
+      // this state object).
+      state.uploadedW = 0;
+      state.uploadedH = 0;
       resize();
 
       if (!reducedMotion) {
@@ -661,8 +698,10 @@ export default function NebulaBackground({
       ref={canvasRef}
       aria-hidden
       // Starts invisible; start() fades it in once the shaders compile,
-      // so the DOM starfield covers the wait.
-      className="pointer-events-none fixed inset-0 -z-10 h-full w-full opacity-0 transition-opacity duration-1000"
+      // so the DOM starfield covers the wait. h-lvh, not h-full: the
+      // largest-viewport unit ignores the mobile URL bar collapsing,
+      // so the sky doesn't shift and re-snap while scrolling.
+      className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"
     />
   );
 }
