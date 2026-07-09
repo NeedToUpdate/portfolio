@@ -9,7 +9,7 @@ const LONG_TOKEN =
   "cloudfront-e2xyzexample8675309.cloudfront.net/_next/static/chunks/main-app-4f3ba48d6568.js";
 
 /**
- * The min-width bug from the essay, live. A flex child refuses to
+ * The min-width bug from the write-up, live. A flex child refuses to
  * shrink below its content until min-width: 0 says it can.
  */
 export default function MinWidthDemo() {
