@@ -4,19 +4,18 @@ import Section from "@/components/composites/Section";
 import DividedList from "@/components/composites/DividedList";
 import CaseStudyListItem from "@/components/composites/CaseStudyListItem";
 import InsightListItem from "@/components/composites/InsightListItem";
+import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import ArrowLink from "@/components/ui/ArrowLink";
 import TextLink from "@/components/ui/TextLink";
+import Panel from "@/components/ui/Panel";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import JsonLd from "@/components/ui/JsonLd";
 import { getFeaturedCaseStudies, getInsights } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
-
-const homeCardClass =
-  "rounded-lg border border-white/10 bg-black/45 p-6 shadow-2xl shadow-black/30 backdrop-blur-md ring-1 ring-white/5 md:p-8";
 
 export default function HomePage() {
   const featured = getFeaturedCaseStudies(3);
@@ -31,8 +30,10 @@ export default function HomePage() {
         <div className="space-y-6 md:space-y-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
             {/* Hero */}
-            <section
-              className={`grid min-h-[20rem] items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem] ${homeCardClass}`}
+            <Panel
+              as="section"
+              variant="glass"
+              className="grid min-h-[20rem] items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
             >
               <div className="min-w-0">
                 <Text variant="muted" className="mb-5">
@@ -48,12 +49,14 @@ export default function HomePage() {
                   whiteboard session through production: architecture, teams, and delivery.
                 </Text>
               </div>
-            </section>
+            </Panel>
 
             {latestInsight && (
-              <section
+              <Panel
+                as="section"
+                variant="glass"
                 aria-labelledby="home-latest-insight"
-                className={`flex min-h-[18rem] flex-col justify-between gap-8 ${homeCardClass}`}
+                className="flex min-h-[18rem] flex-col justify-between gap-8"
               >
                 <div className="min-w-0">
                   <Text variant="muted" className="mb-4 text-sm uppercase tracking-wide">
@@ -67,16 +70,7 @@ export default function HomePage() {
                     {latestInsight.description}
                   </Text>
                   {latestInsight.tags.length > 0 && (
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {latestInsight.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full border border-white/10 px-3 py-1 text-xs tracking-wide text-muted"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    <TagList tags={latestInsight.tags} variant="pill" className="mt-5" />
                   )}
                 </div>
                 <ArrowLink
@@ -84,12 +78,14 @@ export default function HomePage() {
                   label="Read the essay"
                   nebulaShape="book"
                 />
-              </section>
+              </Panel>
             )}
 
-            <section
+            <Panel
+              as="section"
+              variant="glass"
               aria-label="About Art"
-              className={`grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)] ${homeCardClass}`}
+              className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
             >
               <div className="min-w-0">
                 <Text variant="muted">
@@ -103,14 +99,14 @@ export default function HomePage() {
               <div className="hidden sm:block">
                 <PlaceholderImage label="Portrait" icon="systems" aspectClass="aspect-[4/5]" />
               </div>
-            </section>
+            </Panel>
           </div>
 
           <Section
             eyebrow="Case studies"
             title="Systems that changed how the business runs"
             id="home-work"
-            className={homeCardClass}
+            variant="card"
             action={<ArrowLink href="/work" label="All case studies" nebulaShape="hex" />}
           >
             <DividedList className="mt-6">
@@ -125,7 +121,7 @@ export default function HomePage() {
               eyebrow="More insights"
               title="More notes on systems and decisions"
               id="home-insights"
-              className={homeCardClass}
+              variant="card"
               action={<ArrowLink href="/insights" label="All insights" nebulaShape="book" />}
             >
               <DividedList className="mt-6">
@@ -136,11 +132,7 @@ export default function HomePage() {
             </Section>
           )}
 
-          <Section
-            title="I like hard modernization problems."
-            id="home-contact"
-            className={homeCardClass}
-          >
+          <Section title="I like hard modernization problems." id="home-contact" variant="card">
             <Text variant="muted" className="mt-4 max-w-prose">
               If you have one, email{" "}
               <TextLink href={`mailto:${site.email}`} nebulaShape="plane">

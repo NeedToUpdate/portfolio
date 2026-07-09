@@ -8,6 +8,10 @@
  * Palette: deep space, starlight, and three nebula flair colors.
  */
 :root {
+  /* Dark-only site: UA scrollbars, form controls, and the
+     pre-hydration frame all render dark instead of flashing light. */
+  color-scheme: dark;
+
   --c-base: 8 10 16; /* page background, deep space */
   --c-surface: 14 17 25; /* panels and code blocks */
   --c-raised: 21 25 36; /* hover states */
@@ -33,6 +37,21 @@ html {
   scroll-behavior: smooth;
   /* Keep layout stable when scrollbars appear. */
   scrollbar-gutter: stable;
+}
+
+/* Anchor targets land below the sticky nav, not underneath it. */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* One focus style for every interactive element. Keyboard-only:
+   :focus-visible leaves pointer clicks unringed. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgb(var(--c-accent, 222 186 108));
+  outline-offset: 3px;
 }
 
 body {

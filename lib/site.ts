@@ -15,6 +15,46 @@ export const site = {
     "Engineering director and hands-on architect. I design the systems enterprises run on and lead the teams that build them.",
 } as const;
 
+export interface SocialChannel {
+  key: "email" | "github" | "linkedin";
+  label: string;
+  /** Handle or address shown to the reader. */
+  value: string;
+  href: string;
+  /** One line on when to use this channel. Shown on the contact page. */
+  note: string;
+  /** Nebula glyph the background condenses into while hovered. */
+  shape: string;
+}
+
+/** Every social link on the site (footer, contact page) renders from this list. */
+export const socialChannels: SocialChannel[] = [
+  {
+    key: "email",
+    label: "Email",
+    value: site.email,
+    href: `mailto:${site.email}`,
+    note: "The fastest way to reach me. I read everything.",
+    shape: "plane",
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    value: "art-nikitin-dev",
+    href: site.linkedin,
+    note: "For introductions and professional context.",
+    shape: "spark",
+  },
+  {
+    key: "github",
+    label: "GitHub",
+    value: "NeedToUpdate",
+    href: site.github,
+    note: "Code, experiments, and this site's source.",
+    shape: "hex",
+  },
+];
+
 export interface NavItem {
   label: string;
   href: string;
