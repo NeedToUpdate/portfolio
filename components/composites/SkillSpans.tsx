@@ -24,12 +24,12 @@ const TICKS = [
  * 3:1 contrast all pass. Keep color on the bar only; text stays in
  * text tokens.
  */
-const DOMAIN_INK: Record<string, { bar: string; dot: string }> = {
-  ai: { bar: "bg-[#8f5fd6]", dot: "bg-[#8f5fd6]" },
-  cloud: { bar: "bg-[#5b87c9]", dot: "bg-[#5b87c9]" },
-  data: { bar: "bg-[#b8893a]", dot: "bg-[#b8893a]" },
-  software: { bar: "bg-[#1ba4b0]", dot: "bg-[#1ba4b0]" },
-  architecture: { bar: "bg-[#c05f8f]", dot: "bg-[#c05f8f]" },
+const DOMAIN_INK: Record<string, { bar: string; dot: string; shape: string }> = {
+  ai: { bar: "bg-[#8f5fd6]", dot: "bg-[#8f5fd6]", shape: "nodes" },
+  cloud: { bar: "bg-[#5b87c9]", dot: "bg-[#5b87c9]", shape: "cloud" },
+  data: { bar: "bg-[#b8893a]", dot: "bg-[#b8893a]", shape: "db" },
+  software: { bar: "bg-[#1ba4b0]", dot: "bg-[#1ba4b0]", shape: "branch" },
+  architecture: { bar: "bg-[#c05f8f]", dot: "bg-[#c05f8f]", shape: "stack" },
 };
 
 const pct = (year: number) => ((year - START_YEAR) / (END_YEAR - START_YEAR)) * 100;
@@ -63,10 +63,15 @@ export default function SkillSpans({ className = "" }: SkillSpansProps) {
 
   return (
     <figure className={className}>
-      {/* Legend: identity also lives in each row's tooltip, so color is never alone. */}
+      {/* Legend: identity also lives in each row's tooltip, so color is
+          never alone. Each entry doubles as a small nebula trigger. */}
       <div className="flex flex-wrap gap-x-5 gap-y-1.5">
         {skillDomains.map((domain) => (
-          <span key={domain.id} className="flex items-center gap-2 text-xs text-muted">
+          <span
+            key={domain.id}
+            data-nebula-shape={DOMAIN_INK[domain.id].shape}
+            className="flex items-center gap-2 text-xs text-muted"
+          >
             <span aria-hidden className={`h-2 w-2 rounded-full ${DOMAIN_INK[domain.id].dot}`} />
             {domain.title}
           </span>

@@ -34,9 +34,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <Heading size="small" className="transition-colors group-hover:text-accent">
-          {project.title}
-        </Heading>
+        {/* The title is the card's small nebula trigger. */}
+        <span data-nebula-shape={project.nebulaShape ?? "spark"} className="w-fit">
+          <Heading size="small" className="transition-colors group-hover:text-accent">
+            {project.title}
+          </Heading>
+        </span>
         <Text variant="small" className="flex-1">
           {project.description}
         </Text>

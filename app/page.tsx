@@ -7,6 +7,7 @@ import InsightListItem from "@/components/composites/InsightListItem";
 import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
+import Eyebrow from "@/components/ui/Eyebrow";
 import ArrowLink from "@/components/ui/ArrowLink";
 import TextLink from "@/components/ui/TextLink";
 import Panel from "@/components/ui/Panel";
@@ -37,17 +38,18 @@ export default function HomePage() {
               className="grid min-h-[20rem] items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
             >
               <div className="min-w-0">
-                <Text variant="muted" className="mb-5">
-                  <span data-nebula-shape="spark">
-                    {site.name} · {site.location}
-                  </span>
-                </Text>
+                <Eyebrow nebulaShape="spark" className="mb-5">
+                  {site.name} · {site.location}
+                </Eyebrow>
                 <Heading size="hero" className="max-w-3xl">
                   I design the systems enterprises run on.
                 </Heading>
-                <Text variant="lead" className="mt-7 max-w-2xl">
-                  Engineering director and hands-on architect. I take modernization from the first
-                  whiteboard session through production: architecture, teams, and delivery.
+                <Text variant="emphasis" className="mt-7">
+                  Engineering director and hands-on architect.
+                </Text>
+                <Text variant="muted" className="mt-3 max-w-2xl">
+                  I take modernization from the first whiteboard session through production:
+                  architecture, teams, and delivery.
                 </Text>
               </div>
             </Panel>

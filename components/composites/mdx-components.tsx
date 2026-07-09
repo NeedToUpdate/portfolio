@@ -1,8 +1,9 @@
 import type { MDXComponents } from "mdx/types";
 import FloatImage from "./FloatImage";
 import Note from "./Note";
-import SuccessorPlayground from "./SuccessorPlayground";
-import PeanoAdditionStepper from "./PeanoAdditionStepper";
+import RequestPathExplorer from "./RequestPathExplorer";
+import StarfieldDemo from "./StarfieldDemo";
+import MinWidthDemo from "./MinWidthDemo";
 
 /**
  * Components available inside every MDX insight without imports.
@@ -11,6 +12,7 @@ import PeanoAdditionStepper from "./PeanoAdditionStepper";
 export const mdxComponents: MDXComponents = {
   FloatImage,
   Note,
-  SuccessorPlayground,
-  PeanoAdditionStepper,
+  RequestPathExplorer,
+  StarfieldDemo,
+  MinWidthDemo,
 };

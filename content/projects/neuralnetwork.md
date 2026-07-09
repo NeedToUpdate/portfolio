@@ -1,4 +1,5 @@
 ---
+nebulaShape: nodes
 title: "Neural Network Library"
 description: "An ML library with lots of features built from scratch."
 thumbnail: "/images/nn.webp"

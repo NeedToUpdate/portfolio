@@ -58,11 +58,14 @@ export default function ContactPage() {
             ))}
           </ul>
 
-          <div className="mt-12 flex items-center gap-3 border-t border-line/60 pt-8">
-            <Icon name="location" size={16} className="text-muted" />
-            <Text variant="small" as="span">
-              {site.location}. Eastern time, usually responsive within a day.
-            </Text>
+          <div className="mt-12 border-t border-line/60 pt-8">
+            {/* w-fit keeps the nebula trigger the size of the line itself. */}
+            <span data-nebula-shape="pin" className="flex w-fit items-center gap-3">
+              <Icon name="location" size={16} className="text-muted" />
+              <Text variant="small" as="span">
+                {site.location}. Eastern time, usually responsive within a day.
+              </Text>
+            </span>
           </div>
         </div>
 

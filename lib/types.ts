@@ -26,6 +26,8 @@ export interface Project {
   brightImage?: boolean;
   /** Whether the project was built before or with AI in the toolchain. */
   era: ProjectEra;
+  /** Glyph the nebula condenses into on hover. Defaults to "spark". */
+  nebulaShape?: string;
 }
 
 /** Insight metadata. Source: content/insights/*.mdx frontmatter */

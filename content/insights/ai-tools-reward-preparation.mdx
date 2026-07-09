@@ -1,0 +1,46 @@
+---
+title: "AI tools reward preparation"
+description: "The model wrote the first pass of this site. The plan and the debugging were still mine."
+date: "2026-07-08"
+tags: ["ai", "process", "engineering"]
+---
+
+An AI wrote most of this site. That sentence is true and it hides the real work. The model produced good code in hours instead of weeks, but only because two things were in place before and after it ran: a detailed plan going in, and enough engineering knowledge to catch what came out wrong.
+
+## Write the plan first
+
+Before a line of this site existed, it existed as documents. Not a one-paragraph brief. A working folder of rules: a defensive CSS checklist (never trust a fixed height, always give a flex child `min-width: 0`, images always keep their aspect ratio), a responsive-first mandate (flexbox and grid before fixed breakpoints, `min()`/`max()`/`clamp()` over hard-coded jumps), a DRY and SOLID standard for every component, a content schema for every collection, and a separate specification just for the nebula background: hex ranges for every palette, opacity bands per layer, how dust should occlude stars, how the gas should move, what the pointer should do to it.
+
+That plan did two jobs. It told the model what to build, and it gave me a fixed standard to hold the output against. Both jobs matter. Skip the first and you get a generic result. Skip the second and you have no way to tell "different from what I imagined" apart from "wrong."
+
+The difference between that outcome and a vague prompt is the difference between a spec and a wish. "Make a nice space background" produces a stock particle cloud. "Shell opacity between 0.04 and 0.28, brighter along the inner edge, broken into arcs" produces the thing you actually pictured. "Use good CSS practices" produces nothing checkable. "Every flex child gets `min-width: 0`, every image keeps `object-fit`, no fixed heights" produces a page that survives a phone with a collapsing URL bar.
+
+<Note>
+  The plan is also the review standard. When the first nebula render looked like a rainbow smear,
+  the fix was one line of feedback: match the opacity budget in the document. Without the
+  document, that conversation takes ten rounds of "less of that, more of this."
+</Note>
+
+## Know the failure classes
+
+The model ships bugs. Engineers ship bugs too, so this is not a complaint. The point is who catches them. Every bug below surfaced on a phone screen, and each one took a single message to fix because I could name the cause instead of asking the model to guess.
+
+The page scrolled sideways on mobile. The cause was a hidden layer shifted right by a transform. Invisible content still widens the page when it moves toward the right edge. That is a known class of CSS bug, and naming it turned a hunt into a one-line fix.
+
+The fixed background jumped during scroll and snapped back. The mobile URL bar changes the viewport height mid-gesture, and anything sized to the dynamic viewport moves with it. Sizing the canvas to the largest viewport unit ended it.
+
+Text refused to shrink inside flex rows until the columns got `min-width: 0`. Grid tracks needed `minmax(0, 1fr)` for the same reason. Defensive CSS is a checklist, and the model applies it well when told, but recognizing the symptom in a screenshot was my job. Here is that exact bug, alive:
+
+<MinWidthDemo />
+
+Tokens are the budget here. A model that has to discover a root cause by trial reads files, proposes theories, and burns a session. A model that is handed the root cause writes the fix. General knowledge is what makes the tool cheap.
+
+## Review everything
+
+Every change went through the same pull request process a human contributor's would. A feature branch opened, the diff got read line by line the way I would read a coworker's PR, and only a reviewed diff merged. Deploys trigger off `main` and `dev` alone, so an unreviewed branch cannot reach production by accident.
+
+That habit caught things a glance at the running site would have missed. A color palette that looked fine to my eyes failed a contrast check under review and got swapped for one that passed. A "fix" that solved the symptom in one component turned out to duplicate logic that already existed elsewhere in the codebase, and the review caught the duplication before it shipped. Treating the model's output as a draft, not an answer, is what the process is for.
+
+## The rule
+
+Detail in, quality out. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.

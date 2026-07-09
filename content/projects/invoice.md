@@ -1,4 +1,5 @@
 ---
+nebulaShape: card
 title: "Invoice Manager"
 description: "A custom cloud invoice pdf generator."
 thumbnail: "/images/invoice.webp"

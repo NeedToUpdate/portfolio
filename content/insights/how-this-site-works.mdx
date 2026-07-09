@@ -1,0 +1,47 @@
+---
+title: "How this site works"
+description: "A server-rendered Next.js app on Lambda, a procedural WebGL sky, and an AI that wrote most of the code."
+date: "2026-07-09"
+tags: ["architecture", "engineering", "ai"]
+---
+
+This site looks like a static portfolio. It is a server-rendered Next.js application running on AWS Lambda, with a sky that no one has seen before and no one will see again. This post explains the three parts worth explaining: the hosting, the background, and the AI that built most of it.
+
+## The hosting
+
+Next.js builds the site as a standalone Node server. A Python script zips that build, and the Serverless Framework deploys it as a single Lambda function. The Lambda runs behind the Lambda Web Adapter, a layer that proxies HTTP to the Next.js process. No Express wrapper, no custom server code.
+
+CloudFront sits in front with two origins. Requests for static assets go to an S3 bucket with immutable cache headers. Everything else goes to the Lambda, which renders pages on demand. The incremental cache lives in S3 because a Lambda's filesystem is read-only and two instances share no memory.
+
+<RequestPathExplorer />
+
+There are two environments. Pushing to `main` deploys production. Pushing to `dev` deploys a preview at a separate domain, locked behind basic auth in the Next.js middleware. Production has no auth variables set, so the same middleware passes traffic through untouched.
+
+The bill rounds to a few cents. There are no servers to patch and nothing idles overnight.
+
+<Note>
+  The natural question: why not a static export? Server rendering keeps the door
+  open for the interactive work I want this site to carry: live models,
+  calculators, and pages that respond to data. Static sites close that door at
+  the build step.
+</Note>
+
+## The sky
+
+The background is not an image and not a particle library. It is raw WebGL: tens of thousands of point sprites, generated fresh on every page load from a random seed.
+
+<StarfieldDemo />
+
+Each nebula follows a structural profile modeled on a real object. The large cloud follows Orion: shell arcs, a bright core, dark dust lanes. The ring follows the Helix: a broken circular wall with a thin cavity. The web follows the Crab: filaments strung between glow spots. A cloud is built in layers with fixed opacity budgets: outer volume, shell, body gas, inner cavity, wisps, emission glow, and dust. Gas blends additively. Dust blends over it and occludes the stars behind.
+
+The shaders compile in the background while a lightweight canvas starfield covers the wait. When compilation finishes, the nebula fades in over it. Hover a link and the gas condenses into a glyph: a signed distance field built from an SVG path pulls the shell and filament particles onto the outline while the body gas fills the interior. Move the pointer and it carves a wake through the gas, which settles back on its own.
+
+The scene respects the machine it runs on. Slow GPUs get a reduced render scale after a few dropped frames. Phones get thinner gas and a smaller hero cloud, because a narrow screen stacks the same particles into a brighter image. Users with reduced motion get a still frame.
+
+## The AI
+
+Claude, running Anthropic's Fable model inside Claude Code, wrote most of this codebase. The architecture came from a written plan with a reference implementation. The sky came from a specification that set the palette, the opacity range of every layer, and the motion rules before any code existed.
+
+That order matters. The model is fast. The plan is why the output was worth keeping. I wrote about that split in [the previous essay](/insights/ai-tools-reward-preparation).
+
+The source is on [GitHub](https://github.com/NeedToUpdate). The details behind any of it are a conversation away: [hello@artnikitin.dev](mailto:hello@artnikitin.dev).

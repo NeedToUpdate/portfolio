@@ -1,4 +1,5 @@
 ---
+nebulaShape: nodes
 title: "IoT Devices"
 description: "An automated apartment using ESP32s."
 thumbnail: "/images/automated.webp"

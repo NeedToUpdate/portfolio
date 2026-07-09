@@ -96,6 +96,7 @@ export function getProjects(): Project[] {
       brightImage: Boolean(entry.data.brightImage),
       // Existing archive files carry no era field; they all predate AI tooling.
       era: (entry.data.era as Project["era"]) ?? "pre-ai",
+      nebulaShape: entry.data.nebulaShape as string | undefined,
     }))
     .sort((a, b) => b.priority - a.priority);
 }
