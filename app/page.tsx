@@ -111,20 +111,6 @@ export default function HomePage() {
             </Panel>
           </div>
 
-          <Section
-            eyebrow="Case studies"
-            title="Systems that changed how the business runs"
-            id="home-work"
-            variant="card"
-            action={<ArrowLink href="/work" label="All case studies" nebulaShape="hex" />}
-          >
-            <DividedList className="mt-6">
-              {featured.map((caseStudy) => (
-                <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} cta={caseStudyCta} />
-              ))}
-            </DividedList>
-          </Section>
-
           {insights.length > 0 && (
             <Section
               eyebrow="More insights"
@@ -140,6 +126,20 @@ export default function HomePage() {
               </DividedList>
             </Section>
           )}
+
+          <Section
+            eyebrow="Case studies"
+            title="Systems that changed how the business runs"
+            id="home-work"
+            variant="card"
+            action={<ArrowLink href="/work" label="All case studies" nebulaShape="hex" />}
+          >
+            <DividedList className="mt-6">
+              {featured.map((caseStudy) => (
+                <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} cta={caseStudyCta} />
+              ))}
+            </DividedList>
+          </Section>
 
           <Section title="I like hard modernization problems." id="home-contact" variant="card">
             <Text variant="muted" className="mt-4 max-w-prose">
