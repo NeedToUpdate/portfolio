@@ -78,7 +78,7 @@ export default function HomePage() {
                 </div>
                 <ArrowLink
                   href={`/insights/${latestInsight.slug}`}
-                  label="Read the essay"
+                  label="Read the write-up"
                   nebulaShape="book"
                 />
               </Panel>

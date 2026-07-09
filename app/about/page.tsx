@@ -28,7 +28,12 @@ export default function AboutPage() {
   return (
     <PageShell narrow>
       {/* The prose column is centered, so the lower-left corner is open. */}
-      <NebulaBackground variant="mini" corner="bottom-left" miniShape="orion" color="aurora" />
+      <NebulaBackground
+        variant="mini"
+        corner="bottom-left"
+        miniShape="orion"
+        color="aurora"
+      />
       <JsonLd data={personSchema()} />
 
       <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
@@ -40,25 +45,32 @@ export default function AboutPage() {
           />
         </div>
         <div className="w-32 shrink-0 sm:w-40">
-          <PlaceholderImage label="Headshot" icon="systems" aspectClass="aspect-square" />
+          <PlaceholderImage
+            label="Headshot"
+            icon="systems"
+            aspectClass="aspect-square"
+          />
         </div>
       </div>
 
       <div className="prose mt-8">
         <p>
-          I am an engineering director and hands-on architect based in {site.location}. My work
-          covers enterprise modernization, data platforms, AI adoption, and the teams that deliver
-          them. I have sat in enough executive briefings and engineering reviews to translate
+          I am an engineering director and hands-on architect based in{" "}
+          {site.location}. My work covers enterprise modernization, data
+          platforms, AI adoption, and the teams that deliver them. I have sat in
+          enough executive briefings and engineering reviews to translate
           between the two without losing anything on the way.
         </p>
         <p>
-          My degree is in psychology, neuroscience, and behaviour. Before tech was my job, teaching
-          was. Both still shape how I work: systems are built by people, and the hard problems are
-          usually on the people side of the diagram.
+          My degree is in psychology, neuroscience, and behaviour. Before tech
+          was my job, teaching was. Both still shape how I work: systems are
+          built by people, and the hard problems are usually on the people side
+          of the diagram.
         </p>
         <p>
-          I stay hands-on. Architecture reviews, proofs of concept, implementation planning, and
-          production support are part of the job, not beneath it.
+          I stay hands-on. Architecture reviews, proofs of concept,
+          implementation planning, and production support are part of the job,
+          not beneath it.
         </p>
       </div>
 
@@ -66,7 +78,10 @@ export default function AboutPage() {
         <Heading size="sub" id="principles">
           Operating principles
         </Heading>
-        <CapabilityList capabilities={capabilities} columnsClass="sm:grid-cols-2 mt-6" />
+        <CapabilityList
+          capabilities={capabilities}
+          columnsClass="sm:grid-cols-2 mt-6"
+        />
       </section>
 
       <section aria-labelledby="skill-spans" className="mt-14">
@@ -100,7 +115,7 @@ export default function AboutPage() {
           alt="AWS Certified Solutions Architect Associate badge"
           width={72}
           height={72}
-          data-nebula-shape="cloud"
+          data-nebula-shape="hex"
           className="shrink-0 icon-glow"
         />
       </section>
