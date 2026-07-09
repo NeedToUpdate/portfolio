@@ -17,6 +17,22 @@ export const nebulaShapes: Record<string, string> = {
   bars: "M12 88 L12 62 L28 62 L28 88 Z M42 88 L42 40 L58 40 L58 88 Z M72 88 L72 16 L88 16 L88 88 Z",
   // Paper plane: contact.
   plane: "M6 52 L94 10 L62 90 L46 60 Z",
+  // Payment card with clipped corners: payments case studies.
+  card: "M10 26 L90 26 L94 32 L94 68 L90 74 L10 74 L6 68 L6 32 Z",
+  // Database cylinder: data case studies.
+  db: "M18 24 C18 13 82 13 82 24 L82 76 C82 87 18 87 18 76 Z",
 };
 
 export type NebulaShapeKey = keyof typeof nebulaShapes;
+
+const categoryShapes: Record<string, NebulaShapeKey> = {
+  payments: "card",
+  data: "db",
+  reporting: "bars",
+  infrastructure: "hex",
+};
+
+/** Case-study categories map to glyphs; anything unknown gets the hex. */
+export function categoryShape(category: string): NebulaShapeKey {
+  return categoryShapes[category] ?? "hex";
+}

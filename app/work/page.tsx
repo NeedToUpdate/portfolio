@@ -5,6 +5,7 @@ import SectionHeading from "@/components/composites/SectionHeading";
 import CapabilityList from "@/components/composites/CapabilityList";
 import DividedList from "@/components/composites/DividedList";
 import CaseStudyListItem from "@/components/composites/CaseStudyListItem";
+import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import { getCaseStudies, getWorkIntro } from "@/lib/content";
 
@@ -32,18 +33,27 @@ export default function WorkPage() {
         </Text>
       </div>
 
-      {intro.capabilities.length > 0 && (
-        <CapabilityList
-          capabilities={intro.capabilities}
-          columnsClass="sm:grid-cols-2 lg:grid-cols-5 mt-14"
-        />
-      )}
-
-      <DividedList borderTop className="mt-14">
+      {/* Proof first: the case studies are the page. */}
+      <Text variant="caption" className="mt-14">
+        {intro.caseStudiesHint}
+      </Text>
+      <DividedList borderTop className="mt-3">
         {caseStudies.map((caseStudy) => (
-          <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} />
+          <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} cta={intro.caseStudyCta} />
         ))}
       </DividedList>
+
+      {intro.capabilities.length > 0 && (
+        <section aria-labelledby="work-capabilities" className="mt-20 border-t border-line/60 pt-10">
+          <Heading size="sub" id="work-capabilities">
+            {intro.capabilitiesTitle}
+          </Heading>
+          <CapabilityList
+            capabilities={intro.capabilities}
+            columnsClass="sm:grid-cols-2 lg:grid-cols-3 mt-8"
+          />
+        </section>
+      )}
     </PageShell>
   );
 }

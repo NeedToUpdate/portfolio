@@ -12,13 +12,14 @@ import TextLink from "@/components/ui/TextLink";
 import Panel from "@/components/ui/Panel";
 import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import JsonLd from "@/components/ui/JsonLd";
-import { getFeaturedCaseStudies, getInsights } from "@/lib/content";
+import { getFeaturedCaseStudies, getInsights, getWorkIntro } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export default function HomePage() {
   const featured = getFeaturedCaseStudies(3);
+  const { caseStudyCta } = getWorkIntro();
   const [latestInsight, ...moreInsights] = getInsights();
   const insights = moreInsights.slice(0, 3);
 
@@ -111,7 +112,7 @@ export default function HomePage() {
           >
             <DividedList className="mt-6">
               {featured.map((caseStudy) => (
-                <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} />
+                <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} cta={caseStudyCta} />
               ))}
             </DividedList>
           </Section>

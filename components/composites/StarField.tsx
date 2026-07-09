@@ -56,22 +56,31 @@ export default function StarField() {
     let stars: Star[] = [];
     let frame = 0;
     let running = true;
+    // CSS size of the lvh-fixed canvas; resize() keeps it current.
+    const dims = { w: 0, h: 0 };
     // Pointer position as an offset from center, in [-0.5, 0.5].
     const pointer = { x: 0, y: 0 };
     const drift = { x: 0, y: 0 };
 
     const resize = () => {
+      // Size from the lvh-fixed element, not window.innerHeight: the
+      // mobile URL bar collapsing fires resize without changing the
+      // element, and regenerating the stars then makes the sky jump.
+      const w = canvas.clientWidth || window.innerWidth;
+      const h = canvas.clientHeight || window.innerHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      if (canvas.width === w * dpr && canvas.height === h * dpr) return;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      dims.w = w;
+      dims.h = h;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      stars = makeStars(window.innerWidth, window.innerHeight);
+      stars = makeStars(w, h);
       if (reducedMotion) draw(0);
     };
 
     const draw = (time: number) => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const { w, h } = dims;
       ctx.clearRect(0, 0, w, h);
 
       // Ease the drift toward the pointer so motion stays calm.
@@ -141,10 +150,12 @@ export default function StarField() {
   }, []);
 
   return (
+    // h-lvh, not inset-0: the largest-viewport unit ignores the mobile
+    // URL bar collapsing, so the stars don't shift while scrolling.
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10"
+      className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full"
     />
   );
 }

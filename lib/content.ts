@@ -139,6 +139,9 @@ export function getWorkIntro(): WorkIntro {
     title: requireString(entry, "title"),
     sentence: requireString(entry, "sentence"),
     description: requireString(entry, "description"),
+    caseStudiesHint: requireString(entry, "caseStudiesHint"),
+    caseStudyCta: requireString(entry, "caseStudyCta"),
+    capabilitiesTitle: requireString(entry, "capabilitiesTitle"),
     capabilities: data.capabilities ?? [],
   };
 }

@@ -55,5 +55,11 @@ export interface WorkIntro {
   title: string;
   sentence: string;
   description: string;
+  /** One line above the case-study list saying what a write-up contains. */
+  caseStudiesHint: string;
+  /** Per-row link label, e.g. "Read the case study". */
+  caseStudyCta: string;
+  /** Heading for the capabilities strip on the work page. */
+  capabilitiesTitle: string;
   capabilities: Capability[];
 }
