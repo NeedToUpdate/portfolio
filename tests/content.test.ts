@@ -4,6 +4,7 @@ import {
   getCaseStudy,
   getInsight,
   getInsights,
+  getProjects,
   getProjectsByEra,
   getSkillDomains,
   getWorkIntro,
@@ -60,5 +61,12 @@ describe("content loaders", () => {
     const domains = getSkillDomains();
     expect(domains.length).toBeGreaterThan(0);
     expect(domains.every((d) => d.nebulaShape && d.skills.length > 0)).toBe(true);
+  });
+
+  it("resolves every project's insightSlug to a real insight", () => {
+    const insightSlugs = new Set(getInsights().map((i) => i.slug));
+    const linked = getProjects().filter((p) => p.insightSlug);
+    expect(linked.length).toBeGreaterThan(0);
+    expect(linked.every((p) => insightSlugs.has(p.insightSlug!))).toBe(true);
   });
 });

@@ -4,6 +4,8 @@ import Note from "./Note";
 import RequestPathExplorer from "./RequestPathExplorer";
 import StarfieldDemo from "./StarfieldDemo";
 import MinWidthDemo from "./MinWidthDemo";
+import BrainRouterDemo from "./BrainRouterDemo";
+import HomelabDiagram from "./HomelabDiagram";
 
 /**
  * Components available inside every MDX insight without imports.
@@ -15,4 +17,6 @@ export const mdxComponents: MDXComponents = {
   RequestPathExplorer,
   StarfieldDemo,
   MinWidthDemo,
+  BrainRouterDemo,
+  HomelabDiagram,
 };
