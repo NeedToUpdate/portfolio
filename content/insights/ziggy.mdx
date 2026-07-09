@@ -7,6 +7,13 @@ tags: ["ai", "home-automation", "architecture"]
 
 As a kid I wanted my own Jarvis. Not a voice that follows commands, one that understands them. Say "I'm heading out" and it turns off the AC, and reminds you to grab the thing you keep forgetting on the way. That gap between "follows commands" and "understands intent" is the whole project. I named it Ziggy, because Jarvis was taken by every other home assistant demo on the internet.
 
+<FloatImage
+  src="/images/ziggy_diagram.webp"
+  alt="A stylized diagram of a brain wired to six tool icons: a database, sharing, gears, a container, a clock, and Python"
+  side="none"
+  caption="One router, several specialized tools. The brain analogy, illustrated."
+/>
+
 ## The architecture is a bus, then a brain
 
 An early 8-bit CPU has a bus: one channel the ALU, registers, and memory all share to talk to each other. A brain solves the same coordination problem differently. Billions of neurons, with the prefrontal cortex routing intent to the region built for it. Ziggy borrows both patterns. One router in front, several specialized regions behind it, each named for what it maps to:

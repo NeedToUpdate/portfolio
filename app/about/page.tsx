@@ -4,7 +4,6 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import JsonLd from "@/components/ui/JsonLd";
-import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import CareerTimeline from "@/components/composites/CareerTimeline";
 import CapabilityList from "@/components/composites/CapabilityList";
 import SkillSpans from "@/components/composites/SkillSpans";
@@ -44,11 +43,13 @@ export default function AboutPage() {
             asPageTitle
           />
         </div>
-        <div className="w-32 shrink-0 sm:w-40">
-          <PlaceholderImage
-            label="Headshot"
-            icon="systems"
-            aspectClass="aspect-square"
+        <div className="relative aspect-square w-32 shrink-0 overflow-hidden rounded-xl border border-line/50 sm:w-40">
+          <Image
+            src="/images/portrait.webp"
+            alt={site.name}
+            fill
+            sizes="10rem"
+            className="object-cover"
           />
         </div>
       </div>

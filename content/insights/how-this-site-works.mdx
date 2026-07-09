@@ -7,6 +7,13 @@ tags: ["architecture", "engineering", "ai"]
 
 This site looks like a static portfolio. It is a server-rendered Next.js application running on AWS Lambda, with a sky that no one has seen before and no one will see again. This post explains the three parts worth explaining: the hosting, the background, and the AI that built most of it.
 
+<FloatImage
+  src="/images/portfolio_site.webp"
+  alt="The homepage of artnikitin.dev, showing the hero section and latest insight over the procedural nebula background"
+  side="none"
+  caption="The homepage. The gas behind it is regenerated on every load, covered in the next section."
+/>
+
 ## The hosting
 
 Next.js builds the site as a standalone Node server. A Python script zips that build, and the Serverless Framework deploys it as a single Lambda function. The Lambda runs behind the Lambda Web Adapter, a layer that proxies HTTP to the Next.js process. No Express wrapper, no custom server code.
