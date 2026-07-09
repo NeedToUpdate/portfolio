@@ -5,6 +5,7 @@ import MinWidthDemo from "@/components/composites/MinWidthDemo";
 import StarfieldDemo from "@/components/composites/StarfieldDemo";
 import BrainRouterDemo from "@/components/composites/BrainRouterDemo";
 import HomelabDiagram from "@/components/composites/HomelabDiagram";
+import ShapeMorphButtons from "@/components/composites/ShapeMorphButtons";
 
 describe("RequestPathExplorer", () => {
   it("starts on the page path through Lambda", () => {
@@ -85,5 +86,14 @@ describe("HomelabDiagram", () => {
     render(<HomelabDiagram />);
     fireEvent.click(screen.getByTestId("node-argocd"));
     expect(screen.getByTestId("node-explanation")).toHaveTextContent(/reconciles the live cluster/i);
+  });
+});
+
+describe("ShapeMorphButtons", () => {
+  it("renders a real data-nebula-shape trigger for every shape", () => {
+    render(<ShapeMorphButtons />);
+    for (const key of ["spark", "hex", "book", "nodes", "db", "cloud"]) {
+      expect(screen.getByTestId(`shape-${key}`)).toHaveAttribute("data-nebula-shape", key);
+    }
   });
 });
