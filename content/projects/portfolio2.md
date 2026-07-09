@@ -6,4 +6,5 @@ techs: ["nextjs", "aws", "serverless"]
 url: "https://github.com/NeedToUpdate/portfolio"
 priority: 10
 era: "post-ai"
+insightSlug: "how-this-site-works"
 ---

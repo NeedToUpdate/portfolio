@@ -28,6 +28,8 @@ export interface Project {
   era: ProjectEra;
   /** Glyph the nebula condenses into on hover. Defaults to "spark". */
   nebulaShape?: string;
+  /** Slug of an insight write-up about this project, if one exists. */
+  insightSlug?: string;
 }
 
 /** Insight metadata. Source: content/insights/*.mdx frontmatter */

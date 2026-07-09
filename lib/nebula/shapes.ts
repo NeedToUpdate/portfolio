@@ -50,3 +50,19 @@ const categoryShapes: Record<string, NebulaShapeKey> = {
 export function categoryShape(category: string): NebulaShapeKey {
   return categoryShapes[category] ?? "nodes";
 }
+
+const tagShapes: Record<string, NebulaShapeKey> = {
+  ai: "nodes",
+  architecture: "hex",
+  engineering: "branch",
+  process: "branch",
+  infrastructure: "stack",
+  kubernetes: "stack",
+  "platform-engineering": "stack",
+  "home-automation": "cloud",
+};
+
+/** Insight tags map to glyphs; anything unknown gets the book. */
+export function tagShape(tag: string): NebulaShapeKey {
+  return tagShapes[tag] ?? "book";
+}

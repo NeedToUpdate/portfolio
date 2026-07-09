@@ -1,0 +1,42 @@
+---
+title: "Ziggy: an assistant built like a brain, not a chatbot"
+description: "A home AI assistant that routes, remembers, and forgets the way a brain does, built on FastMCP, Neo4j, and Haystack."
+date: "2026-05-09"
+tags: ["ai", "home-automation", "architecture"]
+---
+
+As a kid I wanted my own Jarvis. Not a voice that follows commands, one that understands them. Say "I'm heading out" and it turns off the AC, and reminds you to grab the thing you keep forgetting on the way. That gap between "follows commands" and "understands intent" is the whole project. I named it Ziggy, because Jarvis was taken by every other home assistant demo on the internet.
+
+## The architecture is a bus, then a brain
+
+An early 8-bit CPU has a bus: one channel the ALU, registers, and memory all share to talk to each other. A brain solves the same coordination problem differently. Billions of neurons, with the prefrontal cortex routing intent to the region built for it. Ziggy borrows both patterns. One router in front, several specialized regions behind it, each named for what it maps to:
+
+| Region | Real component | Job |
+|---|---|---|
+| Prefrontal lobe | A Haystack triage agent | Reads the request, decides which cortex handles it |
+| Motor cortex | FastMCP tool servers | Controls IoT devices: lights, climate, anything on the network |
+| Hippocampus | Neo4j graph + embeddings | Long-term memory: episodic events and semantic facts |
+| Cerebellum | A cron-based MCP server | Scheduling and recurring automation |
+| Temporal lobe | An SMS-based MCP server | Notifications and check-ins |
+
+Every request comes in through the prefrontal lobe first. It never touches a cortex directly.
+
+<BrainRouterDemo />
+
+## Memory that forgets on purpose
+
+Most chat memory is a transcript. Ziggy's is a graph, and it does not just grow. Every conversation goes through three stages. First, a summary: a title under ten words, a body under 250. Second, consolidation: episodic memories (what happened) and semantic memories (what's true) get extracted and linked into the Neo4j graph, threaded back to the conversation that produced them. Third, forgetting: information that no longer matters gets pruned, with an audit trail of what was removed and why.
+
+That third stage is the one most memory systems skip. A graph that only grows becomes noise. Ziggy's stays useful because stale facts leave it the same way they'd leave a person's memory: not deleted violently, just no longer surfaced.
+
+## The stack
+
+FastAPI serves the backend. Haystack orchestrates the multi-agent routing, calling Anthropic models for the reasoning steps. FastMCP exposes tools to every cortex over the Model Context Protocol, and three of Ziggy's own MCP servers are purpose-built: one for the Neo4j memory graph, one for scheduling, one for SMS. Conversations persist to MongoDB. Every LLM call is traced through Opik and shipped to an ELK stack, so a bad response is debuggable instead of a mystery. A Next.js client provides the chat interface, with streaming responses over WebSocket and visibility into which cortex is currently working.
+
+The whole thing is stateless enough to run anywhere: AWS Lambda, Azure Container Apps, or a few pods on [the k3s cluster in the homelab](/insights/k3s-homelab). Right now it runs there, next to the rest of the home's infrastructure.
+
+## What's real and what's next
+
+The prefrontal-to-cortex routing, the memory consolidation pipeline, the MCP tool layer, and the device control all run today. A visual cortex is still on paper: SR501 presence sensors to give Ziggy awareness of who's in a room, not just what they typed. Splitting each cortex into its own container is the other open item, mostly for blast-radius reasons once more of the house depends on this staying up.
+
+This project sits exactly where my degree and my job do: psychology and neuroscience on one side, distributed systems on the other. Ziggy is the closest I've gotten to that childhood idea of an assistant that understands what you meant, not just what you typed.

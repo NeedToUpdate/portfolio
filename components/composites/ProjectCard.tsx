@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import TagList from "./TagList";
@@ -9,13 +10,13 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  return (
-    <a
-      href={project.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col overflow-hidden rounded-xl border border-line/50 bg-surface transition-colors hover:border-line"
-    >
+  // Some projects have no public repo or live site: their url points
+  // at the write-up instead, and gets internal client-side routing
+  // rather than a new tab, same rule TextLink uses.
+  const external = project.url.startsWith("http");
+
+  const content = (
+    <>
       <div className="relative aspect-[16/9] overflow-hidden border-b border-line/40">
         {project.thumbnail ? (
           <Image
@@ -45,6 +46,38 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </Text>
         <TagList tags={project.techs} limit={3} className="pt-1" />
       </div>
-    </a>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border border-line/50 bg-surface transition-colors hover:border-line">
+      {/* The card's main click target. The write-up link below is a
+          second, small, deliberate target, kept out of this anchor
+          since anchors cannot nest; it only renders when the main
+          link goes somewhere else (a real repo or live site). */}
+      {external ? (
+        <a
+          href={project.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex flex-1 flex-col"
+        >
+          {content}
+        </a>
+      ) : (
+        <Link href={project.url} className="group flex flex-1 flex-col">
+          {content}
+        </Link>
+      )}
+      {project.insightSlug && (
+        <Link
+          href={`/insights/${project.insightSlug}`}
+          data-nebula-shape="book"
+          className="border-t border-line/40 px-5 py-2.5 text-xs text-muted transition-colors hover:text-accent"
+        >
+          Read the write-up →
+        </Link>
+      )}
+    </div>
   );
 }

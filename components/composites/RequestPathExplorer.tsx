@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import Text from "@/components/ui/Text";
+import { routeArrowClass, routeNodeClass } from "@/lib/routeDiagram";
 import InteractiveFigure from "./InteractiveFigure";
 
 type RequestKind = "page" | "asset" | "repeat";
@@ -42,12 +43,6 @@ const NODES: { id: string; label: string }[] = [
   { id: "s3", label: "S3 (static)" },
 ];
 
-function nodeClass(active: boolean): string {
-  return `rounded-md border px-3 py-1.5 font-mono text-xs transition-colors ${
-    active ? "border-accent/70 text-ink" : "border-line/60 text-muted"
-  }`;
-}
-
 /** Click a request type and watch which origin serves it. */
 export default function RequestPathExplorer() {
   const [kind, setKind] = useState<RequestKind>("page");
@@ -72,26 +67,23 @@ export default function RequestPathExplorer() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span data-testid="node-browser" className={nodeClass(active("browser"))}>
+          <span data-testid="node-browser" className={routeNodeClass(active("browser"))}>
             {NODES[0].label}
           </span>
-          <span aria-hidden className={active("cloudfront") ? "text-accent" : "text-muted/50"}>
+          <span aria-hidden className={routeArrowClass(active("cloudfront"))}>
             →
           </span>
-          <span data-testid="node-cloudfront" className={nodeClass(active("cloudfront"))}>
+          <span data-testid="node-cloudfront" className={routeNodeClass(active("cloudfront"))}>
             {NODES[1].label}
           </span>
-          <span
-            aria-hidden
-            className={active("lambda") || active("s3") ? "text-accent" : "text-muted/50"}
-          >
+          <span aria-hidden className={routeArrowClass(active("lambda") || active("s3"))}>
             →
           </span>
           <span className="flex flex-col gap-2">
-            <span data-testid="node-lambda" className={nodeClass(active("lambda"))}>
+            <span data-testid="node-lambda" className={routeNodeClass(active("lambda"))}>
               {NODES[2].label}
             </span>
-            <span data-testid="node-s3" className={nodeClass(active("s3"))}>
+            <span data-testid="node-s3" className={routeNodeClass(active("s3"))}>
               {NODES[3].label}
             </span>
           </span>
