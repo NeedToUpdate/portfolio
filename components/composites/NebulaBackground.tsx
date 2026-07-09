@@ -332,6 +332,35 @@ export default function NebulaBackground({
       state.mouseActiveTarget = 0;
     };
 
+    // Touch: pointermove dies at pointercancel as soon as the browser
+    // claims the pan gesture, so the wake never fires on phones.
+    // Passive touchmove keeps reporting through the whole pan; drive
+    // the same state from it.
+    const onTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      state.mouse.x = touch.clientX / window.innerWidth;
+      state.mouse.y = 1 - touch.clientY / window.innerHeight;
+      state.mouseActiveTarget = 1;
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      onTouchMove(e);
+      // First contact can land anywhere: snap the eased trackers so the
+      // wake starts under the finger instead of sweeping in from the
+      // last known position with a huge velocity spike.
+      state.smoothMouse.x = state.mouse.x;
+      state.smoothMouse.y = state.mouse.y;
+      state.lastMouse.x = state.mouse.x;
+      state.lastMouse.y = state.mouse.y;
+      state.mouseVel.x = 0;
+      state.mouseVel.y = 0;
+    };
+
+    const onTouchEnd = () => {
+      state.mouseActiveTarget = 0;
+    };
+
     const onVisibility = () => {
       if (!state.started) return;
       const visible = document.visibilityState === "visible";
@@ -580,6 +609,10 @@ export default function NebulaBackground({
     if (!reducedMotion) {
       window.addEventListener("pointermove", onPointerMove, { passive: true });
       document.documentElement.addEventListener("pointerleave", onPointerLeave);
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: true });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
+      window.addEventListener("touchcancel", onTouchEnd, { passive: true });
       document.addEventListener("visibilitychange", onVisibility);
     }
 
@@ -602,6 +635,10 @@ export default function NebulaBackground({
       document.removeEventListener("pointerover", onPointerOver);
       window.removeEventListener("pointermove", onPointerMove);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
       document.removeEventListener("visibilitychange", onVisibility);
       // Do NOT loseContext() here: the router keeps this canvas alive
       // across navigations and a parked context cannot reliably be
