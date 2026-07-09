@@ -13,6 +13,13 @@ What I ended up with runs an HA control plane, single sign-on across eighteen ap
 
 Five nodes. Two old laptops and the old server form the control plane, voting on quorum so the cluster survives any one of them dying, and they double as ingress. Two mini PCs run underneath as a worker pool, carrying the actual application load. GitOps owns every workload through Argo CD's app-of-apps pattern, synced from four sibling repos by namespace: `tools` for a homepage dashboard, `automation` for Airflow and the bridge into [Ziggy](/insights/ziggy), `media` for Jellyfin and the usual `*arr` stack, `personal` for Immich and Paperless-ngx.
 
+<FloatImage
+  src="/images/k3s_homelab.webp"
+  alt="The my.home dashboard, showing live cluster metrics, storage, and every app running across the five nodes"
+  side="none"
+  caption="my.home: disk, CPU, and every app on the cluster, at a glance."
+/>
+
 ## How a request gets in, and how a change ships
 
 Two paths run this cluster, and neither one trusts a shortcut. Getting into an app means clearing the mesh and identity first. Getting a change into the cluster means clearing a pull request first.

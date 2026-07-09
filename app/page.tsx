@@ -1,3 +1,4 @@
+import Image from "next/image";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Section from "@/components/composites/Section";
@@ -11,7 +12,6 @@ import Eyebrow from "@/components/ui/Eyebrow";
 import ArrowLink from "@/components/ui/ArrowLink";
 import TextLink from "@/components/ui/TextLink";
 import Panel from "@/components/ui/Panel";
-import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import JsonLd from "@/components/ui/JsonLd";
 import { getFeaturedCaseStudies, getInsights, getWorkIntro } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -99,8 +99,14 @@ export default function HomePage() {
                   <ArrowLink href="/about" label="About me" nebulaShape="bars" />
                 </div>
               </div>
-              <div className="hidden sm:block">
-                <PlaceholderImage label="Portrait" icon="systems" aspectClass="aspect-[4/5]" />
+              <div className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-xl border border-line/50 sm:block">
+                <Image
+                  src="/images/portrait.webp"
+                  alt={site.name}
+                  fill
+                  sizes="(max-width: 1024px) 12rem, 10rem"
+                  className="object-cover"
+                />
               </div>
             </Panel>
           </div>

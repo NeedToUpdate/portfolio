@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import TextLink from "@/components/ui/TextLink";
 import Icon, { IconName } from "@/components/ui/Icon";
 import Text from "@/components/ui/Text";
-import PlaceholderImage from "@/components/ui/PlaceholderImage";
 import { site, socialChannels, SocialChannel } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -69,8 +69,14 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="hidden lg:block">
-          <PlaceholderImage label="Portrait" icon="systems" aspectClass="aspect-[4/5]" />
+        <div className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-xl border border-line/50 lg:block">
+          <Image
+            src="/images/portrait.webp"
+            alt={site.name}
+            fill
+            sizes="24rem"
+            className="object-cover"
+          />
         </div>
       </div>
     </PageShell>
