@@ -2,7 +2,15 @@ import { chamferDistance, distancesToBytes, emptyField } from "@/lib/nebula/sdf"
 import { nebulaShapes } from "@/lib/nebula/shapes";
 import { profilePalettes } from "@/lib/nebula/palettes";
 import { generateParticles, CloudSpec } from "@/lib/nebula/particles";
-import { arcShell, filamentWeb, lobeCluster, periodicNoise, stroke } from "@/lib/nebula/structures";
+import {
+  arcShell,
+  filamentWeb,
+  lobeCluster,
+  periodicNoise,
+  starSprinkle,
+  stroke,
+  wispStreaks,
+} from "@/lib/nebula/structures";
 
 describe("chamferDistance", () => {
   it("is zero inside the shape", () => {
@@ -150,6 +158,52 @@ describe("structure emitters", () => {
     expect(avg(middle)).toBeGreaterThan(avg(nearEnd));
   });
 
+  it("wispStreaks hug their arc and align with the flow", () => {
+    const particles = wispStreaks(rng, {
+      count: 200,
+      arcs: [{ cx: 0, cy: 0, r: 0.7, width: 0.05 }],
+      colors: [[0.6, 0.3, 0.4]],
+      alpha: [0.03, 0.1],
+      size: [0.08, 0.16],
+      drift: 0.03,
+      pointer: 0.85,
+      morph: 0.5,
+    });
+    expect(particles.length).toBeGreaterThan(150);
+    for (const p of particles) {
+      const r = Math.hypot(p.x, p.y);
+      expect(r).toBeGreaterThan(0.4);
+      expect(r).toBeLessThan(1.0);
+      expect(p.kind).toBe(3);
+      // The streak runs along the ring: its angle stays near the local
+      // tangent (radial angle + 90deg) modulo the +-0.4 jitter.
+      const tangent = Math.atan2(p.y, p.x) + Math.PI / 2;
+      let diff = (p.angle! - tangent) % (Math.PI * 2);
+      if (diff > Math.PI) diff -= Math.PI * 2;
+      if (diff < -Math.PI) diff += Math.PI * 2;
+      expect(Math.abs(diff)).toBeLessThan(0.45);
+    }
+  });
+
+  it("starSprinkle marks stars for the uniform outline pool", () => {
+    const particles = starSprinkle(rng, {
+      count: 60,
+      arcs: [{ cx: 0, cy: 0, r: 0.6, width: 0.06 }],
+      blobs: [{ cx: 0, cy: 0, r: 0.4 }],
+      scatter: 0.4,
+      colors: [[0.9, 0.95, 1]],
+      alpha: [0.12, 0.46],
+      size: [0.02, 0.08],
+    });
+    expect(particles).toHaveLength(60);
+    for (const p of particles) {
+      expect(p.kind).toBe(2);
+      expect(p.role).toBe(2);
+      expect(p.morph).toBe(1);
+      expect(p.alpha).toBeLessThan(0.5);
+    }
+  });
+
   it("periodicNoise wraps around 2*PI", () => {
     const n = periodicNoise(() => Math.random(), 8);
     expect(n(0)).toBeCloseTo(n(Math.PI * 2), 5);
@@ -181,9 +235,26 @@ describe("generateParticles", () => {
     const p = generateParticles(clouds);
     expect(p.dustCount).toBeGreaterThan(0);
     expect(p.dustCount).toBeLessThan(p.count);
-    // kind lives at data[i*3+2]: 1 for dust in the first range, 0 after.
-    expect(p.data[2]).toBe(1);
-    expect(p.data[(p.count - 1) * 3 + 2]).toBe(0);
+    // kind lives at data[i*3+2]: the dust bucket holds gas blobs (1)
+    // and wisp streaks (3); the emission bucket holds glow blobs (0)
+    // and spike stars (2).
+    let bucketsOk = true;
+    for (let i = 0; i < p.count; i++) {
+      const kind = p.data[i * 3 + 2];
+      const ok = i < p.dustCount ? kind === 1 || kind === 3 : kind === 0 || kind === 2;
+      if (!ok) bucketsOk = false;
+    }
+    expect(bucketsOk).toBe(true);
+  });
+
+  it("emits spike stars and wisp streaks for every profile", () => {
+    for (const cloud of clouds) {
+      const p = generateParticles([cloud]);
+      const kinds = new Set<number>();
+      for (let i = 0; i < p.count; i++) kinds.add(p.data[i * 3 + 2]);
+      expect(kinds.has(2)).toBe(true);
+      expect(kinds.has(3)).toBe(true);
+    }
   });
 
   it("keeps every particle translucent: volume comes from accumulation", () => {

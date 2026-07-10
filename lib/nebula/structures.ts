@@ -29,8 +29,19 @@ export interface RawParticle {
   pointer: number;
   /** Glyph morph weight, 0 stays put .. 1 flies to the shape. */
   morph: number;
-  /** Morph pool: 0 fills the glyph interior, 1 rides its outline. */
-  role: 0 | 1;
+  /**
+   * Morph pool: 0 fills the glyph interior, 1 rides its outline,
+   * 2 spaces evenly along the outline (spike stars).
+   */
+  role: 0 | 1 | 2;
+  /**
+   * Sprite glyph override. Defaults to the draw bucket (0 emission
+   * blob, 1 dust blob); 2 renders a diffraction-spike star, 3 an
+   * oriented gas-fiber streak.
+   */
+  kind?: number;
+  /** Streak orientation in radians (kind 3 only). */
+  angle?: number;
 }
 
 /** Density multiplier in local space, 0..1: cavities carve gas away. */
@@ -99,6 +110,12 @@ export function lobeCluster(
     brightColors?: RGB[];
     /** Chance a centre particle uses the bright ramp (default 0.25). */
     brightChance?: number;
+    /**
+     * Index colors radially instead of randomly: last color at the
+     * lobe centre fading to the first at the edge, so the ramp reads
+     * as one continuous gradient instead of an even speckle.
+     */
+    gradient?: boolean;
     mask?: Mask;
     zSpread?: number;
     role?: 0 | 1;
@@ -130,9 +147,16 @@ export function lobeCluster(
     const d = Math.min(Math.hypot(gx, gy), 1);
     const bright =
       opts.brightColors && d < 0.35 && rng() < (opts.brightChance ?? 0.25);
-    const color = bright
-      ? tint(rng, opts.brightColors!)
-      : tint(rng, opts.colors);
+    let color: RGB;
+    if (bright) {
+      color = tint(rng, opts.brightColors!);
+    } else if (opts.gradient) {
+      // Radial ramp with a little dither so the bands blend.
+      const t = Math.min(0.999, Math.max(0, 1 - d + (rng() - 0.5) * 0.3));
+      color = tint(rng, [opts.colors[Math.floor(t * opts.colors.length)]]);
+    } else {
+      color = tint(rng, opts.colors);
+    }
     // Edges fade: alpha eases down toward the lobe boundary.
     const edgeFade = 1 - d * 0.65;
     out.push({
@@ -173,6 +197,11 @@ export function arcShell(
     wobble: number;
     /** 0 continuous .. 1 heavily broken. */
     gaps: number;
+    /** Anisotropic squash of the path (1 = circular). */
+    sx?: number;
+    sy?: number;
+    /** Rotation of the squashed path, radians. */
+    rot?: number;
     colors: RGB[];
     brightColors?: RGB[];
     /** Peak alpha for rare compressed sections. */
@@ -185,6 +214,10 @@ export function arcShell(
   const nWidth = periodicNoise(rng, 9);
   const nGap = periodicNoise(rng, 6);
   const nBright = periodicNoise(rng, 11);
+  const sx = opts.sx ?? 1;
+  const sy = opts.sy ?? 1;
+  const cr = Math.cos(opts.rot ?? 0);
+  const sr = Math.sin(opts.rot ?? 0);
   let guard = opts.count * 8;
 
   while (out.length < opts.count && guard-- > 0) {
@@ -200,8 +233,10 @@ export function arcShell(
     const rr = opts.r * (1 + opts.wobble * (nRadius(ang) * 2 - 1));
     const w = opts.width * (0.4 + 1.3 * nWidth(ang * 1.3 + 2.1));
     const off = gaussian(rng) * w;
-    const x = opts.cx + Math.cos(ang) * (rr + off);
-    const y = opts.cy + Math.sin(ang) * (rr + off);
+    const ex = Math.cos(ang) * (rr + off) * sx;
+    const ey = Math.sin(ang) * (rr + off) * sy;
+    const x = opts.cx + ex * cr - ey * sr;
+    const y = opts.cy + ex * sr + ey * cr;
     if (opts.mask && rng() > opts.mask(x, y)) continue;
 
     // Compression: the narrower the shell here, the brighter it runs.
@@ -428,6 +463,201 @@ export function glowSpots(
       pointer: opts.pointer,
       morph: opts.morph,
       role: 0,
+    });
+  }
+  return out;
+}
+
+/** A (possibly squashed and rotated) circular path wisps and stars ride. */
+export interface ArcPath {
+  cx: number;
+  cy: number;
+  r: number;
+  /** Angular span; defaults to the full circle. */
+  a0?: number;
+  a1?: number;
+  /** Gaussian half-width across the path, radius units. */
+  width?: number;
+  /** Anisotropic squash (1 = circular). */
+  sx?: number;
+  sy?: number;
+  /** Rotation of the squashed path, radians. */
+  rot?: number;
+}
+
+/** Point on an arc path plus the flow (tangent) direction there. */
+function arcPoint(
+  arc: ArcPath,
+  ang: number,
+  off: number
+): { x: number; y: number; tangent: number } {
+  const sx = arc.sx ?? 1;
+  const sy = arc.sy ?? 1;
+  const cr = Math.cos(arc.rot ?? 0);
+  const sr = Math.sin(arc.rot ?? 0);
+  const ex = Math.cos(ang) * (arc.r + off) * sx;
+  const ey = Math.sin(ang) * (arc.r + off) * sy;
+  const tx = -Math.sin(ang) * sx;
+  const ty = Math.cos(ang) * sy;
+  return {
+    x: arc.cx + ex * cr - ey * sr,
+    y: arc.cy + ex * sr + ey * cr,
+    tangent: Math.atan2(tx * sr + ty * cr, tx * cr - ty * sr),
+  };
+}
+
+/**
+ * Continuous wisp strands hugging shell paths. Sprites are emitted in
+ * chained trains: each strand walks its arc in steps of ~40% of a
+ * sprite, sharing one color, size, and depth, while its radial offset
+ * drifts smoothly. The overlapping oriented streaks (kind 3) fuse into
+ * unbroken curved fibers — independent scattered stamps never do.
+ */
+export function wispStreaks(
+  rng: Rng,
+  opts: LayerFeel & {
+    count: number;
+    arcs: ArcPath[];
+    colors: RGB[];
+    brightColors?: RGB[];
+    mask?: Mask;
+  }
+): RawParticle[] {
+  const out: RawParticle[] = [];
+  const spans = opts.arcs.map((a) => (a.a1 ?? Math.PI * 2) - (a.a0 ?? 0));
+  const weights = opts.arcs.map((a, i) => a.r * Math.abs(spans[i]));
+  const totalW = weights.reduce((s, w) => s + w, 0);
+  let guard = opts.count * 3;
+
+  while (out.length < opts.count && guard-- > 0) {
+    let pick = rng() * totalW;
+    let arc = opts.arcs[0];
+    let span = spans[0];
+    for (let i = 0; i < opts.arcs.length; i++) {
+      pick -= weights[i];
+      if (pick <= 0) {
+        arc = opts.arcs[i];
+        span = spans[i];
+        break;
+      }
+    }
+    const a0 = arc.a0 ?? 0;
+    const width = arc.width ?? 0.08;
+
+    // One identity per strand, so its links read as the same fiber.
+    const size = range(rng, opts.size[0], opts.size[1]);
+    const hot = opts.brightColors && rng() < 0.15;
+    const color = hot ? tint(rng, opts.brightColors!) : tint(rng, opts.colors);
+    const alphaBase = range(rng, opts.alpha[0], opts.alpha[1]) * (hot ? 1.25 : 1);
+    const drift = opts.drift * range(rng, 0.7, 1.3);
+    const pointer = opts.pointer * range(rng, 0.8, 1.2);
+    const z = gaussian(rng) * 0.15;
+
+    const dir = Math.sign(span) || 1;
+    const len = range(rng, 0.35, 0.9) * Math.min(Math.abs(span), Math.PI * 1.2);
+    const start = a0 + rng() * Math.max(Math.abs(span) - len, 0.001) * dir;
+    const stepAng = (size * 0.4) / Math.max(arc.r, 0.1);
+    const steps = Math.max(3, Math.round(len / stepAng));
+
+    // The radial offset random-walks with damping: the strand weaves
+    // across the shell width without ever jumping.
+    let off = gaussian(rng) * width;
+    let offVel = 0;
+
+    for (let s = 0; s <= steps && out.length < opts.count; s++) {
+      const u = s / steps;
+      const ang = start + u * len * dir;
+      offVel = offVel * 0.85 + (rng() - 0.5) * width * 0.25;
+      off += offVel;
+      const pt = arcPoint(arc, ang, off);
+      if (opts.mask && rng() > opts.mask(pt.x, pt.y)) continue;
+
+      const endFade = Math.min(1, Math.min(u, 1 - u) * 4 + 0.1);
+      out.push({
+        x: pt.x,
+        y: pt.y,
+        z,
+        size: size * range(rng, 0.85, 1.15),
+        color,
+        alpha: alphaBase * endFade,
+        drift,
+        pointer,
+        morph: opts.morph,
+        role: 1,
+        kind: 3,
+        angle: pt.tangent + jitterAngle(rng),
+      });
+    }
+  }
+  return out;
+}
+
+// Tiny: strand links must share the flow direction or the chain
+// dissolves back into scattered stamps.
+const jitterAngle = (rng: Rng) => (rng() - 0.5) * 0.16;
+
+/**
+ * Young blue-white stars (kind 2): compact diffraction-spiked sprites
+ * drawn additively above the gas. They concentrate along shell arcs
+ * with a fraction scattered through bright body regions, and space
+ * evenly along a glyph's outline during morphs (role 2).
+ */
+export function starSprinkle(
+  rng: Rng,
+  opts: {
+    count: number;
+    /** Shell paths the stars concentrate on. */
+    arcs: ArcPath[];
+    /** Soft scatter regions inside the body. */
+    blobs?: { cx: number; cy: number; r: number }[];
+    /** Fraction of stars scattered in blobs instead of arcs. */
+    scatter?: number;
+    colors: RGB[];
+    alpha: [number, number];
+    size: [number, number];
+    /**
+     * Mass-skew exponent: lower values pull the distribution toward
+     * more large, bright stars; higher values keep almost everything
+     * small with only rare giants. Defaults to a hard skew (2.4).
+     */
+    sizeBias?: number;
+  }
+): RawParticle[] {
+  const out: RawParticle[] = [];
+  const scatter = opts.blobs?.length ? opts.scatter ?? 0.35 : 0;
+  const sizeBias = opts.sizeBias ?? 2.4;
+
+  for (let i = 0; i < opts.count; i++) {
+    let x: number;
+    let y: number;
+    if (rng() < scatter) {
+      const blob = opts.blobs![Math.floor(rng() * opts.blobs!.length)];
+      x = blob.cx + gaussian(rng) * blob.r * 0.5;
+      y = blob.cy + gaussian(rng) * blob.r * 0.5;
+    } else {
+      const arc = opts.arcs[Math.floor(rng() * opts.arcs.length)];
+      const a0 = arc.a0 ?? 0;
+      const ang = a0 + rng() * ((arc.a1 ?? Math.PI * 2) - a0);
+      const pt = arcPoint(arc, ang, gaussian(rng) * (arc.width ?? 0.08));
+      x = pt.x;
+      y = pt.y;
+    }
+
+    // Mass skew: most stars small and modest, a rare few large and hot.
+    const m = Math.pow(rng(), sizeBias);
+    out.push({
+      x,
+      y,
+      z: gaussian(rng) * 0.2,
+      size: opts.size[0] + m * (opts.size[1] - opts.size[0]),
+      color: tint(rng, opts.colors, 0.1),
+      alpha: opts.alpha[0] + (0.3 + 0.7 * m) * (opts.alpha[1] - opts.alpha[0]),
+      // Stars are not gas: they barely drift and shrug off the wake.
+      drift: 0.008,
+      pointer: 0.12,
+      morph: 1,
+      role: 2,
+      kind: 2,
     });
   }
   return out;

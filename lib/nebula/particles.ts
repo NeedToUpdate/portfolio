@@ -27,7 +27,9 @@ import {
   glowSpots,
   lobeCluster,
   range,
+  starSprinkle,
   stroke,
+  wispStreaks,
   type Mask,
   type RawParticle,
   type Rng,
@@ -61,11 +63,21 @@ export interface ParticleBuffers {
   color: Float32Array;
   /** drift amplitude, pointer response, morph weight per particle. */
   motion: Float32Array;
+  /** streak orientation per particle, radians (wisp sprites only). */
+  angle: Float32Array;
   /** Morph pool per particle: 0 glyph interior, 1 glyph outline. */
   roles: Uint8Array;
   count: number;
   /** Dust particles occupy [0, dustCount); emission [dustCount, count). */
   dustCount: number;
+  /**
+   * Glyph sprites sit at the end of their buckets so they draw as
+   * contiguous ranges through their own program: wisp streaks occupy
+   * [dustCount - wispCount, dustCount), spike stars [count - starCount,
+   * count).
+   */
+  wispCount: number;
+  starCount: number;
 }
 
 interface ProfileOutput {
@@ -128,7 +140,8 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Body: pink/violet mass around the core, cooler gas outward.
+  // Body: pink/violet mass around the core, cooler gas outward. The
+  // radial gradient runs the palette ramp from hot centre to cool edge.
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.2),
@@ -140,6 +153,7 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
       colors: pal.body,
       brightColors: pal.bodyBright,
       brightChance: 0.18,
+      gradient: true,
       alpha: [0.04, 0.14],
       size: [0.09, 0.18],
       drift: 0.026,
@@ -150,15 +164,26 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   );
 
   // Two opposing inner crescents: different centres, radii, spans,
-  // widths, and brightness, one much cloudier than the other.
+  // widths, and brightness, one much cloudier than the other. The
+  // geometry is shared with the wisp and star layers below.
+  const arcA = {
+    cx: coreX - 0.06,
+    cy: coreY + 0.1,
+    r: 0.22 + jitter(rng, 0.05),
+    a0: -0.4 + jitter(rng, 0.3),
+    a1: 2.5 + jitter(rng, 0.3),
+  };
+  const arcB = {
+    cx: coreX + 0.24,
+    cy: coreY - 0.14,
+    r: 0.27 + jitter(rng, 0.05),
+    a0: 2.8 + jitter(rng, 0.3),
+    a1: 5.7 + jitter(rng, 0.3),
+  };
   dust.push(
     ...arcShell(rng, {
       count: Math.round(count * 0.11),
-      cx: coreX - 0.06,
-      cy: coreY + 0.1,
-      r: 0.48 + jitter(rng, 0.08),
-      a0: -0.4 + jitter(rng, 0.3),
-      a1: 2.5 + jitter(rng, 0.3),
+      ...arcA,
       width: 0.065,
       wobble: 0.14,
       gaps: 0.35,
@@ -175,11 +200,7 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   dust.push(
     ...arcShell(rng, {
       count: Math.round(count * 0.09),
-      cx: coreX + 0.24,
-      cy: coreY - 0.14,
-      r: 0.68 + jitter(rng, 0.1),
-      a0: 2.8 + jitter(rng, 0.3),
-      a1: 5.7 + jitter(rng, 0.3),
+      ...arcB,
       width: 0.1,
       wobble: 0.2,
       gaps: 0.5,
@@ -194,10 +215,12 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Outer shell: two broken violet-blue crescents near the boundary.
+  // Outer shell: two broken crescents hugging the core region. In the
+  // photos the bright shells live in the inner half of the nebula;
+  // only faint diffuse gas reaches the silhouette.
   for (const seg of [
-    { a0: 0.4, a1: 1.9, r: 1.02 },
-    { a0: 2.6, a1: 4.4, r: 1.12 },
+    { a0: 0.4, a1: 1.9, r: 0.28 },
+    { a0: 2.6, a1: 4.4, r: 0.33 },
   ]) {
     dust.push(
       ...arcShell(rng, {
@@ -244,6 +267,27 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
       })
     );
   }
+
+  // Large brush-stroke wisps riding the crescents and a broad outer
+  // remnant ring: oriented fiber sprites aligned with the local flow.
+  dust.push(
+    ...wispStreaks(rng, {
+      count: Math.round(count * 0.016),
+      arcs: [
+        { ...arcA, width: 0.055 },
+        { ...arcB, width: 0.07 },
+        { cx: coreX, cy: coreY, r: 0.31 + jitter(rng, 0.05), width: 0.09 },
+      ],
+      colors: pal.wisp,
+      brightColors: pal.innerBright,
+      // Chained strand links overlap ~2.5x, so per-sprite alpha runs low.
+      alpha: [0.02, 0.07],
+      size: [0.07, 0.17],
+      drift: 0.03,
+      pointer: 0.85,
+      morph: 0.5,
+    })
+  );
 
   // Faint gas inside the cavity so it never reads as a clean hole.
   dust.push(
@@ -297,6 +341,30 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
+  // Young spiked stars above the gas: a rim hugging the crescents plus
+  // a wide scatter that reaches into the outer volume gas, so they
+  // don't all cluster on the arcs. The hero carries more of these than
+  // the smaller clouds, and a lower size bias means more of them land
+  // large and bright instead of almost all staying small.
+  emission.push(
+    ...starSprinkle(rng, {
+      count: Math.max(38, Math.round(count * 0.007)),
+      arcs: [
+        { ...arcA, width: 0.08 },
+        { ...arcB, width: 0.1 },
+      ],
+      blobs: [
+        { cx: coreX, cy: coreY, r: 0.5 },
+        { cx: coreX, cy: coreY, r: 1.05 },
+      ],
+      scatter: 0.55,
+      colors: pal.star,
+      alpha: [0.14, 0.5],
+      size: [0.022, 0.1],
+      sizeBias: 1.8,
+    })
+  );
+
   return { dust, emission };
 }
 
@@ -306,7 +374,9 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
  * outer extensions.
  */
 function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutput {
-  const ringR = 0.72;
+  // The ring sits well inside the dark outer material, like the
+  // photograph: the faint volume reaches more than twice as far out.
+  const ringR = 0.3;
   const tilt = rng() * Math.PI * 2;
   const mask = cavityMask([{ x: 0, y: 0, r: 0.44, depth: 0.85 }]);
 
@@ -337,16 +407,18 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   );
 
   // Cool blue gas filling the cavity, faint enough to see stars through.
+  // The radial gradient warms the centre toward pale blue-white.
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.12),
       lobes: [
-        { cx: jitter(rng, 0.1), cy: jitter(rng, 0.1), r: 0.5, w: 1.5 },
+        { cx: jitter(rng, 0.1), cy: jitter(rng, 0.1), r: 0.5, w: 1.5, sx: 1.1, sy: 0.85 },
         { cx: jitter(rng, 0.3), cy: jitter(rng, 0.3), r: 0.3 },
       ],
       colors: pal.body,
       brightColors: pal.bodyBright,
       brightChance: 0.12,
+      gradient: true,
       alpha: [0.03, 0.08],
       size: [0.13, 0.26],
       drift: 0.02,
@@ -357,8 +429,30 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
 
   // The main ring: two full, heavily-broken arcs with offset centres
   // and different radii/widths, so they overlap like a wound ribbon.
-  const ringA = { cx: 0.07, cy: -0.05, r: ringR * 0.92, width: 0.11, gaps: 0.3 };
-  const ringB = { cx: -0.08, cy: 0.06, r: ringR * 1.08, width: 0.14, gaps: 0.45 };
+  // Both are squashed into rotated ellipses so the silhouette never
+  // reads as a clean circle.
+  const squash = range(rng, 0.72, 0.9);
+  const ringRot = rng() * Math.PI;
+  const ringA = {
+    cx: 0.1 + jitter(rng, 0.06),
+    cy: -0.06 + jitter(rng, 0.06),
+    r: ringR * 0.9,
+    width: 0.11,
+    gaps: 0.3,
+    sx: 1.04,
+    sy: squash,
+    rot: ringRot,
+  };
+  const ringB = {
+    cx: -0.1 + jitter(rng, 0.06),
+    cy: 0.07 + jitter(rng, 0.06),
+    r: ringR * 1.1,
+    width: 0.15,
+    gaps: 0.5,
+    sx: 1,
+    sy: Math.min(1, squash + 0.14),
+    rot: ringRot + jitter(rng, 0.7),
+  };
   for (const ring of [ringA, ringB]) {
     dust.push(
       ...arcShell(rng, {
@@ -369,8 +463,11 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         a0: tilt,
         a1: tilt + Math.PI * 2,
         width: ring.width,
-        wobble: 0.11,
+        wobble: 0.17,
         gaps: ring.gaps,
+        sx: ring.sx,
+        sy: ring.sy,
+        rot: ring.rot,
         colors: pal.shell,
         brightColors: pal.shellBright,
         alpha: [0.04, 0.13],
@@ -383,6 +480,25 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     );
   }
 
+  // Brush-stroke wisps flowing along both rings: the stretched remnant
+  // strands around the old shell.
+  dust.push(
+    ...wispStreaks(rng, {
+      count: Math.round(count * 0.03),
+      arcs: [
+        { ...ringA, width: 0.07 },
+        { ...ringB, width: 0.08 },
+      ],
+      colors: pal.wisp,
+      brightColors: pal.shellBright,
+      alpha: [0.02, 0.075],
+      size: [0.09, 0.2],
+      drift: 0.028,
+      pointer: 0.85,
+      morph: 0.5,
+    })
+  );
+
   // Inner rim: short bright amber arcs where the ring faces the cavity,
   // mixed with a couple of cool blue arcs just inside.
   for (let i = 0; i < 3; i++) {
@@ -392,7 +508,7 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         count: Math.round(count * 0.035),
         cx: jitter(rng, 0.08),
         cy: jitter(rng, 0.08),
-        r: range(rng, 0.5, 0.58),
+        r: range(rng, 0.22, 0.26),
         a0,
         a1: a0 + range(rng, 0.8, 1.8),
         width: 0.05,
@@ -415,8 +531,8 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   const knots = 8 + Math.floor(rng() * 6);
   for (let i = 0; i < knots; i++) {
     const a = rng() * Math.PI * 2;
-    const head = 0.42 + rng() * 0.06;
-    const tail = head + range(rng, 0.14, 0.26);
+    const head = 0.14 + rng() * 0.03;
+    const tail = head + range(rng, 0.09, 0.16);
     dust.push(
       ...stroke(rng, {
         count: Math.round(count * 0.006),
@@ -440,9 +556,9 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     dust.push(
       ...stroke(rng, {
         count: Math.round(count * 0.015),
-        from: [Math.cos(a) * 0.75, Math.sin(a) * 0.75],
-        ctrl: [Math.cos(a + 0.6) * 0.95, Math.sin(a + 0.6) * 0.95],
-        to: [Math.cos(a + 1.2) * 0.8, Math.sin(a + 1.2) * 0.8],
+        from: [Math.cos(a) * 0.35, Math.sin(a) * 0.35],
+        ctrl: [Math.cos(a + 0.6) * 0.45, Math.sin(a + 0.6) * 0.45],
+        to: [Math.cos(a + 1.2) * 0.38, Math.sin(a + 1.2) * 0.38],
         width: range(rng, 0.06, 0.1),
         colors: pal.dust,
         alpha: [0.05, 0.16],
@@ -469,6 +585,29 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
       drift: 0.018,
       pointer: 0.4,
       morph: 0.6,
+    })
+  );
+
+  // Spiked stars along the ring shells, with a few shining through the
+  // cavity and a few more scattered out into the dark outer material,
+  // the way field stars show through the real Helix. A smaller cloud
+  // gets fewer of these than the hero.
+  emission.push(
+    ...starSprinkle(rng, {
+      count: Math.max(14, Math.round(count * 0.0032)),
+      arcs: [
+        { ...ringA, width: 0.1 },
+        { ...ringB, width: 0.12 },
+      ],
+      blobs: [
+        { cx: 0, cy: 0, r: 0.2 },
+        { cx: 0, cy: 0, r: 0.95 },
+      ],
+      scatter: 0.45,
+      colors: pal.star,
+      alpha: [0.12, 0.46],
+      size: [0.025, 0.08],
+      sizeBias: 2.1,
     })
   );
 
@@ -514,11 +653,37 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
       colors: pal.body,
       brightColors: pal.bodyBright,
       brightChance: 0.18,
+      gradient: true,
       alpha: [0.04, 0.12],
       size: [0.07, 0.15],
       drift: 0.024,
       pointer: 0.55,
       morph: 1,
+    })
+  );
+
+  // Remnant wisp loops: large oriented streaks tracing a few tangled
+  // elliptical shells around the web, the old supernova's leftovers.
+  const loops = Array.from({ length: 3 }, () => ({
+    cx: jitter(rng, 0.18),
+    cy: jitter(rng, 0.18),
+    r: range(rng, 0.16, 0.28),
+    width: 0.08,
+    sx: range(rng, 0.9, 1.1),
+    sy: range(rng, 0.7, 0.95),
+    rot: rng() * Math.PI,
+  }));
+  dust.push(
+    ...wispStreaks(rng, {
+      count: Math.round(count * 0.035),
+      arcs: loops,
+      colors: pal.wisp,
+      brightColors: pal.filamentBright,
+      alpha: [0.02, 0.07],
+      size: [0.09, 0.19],
+      drift: 0.03,
+      pointer: 0.9,
+      morph: 0.5,
     })
   );
 
@@ -595,6 +760,25 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
     })
   );
 
+  // Spiked stars over the blue-white core, plus a scatter reaching
+  // into the outer volume gas around the remnant edge. Fewer than the
+  // hero, in keeping with this cloud's smaller footprint.
+  emission.push(
+    ...starSprinkle(rng, {
+      count: Math.max(14, Math.round(count * 0.0032)),
+      arcs: [{ cx: 0, cy: 0, r: 0.22, width: 0.14 }],
+      blobs: [
+        ...coreLobes.map((l) => ({ cx: l.cx, cy: l.cy, r: l.r * 1.2 })),
+        { cx: 0, cy: 0, r: 0.9 },
+      ],
+      scatter: 0.55,
+      colors: pal.star,
+      alpha: [0.12, 0.46],
+      size: [0.02, 0.08],
+      sizeBias: 2.1,
+    })
+  );
+
   return { dust, emission };
 }
 
@@ -619,26 +803,51 @@ export function generateParticles(clouds: CloudSpec[]): ParticleBuffers {
     for (const p of out.emission) emissionFlat.push({ p, c });
   }
 
-  const all = [...dustFlat, ...emissionFlat];
+  // Pull the glyph sprites (wisps, stars) to the end of their buckets:
+  // each bucket then splits into two contiguous draw ranges, so the gas
+  // keeps its lean shader and the glyphs get their own program. Wisps
+  // end up above the dark dust lanes, which suits remnant strands.
+  const dustGas = dustFlat.filter((e) => e.p.kind !== 3);
+  const wisps = dustFlat.filter((e) => e.p.kind === 3);
+  const emissionGas = emissionFlat.filter((e) => e.p.kind !== 2);
+  const stars = emissionFlat.filter((e) => e.p.kind === 2);
+
+  const all = [...dustGas, ...wisps, ...emissionGas, ...stars];
   const count = all.length;
   const position = new Float32Array(count * 3);
   const data = new Float32Array(count * 3);
   const cloud = new Float32Array(count * 3);
   const color = new Float32Array(count * 4);
   const motion = new Float32Array(count * 3);
+  const angle = new Float32Array(count);
   const roles = new Uint8Array(count);
 
   all.forEach(({ p, c }, i) => {
-    const kind = i < dustFlat.length ? 1 : 0;
+    // Glyph kind: the draw bucket by default, or the particle's own
+    // override (2 spike star, 3 wisp streak).
+    const kind = p.kind ?? (i < dustFlat.length ? 1 : 0);
     position.set([p.x, p.y, Math.max(-1, Math.min(1, p.z))], i * 3);
     data.set([p.size, rng(), kind], i * 3);
     cloud.set([c.x, c.y, c.radius], i * 3);
     color.set([p.color[0], p.color[1], p.color[2], p.alpha * (c.bright ?? 1)], i * 4);
     motion.set([p.drift, p.pointer, p.morph], i * 3);
+    angle[i] = p.angle ?? 0;
     roles[i] = p.role;
   });
 
-  return { position, data, cloud, color, motion, roles, count, dustCount: dustFlat.length };
+  return {
+    position,
+    data,
+    cloud,
+    color,
+    motion,
+    angle,
+    roles,
+    count,
+    dustCount: dustFlat.length,
+    wispCount: wisps.length,
+    starCount: stars.length,
+  };
 }
 
 export interface ShapePools {
@@ -651,7 +860,10 @@ export interface ShapePools {
 /**
  * Samples morph target points for a glyph, split into outline and
  * interior pools so shell/filament particles trace the boundary while
- * body gas fills it. Browser only (rasterizes to a canvas).
+ * body gas fills it. The edge pool is sampled stratified (evenly
+ * through the edge-pixel list) so indexing it by rank spaces spike
+ * stars uniformly along the outline. Browser only (rasterizes to a
+ * canvas).
  */
 export function sampleShapeTargets(shapeKey: string, poolSize: number): ShapePools {
   const empty = { edge: new Float32Array(0), interior: new Float32Array(0) };
@@ -675,10 +887,13 @@ export function sampleShapeTargets(shapeKey: string, poolSize: number): ShapePoo
   if (interiorIdx.length === 0) interiorIdx.push(...edgeIdx);
   if (edgeIdx.length === 0) edgeIdx.push(...interiorIdx);
 
-  const sample = (pool: number[], n: number): Float32Array => {
+  const sample = (pool: number[], n: number, stratified = false): Float32Array => {
     const out = new Float32Array(n * 2);
     for (let p = 0; p < n; p++) {
-      const i = pool[Math.floor(Math.random() * pool.length)];
+      const at = stratified
+        ? Math.min(pool.length - 1, Math.floor(((p + Math.random()) / n) * pool.length))
+        : Math.floor(Math.random() * pool.length);
+      const i = pool[at];
       out[p * 2] = ((i % size) / size) * 2 - 1;
       out[p * 2 + 1] = (Math.floor(i / size) / size) * 2 - 1;
     }
@@ -686,7 +901,7 @@ export function sampleShapeTargets(shapeKey: string, poolSize: number): ShapePoo
   };
 
   return {
-    edge: sample(edgeIdx, Math.floor(poolSize / 2)),
+    edge: sample(edgeIdx, Math.floor(poolSize / 2), true),
     interior: sample(interiorIdx, Math.ceil(poolSize / 2)),
   };
 }
