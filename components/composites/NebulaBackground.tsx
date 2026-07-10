@@ -75,10 +75,14 @@ const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
   "bottom-right": [0.84, 0.24],
 };
 
+// Mobile radii run ~70-90vmin: at phone sizes a 30vmin corner cloud
+// reads as a smudge. Sprite sizes scale with the radius, so the bigger
+// footprint costs nothing extra as long as the count stays put (the
+// density constant below compensates).
 const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number }> = {
-  md: { mobile: 0.15, desktop: 0.19 },
-  lg: { mobile: 0.18, desktop: 0.23 },
-  xl: { mobile: 0.22, desktop: 0.28 },
+  md: { mobile: 0.36, desktop: 0.19 },
+  lg: { mobile: 0.4, desktop: 0.23 },
+  xl: { mobile: 0.44, desktop: 0.28 },
 };
 
 const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
@@ -534,7 +538,10 @@ export default function NebulaBackground({
       // A medium hero (~20vmax, down from ~30): big enough to anchor
       // the corner, small enough that its structure stays readable.
       const heroR = Math.min(0.38, (isDesktop ? 0.2 : 0.18) * vRatio);
-      const ringR = isDesktop ? 0.21 : portrait ? 0.19 : 0.17;
+      // Portrait clouds run ~80vmin: at 0.19 they read teeny on a
+      // phone. The density constants below hold the counts where the
+      // small clouds had them, so brightness and cost don't move.
+      const ringR = isDesktop ? 0.21 : portrait ? 0.4 : 0.17;
       const webR = isDesktop ? 0.16 : portrait ? 0.17 : 0.13;
       const miniRadius = MINI_SIZE_RADIUS[size] ?? MINI_SIZE_RADIUS.md;
       const miniR = (isDesktop ? miniRadius.desktop : miniRadius.mobile) + Math.random() * 0.025;
@@ -556,31 +563,35 @@ export default function NebulaBackground({
               radius: miniR,
               profile: pickedMiniShape,
               palette: miniPalettes[pickedMiniColor] ?? undefined,
-              count: countFor(miniR, 155000),
+              // Mobile density compensates the much larger radius so
+              // the count — and with it per-pixel brightness and the
+              // particle budget — matches the old small cloud.
+              count: countFor(miniR, isDesktop ? 155000 : 30000),
             },
           ]
         : portrait
         ? [
             // Phones: the hero disc never had open sky to live in —
             // the card stack covers it and only a washed glow gets
-            // through. Instead, the two strongest profiles run small
-            // and bright: an Orion cloud low, the amber ring high. No
-            // web here; it reads as a smudge at phone sizes. Ordered
-            // bottom-first so the tint pair (A low, B high) lines up.
+            // through. Instead, the two strongest profiles run big
+            // (~80vmin) and bright: an Orion cloud low, the amber ring
+            // high. No web here; it reads as a smudge at phone sizes.
+            // Ordered bottom-first so the tint pair (A low, B high)
+            // lines up.
             {
-              x: 0.32 + jitter(),
-              y: 0.16 + jitter(),
+              x: 0.35 + jitter(),
+              y: 0.24 + jitter(),
               radius: ringR,
               profile: "orion",
-              count: countFor(ringR, 200000),
+              count: countFor(ringR, 45000),
               bright: 1.35,
             },
             {
-              x: (Math.random() < 0.5 ? 0.28 : 0.72) + jitter(),
-              y: 0.8 + jitter(),
+              x: (Math.random() < 0.5 ? 0.3 : 0.7) + jitter(),
+              y: 0.74 + jitter(),
               radius: ringR,
               profile: "helix",
-              count: countFor(ringR, 180000),
+              count: countFor(ringR, 41000),
               bright: 1.3,
             },
           ]
