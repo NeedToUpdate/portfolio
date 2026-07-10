@@ -17,15 +17,15 @@ This site looks like a static portfolio. It is a server-rendered Next.js applica
 
 ## The hosting
 
-Next.js builds the site as a standalone Node server. A Python script zips that build, and the Serverless Framework deploys it as a single Lambda function. The Lambda runs behind the Lambda Web Adapter, a layer that proxies HTTP to the Next.js process. No Express wrapper, no custom server code.
+This is full server-side rendered Next.js without a server to own. Page requests run on AWS Lambda through the Lambda Web Adapter, which lets the normal Next.js server handle HTTP inside a serverless function. There is no Express wrapper, no custom server process to patch, and no instance sitting idle between visits.
 
-CloudFront sits in front with two origins. Requests for static assets go to an S3 bucket with immutable cache headers. Page requests and API calls go to the Lambda. Next.js routes each request inside the same application, so an API endpoint needs no separate gateway or service. The incremental cache lives in S3 because a Lambda's filesystem is read-only and two instances share no memory.
+CloudFront sits in front with two origins. Page requests and API calls go to the same Lambda, so the app keeps the useful parts of server rendering: dynamic metadata, private logic, route handlers, incremental regeneration, and API endpoints living beside the pages that use them. Static assets go to S3 with long cache headers, so the Lambda only sees requests that actually need application code.
 
 <RequestPathExplorer />
 
 There are two environments with separate Lambda functions, S3 buckets, and CloudFront distributions. Pushing to `main` deploys production. Pushing to `dev` deploys a preview at a separate domain, locked behind basic auth in the Next.js middleware. Production has no auth variables set, so the same middleware passes traffic through untouched.
 
-The bill rounds to a few cents. There are no servers to patch and nothing idles overnight.
+The practical result is "serverless side rendered" Next.js. It behaves like a real server-rendered app, but scales down to zero and fans out automatically under traffic. For a portfolio-sized site, Lambda's free tier can absorb a large amount of traffic before there is any meaningful compute bill.
 
 <Note>
   The natural question: why not a static export? Server rendering keeps the door

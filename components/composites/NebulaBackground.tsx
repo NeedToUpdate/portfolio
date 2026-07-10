@@ -90,9 +90,11 @@ const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
 // footprint costs nothing extra as long as the count stays put (the
 // density constant below compensates).
 const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number }> = {
-  md: { mobile: 0.36, desktop: 0.19 },
-  lg: { mobile: 0.4, desktop: 0.23 },
-  xl: { mobile: 0.44, desktop: 0.28 },
+  // Match the full landing scene's ~0.40 mobile cloud footprint; the
+  // larger variants retain the same four-point size progression.
+  md: { mobile: 0.4, desktop: 0.19 },
+  lg: { mobile: 0.44, desktop: 0.23 },
+  xl: { mobile: 0.48, desktop: 0.28 },
 };
 
 const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
