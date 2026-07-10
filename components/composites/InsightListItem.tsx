@@ -42,7 +42,7 @@ export default function InsightListItem({ insight }: InsightListItemProps) {
           so the CTA lines up under the title/description, not the date. */}
       <div className="mt-2 flex justify-end sm:pl-[9.5rem]">
         <span
-          data-nebula-shape="book"
+          data-nebula-shape="article"
           className="inline-flex items-center gap-1.5 text-sm text-accent"
         >
           Read the write-up

@@ -29,6 +29,7 @@ export default function Nav() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  data-nebula-shape={item.shape}
                   aria-current={active ? "page" : undefined}
                   className={`inline-flex min-h-6 items-center text-sm transition-colors ${
                     active ? "text-accent" : "text-muted hover:text-ink"

@@ -72,7 +72,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       {project.insightSlug && (
         <Link
           href={`/insights/${project.insightSlug}`}
-          data-nebula-shape="book"
+          data-nebula-shape="article"
           className="border-t border-line/40 px-5 py-2.5 text-xs text-muted transition-colors hover:text-accent"
         >
           Read the write-up →
