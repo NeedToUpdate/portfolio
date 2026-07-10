@@ -88,8 +88,21 @@ export function rasterizePathToMask(pathData: string, size: number): Uint8Array 
   const scale = (size - pad * 2) / 100;
   ctx.translate(pad, size - pad);
   ctx.scale(scale, -scale);
-  ctx.fillStyle = "#fff";
-  ctx.fill(new Path2D(pathData));
+  const stroked = pathData.startsWith("stroke:");
+  const path = new Path2D(stroked ? pathData.slice(7) : pathData);
+  if (stroked) {
+    // A few glyphs are naturally monoline marks. Rasterizing a real
+    // stroke keeps their open negative space instead of forcing them
+    // into awkward compound fill polygons.
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 9;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke(path);
+  } else {
+    ctx.fillStyle = "#fff";
+    ctx.fill(path);
+  }
 
   const pixels = ctx.getImageData(0, 0, size, size).data;
   const mask = new Uint8Array(size * size);

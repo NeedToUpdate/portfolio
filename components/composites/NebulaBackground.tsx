@@ -49,6 +49,15 @@ const MOUSE_POS_RATE = 12; // 1/s
 export type NebulaCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type NebulaMiniShape = ProfileName | "random";
 export type NebulaMiniSize = "md" | "lg" | "xl";
+export interface NebulaLayerVisibility {
+  background?: boolean;
+  distantStars?: boolean;
+  gas?: boolean;
+  wisps?: boolean;
+  emission?: boolean;
+  youngStars?: boolean;
+  foregroundStars?: boolean;
+}
 
 interface NebulaBackgroundProps {
   /**
@@ -56,7 +65,7 @@ interface NebulaBackgroundProps {
    * structured nebulae. "mini" is one small random-profile cloud on a
    * transparent canvas, tucked into a corner over the DOM starfield.
    */
-  variant?: "full" | "mini";
+  variant?: "full" | "mini" | "demo";
   /** Where the mini cloud sits (mini only). */
   corner?: NebulaCorner;
   /** Structural profile for the mini cloud. Defaults to random. */
@@ -65,6 +74,7 @@ interface NebulaBackgroundProps {
   color?: MiniPaletteName | "random";
   /** Decorative mini footprint. Defaults to a larger medium. */
   size?: NebulaMiniSize;
+  layers?: NebulaLayerVisibility;
 }
 
 const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
@@ -106,13 +116,18 @@ export default function NebulaBackground({
   miniShape = "random",
   color = "profile",
   size = "md",
+  layers = {},
 }: NebulaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const layersRef = useRef(layers);
+  layersRef.current = layers;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const isMini = variant === "mini";
+    const isDemo = variant === "demo";
+    const visible = (key: keyof NebulaLayerVisibility) => layersRef.current[key] !== false;
 
     let gl: WebGLRenderingContext | null = null;
     try {
@@ -298,7 +313,7 @@ export default function NebulaBackground({
         gl!.disable(gl!.BLEND);
         gl!.clearColor(0, 0, 0, 0);
         gl!.clear(gl!.COLOR_BUFFER_BIT);
-      } else {
+      } else if (visible("background")) {
         // Pass 1: background (sky, stars, H II, cirrus).
         gl!.disable(gl!.BLEND);
         gl!.useProgram(bgProgram);
@@ -310,20 +325,26 @@ export default function NebulaBackground({
         gl!.enableVertexAttribArray(quadLoc);
         gl!.vertexAttribPointer(quadLoc, 2, gl!.FLOAT, false, 0, 0);
         gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      } else {
+        gl!.disable(gl!.BLEND);
+        gl!.clearColor(0.004, 0.004, 0.006, 1);
+        gl!.clear(gl!.COLOR_BUFFER_BIT);
       }
 
       // Pass 1.5: the dense dust of faint distant suns, as static
       // point geometry instead of per-pixel procedural stars. On the
       // mini variant the canvas is transparent, so the points land
       // additively over the DOM starfield.
-      gl!.useProgram(denseProgram);
-      gl!.uniform2f(dU.mouse, state.smoothMouse.x, state.smoothMouse.y);
-      gl!.uniform1f(dU.mouseActive, state.mouseActive);
-      bindParticleAttribute(dAttr.aStar, buffers.denseStar, 3);
-      bindParticleAttribute(dAttr.aTint, buffers.denseTint, 4);
-      gl!.enable(gl!.BLEND);
-      gl!.blendFunc(gl!.ONE, gl!.ONE);
-      gl!.drawArrays(gl!.POINTS, 0, DENSE_STAR_COUNT);
+      if (visible("distantStars")) {
+        gl!.useProgram(denseProgram);
+        gl!.uniform2f(dU.mouse, state.smoothMouse.x, state.smoothMouse.y);
+        gl!.uniform1f(dU.mouseActive, state.mouseActive);
+        bindParticleAttribute(dAttr.aStar, buffers.denseStar, 3);
+        bindParticleAttribute(dAttr.aTint, buffers.denseTint, 4);
+        gl!.enable(gl!.BLEND);
+        gl!.blendFunc(gl!.ONE, gl!.ONE);
+        gl!.drawArrays(gl!.POINTS, 0, DENSE_STAR_COUNT);
+      }
 
       // Pass 2 + 3: particle nebulae. Gas draws through the original
       // lean program; wisp streaks and spike stars sit at the end of
@@ -355,28 +376,28 @@ export default function NebulaBackground({
       // dark dust lanes on top, wisp streaks above the lanes.
       gl!.blendFunc(gl!.ONE, gl!.ONE_MINUS_SRC_ALPHA);
       const dustGasCount = dustCount - wispCount;
-      if (dustGasCount > 0) {
+      if (visible("gas") && dustGasCount > 0) {
         applyParticleState(particleProgram, pU, pAttr);
         gl!.drawArrays(gl!.POINTS, 0, dustGasCount);
       }
-      if (wispCount > 0) {
+      if (visible("wisps") && wispCount > 0) {
         applyParticleState(glyphProgram, gU, gAttr);
         gl!.drawArrays(gl!.POINTS, dustGasCount, wispCount);
       }
       // Emission: additive glow, filament webs, then the spike stars.
       gl!.blendFunc(gl!.ONE, gl!.ONE);
       const emitGasCount = particleCount - dustCount - starCount;
-      if (emitGasCount > 0) {
+      if (visible("emission") && emitGasCount > 0) {
         applyParticleState(particleProgram, pU, pAttr);
         gl!.drawArrays(gl!.POINTS, dustCount, emitGasCount);
       }
-      if (starCount > 0) {
+      if (visible("youngStars") && starCount > 0) {
         applyParticleState(glyphProgram, gU, gAttr);
         gl!.drawArrays(gl!.POINTS, particleCount - starCount, starCount);
       }
 
       // Pass 4: foreground stars, additive, in front of the gas.
-      if (!isMini) {
+      if (!isMini && visible("foregroundStars")) {
         gl!.useProgram(fgProgram);
         gl!.uniform1f(fgU.time, time);
         gl!.uniform2f(fgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
@@ -553,7 +574,9 @@ export default function NebulaBackground({
           : miniShape;
       const pickedMiniColor =
         color === "random" ? MINI_COLORS[Math.floor(Math.random() * MINI_COLORS.length)] : color;
-      const clouds: CloudSpec[] = isMini
+      const clouds: CloudSpec[] = isDemo
+        ? [{ x: 0.5, y: 0.5, radius: 0.34, profile: "helix", count: 15000 }]
+        : isMini
         ? [
             {
               // One decorative cloud with independently selectable shape
@@ -663,7 +686,7 @@ export default function NebulaBackground({
         // portrait scene has no third cloud; the cool accent falls
         // back to the first (the teal web).
         const palA = profilePalettes[clouds[0].profile].bg;
-        const palB = profilePalettes[clouds[1].profile].bg;
+        const palB = profilePalettes[(clouds[1] ?? clouds[0]).profile].bg;
         const palC = profilePalettes[(clouds[2] ?? clouds[0]).profile].bg;
         gl!.useProgram(bgProgram);
         bgU = {
@@ -905,7 +928,9 @@ export default function NebulaBackground({
       // so the DOM starfield covers the wait. h-lvh, not h-full: the
       // largest-viewport unit ignores the mobile URL bar collapsing,
       // so the sky doesn't shift and re-snap while scrolling.
-      className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"
+      className={variant === "demo"
+        ? "pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-1000"
+        : "pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"}
     />
   );
 }

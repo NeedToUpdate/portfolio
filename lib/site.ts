@@ -35,7 +35,7 @@ export const socialChannels: SocialChannel[] = [
     value: site.email,
     href: `mailto:${site.email}`,
     note: "The fastest way to reach me. I read everything.",
-    shape: "plane",
+    shape: "email",
   },
   {
     key: "linkedin",
@@ -43,7 +43,7 @@ export const socialChannels: SocialChannel[] = [
     value: "art-nikitin-dev",
     href: site.linkedin,
     note: "For introductions and professional context.",
-    shape: "spark",
+    shape: "linkedin",
   },
   {
     key: "github",
@@ -51,7 +51,7 @@ export const socialChannels: SocialChannel[] = [
     value: "NeedToUpdate",
     href: site.github,
     note: "Code, experiments, and this site's source.",
-    shape: "branch",
+    shape: "github",
   },
 ];
 

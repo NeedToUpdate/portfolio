@@ -194,7 +194,7 @@ export default function HomePage() {
           >
             <Text variant="muted" className="mt-4 max-w-prose">
               If you have one, email{" "}
-              <TextLink href={`mailto:${site.email}`} nebulaShape="plane">
+              <TextLink href={`mailto:${site.email}`} nebulaShape="email">
                 {site.email}
               </TextLink>{" "}
               or find me on <TextLink href={site.linkedin}>LinkedIn</TextLink>.
