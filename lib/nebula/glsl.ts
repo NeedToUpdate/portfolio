@@ -97,7 +97,7 @@ vec3 starLayer(vec2 px, float cell, float extraDensity, float brightness, vec2 s
   vec2 g = floor(px / cell);
   vec2 f = fract(px / cell);
   float h = hash21(g + seed);
-  float threshold = 0.72 - extraDensity;
+  float threshold = 0.60 - extraDensity;
   if (h < threshold) return vec3(0.0);
 
   vec2 starPos = 0.15 + 0.7 * vec2(hash21(g + 1.3 + seed), hash21(g + 2.7 + seed));
@@ -156,12 +156,20 @@ float glowField(vec2 pc, vec2 c, float r) {
 vec3 gradientNebula(vec2 pc, vec2 push) {
   vec2 p = pc - push * 0.6; // the pointer nudges the wash gently
   vec3 g = vec3(0.0);
-  g += uColMidA * glowField(p, vec2(0.5, -0.32), 0.8) * 0.13;   // warm, lower-right
-  // The cool fields stay restrained: they read as a blue cast on the
-  // glass cards when they run hot.
-  g += uColBlue * glowField(p, vec2(-0.55, -0.2), 0.62) * 0.07; // cool, lower-left
-  g += uColMidB * glowField(p, vec2(-0.2, 0.4), 0.72) * 0.10;   // red, upper
-  g += uColCoreA * glowField(p, vec2(0.2, 0.08), 0.95) * 0.04;  // center haze
+  g += uColMidA * glowField(p, vec2(0.5, -0.32), 0.8) * 0.12;    // amber, lower-right
+  g += mix(uColBlue, vec3(0.04, 0.48, 0.68), 0.72)
+    * glowField(p, vec2(-0.58, -0.34), 0.76) * 0.19;              // cyan-blue, lower-left edge
+  g += mix(uColBlue, vec3(0.04, 0.58, 0.48), 0.78)
+    * glowField(p, vec2(0.58, -0.38), 0.7) * 0.17;                // teal, lower-right edge
+  g += mix(uColBlue, vec3(0.08, 0.55, 0.52), 0.65)
+    * glowField(p, vec2(0.55, 0.34), 0.62) * 0.12;                // teal, upper-right side
+  g += mix(uColCoreB, vec3(0.48, 0.18, 0.68), 0.75)
+    * glowField(p, vec2(-0.5, 0.36), 0.68) * 0.13;                // violet, upper-left side
+  g += vec3(0.16, 0.20, 0.58)
+    * glowField(p, vec2(-0.72, 0.0), 0.58) * 0.12;                // indigo along left edge
+  g += uColMidB * glowField(p, vec2(0.02, 0.58), 0.48) * 0.065;  // rust-red crest
+  g += mix(uColCoreA, uColBlue, 0.38)
+    * glowField(p, vec2(0.08, 0.02), 0.92) * 0.045;               // blended center haze
   return g;
 }
 
@@ -295,7 +303,7 @@ vec3 foregroundStars(vec2 px, float cell, float brightness, vec2 seed) {
   vec2 g = floor(px / cell);
   vec2 f = fract(px / cell);
   float h = hash21(g + seed);
-  if (h < 0.93) return vec3(0.0);
+  if (h < 0.85) return vec3(0.0);
 
   vec2 starPos = 0.2 + 0.6 * vec2(hash21(g + 1.3 + seed), hash21(g + 2.7 + seed));
   vec2 d = f - starPos;

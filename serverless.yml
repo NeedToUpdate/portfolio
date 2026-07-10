@@ -13,6 +13,12 @@ custom:
   config: ${file(./serverless.${self:provider.stage}.yml)}
 
   s3Sync:
+    # A new Lambda build must not read page/RSC output written by an older
+    # build, since that HTML can reference static chunks removed below.
+    - bucketName: ${self:custom.config.s3BucketName}
+      localDir: scripts/.empty
+      bucketPrefix: _cache/
+      deleteRemoved: true
     # Hashed immutable build assets.
     - bucketName: ${self:custom.config.s3BucketName}
       localDir: .next/static

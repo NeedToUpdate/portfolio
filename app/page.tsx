@@ -40,7 +40,7 @@ export default function HomePage() {
             <Panel
               as="section"
               variant="glass"
-              className="grid min-h-[20rem] items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
+              className="grid min-h-[20rem] items-center !backdrop-blur-none md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
             >
               <div className="min-w-0">
                 <Eyebrow nebulaShape="spark" className="mb-5">
@@ -64,7 +64,7 @@ export default function HomePage() {
                 as="section"
                 variant="glass"
                 aria-labelledby="home-latest-insight"
-                className="flex min-h-[18rem] flex-col justify-between gap-8"
+                className="flex min-h-[18rem] flex-col justify-between gap-8 !backdrop-blur-none"
               >
                 <div className="min-w-0">
                   <Text
@@ -104,7 +104,7 @@ export default function HomePage() {
               as="section"
               variant="glass"
               aria-label="About Art"
-              className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
+              className="grid gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
             >
               <div className="min-w-0">
                 <Text variant="muted">
@@ -128,10 +128,11 @@ export default function HomePage() {
                 <Image
                   src="/images/portrait.webp"
                   alt={site.name}
-                  fill
+                  width={800}
+                  height={1000}
                   loading="eager"
                   sizes="(max-width: 1024px) 12rem, 10rem"
-                  className="object-cover"
+                  className="h-full w-full object-cover"
                 />
               </Link>
             </Panel>
@@ -143,6 +144,7 @@ export default function HomePage() {
               title="More notes on systems and decisions"
               id="home-insights"
               variant="card"
+              className="!backdrop-blur-none"
               action={
                 <ArrowLink
                   href="/insights"
@@ -164,6 +166,7 @@ export default function HomePage() {
             title="Systems that changed how the business runs"
             id="home-work"
             variant="card"
+            className="!backdrop-blur-none"
             action={
               <ArrowLink
                 href="/work"
@@ -187,6 +190,7 @@ export default function HomePage() {
             title="I like hard modernization problems."
             id="home-contact"
             variant="card"
+            className="!backdrop-blur-none"
           >
             <Text variant="muted" className="mt-4 max-w-prose">
               If you have one, email{" "}

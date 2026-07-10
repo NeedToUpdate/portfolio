@@ -49,9 +49,10 @@ export default function AboutPage() {
           <Image
             src="/images/portrait.webp"
             alt={site.name}
-            fill
+            width={800}
+            height={800}
             sizes="10rem"
-            className="object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
       </div>

@@ -73,9 +73,10 @@ export default function ContactPage() {
           <Image
             src="/images/portrait.webp"
             alt={site.name}
-            fill
+            width={800}
+            height={1000}
             sizes="24rem"
-            className="object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
       </div>
