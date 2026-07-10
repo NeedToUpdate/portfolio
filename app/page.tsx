@@ -95,7 +95,7 @@ export default function HomePage() {
                 <ArrowLink
                   href={`/insights/${latestInsight.slug}`}
                   label="Read the write-up"
-                  nebulaShape="book"
+                  nebulaShape="article"
                 />
               </Panel>
             )}
@@ -116,7 +116,7 @@ export default function HomePage() {
                   <ArrowLink
                     href="/about"
                     label="About me"
-                    nebulaShape="bars"
+                    nebulaShape="profile"
                   />
                 </div>
               </div>
@@ -149,7 +149,7 @@ export default function HomePage() {
                 <ArrowLink
                   href="/insights"
                   label="All insights"
-                  nebulaShape="book"
+                  nebulaShape="article"
                 />
               }
             >

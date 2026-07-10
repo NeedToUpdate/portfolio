@@ -58,12 +58,14 @@ export const socialChannels: SocialChannel[] = [
 export interface NavItem {
   label: string;
   href: string;
+  /** Nebula glyph used when the navigation item is hovered or focused. */
+  shape: string;
 }
 
 export const navItems: NavItem[] = [
-  { label: "Work", href: "/work" },
-  { label: "Insights", href: "/insights" },
-  { label: "Projects", href: "/projects" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Work", href: "/work", shape: "hex" },
+  { label: "Insights", href: "/insights", shape: "article" },
+  { label: "Projects", href: "/projects", shape: "branch" },
+  { label: "About", href: "/about", shape: "profile" },
+  { label: "Contact", href: "/contact", shape: "plane" },
 ];

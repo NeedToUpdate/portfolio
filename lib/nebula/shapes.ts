@@ -11,9 +11,16 @@ export const nebulaShapes: Record<string, string> = {
     "M50 2 L60 40 L98 50 L60 60 L50 98 L40 60 L2 50 L40 40 Z",
   // Hexagon: systems and structure, for case studies.
   hex: "M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z",
-  // Open book: insights.
+  // Document page with a folded corner: a single strong silhouette for
+  // insights and reading, without internal contours that split the gas.
   book:
-    "stroke:M8 20 C22 14 38 16 50 28 C62 16 78 14 92 20 L92 76 C77 72 62 75 50 86 C38 75 23 72 8 76 Z",
+    "M18 7 L64 7 L88 31 L88 93 L18 93 Z",
+  // Magnifying glass: reading, inspecting, and exploring an insight.
+  article:
+    "stroke:M70 40 A30 30 0 1 1 10 40 A30 30 0 1 1 70 40 M61 61 L91 91",
+  // Human bust: personal biography and identity.
+  profile:
+    "M50 7 C66 7 77 19 77 34 C77 45 71 54 62 59 L62 68 C77 72 89 80 94 93 L6 93 C11 80 23 72 38 68 L38 59 C29 54 23 45 23 34 C23 19 34 7 50 7 Z",
   // Rising bars: the results strip.
   bars: "M12 88 L12 62 L28 62 L28 88 Z M42 88 L42 40 L58 40 L58 88 Z M72 88 L72 16 L88 16 L88 88 Z",
   // Paper plane: contact.
@@ -76,5 +83,5 @@ const tagShapes: Record<string, NebulaShapeKey> = {
 
 /** Insight tags map to glyphs; anything unknown gets the book. */
 export function tagShape(tag: string): NebulaShapeKey {
-  return tagShapes[tag] ?? "book";
+  return tagShapes[tag] ?? "article";
 }
