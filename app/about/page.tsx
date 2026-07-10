@@ -65,10 +65,10 @@ export default function AboutPage() {
           between the two without losing anything on the way.
         </p>
         <p>
-          My degree is in psychology, neuroscience, and behaviour. Before tech
-          was my job, teaching was. Both still shape how I work: systems are
-          built by people, and the hard problems are usually on the people side
-          of the diagram.
+          I studied psychology, neuroscience, and behaviour before I moved into
+          tech. My first work was in education. That background still shapes how
+          I lead technical work: I pay attention to incentives, decision-making,
+          and the gaps between what people ask for and what they need.
         </p>
         <p>
           I stay hands-on. Architecture reviews, proofs of concept,
@@ -79,22 +79,31 @@ export default function AboutPage() {
 
       <Link href="/work" className="group mt-8 block">
         <Panel className="transition-colors group-hover:border-line">
-          <Text variant="muted" className="mb-2 text-sm uppercase tracking-wide">
+          <Text
+            variant="muted"
+            className="mb-2 text-sm uppercase tracking-wide"
+          >
             Case studies
           </Text>
-          <Heading size="small" className="transition-colors group-hover:text-accent">
+          <Heading
+            size="small"
+            className="transition-colors group-hover:text-accent"
+          >
             Systems that changed how the business runs
           </Heading>
           <Text variant="small" className="mt-2 max-w-prose">
-            Selected work across modernization, data platforms, delivery systems, and
-            production architecture.
+            My favourite work across modernization, data platforms, delivery
+            systems, and production architecture.
           </Text>
           <span
             data-nebula-shape="hex"
             className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
           >
             View case studies
-            <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+            <span
+              aria-hidden
+              className="transition-transform group-hover:translate-x-0.5"
+            >
               →
             </span>
           </span>
