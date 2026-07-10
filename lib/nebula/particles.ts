@@ -496,16 +496,16 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Innermost band: cool blue gas filling the cavity, faint enough to
-  // see stars through. The radial gradient warms the centre toward
-  // pale blue-white. Sized to stay inside ringR: bigger than the ring
-  // and the ring nests inside the cavity instead of bounding it.
+  // Innermost band: cool blue gas, deliberately smaller than the
+  // cavity so a band of near-empty sky peeks through between the blue
+  // core and the ring. The radial gradient warms the centre toward
+  // pale blue-white.
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.12),
       lobes: [
-        { cx: jitter(rng, 0.1), cy: jitter(rng, 0.1), r: ringR * 0.75, w: 1.5, sx: 1.1, sy: 0.85 },
-        { cx: jitter(rng, 0.15), cy: jitter(rng, 0.15), r: ringR * 0.45 },
+        { cx: jitter(rng, 0.06), cy: jitter(rng, 0.06), r: ringR * 0.35, w: 1.5, sx: 1.1, sy: 0.85 },
+        { cx: jitter(rng, 0.08), cy: jitter(rng, 0.08), r: ringR * 0.2 },
       ],
       colors: pal.body,
       brightColors: pal.bodyBright,
@@ -691,8 +691,10 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   emission.push(
     ...glowSpots(rng, {
       count: Math.round(count * 0.05),
+      // The cavity glow hugs the shrunken blue core; a wider spot would
+      // fill the negative space between the core and the ring back in.
       spots: [
-        { x: 0, y: 0, r: ringR * 0.75, w: 1.4 },
+        { x: 0, y: 0, r: ringR * 0.35, w: 1.4 },
         { x: Math.cos(tilt) * ringR, y: Math.sin(tilt) * ringR, r: ringR * 0.5 },
         { x: Math.cos(tilt + 2.4) * ringR, y: Math.sin(tilt + 2.4) * ringR, r: ringR * 0.5 },
       ],
