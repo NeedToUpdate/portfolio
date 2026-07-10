@@ -11,9 +11,11 @@ interface PanelProps extends HTMLAttributes<HTMLElement> {
 const variantClasses: Record<PanelVariant, string> = {
   /** The raised surface. Interactive figures, notes, and asides sit on one. */
   surface: "rounded-xl border border-line/50 bg-surface p-5",
-  /** The translucent card that floats over the nebula background. */
+  /** The translucent card that floats over the nebula background. A
+   *  faintly warm near-black base counters the blue cast the sky wash
+   *  otherwise gives the blurred glass. */
   glass:
-    "rounded-lg border border-white/10 bg-black/45 p-6 shadow-2xl shadow-black/30 backdrop-blur-md ring-1 ring-white/5 md:p-8",
+    "rounded-lg border border-white/10 bg-[#0d0a08]/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-md ring-1 ring-white/5 md:p-8",
 };
 
 export default function Panel({

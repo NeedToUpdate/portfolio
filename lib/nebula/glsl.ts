@@ -157,9 +157,11 @@ vec3 gradientNebula(vec2 pc, vec2 push) {
   vec2 p = pc - push * 0.6; // the pointer nudges the wash gently
   vec3 g = vec3(0.0);
   g += uColMidA * glowField(p, vec2(0.5, -0.32), 0.8) * 0.13;   // warm, lower-right
-  g += uColBlue * glowField(p, vec2(-0.55, -0.2), 0.62) * 0.11; // blue, lower-left
+  // The cool fields stay restrained: they read as a blue cast on the
+  // glass cards when they run hot.
+  g += uColBlue * glowField(p, vec2(-0.55, -0.2), 0.62) * 0.07; // cool, lower-left
   g += uColMidB * glowField(p, vec2(-0.2, 0.4), 0.72) * 0.10;   // red, upper
-  g += uColCoreA * glowField(p, vec2(0.2, 0.08), 0.95) * 0.055; // teal center haze
+  g += uColCoreA * glowField(p, vec2(0.2, 0.08), 0.95) * 0.04;  // center haze
   return g;
 }
 
@@ -241,7 +243,7 @@ void main() {
     + starLayer(px - look * minRes * 0.008, 62.0, formation, 1.0, uSeed.zw + 37.0)
     + starLayer(px - look * minRes * 0.012, 36.0, formation, 0.7, uSeed.zw + 51.0);
 
-  vec3 col = vec3(0.003, 0.004, 0.008); // near-black sky
+  vec3 col = vec3(0.004, 0.004, 0.006); // near-black sky, barely cool
   col += gradientNebula(pc, push); // broad gradient color wash
   col += cirrus + hii + starCol;
 
@@ -320,15 +322,56 @@ void main() {
 }
 `;
 
+// The dense field of faint distant suns, drawn as static tiny points
+// instead of per-pixel hashing in the background shader: a few
+// thousand vertices and a handful of lit pixels per star cost almost
+// nothing, where a fullscreen procedural layer taxes every fragment
+// every frame.
+export const DENSE_STAR_VERTEX_SRC = `
+precision mediump float;
+
+attribute vec3 aStar; // xy uv position, z size in reference px
+attribute vec4 aTint; // rgb tint, brightness
+
+uniform vec2 uRes;
+uniform vec2 uMouse;        // uv, y up
+uniform float uMouseActive; // eased 0..1
+
+varying vec4 vTint;
+
+void main() {
+  // Deepest parallax layer on the page: barely moves.
+  vec2 look = (uMouse - 0.5) * uMouseActive;
+  vec2 uv = aStar.xy + look * 0.003;
+  gl_Position = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
+  gl_PointSize = clamp(aStar.z * uRes.y / 1100.0, 1.0, 4.0);
+  vTint = aTint;
+}
+`;
+
+export const DENSE_STAR_FRAGMENT_SRC = `
+precision mediump float;
+
+varying vec4 vTint;
+
+void main() {
+  vec2 d = gl_PointCoord - 0.5;
+  float fall = exp(-dot(d, d) * 14.0);
+  vec3 col = vTint.rgb * vTint.a * fall;
+  gl_FragColor = vec4(col, 0.0); // additive over the opaque sky
+}
+`;
+
 export const PARTICLE_VERTEX_SRC = `
 precision highp float;
 
 attribute vec3 aPos;    // local offset in cloud-radius units; z is depth
-attribute vec3 aData;   // size (radius units), seed, kind (0 emission, 1 dust)
+attribute vec3 aData;   // size (radius units), seed, kind (see below)
 attribute vec3 aCloud;  // cloud center uv xy, radius (min-axis units)
 attribute vec4 aColor;  // layer color from the generator, straight alpha
 attribute vec3 aMotion; // drift amplitude, pointer response, morph weight
 attribute vec2 aTarget; // glyph target in [-1,1] glyph space
+attribute float aAngle; // streak orientation, radians (wisps)
 
 uniform vec2 uRes;
 uniform float uTime;
@@ -340,10 +383,14 @@ uniform float uShapeMix;    // eased 0..1 glyph morph
 varying vec4 vColor;
 varying float vSoft; // 0 = small & sharp, 1 = large & soft
 varying float vSeed;
+varying float vKind; // 0 emission blob, 1 dust blob, 2 spike star, 3 wisp streak
+varying float vAngle;
 
 void main() {
   float minRes = min(uRes.x, uRes.y);
-  float isDust = step(0.5, aData.z);
+  float kind = aData.z;
+  float isDust = step(0.5, kind) * (1.0 - step(1.5, kind));
+  float isStar = step(1.5, kind) * (1.0 - step(2.5, kind));
   float depth01 = aPos.z * 0.5 + 0.5;
   float seed = aData.y;
 
@@ -414,9 +461,13 @@ void main() {
   // Blur follows sprite size: large sprites soft, small sprites sharp.
   vSoft = clamp((gl_PointSize - 3.0) / 44.0, 0.08, 1.0);
   vSeed = seed;
+  vKind = kind;
+  vAngle = aAngle;
 
   // Layer color comes precomputed; only brightness lives here.
-  float twinkle = 1.0 - 0.08 * (1.0 - isDust) * sin(uTime * 0.6 + seed * 40.0);
+  // Emission gas shimmers gently; spike stars scintillate harder.
+  float twAmp = mix(0.08 * (1.0 - isDust), 0.30, isStar);
+  float twinkle = 1.0 - twAmp * sin(uTime * (0.6 + 1.1 * isStar) + seed * 40.0);
   float alpha = aColor.a * twinkle;
   // Gas that is not part of the glyph thins while a glyph is up, and
   // glyph gas glows slightly brighter, so the shape emerges from the
@@ -458,6 +509,69 @@ void main() {
   float grain = 0.9 + 0.1 * hash21(gl_PointCoord * 13.0 + vSeed);
   float fall = exp(-r2 * k) * feather * grain;
   float a = vColor.a * fall;
+  gl_FragColor = vec4(vColor.rgb * a, a);
+}
+`;
+
+// Spike stars and wisp streaks share the particle vertex shader but
+// render through their own tiny program: the tens of thousands of gas
+// sprites never pay for the glyph math, and the mostly-empty glyph
+// sprites discard early instead of blending transparent pixels.
+export const GLYPH_FRAGMENT_SRC = `
+precision mediump float;
+
+varying vec4 vColor;
+varying float vSeed;
+varying float vKind;  // 2 spike star, 3 wisp streak
+varying float vAngle; // streak orientation
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+// Soft gas strand along y = m*x + b + curve*x^2 in stroke space.
+float strand(vec2 p, float m, float b, float curve, float w) {
+  float d = p.y - (p.x * m + b + curve * p.x * p.x);
+  return exp(-d * d / w);
+}
+
+void main() {
+  vec2 d = gl_PointCoord - 0.5;
+  float fall;
+
+  if (vKind > 2.5) {
+    // Wisp: one soft elongated ribbon along the flow direction. Two
+    // dim internal strands give it fiber texture, but they only
+    // modulate the ribbon, so nothing pokes past its envelope.
+    // gl_PointCoord y runs down while world y runs up: flip before
+    // rotating or every streak mirrors off its ring tangent.
+    vec2 q = vec2(d.x, -d.y);
+    float c = cos(vAngle);
+    float s = sin(vAngle);
+    vec2 p = vec2(c * q.x + s * q.y, -s * q.x + c * q.y);
+
+    float h1 = hash21(vec2(vSeed, 1.7)) - 0.5;
+    float h2 = hash21(vec2(vSeed, 9.2)) - 0.5;
+    float ribbon = exp(-p.x * p.x * 5.0 - p.y * p.y * 150.0);
+    float fibers = strand(p, h1 * 0.3, 0.03 + h2 * 0.06, h2 * 0.7, 0.004)
+                 + strand(p, h2 * 0.3, -0.03 + h1 * 0.06, h1 * 0.7, 0.006);
+    fall = ribbon * (0.55 + 0.5 * fibers) * smoothstep(0.5, 0.12, abs(p.x));
+  } else {
+    // Young star: tight gaussian core, soft halo, and the four
+    // diffraction spikes every bright star carries in nebula photos.
+    float r2 = dot(d, d);
+    float core = exp(-r2 * 90.0);
+    float halo = exp(-r2 * 10.0) * 0.10;
+    float spikes = exp(-abs(d.x) * 26.0) * exp(-abs(d.y) * 3.5)
+                 + exp(-abs(d.y) * 26.0) * exp(-abs(d.x) * 3.5);
+    fall = (core * 1.7 + halo + spikes * 0.5) * smoothstep(0.25, 0.16, r2);
+  }
+
+  float a = min(vColor.a * fall, 1.0);
+  // Most of a glyph sprite is empty: skip the blend entirely.
+  if (a < 0.004) discard;
   gl_FragColor = vec4(vColor.rgb * a, a);
 }
 `;

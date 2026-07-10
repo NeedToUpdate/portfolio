@@ -39,19 +39,19 @@ The background is not an image and not a particle library. It is raw WebGL: tens
 
 <StarfieldDemo />
 
-Each nebula follows a structural profile modeled on a real object. The large cloud follows Orion: shell arcs, a bright core, dark dust lanes. The ring follows the Helix: a broken circular wall with a thin cavity. The web follows the Crab: filaments strung between glow spots. A cloud is built in layers with fixed opacity budgets: outer volume, shell, body gas, inner cavity, wisps, emission glow, and dust. Gas blends additively. Dust blends over it and occludes the stars behind.
+Each nebula follows a structural profile modeled on a real object, and takes its colors from the photograph of that object. The large cloud follows Orion: a deep red surround, green gas fronts, a salmon interior, a pale core. The ring follows the Helix: an orange ring with a golden rim around a steel-blue cavity. The web keeps the Crab's filament anatomy in the Cat's Eye's teal and salmon. A cloud is built in layers with fixed opacity budgets: outer volume, shell, body gas, inner cavity, wisps, emission glow, and dust. The bright structure lives in the inner half of each cloud, the way it does in the photographs; only faint gas reaches the silhouette. Gas blends additively. Dust blends over it and occludes the stars behind.
 
-The shaders compile in the background while a lightweight canvas starfield covers the wait. When compilation finishes, the nebula fades in over it.
+The shaders compile in the background while a lightweight canvas starfield covers the wait. When compilation finishes, the nebula fades in over it. Behind everything sits a dust of 1,800 faint stars, generated once as point geometry. That layer draws on every page of the site; the interior pages keep it under a single small corner cloud.
 
-Every nebula is a literal point cloud: thousands of particles, each one nothing more than a position, a size, a color, and a role (outer volume, shell, body, filament, dust). There is no mesh and no pre-rendered image behind any of it.
+Every nebula is a literal point cloud: thousands of particles, each one nothing more than a position, a size, a color, and a role (outer volume, shell, body, filament, dust). Most particles render as soft gaussian sprites that accumulate into gas. Two kinds carry their own glyphs. Young stars draw a tight core with four diffraction spikes, scattered along the shell arcs above the gas. Wisps draw as oriented streaks, emitted in chains that walk along an arc with each streak overlapping the last, so they fuse into continuous curved fibers. There is no mesh and no pre-rendered image behind any of it.
 
-Each particle also carries a second, optional position: a point sampled from a signed distance field built out of an SVG path. Hover an element that names a shape, and every particle in the scene eases toward its target over about half a second. Shell and filament particles land on the outline. Body particles fill the interior. Stop hovering and the same easing runs in reverse, back into the nebula's normal drift.
+Each particle also carries a second, optional position: a point sampled from a signed distance field built out of an SVG path. Hover an element that names a shape, and every particle in the scene eases toward its target over about half a second. Shell and filament particles land on the outline. Body particles fill the interior. The spiked stars space themselves evenly along the outline, so the shape gets a beaded rim. Stop hovering and the same easing runs in reverse, back into the nebula's normal drift.
 
 <ShapeMorphButtons />
 
 Move the pointer anywhere on the page and it carves a directional wake through the gas: a bow push at the front, gas parting to the sides, a trailing pull behind. The wake settles back on its own once the pointer moves on.
 
-The scene respects the machine it runs on. Slow GPUs get a reduced render scale after a few dropped frames. Phones get thinner gas and a smaller hero cloud, because a narrow screen stacks the same particles into a brighter image. Users with reduced motion get a still frame.
+The scene respects the machine it runs on. The scene is fill-bound, so the canvas backing store is capped: soft gas upscales invisibly, and a 4K window would otherwise triple the per-pixel work. The gas sprites run a minimal fragment shader, and the star and wisp glyphs draw through a separate program, so the heaviest layer never pays for glyph math. Slow GPUs get a reduced render scale after a few dropped frames. Phones drop the big cloud entirely and run two small, brighter ones in the open corners, because the card stack covers everything else. Users with reduced motion get a still frame.
 
 ## The AI
 
