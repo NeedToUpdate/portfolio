@@ -7,7 +7,7 @@ merged:
   points:
     - "Ran an internal innovation lab and a mentorship-driven delivery model."
     - "Directed a billing portal migration serving more than a million customers, with no disruption."
-    - "Sit on the enterprise design council; stay hands-on in reviews and proofs of concept."
+    - "Sat on the enterprise design council; stayed hands-on in reviews and proofs of concept."
 tech:
   title: "Hands-on Architect"
   org: "Fourth Dimension"
