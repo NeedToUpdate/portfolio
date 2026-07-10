@@ -9,5 +9,6 @@ const customJestConfig = {
   },
   testEnvironment: "jest-environment-jsdom",
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/backup/", "<rootDir>/.next/"],
+  modulePathIgnorePatterns: ["<rootDir>/.next/"],
 };
 module.exports = createJestConfig(customJestConfig);

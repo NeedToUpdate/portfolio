@@ -20,6 +20,13 @@ describe("RequestPathExplorer", () => {
     expect(screen.getByTestId("path-explanation")).toHaveTextContent(/S3/);
   });
 
+  it("routes API requests through Lambda", () => {
+    render(<RequestPathExplorer />);
+    fireEvent.click(screen.getByRole("button", { name: /API request/i }));
+    expect(screen.getByTestId("path-explanation")).toHaveTextContent(/same Lambda/i);
+    expect(screen.getByTestId("node-lambda")).toHaveClass("border-accent/70");
+  });
+
   it("serves repeat visits from the edge", () => {
     render(<RequestPathExplorer />);
     fireEvent.click(screen.getByRole("button", { name: /repeat visit/i }));

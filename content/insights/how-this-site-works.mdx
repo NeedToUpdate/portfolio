@@ -19,11 +19,11 @@ This site looks like a static portfolio. It is a server-rendered Next.js applica
 
 Next.js builds the site as a standalone Node server. A Python script zips that build, and the Serverless Framework deploys it as a single Lambda function. The Lambda runs behind the Lambda Web Adapter, a layer that proxies HTTP to the Next.js process. No Express wrapper, no custom server code.
 
-CloudFront sits in front with two origins. Requests for static assets go to an S3 bucket with immutable cache headers. Everything else goes to the Lambda, which renders pages on demand. The incremental cache lives in S3 because a Lambda's filesystem is read-only and two instances share no memory.
+CloudFront sits in front with two origins. Requests for static assets go to an S3 bucket with immutable cache headers. Page requests and API calls go to the Lambda. Next.js routes each request inside the same application, so an API endpoint needs no separate gateway or service. The incremental cache lives in S3 because a Lambda's filesystem is read-only and two instances share no memory.
 
 <RequestPathExplorer />
 
-There are two environments. Pushing to `main` deploys production. Pushing to `dev` deploys a preview at a separate domain, locked behind basic auth in the Next.js middleware. Production has no auth variables set, so the same middleware passes traffic through untouched.
+There are two environments with separate Lambda functions, S3 buckets, and CloudFront distributions. Pushing to `main` deploys production. Pushing to `dev` deploys a preview at a separate domain, locked behind basic auth in the Next.js middleware. Production has no auth variables set, so the same middleware passes traffic through untouched.
 
 The bill rounds to a few cents. There are no servers to patch and nothing idles overnight.
 

@@ -6,7 +6,7 @@ import Text from "@/components/ui/Text";
 import { routeArrowClass, routeNodeClass } from "@/lib/routeDiagram";
 import InteractiveFigure from "./InteractiveFigure";
 
-type RequestKind = "page" | "asset" | "repeat";
+type RequestKind = "page" | "api" | "asset" | "repeat";
 
 interface PathSpec {
   label: string;
@@ -21,6 +21,12 @@ const REQUESTS: Record<RequestKind, PathSpec> = {
     path: ["browser", "cloudfront", "lambda"],
     explanation:
       "CloudFront forwards the request to the Lambda, where Next.js renders the HTML on demand.",
+  },
+  api: {
+    label: "An API request",
+    path: ["browser", "cloudfront", "lambda"],
+    explanation:
+      "CloudFront forwards API requests to the same Lambda. Next.js routes them to the matching API handler.",
   },
   asset: {
     label: "A static asset",
@@ -39,7 +45,7 @@ const REQUESTS: Record<RequestKind, PathSpec> = {
 const NODES: { id: string; label: string }[] = [
   { id: "browser", label: "Browser" },
   { id: "cloudfront", label: "CloudFront" },
-  { id: "lambda", label: "Lambda (Next.js)" },
+  { id: "lambda", label: "Lambda (pages + API)" },
   { id: "s3", label: "S3 (static)" },
 ];
 
