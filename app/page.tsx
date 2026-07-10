@@ -197,7 +197,11 @@ export default function HomePage() {
               <TextLink href={`mailto:${site.email}`} nebulaShape="email">
                 {site.email}
               </TextLink>{" "}
-              or find me on <TextLink href={site.linkedin}>LinkedIn</TextLink>.
+              or find me on{" "}
+              <TextLink href={site.linkedin} nebulaShape="linkedin">
+                LinkedIn
+              </TextLink>
+              .
               More ways to reach me are on the{" "}
               <TextLink href="/contact" nebulaShape="plane">
                 contact page

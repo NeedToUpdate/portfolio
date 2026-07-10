@@ -13,7 +13,7 @@ export const nebulaShapes: Record<string, string> = {
   hex: "M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z",
   // Open book: insights.
   book:
-    "stroke:M50 84 C38 74 22 74 10 80 L10 18 C23 12 39 13 50 22 L50 84 C62 74 78 74 90 80 L90 18 C77 12 61 13 50 22",
+    "stroke:M8 20 C22 14 38 16 50 28 C62 16 78 14 92 20 L92 76 C77 72 62 75 50 86 C38 75 23 72 8 76 Z",
   // Rising bars: the results strip.
   bars: "M12 88 L12 62 L28 62 L28 88 Z M42 88 L42 40 L58 40 L58 88 Z M72 88 L72 16 L88 16 L88 88 Z",
   // Paper plane: contact.
