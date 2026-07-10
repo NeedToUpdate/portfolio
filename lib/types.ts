@@ -49,6 +49,8 @@ export interface InsightMeta {
   slug: string;
   title: string;
   description: string;
+  /** Editorial image used by insight lists, recommendations, and social previews. */
+  previewImage?: string;
   /** ISO date string, e.g. "2026-07-05" */
   date: string;
   tags: string[];

@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `/insights/${slug}`,
       type: "article",
       publishedTime: insight.date,
+      images: insight.previewImage ? [insight.previewImage] : undefined,
     },
   };
 }
@@ -47,7 +48,14 @@ export default async function InsightPage({ params }: PageProps) {
   const all = getInsights();
   const index = all.findIndex((i) => i.slug === slug);
   const newer = index > 0 ? all[index - 1] : undefined;
-  const older = index >= 0 && index < all.length - 1 ? all[index + 1] : undefined;
+  // Keep the reading path alive at the end of the archive by looping
+  // back to the newest piece (unless this is the only insight).
+  const recommendations =
+    index >= 0
+      ? Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) =>
+          all[(index + offset + 1) % all.length]
+        )
+      : [];
 
   return (
     <PageShell narrow>
@@ -83,11 +91,15 @@ export default async function InsightPage({ params }: PageProps) {
 
       <AdjacentNav
         previous={
-          newer && { href: `/insights/${newer.slug}`, title: newer.title, hint: "Newer write-up" }
+          newer && { href: `/insights/${newer.slug}`, title: newer.title, hint: "Previous" }
         }
-        next={
-          older && { href: `/insights/${older.slug}`, title: older.title, hint: "Older write-up" }
-        }
+        recommendations={recommendations.map((recommended, recommendationIndex) => ({
+          href: `/insights/${recommended.slug}`,
+          title: recommended.title,
+          hint: recommendationIndex === 0 ? "Suggested next" : "Also worth reading",
+          description: recommended.description,
+          image: recommended.previewImage,
+        }))}
       />
     </PageShell>
   );
