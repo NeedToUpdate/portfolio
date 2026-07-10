@@ -54,7 +54,12 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const all = getCaseStudies();
   const index = all.findIndex((c) => c.slug === slug);
   const previous = index > 0 ? all[index - 1] : undefined;
-  const next = index >= 0 && index < all.length - 1 ? all[index + 1] : undefined;
+  const recommendations =
+    index >= 0
+      ? Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) =>
+          all[(index + offset + 1) % all.length]
+        )
+      : [];
 
   // The exhibit belongs to the solution: problem, then solution, then
   // the diagram it just described, then the result.
@@ -135,12 +140,19 @@ export default async function CaseStudyPage({ params }: PageProps) {
           previous && {
             href: `/work/${previous.slug}`,
             title: previous.title,
-            hint: "Previous case study",
+            hint: "Previous",
           }
         }
-        next={
-          next && { href: `/work/${next.slug}`, title: next.title, hint: "Next case study" }
-        }
+        recommendations={recommendations.map((recommended, recommendationIndex) => ({
+          href: `/work/${recommended.slug}`,
+          title: recommended.title,
+          hint:
+            recommendationIndex === 0
+              ? "Suggested next case study"
+              : "Another case study",
+          description: recommended.impact,
+          image: recommended.diagram,
+        }))}
       />
     </PageShell>
   );

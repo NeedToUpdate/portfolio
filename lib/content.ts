@@ -140,6 +140,7 @@ function toInsightMeta(entry: ContentEntry): InsightMeta {
     slug: entry.slug,
     title: requireString(entry, "title"),
     description: requireString(entry, "description"),
+    previewImage: entry.data.previewImage as string | undefined,
     date: requireString(entry, "date"),
     tags: (entry.data.tags as string[]) ?? [],
     readingTimeMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
