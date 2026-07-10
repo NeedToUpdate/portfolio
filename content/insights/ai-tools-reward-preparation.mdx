@@ -7,9 +7,17 @@ tags: ["ai", "process", "engineering"]
 
 An AI wrote most of this site. That sentence is true and it hides the real work. The model produced good code in hours instead of weeks, but only because two things were in place before and after it ran: a detailed plan going in, and enough engineering knowledge to catch what came out wrong.
 
+## The plan took longer than the build
+
+"Write the plan first" undersells what "first" means here. The plan did not fit in one document, and it did not come together in an afternoon. It came out of a pipeline with five stages and four different models, and code did not show up until the fourth.
+
+<AIWorkflowTimeline />
+
+The first two stages never produced anything for the site itself. They were about finding the right questions before answering them: what a site like this needs to prove, to whom, and what to verify before assuming any of it. Only once that framing held up did the questions turn into documents specific enough for a model to build from without guessing. The build was the fast part. Everything before it was not.
+
 ## Write the plan first
 
-Before a line of this site existed, it existed as documents. Not a one-paragraph brief. A working folder of rules: a defensive CSS checklist (never trust a fixed height, always give a flex child `min-width: 0`, images always keep their aspect ratio), a responsive-first mandate (flexbox and grid before fixed breakpoints, `min()`/`max()`/`clamp()` over hard-coded jumps), a DRY and SOLID standard for every component, a content schema for every collection, and a separate specification just for the nebula background: hex ranges for every palette, opacity bands per layer, how dust should occlude stars, how the gas should move, what the pointer should do to it.
+Before a line of this site existed, it existed as documents. Not a one-paragraph brief. A working folder of rules: a defensive CSS checklist (never trust a fixed height, always give a flex child `min-width: 0`, images always keep their aspect ratio), a responsive-first mandate (flexbox and grid before fixed breakpoints, `min()`/`max()`/`clamp()` over hard-coded jumps), a DRY and SOLID standard for every component, a content schema for every collection, and a separate specification just for the nebula background: hex ranges for every palette, opacity bands per layer, how dust should occlude stars, how the gas should move, what the pointer should do to it. Behind those sat documents that never became visible on the page: research into how sites like this get read and trusted, and a layout guide covering every component, its states, the user flows through it, and the use cases it had to hold up under. Combined, the planning documents ran past three thousand lines, longer than every article on this site put together.
 
 That plan did two jobs. It told the model what to build, and it gave me a fixed standard to hold the output against. Both jobs matter. Skip the first and you get a generic result. Skip the second and you have no way to tell "different from what I imagined" apart from "wrong."
 
@@ -43,4 +51,4 @@ That habit caught things a glance at the running site would have missed. A color
 
 ## The rule
 
-Detail in, quality out. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.
+Detail in, quality out. That held at every stage of the pipeline, not only the one that wrote code. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.

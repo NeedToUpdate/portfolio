@@ -7,6 +7,7 @@ import MinWidthDemo from "./MinWidthDemo";
 import BrainRouterDemo from "./BrainRouterDemo";
 import HomelabDiagram from "./HomelabDiagram";
 import ShapeMorphButtons from "./ShapeMorphButtons";
+import AIWorkflowTimeline from "./AIWorkflowTimeline";
 
 /**
  * Components available inside every MDX insight without imports.
@@ -21,4 +22,5 @@ export const mdxComponents: MDXComponents = {
   BrainRouterDemo,
   HomelabDiagram,
   ShapeMorphButtons,
+  AIWorkflowTimeline,
 };
