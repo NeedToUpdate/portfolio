@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise data warehouse architecture</title>
+  <desc id="desc">External data extracts flow through ingestion, landing, custom ETL, layered data lake zones, warehouse outputs, monitoring, and quarantine.</desc>
+
+  <rect width="1280" height="620" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="1260" height="600" rx="16" fill="#151924" stroke="#2a303f"/>
+
+  <text x="54" y="58" fill="#ebedf3" font-family="Arial, sans-serif" font-size="27" font-weight="700">Enterprise data warehouse rebuild</text>
+  <text x="54" y="88" fill="#aab1c0" font-family="Arial, sans-serif" font-size="15">150+ daily extracts became a governed data platform with quality controls and monitoring.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#deba6c"/>
+    </marker>
+    <style>
+      .panel { fill: #0e1119; stroke: #2a303f; stroke-width: 2; }
+      .stage { fill: #121723; stroke: #3a4358; stroke-width: 2; }
+      .gold { fill: #171b26; stroke: #deba6c; stroke-width: 2.25; }
+      .cyan { fill: #101a23; stroke: #60cdd8; stroke-width: 2.25; }
+      .warn { fill: #1e1812; stroke: #deba6c; stroke-width: 2; }
+      .zone { fill: #182033; stroke: #3a4358; stroke-width: 2; }
+      .label { fill: #ebedf3; font: 700 16px Arial, sans-serif; }
+      .small { fill: #aab1c0; font: 13px Arial, sans-serif; }
+      .tiny { fill: #aab1c0; font: 12px Arial, sans-serif; }
+      .line { stroke: #deba6c; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #687085; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="panel" x="54" y="142" width="174" height="148" rx="12"/>
+  <text class="label" x="141" y="180" text-anchor="middle">External data</text>
+  <text class="small" x="141" y="210" text-anchor="middle">5 companies</text>
+  <text class="small" x="141" y="234" text-anchor="middle">CSV, JSONL</text>
+  <text class="small" x="141" y="258" text-anchor="middle">TXT, Excel</text>
+
+  <rect class="gold" x="300" y="142" width="184" height="104" rx="12"/>
+  <text class="label" x="392" y="182" text-anchor="middle">Ingestion</text>
+  <text class="small" x="392" y="208" text-anchor="middle">File delivery</text>
+  <text class="small" x="392" y="230" text-anchor="middle">150+ extracts</text>
+  <path class="line" d="M228 216 H300"/>
+
+  <rect class="cyan" x="300" y="332" width="184" height="104" rx="12"/>
+  <text class="label" x="392" y="372" text-anchor="middle">Landing zone</text>
+  <text class="small" x="392" y="398" text-anchor="middle">Encrypted</text>
+  <text class="small" x="392" y="420" text-anchor="middle">Internal storage</text>
+  <path class="line" d="M392 246 V332"/>
+
+  <rect class="stage" x="548" y="230" width="174" height="104" rx="12"/>
+  <text class="label" x="635" y="270" text-anchor="middle">Custom ETL</text>
+  <text class="small" x="635" y="296" text-anchor="middle">Glue + Lambda</text>
+  <text class="small" x="635" y="318" text-anchor="middle">Orchestrated runs</text>
+  <path class="line" d="M484 384 C520 366 532 306 548 282"/>
+
+  <rect class="zone" x="782" y="142" width="316" height="238" rx="12"/>
+  <text class="label" x="940" y="180" text-anchor="middle">Governed data lake</text>
+
+  <rect class="stage" x="812" y="220" width="60" height="96" rx="10"/>
+  <text class="small" x="842" y="272" text-anchor="middle">Raw</text>
+
+  <rect class="stage" x="894" y="220" width="72" height="96" rx="10"/>
+  <text class="small" x="930" y="272" text-anchor="middle">Bronze</text>
+
+  <rect class="stage" x="988" y="220" width="62" height="96" rx="10"/>
+  <text class="small" x="1019" y="272" text-anchor="middle">Silver</text>
+
+  <rect class="gold" x="1072" y="220" width="60" height="96" rx="10"/>
+  <text class="small" x="1102" y="272" text-anchor="middle">Gold</text>
+
+  <path class="line" d="M722 282 H812"/>
+  <path class="line" d="M872 268 H894"/>
+  <path class="line" d="M966 268 H988"/>
+  <path class="line" d="M1050 268 H1072"/>
+
+  <rect class="stage" x="1168" y="164" width="74" height="104" rx="10"/>
+  <text class="label" x="1205" y="204" text-anchor="middle">Users</text>
+  <text class="small" x="1205" y="230" text-anchor="middle">Teams</text>
+  <text class="small" x="1205" y="252" text-anchor="middle">Partners</text>
+  <path class="line" d="M1132 268 C1148 258 1154 216 1168 216"/>
+
+  <rect class="warn" x="548" y="442" width="174" height="72" rx="12"/>
+  <text class="label" x="635" y="474" text-anchor="middle">Quarantine</text>
+  <text class="small" x="635" y="498" text-anchor="middle">Bad data held</text>
+  <path class="thin" d="M548 334 C512 372 510 430 548 478"/>
+
+  <rect class="stage" x="782" y="442" width="182" height="72" rx="12"/>
+  <text class="label" x="873" y="474" text-anchor="middle">Metadata health</text>
+  <text class="small" x="873" y="498" text-anchor="middle">Quality + completeness</text>
+  <path class="thin" d="M940 380 V442"/>
+
+  <rect class="stage" x="1004" y="442" width="158" height="72" rx="12"/>
+  <text class="label" x="1083" y="474" text-anchor="middle">Splunk</text>
+  <text class="small" x="1083" y="498" text-anchor="middle">Alerts + monitoring</text>
+  <path class="thin" d="M964 478 H1004"/>
+
+  <rect class="panel" x="54" y="442" width="206" height="72" rx="10"/>
+  <text class="label" x="157" y="474" text-anchor="middle">Delivery model</text>
+  <text class="small" x="157" y="498" text-anchor="middle">Multi-year agile rollout</text>
+</svg>
