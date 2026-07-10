@@ -121,8 +121,8 @@ export default async function CaseStudyPage({ params }: PageProps) {
 
       <div className="mt-14 border-t border-line/60 pt-8">
         <Text variant="small">
-          The details behind this work are confidential. I can walk through the technical
-          decisions in a conversation. Email{" "}
+          Exact names, figures, and details are confidential. I can walk through the
+          technical decisions in a conversation. Email{" "}
           <TextLink href={`mailto:${site.email}`} nebulaShape="plane">
             {site.email}
           </TextLink>

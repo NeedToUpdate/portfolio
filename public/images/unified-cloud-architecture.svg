@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">Unified cloud architecture</title>
+  <desc id="desc">A reusable Azure delivery platform with a shared communication layer, cloud-native compute, infrastructure as code, security, logging, monitoring, and compliance standards.</desc>
+
+  <rect width="1280" height="620" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="1260" height="600" rx="16" fill="#151924" stroke="#2a303f"/>
+
+  <text x="54" y="58" fill="#ebedf3" font-family="Arial, sans-serif" font-size="27" font-weight="700">Unified cloud architecture</text>
+  <text x="54" y="88" fill="#aab1c0" font-family="Arial, sans-serif" font-size="15">One operating model for cloud-native services, apps, and middleware.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#deba6c"/>
+    </marker>
+    <style>
+      .panel { fill: #0e1119; stroke: #2a303f; stroke-width: 2; }
+      .stage { fill: #121723; stroke: #3a4358; stroke-width: 2; }
+      .gold { fill: #171b26; stroke: #deba6c; stroke-width: 2.25; }
+      .cyan { fill: #101a23; stroke: #60cdd8; stroke-width: 2.25; }
+      .label { fill: #ebedf3; font: 700 16px Arial, sans-serif; }
+      .small { fill: #aab1c0; font: 13px Arial, sans-serif; }
+      .line { stroke: #deba6c; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #687085; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="gold" x="156" y="132" width="624" height="398" rx="14"/>
+  <text class="label" x="468" y="172" text-anchor="middle">Reusable Azure delivery platform</text>
+  <text class="small" x="468" y="198" text-anchor="middle">Shared architecture for services, apps, and middleware</text>
+
+  <rect class="cyan" x="226" y="232" width="484" height="58" rx="10"/>
+  <text class="label" x="468" y="268" text-anchor="middle">Shared communication layer</text>
+
+  <rect class="stage" x="226" y="330" width="140" height="84" rx="10"/>
+  <text class="label" x="296" y="364" text-anchor="middle">Apps</text>
+  <text class="small" x="296" y="390" text-anchor="middle">Frontend</text>
+
+  <rect class="stage" x="398" y="330" width="140" height="84" rx="10"/>
+  <text class="label" x="468" y="364" text-anchor="middle">Services</text>
+  <text class="small" x="468" y="390" text-anchor="middle">Middleware</text>
+
+  <rect class="stage" x="570" y="330" width="140" height="84" rx="10"/>
+  <text class="label" x="640" y="364" text-anchor="middle">Jobs</text>
+  <text class="small" x="640" y="390" text-anchor="middle">Timed work</text>
+
+  <path class="line" d="M468 290 V330"/>
+  <path class="thin" d="M468 290 C428 310 356 318 296 330"/>
+  <path class="thin" d="M468 290 C508 310 580 318 640 330"/>
+
+  <rect class="panel" x="226" y="452" width="484" height="48" rx="10"/>
+  <text class="label" x="468" y="482" text-anchor="middle">TypeScript + containerized cloud-native compute</text>
+
+  <rect class="stage" x="884" y="132" width="250" height="72" rx="10"/>
+  <text class="label" x="1009" y="164" text-anchor="middle">Infrastructure as code</text>
+  <text class="small" x="1009" y="188" text-anchor="middle">Repeatable deployment</text>
+
+  <rect class="stage" x="884" y="232" width="250" height="72" rx="10"/>
+  <text class="label" x="1009" y="264" text-anchor="middle">Security</text>
+  <text class="small" x="1009" y="288" text-anchor="middle">Shared controls</text>
+
+  <rect class="stage" x="884" y="332" width="250" height="72" rx="10"/>
+  <text class="label" x="1009" y="364" text-anchor="middle">Logging + monitoring</text>
+  <text class="small" x="1009" y="388" text-anchor="middle">One operating layer</text>
+
+  <rect class="stage" x="884" y="432" width="250" height="72" rx="10"/>
+  <text class="label" x="1009" y="464" text-anchor="middle">Compliance standards</text>
+  <text class="small" x="1009" y="488" text-anchor="middle">Built into the platform</text>
+
+  <path class="line" d="M780 168 H884"/>
+  <path class="line" d="M780 268 H884"/>
+  <path class="line" d="M780 368 H884"/>
+  <path class="line" d="M780 468 H884"/>
+</svg>
