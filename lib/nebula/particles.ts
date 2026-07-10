@@ -103,6 +103,27 @@ function cavityMask(
 const jitter = (rng: Rng, amount: number) => (rng() - 0.5) * amount;
 
 /**
+ * Random anisotropic stretch for lobe centres: elongates a cloud's
+ * silhouette along a random axis so it stops reading as a circle.
+ * Positions only — lobe sizes, counts, and alphas pass through
+ * untouched, so density and brightness stay put. The bright core
+ * structures never run through this; only the outer gas arrangement
+ * does, so the shell rings stay circular inside a lopsided cloud.
+ */
+function makeStretch(rng: Rng): (x: number, y: number) => [number, number] {
+  const ang = rng() * Math.PI;
+  const along = 1.2 + rng() * 0.35;
+  const across = 0.9;
+  const cs = Math.cos(ang);
+  const sn = Math.sin(ang);
+  return (x, y) => {
+    const rx = (x * cs + y * sn) * along;
+    const ry = (-x * sn + y * cs) * across;
+    return [rx * cs - ry * sn, rx * sn + ry * cs];
+  };
+}
+
+/**
  * Orion-like anatomy. The two inner arcs open toward each other from
  * offset centres with different radii and spans, which reads as an
  * hourglass flow through the bright core rather than a ring.
@@ -119,17 +140,24 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   const dust: RawParticle[] = [];
   const emission: RawParticle[] = [];
 
-  // Outer volume: several offset lobes, stretched, so the silhouette
-  // is lopsided with one long extension.
+  // Outer volume: several offset lobes, so the silhouette is lopsided
+  // with one long extension. The lobe offsets from the core run
+  // through a random per-load stretch, elongating the whole footprint
+  // along a random axis instead of settling into a circle.
+  const stretch = makeStretch(rng);
+  const volumeLobes = [
+    { dx: 0, dy: 0, r: 0.85, sx: 1.15, sy: 0.9 },
+    { dx: 0.59, dy: -0.39, r: 0.7, sx: 1.3, sy: 0.75 },
+    { dx: -0.41, dy: 0.36, r: 0.55 },
+    { dx: 0.89 + jitter(rng, 0.2), dy: 0.51, r: 0.45, sx: 1.4, sy: 0.6 },
+  ].map(({ dx, dy, ...rest }) => {
+    const [ox, oy] = stretch(dx, dy);
+    return { cx: coreX + ox, cy: coreY + oy, ...rest };
+  });
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.16),
-      lobes: [
-        { cx: coreX, cy: coreY, r: 0.85, sx: 1.15, sy: 0.9 },
-        { cx: 0.45, cy: -0.35, r: 0.7, sx: 1.3, sy: 0.75 },
-        { cx: -0.55, cy: 0.4, r: 0.55 },
-        { cx: 0.75 + jitter(rng, 0.2), cy: 0.55, r: 0.45, sx: 1.4, sy: 0.6 },
-      ],
+      lobes: volumeLobes,
       colors: pal.volume,
       alpha: [0.012, 0.05],
       size: [0.26, 0.5],
@@ -140,11 +168,14 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Body: pink/violet mass around the core, cooler gas outward. The
-  // radial gradient runs the palette ramp from hot centre to cool edge.
+  // Body: warm mass around the core, cooler gas outward. The radial
+  // gradient runs the palette ramp from hot centre to cool edge. The
+  // lobes keep their full original spread: shrinking them packs the
+  // same light into less area and blows the centre out to white. Depth
+  // comes from lower alpha, never from compression.
   dust.push(
     ...lobeCluster(rng, {
-      count: Math.round(count * 0.2),
+      count: Math.round(count * 0.16),
       lobes: [
         { cx: coreX, cy: coreY, r: 0.5, w: 1.6 },
         { cx: coreX + 0.42, cy: coreY - 0.3, r: 0.45, sx: 1.25, sy: 0.8 },
@@ -152,9 +183,9 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
       ],
       colors: pal.body,
       brightColors: pal.bodyBright,
-      brightChance: 0.18,
+      brightChance: 0.12,
       gradient: true,
-      alpha: [0.04, 0.14],
+      alpha: [0.03, 0.09],
       size: [0.09, 0.18],
       drift: 0.026,
       pointer: 0.55,
@@ -165,79 +196,49 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
 
   // Two opposing inner crescents: different centres, radii, spans,
   // widths, and brightness, one much cloudier than the other. The
-  // geometry is shared with the wisp and star layers below.
+  // geometry lives here (the wisp and star layers below share it);
+  // the crescents themselves are pushed at the very end of the dust
+  // stack, after the dark dust lanes, so nothing paints over them.
   const arcA = {
-    cx: coreX - 0.06,
-    cy: coreY + 0.1,
-    r: 0.22 + jitter(rng, 0.05),
+    cx: coreX - 0.05,
+    cy: coreY + 0.08,
+    r: 0.17 + jitter(rng, 0.04),
     a0: -0.4 + jitter(rng, 0.3),
     a1: 2.5 + jitter(rng, 0.3),
   };
   const arcB = {
-    cx: coreX + 0.24,
-    cy: coreY - 0.14,
-    r: 0.27 + jitter(rng, 0.05),
+    cx: coreX + 0.19,
+    cy: coreY - 0.11,
+    r: 0.2 + jitter(rng, 0.04),
     a0: 2.8 + jitter(rng, 0.3),
     a1: 5.7 + jitter(rng, 0.3),
   };
-  dust.push(
-    ...arcShell(rng, {
-      count: Math.round(count * 0.11),
-      ...arcA,
-      width: 0.065,
-      wobble: 0.14,
-      gaps: 0.35,
-      colors: pal.inner,
-      brightColors: pal.innerBright,
-      alpha: [0.07, 0.2],
-      brightAlpha: 0.3,
-      size: [0.035, 0.08],
-      drift: 0.022,
-      pointer: 0.75,
-      morph: 1,
-    })
-  );
-  dust.push(
-    ...arcShell(rng, {
-      count: Math.round(count * 0.09),
-      ...arcB,
-      width: 0.1,
-      wobble: 0.2,
-      gaps: 0.5,
-      colors: pal.inner,
-      brightColors: pal.innerBright,
-      alpha: [0.05, 0.15],
-      brightAlpha: 0.24,
-      size: [0.045, 0.1],
-      drift: 0.024,
-      pointer: 0.75,
-      morph: 1,
-    })
-  );
 
-  // Outer shell: two broken crescents hugging the core region. In the
-  // photos the bright shells live in the inner half of the nebula;
-  // only faint diffuse gas reaches the silhouette.
+  // Outer shell: two broken crescents in the sage-green shell color.
+  // The body gas above spreads visibly to ~0.7+, so these live deep
+  // INSIDE that mass, wrapping the core: an arc at the radius where
+  // the gas fades out reads as a hoop drawn around the nebula, not a
+  // shell inside it.
   for (const seg of [
-    { a0: 0.4, a1: 1.9, r: 0.28 },
-    { a0: 2.6, a1: 4.4, r: 0.33 },
+    { a0: 0.4, a1: 1.9, r: 0.3 },
+    { a0: 2.6, a1: 4.4, r: 0.37 },
   ]) {
     dust.push(
       ...arcShell(rng, {
         count: Math.round(count * 0.05),
-        cx: coreX + jitter(rng, 0.15),
-        cy: coreY + jitter(rng, 0.15),
+        cx: coreX + jitter(rng, 0.1),
+        cy: coreY + jitter(rng, 0.1),
         r: seg.r,
         a0: seg.a0 + jitter(rng, 0.4),
         a1: seg.a1 + jitter(rng, 0.4),
-        width: 0.13,
-        wobble: 0.12,
-        gaps: 0.45,
+        width: 0.07,
+        wobble: 0.1,
+        gaps: 0.4,
         colors: pal.shell,
         brightColors: pal.shellBright,
         alpha: [0.03, 0.11],
         brightAlpha: 0.18,
-        size: [0.07, 0.14],
+        size: [0.06, 0.12],
         drift: 0.03,
         pointer: 0.6,
         morph: 0.5,
@@ -270,19 +271,25 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
 
   // Large brush-stroke wisps riding the crescents and a broad outer
   // remnant ring: oriented fiber sprites aligned with the local flow.
+  // The remnant ring rides the same boundary as the outer shell, not
+  // the tight inner crescents, so it reinforces that band instead of
+  // collapsing into the core.
   dust.push(
     ...wispStreaks(rng, {
       count: Math.round(count * 0.016),
       arcs: [
         { ...arcA, width: 0.055 },
         { ...arcB, width: 0.07 },
-        { cx: coreX, cy: coreY, r: 0.31 + jitter(rng, 0.05), width: 0.09 },
+        { cx: coreX, cy: coreY, r: 0.33 + jitter(rng, 0.04), width: 0.1 },
       ],
       colors: pal.wisp,
       brightColors: pal.innerBright,
-      // Chained strand links overlap ~2.5x, so per-sprite alpha runs low.
+      // Chained strand links overlap ~2.5x, so per-sprite alpha runs
+      // low. Thicker lines come from sprite size alone: the chain step
+      // scales with size, so the overlap ratio (and the accumulated
+      // brightness) stays put.
       alpha: [0.02, 0.07],
-      size: [0.07, 0.17],
+      size: [0.09, 0.21],
       drift: 0.03,
       pointer: 0.85,
       morph: 0.5,
@@ -323,17 +330,59 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     );
   }
 
+  // The two opposing crescents, last of every dust layer: on top of
+  // all the gas, with only the additive layers (glow, young stars)
+  // above them. Prominence comes from thickness alone — wider bands
+  // and bigger sprites, with count scaled in proportion so density
+  // per area, and so brightness, stays put. Alphas untouched.
+  dust.push(
+    ...arcShell(rng, {
+      count: Math.round(count * 0.11),
+      ...arcA,
+      width: 0.1,
+      wobble: 0.14,
+      gaps: 0.35,
+      colors: pal.inner,
+      brightColors: pal.innerBright,
+      alpha: [0.055, 0.16],
+      brightAlpha: 0.24,
+      size: [0.05, 0.11],
+      drift: 0.022,
+      pointer: 0.75,
+      morph: 1,
+    })
+  );
+  dust.push(
+    ...arcShell(rng, {
+      count: Math.round(count * 0.09),
+      ...arcB,
+      width: 0.15,
+      wobble: 0.2,
+      gaps: 0.5,
+      colors: pal.inner,
+      brightColors: pal.innerBright,
+      alpha: [0.04, 0.12],
+      brightAlpha: 0.19,
+      size: [0.06, 0.13],
+      drift: 0.024,
+      pointer: 0.75,
+      morph: 1,
+    })
+  );
+
   // Emission: glow tight around the core and the brighter arc.
   emission.push(
     ...glowSpots(rng, {
       count: Math.round(count * 0.06),
+      // Broad spots: concentrating the additive glow into a smaller
+      // area is another way the centre blows out to white.
       spots: [
         { x: coreX, y: coreY, r: 0.45, w: 2 },
         { x: coreX - 0.1, y: coreY + 0.35, r: 0.35 },
         { x: coreX + 0.3, y: coreY - 0.2, r: 0.4, w: 0.7 },
       ],
       colors: pal.glow,
-      alpha: [0.008, 0.038],
+      alpha: [0.006, 0.028],
       size: [0.3, 0.6],
       drift: 0.02,
       pointer: 0.4,
@@ -341,11 +390,10 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Young spiked stars above the gas: a rim hugging the crescents plus
-  // a wide scatter that reaches into the outer volume gas, so they
-  // don't all cluster on the arcs. The hero carries more of these than
-  // the smaller clouds, and a lower size bias means more of them land
-  // large and bright instead of almost all staying small.
+  // Young spiked stars above the gas: mostly an even sprinkle across
+  // the whole cloud (the blob sampler is uniform over its disc), with
+  // a smaller share tracing the core crescents and a few strays out in
+  // the far volume gas.
   emission.push(
     ...starSprinkle(rng, {
       count: Math.max(38, Math.round(count * 0.007)),
@@ -354,10 +402,10 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         { ...arcB, width: 0.1 },
       ],
       blobs: [
-        { cx: coreX, cy: coreY, r: 0.5 },
-        { cx: coreX, cy: coreY, r: 1.05 },
+        { cx: coreX, cy: coreY, r: 0.8 },
+        { cx: coreX, cy: coreY, r: 1.2 },
       ],
-      scatter: 0.55,
+      scatter: 0.7,
       colors: pal.star,
       alpha: [0.14, 0.5],
       size: [0.022, 0.1],
@@ -374,8 +422,10 @@ function orionProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
  * outer extensions.
  */
 function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutput {
-  // The ring sits well inside the dark outer material, like the
-  // photograph: the faint volume reaches more than twice as far out.
+  // The anatomy is three concentric bands, and the blue ring is the
+  // separator between the two colors: blue gas inside the ring, loose
+  // orange clouds outside it, dark red-brown silhouette gas farthest
+  // out. Every band is anchored to ringR so they scale together.
   const ringR = 0.3;
   const tilt = rng() * Math.PI * 2;
   const mask = cavityMask([{ x: 0, y: 0, r: 0.44, depth: 0.85 }]);
@@ -383,18 +433,20 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   const dust: RawParticle[] = [];
   const emission: RawParticle[] = [];
 
-  // Outer volume: dark red-brown lobes sitting on the ring path.
+  // Outermost band: dark red-brown silhouette lobes, past the orange.
+  // Both outer bands share one random stretch, so the whole envelope
+  // elongates along the same axis instead of settling into a circle;
+  // the blue ring never runs through it and stays round.
+  const stretch = makeStretch(rng);
+  const volumeAnchor = ringR * 2.4;
   const volumeLobes = Array.from({ length: 6 }, (_, i) => {
     const a = tilt + (i / 6) * Math.PI * 2 + jitter(rng, 0.5);
-    return {
-      cx: Math.cos(a) * 0.8,
-      cy: Math.sin(a) * 0.8,
-      r: range(rng, 0.35, 0.55),
-    };
+    const [cx, cy] = stretch(Math.cos(a) * volumeAnchor, Math.sin(a) * volumeAnchor);
+    return { cx, cy, r: range(rng, 0.3, 0.45) };
   });
   dust.push(
     ...lobeCluster(rng, {
-      count: Math.round(count * 0.16),
+      count: Math.round(count * 0.12),
       lobes: volumeLobes,
       colors: pal.volume,
       alpha: [0.012, 0.05],
@@ -406,20 +458,60 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Cool blue gas filling the cavity, faint enough to see stars through.
-  // The radial gradient warms the centre toward pale blue-white.
+  // Middle band: the warm half. Loose orange clouds in a broad annulus
+  // outside the ring, deliberately shapeless — the orange never takes
+  // an arc form, the blue ring alone draws the boundary. Without this
+  // layer the cloud has no orange at all and the two-color split
+  // disappears (the orange used to live in the rings themselves).
+  // Many overlapping lobes, not a few: sparse evenly-spaced lobes far
+  // enough apart to see individually read as a necklace of discrete
+  // puffs instead of one continuous clumpy band.
+  // 1.5x the particles over a wider annulus: more orange coverage at
+  // the same density per area, not a brighter band. Lobe centres run
+  // through the shared stretch, and one tail lobe gets flung farther
+  // out for a lopsided extension.
+  const warmLobes = Array.from({ length: 15 }, (_, i) => {
+    const a = tilt + ((i + 0.5) / 15) * Math.PI * 2 + jitter(rng, 0.5);
+    const rr = ringR * range(rng, 1.25, 2.5);
+    const [cx, cy] = stretch(Math.cos(a) * rr, Math.sin(a) * rr);
+    return { cx, cy, r: range(rng, 0.26, 0.4) };
+  });
+  {
+    const a = rng() * Math.PI * 2;
+    const [cx, cy] = stretch(Math.cos(a) * ringR * 3, Math.sin(a) * ringR * 3);
+    warmLobes.push({ cx, cy, r: range(rng, 0.18, 0.28) });
+  }
+  dust.push(
+    ...lobeCluster(rng, {
+      count: Math.round(count * 0.24),
+      lobes: warmLobes,
+      colors: pal.shell,
+      brightColors: pal.shellBright,
+      brightChance: 0.06,
+      alpha: [0.016, 0.05],
+      size: [0.16, 0.3],
+      drift: 0.024,
+      pointer: 0.4,
+      morph: 0.3,
+    })
+  );
+
+  // Innermost band: cool blue gas filling the cavity, faint enough to
+  // see stars through. The radial gradient warms the centre toward
+  // pale blue-white. Sized to stay inside ringR: bigger than the ring
+  // and the ring nests inside the cavity instead of bounding it.
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.12),
       lobes: [
-        { cx: jitter(rng, 0.1), cy: jitter(rng, 0.1), r: 0.5, w: 1.5, sx: 1.1, sy: 0.85 },
-        { cx: jitter(rng, 0.3), cy: jitter(rng, 0.3), r: 0.3 },
+        { cx: jitter(rng, 0.1), cy: jitter(rng, 0.1), r: ringR * 0.75, w: 1.5, sx: 1.1, sy: 0.85 },
+        { cx: jitter(rng, 0.15), cy: jitter(rng, 0.15), r: ringR * 0.45 },
       ],
       colors: pal.body,
       brightColors: pal.bodyBright,
       brightChance: 0.12,
       gradient: true,
-      alpha: [0.03, 0.08],
+      alpha: [0.025, 0.07],
       size: [0.13, 0.26],
       drift: 0.02,
       pointer: 0.45,
@@ -427,80 +519,44 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // The main ring: two full, heavily-broken arcs with offset centres
-  // and different radii/widths, so they overlap like a wound ribbon.
-  // Both are squashed into rotated ellipses so the silhouette never
-  // reads as a clean circle.
-  const squash = range(rng, 0.72, 0.9);
+  // The main ring's geometry is defined here (the inner rim below sits
+  // relative to it), but pushed to the dust buffer last, after every
+  // other dust layer: see below, right before the emission bucket.
+  // Rounder, tighter, and less broken than a generic broken arc: a
+  // supernova shell reads as one distinct circular core, not two
+  // independently squashed, rotated, wobbly ellipses crossing each
+  // other like ripples on water.
+  const squash = range(rng, 0.85, 0.95);
   const ringRot = rng() * Math.PI;
+  // Centre offsets scale with ringR: fixed offsets that were tuned for
+  // a bigger ring displace a small ring by a third of its radius and
+  // smear the two loops apart instead of doubling one circle.
   const ringA = {
-    cx: 0.1 + jitter(rng, 0.06),
-    cy: -0.06 + jitter(rng, 0.06),
-    r: ringR * 0.9,
-    width: 0.11,
-    gaps: 0.3,
-    sx: 1.04,
+    cx: ringR * 0.12 + jitter(rng, 0.03),
+    cy: ringR * -0.08 + jitter(rng, 0.03),
+    r: ringR * 0.94,
+    width: 0.1,
+    gaps: 0.18,
+    sx: 1.02,
     sy: squash,
     rot: ringRot,
   };
   const ringB = {
-    cx: -0.1 + jitter(rng, 0.06),
-    cy: 0.07 + jitter(rng, 0.06),
-    r: ringR * 1.1,
-    width: 0.15,
-    gaps: 0.5,
+    cx: ringR * -0.12 + jitter(rng, 0.03),
+    cy: ringR * 0.09 + jitter(rng, 0.03),
+    r: ringR * 1.06,
+    width: 0.12,
+    gaps: 0.28,
     sx: 1,
-    sy: Math.min(1, squash + 0.14),
-    rot: ringRot + jitter(rng, 0.7),
+    sy: Math.min(1, squash + 0.06),
+    rot: ringRot + jitter(rng, 0.2),
   };
-  for (const ring of [ringA, ringB]) {
-    dust.push(
-      ...arcShell(rng, {
-        count: Math.round(count * 0.14),
-        cx: ring.cx,
-        cy: ring.cy,
-        r: ring.r,
-        a0: tilt,
-        a1: tilt + Math.PI * 2,
-        width: ring.width,
-        wobble: 0.17,
-        gaps: ring.gaps,
-        sx: ring.sx,
-        sy: ring.sy,
-        rot: ring.rot,
-        colors: pal.shell,
-        brightColors: pal.shellBright,
-        alpha: [0.04, 0.13],
-        brightAlpha: 0.22,
-        size: [0.07, 0.15],
-        drift: 0.024,
-        pointer: 0.6,
-        morph: 1,
-      })
-    );
-  }
-
-  // Brush-stroke wisps flowing along both rings: the stretched remnant
-  // strands around the old shell.
-  dust.push(
-    ...wispStreaks(rng, {
-      count: Math.round(count * 0.03),
-      arcs: [
-        { ...ringA, width: 0.07 },
-        { ...ringB, width: 0.08 },
-      ],
-      colors: pal.wisp,
-      brightColors: pal.shellBright,
-      alpha: [0.02, 0.075],
-      size: [0.09, 0.2],
-      drift: 0.028,
-      pointer: 0.85,
-      morph: 0.5,
-    })
-  );
 
   // Inner rim: short bright amber arcs where the ring faces the cavity,
-  // mixed with a couple of cool blue arcs just inside.
+  // mixed with a couple of cool blue arcs just inside. Expressed as a
+  // fraction of ringR so it always sits just inside the ring, not at a
+  // radius that made sense for some earlier ring size and no longer
+  // does.
   for (let i = 0; i < 3; i++) {
     const a0 = tilt + rng() * Math.PI * 2;
     dust.push(
@@ -508,7 +564,7 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         count: Math.round(count * 0.035),
         cx: jitter(rng, 0.08),
         cy: jitter(rng, 0.08),
-        r: range(rng, 0.22, 0.26),
+        r: range(rng, ringR * 0.75, ringR * 0.87),
         a0,
         a1: a0 + range(rng, 0.8, 1.8),
         width: 0.05,
@@ -527,12 +583,15 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   }
 
   // Cometary knots: short strokes with heads at the cavity edge and
-  // tails streaming outward into the ring.
+  // tails streaming outward into the ring. Head and tail scale with
+  // ringR so the tails always reach the ring, whatever its size.
+  // Colored from the shell's orange: this is the loose, clumpy warm
+  // material, not shaped into a ring the way the blue gas is.
   const knots = 8 + Math.floor(rng() * 6);
   for (let i = 0; i < knots; i++) {
     const a = rng() * Math.PI * 2;
-    const head = 0.14 + rng() * 0.03;
-    const tail = head + range(rng, 0.09, 0.16);
+    const head = ringR * (0.45 + rng() * 0.08);
+    const tail = head + ringR * range(rng, 0.28, 0.48);
     dust.push(
       ...stroke(rng, {
         count: Math.round(count * 0.006),
@@ -540,7 +599,7 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         ctrl: [Math.cos(a + 0.06) * ((head + tail) / 2), Math.sin(a + 0.06) * ((head + tail) / 2)],
         to: [Math.cos(a + 0.12) * tail, Math.sin(a + 0.12) * tail],
         width: 0.022,
-        colors: pal.wisp,
+        colors: pal.shell,
         alpha: [0.06, 0.16],
         size: [0.025, 0.05],
         drift: 0.03,
@@ -556,9 +615,9 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     dust.push(
       ...stroke(rng, {
         count: Math.round(count * 0.015),
-        from: [Math.cos(a) * 0.35, Math.sin(a) * 0.35],
-        ctrl: [Math.cos(a + 0.6) * 0.45, Math.sin(a + 0.6) * 0.45],
-        to: [Math.cos(a + 1.2) * 0.38, Math.sin(a + 1.2) * 0.38],
+        from: [Math.cos(a) * ringR * 1.15, Math.sin(a) * ringR * 1.15],
+        ctrl: [Math.cos(a + 0.6) * ringR * 1.5, Math.sin(a + 0.6) * ringR * 1.5],
+        to: [Math.cos(a + 1.2) * ringR * 1.3, Math.sin(a + 1.2) * ringR * 1.3],
         width: range(rng, 0.06, 0.1),
         colors: pal.dust,
         alpha: [0.05, 0.16],
@@ -570,14 +629,72 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     );
   }
 
+  // The main ring: two full, barely-broken arcs with offset centres
+  // and close radii/widths, so they read as one distinct circular
+  // shell, not a wound ribbon. A low wobble keeps its edge clean
+  // rather than rippled. Colored from the body's blue, not the
+  // shell's orange: the ring is the one crisp circular edge the cloud
+  // needs, and it belongs to the cool interior gas, not the warm
+  // material, which should stay loose and cloud-like around it. Pushed
+  // last of every dust layer so nothing else in the dust bucket paints
+  // over it — it sits directly under the additive young-star layer.
+  for (const ring of [ringA, ringB]) {
+    dust.push(
+      ...arcShell(rng, {
+        // Thicker band, bigger sprites, count scaled with the width so
+        // the density per area — and so brightness — stays put.
+        count: Math.round(count * 0.19),
+        cx: ring.cx,
+        cy: ring.cy,
+        r: ring.r,
+        a0: tilt,
+        a1: tilt + Math.PI * 2,
+        width: ring.width,
+        wobble: 0.06,
+        gaps: ring.gaps,
+        sx: ring.sx,
+        sy: ring.sy,
+        rot: ring.rot,
+        colors: pal.body,
+        brightColors: pal.bodyBright,
+        alpha: [0.04, 0.13],
+        brightAlpha: 0.22,
+        size: [0.09, 0.19],
+        drift: 0.024,
+        pointer: 0.6,
+        morph: 1,
+      })
+    );
+  }
+
+  // Brush-stroke wisps flowing along both rings: the stretched remnant
+  // strands around the old shell. Bright highlights read blue-white,
+  // matching the ring they trace.
+  dust.push(
+    ...wispStreaks(rng, {
+      count: Math.round(count * 0.03),
+      arcs: [
+        { ...ringA, width: 0.07 },
+        { ...ringB, width: 0.08 },
+      ],
+      colors: pal.wisp,
+      brightColors: pal.bodyBright,
+      alpha: [0.02, 0.075],
+      size: [0.11, 0.25],
+      drift: 0.028,
+      pointer: 0.85,
+      morph: 0.5,
+    })
+  );
+
   // Emission: cool glow in the cavity, warm glow on ring sections.
   emission.push(
     ...glowSpots(rng, {
       count: Math.round(count * 0.05),
       spots: [
-        { x: 0, y: 0, r: 0.42, w: 1.4 },
-        { x: Math.cos(tilt) * ringR, y: Math.sin(tilt) * ringR, r: 0.3 },
-        { x: Math.cos(tilt + 2.4) * ringR, y: Math.sin(tilt + 2.4) * ringR, r: 0.3 },
+        { x: 0, y: 0, r: ringR * 0.75, w: 1.4 },
+        { x: Math.cos(tilt) * ringR, y: Math.sin(tilt) * ringR, r: ringR * 0.5 },
+        { x: Math.cos(tilt + 2.4) * ringR, y: Math.sin(tilt + 2.4) * ringR, r: ringR * 0.5 },
       ],
       colors: pal.glow,
       alpha: [0.007, 0.032],
@@ -600,10 +717,10 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
         { ...ringB, width: 0.12 },
       ],
       blobs: [
-        { cx: 0, cy: 0, r: 0.2 },
-        { cx: 0, cy: 0, r: 0.95 },
+        { cx: 0, cy: 0, r: 0.75 },
+        { cx: 0, cy: 0, r: 1.1 },
       ],
-      scatter: 0.45,
+      scatter: 0.6,
       colors: pal.star,
       alpha: [0.12, 0.46],
       size: [0.025, 0.08],
@@ -622,14 +739,21 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
   const dust: RawParticle[] = [];
   const emission: RawParticle[] = [];
 
+  // Volume lobe centres run through a random stretch so the envelope
+  // elongates along a random axis instead of settling into a circle.
+  const stretch = makeStretch(rng);
+  const volumeLobes = [
+    { cx: jitter(rng, 0.2), cy: jitter(rng, 0.2), r: 0.75, sx: 1.2, sy: 0.85 },
+    { cx: range(rng, 0.3, 0.6), cy: jitter(rng, 0.5), r: 0.5 },
+    { cx: -range(rng, 0.3, 0.6), cy: jitter(rng, 0.5), r: 0.45 },
+  ].map((l) => {
+    const [cx, cy] = stretch(l.cx, l.cy);
+    return { ...l, cx, cy };
+  });
   dust.push(
     ...lobeCluster(rng, {
       count: Math.round(count * 0.14),
-      lobes: [
-        { cx: jitter(rng, 0.2), cy: jitter(rng, 0.2), r: 0.75, sx: 1.2, sy: 0.85 },
-        { cx: range(rng, 0.3, 0.6), cy: jitter(rng, 0.5), r: 0.5 },
-        { cx: -range(rng, 0.3, 0.6), cy: jitter(rng, 0.5), r: 0.45 },
-      ],
+      lobes: volumeLobes,
       colors: pal.volume,
       alpha: [0.012, 0.045],
       size: [0.22, 0.42],
@@ -648,13 +772,13 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
   }));
   dust.push(
     ...lobeCluster(rng, {
-      count: Math.round(count * 0.2),
+      count: Math.round(count * 0.16),
       lobes: coreLobes,
       colors: pal.body,
       brightColors: pal.bodyBright,
-      brightChance: 0.18,
+      brightChance: 0.12,
       gradient: true,
-      alpha: [0.04, 0.12],
+      alpha: [0.03, 0.09],
       size: [0.07, 0.15],
       drift: 0.024,
       pointer: 0.55,
@@ -662,30 +786,27 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
     })
   );
 
-  // Remnant wisp loops: large oriented streaks tracing a few tangled
-  // elliptical shells around the web, the old supernova's leftovers.
-  const loops = Array.from({ length: 3 }, () => ({
-    cx: jitter(rng, 0.18),
-    cy: jitter(rng, 0.18),
-    r: range(rng, 0.16, 0.28),
-    width: 0.08,
-    sx: range(rng, 0.9, 1.1),
-    sy: range(rng, 0.7, 0.95),
-    rot: rng() * Math.PI,
-  }));
-  dust.push(
-    ...wispStreaks(rng, {
-      count: Math.round(count * 0.035),
-      arcs: loops,
-      colors: pal.wisp,
-      brightColors: pal.filamentBright,
-      alpha: [0.02, 0.07],
-      size: [0.09, 0.19],
-      drift: 0.03,
-      pointer: 0.9,
-      morph: 0.5,
-    })
-  );
+  // The old shell: one clean circular remnant ring close to the core,
+  // not three independently scattered loops. Three unrelated centres,
+  // radii, and rotations tangle into noise rather than reading as a
+  // distinct circle the way an actual supernova shell does — the same
+  // problem the Helix ring had before it got a single shared geometry.
+  // Colored from the body's blue-cyan: the crisp circular edge belongs
+  // to the cool core gas, the orange stays loose in the filament web.
+  // The ring lives IN the core, a small circle inside the blue mass
+  // with gas extending well beyond it in every direction — not a hoop
+  // at the radius where the gas runs out, which reads as a circle
+  // drawn around the nebula instead of a shell inside it.
+  const shellRot = rng() * Math.PI;
+  const shellArc = {
+    cx: jitter(rng, 0.06),
+    cy: jitter(rng, 0.06),
+    r: 0.3,
+    width: 0.075,
+    sx: 1.02,
+    sy: range(rng, 0.85, 0.95),
+    rot: shellRot,
+  };
 
   // A couple of subtle dark threads over the core.
   const a = rng() * Math.PI * 2;
@@ -705,19 +826,69 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
     })
   );
 
-  // The filament web: the crab's signature, additive so crossings glow.
+  // The shell ring itself, pushed last of every dust layer so nothing
+  // else in the dust bucket paints over it — same fix as the Helix
+  // ring. A full 2*PI loop with low wobble and near-continuous gaps
+  // reads as one distinct circle, not a broken arc with visible ends.
+  dust.push(
+    ...arcShell(rng, {
+      // Thicker band, bigger sprites, count scaled with the width so
+      // the density per area — and so brightness — stays put.
+      count: Math.round(count * 0.13),
+      cx: shellArc.cx,
+      cy: shellArc.cy,
+      r: shellArc.r,
+      a0: 0,
+      a1: Math.PI * 2,
+      width: shellArc.width,
+      wobble: 0.06,
+      gaps: 0.15,
+      sx: shellArc.sx,
+      sy: shellArc.sy,
+      rot: shellArc.rot,
+      colors: pal.body,
+      brightColors: pal.bodyBright,
+      alpha: [0.05, 0.15],
+      brightAlpha: 0.22,
+      size: [0.07, 0.14],
+      drift: 0.024,
+      pointer: 0.6,
+      morph: 1,
+    })
+  );
+  // Wisp texture riding the same ring geometry, not a separately
+  // randomized loop, so it reinforces the circle instead of tangling
+  // with it.
+  dust.push(
+    ...wispStreaks(rng, {
+      count: Math.round(count * 0.03),
+      arcs: [{ ...shellArc, width: 0.06 }],
+      colors: pal.wisp,
+      brightColors: pal.bodyBright,
+      alpha: [0.02, 0.075],
+      size: [0.1, 0.22],
+      drift: 0.028,
+      pointer: 0.85,
+      morph: 0.5,
+    })
+  );
+
+  // The filament web: the crab's signature, additive so crossings
+  // glow. This carries the whole orange half of the color split, so
+  // its walkers root at the core's edge and wander outward — orange
+  // wrapping blue, the two never muddying into one tone.
   emission.push(
     ...filamentWeb(rng, {
       count: Math.round(count * 0.42),
       roots: 22,
-      origin: [0.12, 0.42],
+      origin: [0.3, 0.55],
       reach: 1.05,
       step: 0.035,
       curl: 0.55,
       branch: 0.08,
       colors: pal.filament,
       brightColors: pal.filamentBright,
-      alpha: [0.05, 0.15],
+      alpha: [0.06, 0.17],
       size: [0.022, 0.055],
       drift: 0.032,
       pointer: 0.95,
@@ -766,12 +937,12 @@ function crabProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutpu
   emission.push(
     ...starSprinkle(rng, {
       count: Math.max(14, Math.round(count * 0.0032)),
-      arcs: [{ cx: 0, cy: 0, r: 0.22, width: 0.14 }],
+      arcs: [{ ...shellArc, width: 0.1 }],
       blobs: [
-        ...coreLobes.map((l) => ({ cx: l.cx, cy: l.cy, r: l.r * 1.2 })),
-        { cx: 0, cy: 0, r: 0.9 },
+        { cx: 0, cy: 0, r: 0.8 },
+        { cx: 0, cy: 0, r: 1.15 },
       ],
-      scatter: 0.55,
+      scatter: 0.7,
       colors: pal.star,
       alpha: [0.12, 0.46],
       size: [0.02, 0.08],
