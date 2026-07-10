@@ -218,6 +218,10 @@ export function arcShell(
   const sy = opts.sy ?? 1;
   const cr = Math.cos(opts.rot ?? 0);
   const sr = Math.sin(opts.rot ?? 0);
+  // A full loop (a0..a1 spanning 2*PI) has no real start or end: u=0
+  // and u=1 land on the same physical angle. Tapering toward them
+  // anyway carves a fake seam into what should be a closed circle.
+  const isFullLoop = Math.abs(opts.a1 - opts.a0) >= Math.PI * 2 - 1e-6;
   let guard = opts.count * 8;
 
   while (out.length < opts.count && guard-- > 0) {
@@ -247,8 +251,8 @@ export function arcShell(
       rng() < 0.6;
     // The inner-facing edge glows; the outer edge dissolves outward.
     const innerEdge = off < -w * 0.35 ? 0.3 : 0;
-    const endFade =
-      Math.min(1, Math.min(u, 1 - u) * 12) * (broken ? 0.35 : 1);
+    const tipFade = isFullLoop ? 1 : Math.min(1, Math.min(u, 1 - u) * 12);
+    const endFade = tipFade * (broken ? 0.35 : 1);
 
     let alpha = range(rng, opts.alpha[0], opts.alpha[1]);
     if (hot) alpha = range(rng, opts.alpha[1], opts.brightAlpha ?? opts.alpha[1] * 1.6);
@@ -632,8 +636,13 @@ export function starSprinkle(
     let y: number;
     if (rng() < scatter) {
       const blob = opts.blobs![Math.floor(rng() * opts.blobs!.length)];
-      x = blob.cx + gaussian(rng) * blob.r * 0.5;
-      y = blob.cy + gaussian(rng) * blob.r * 0.5;
+      // Uniform across the disc, not gaussian: gaussian sampling piles
+      // the stars onto the centre, and stacked with the bright core
+      // gas they read as one clump instead of peppering the cloud.
+      const d = Math.sqrt(rng());
+      const ang = rng() * Math.PI * 2;
+      x = blob.cx + Math.cos(ang) * d * blob.r;
+      y = blob.cy + Math.sin(ang) * d * blob.r;
     } else {
       const arc = opts.arcs[Math.floor(rng() * opts.arcs.length)];
       const a0 = arc.a0 ?? 0;

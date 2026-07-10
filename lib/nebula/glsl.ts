@@ -192,13 +192,16 @@ vec3 hiiRegion(vec2 pc, vec4 region, float which, vec2 look, vec3 midCol, vec3 c
 
   float t = uTime * 0.010;
   float tex = fbm2(lp * 2.1 + seedOff + t);
+  // Soft body glow only. This used to also draw a bright ring at a
+  // fixed fraction of the region's radius; since this region sits at
+  // one of a few fixed screen spots with its own randomized (and
+  // often huge, up to 90% of the screen's short axis) radius, totally
+  // independent of any particle cloud's position, that ring read as a
+  // large, unexplained circle detached from the actual nebulae.
   float body = smoothstep(0.02, 0.8, g * 1.1 - tex * 0.55);
-  float shellLevel = 0.22 + 0.2 * (boundary - 0.5);
-  float shell = exp(-pow((g - shellLevel) * 6.0, 2.0)) * (0.4 + 0.6 * tex);
 
   envOut = body * region.w;
-  vec3 emission = midCol * (body * 0.55 + shell * 0.5)
-                + coreCol * body * body * 0.25;
+  vec3 emission = midCol * body * 0.7 + coreCol * body * body * 0.25;
   return emission * region.w * 0.32;
 }
 

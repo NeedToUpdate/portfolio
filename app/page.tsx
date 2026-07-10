@@ -14,7 +14,11 @@ import ArrowLink from "@/components/ui/ArrowLink";
 import TextLink from "@/components/ui/TextLink";
 import Panel from "@/components/ui/Panel";
 import JsonLd from "@/components/ui/JsonLd";
-import { getFeaturedCaseStudies, getInsights, getWorkIntro } from "@/lib/content";
+import {
+  getFeaturedCaseStudies,
+  getInsights,
+  getWorkIntro,
+} from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -49,8 +53,8 @@ export default function HomePage() {
                   Engineering director and hands-on architect.
                 </Text>
                 <Text variant="muted" className="mt-3 max-w-2xl">
-                  I take modernization from the first whiteboard session through production:
-                  architecture, teams, and delivery.
+                  I take modernization from the first whiteboard session through
+                  production: architecture, teams, and delivery.
                 </Text>
               </div>
             </Panel>
@@ -63,18 +67,29 @@ export default function HomePage() {
                 className="flex min-h-[18rem] flex-col justify-between gap-8"
               >
                 <div className="min-w-0">
-                  <Text variant="muted" className="mb-4 text-sm uppercase tracking-wide">
+                  <Text
+                    variant="muted"
+                    className="mb-4 text-sm uppercase tracking-wide"
+                  >
                     Latest insight · {formatDate(latestInsight.date)} ·{" "}
                     {latestInsight.readingTimeMinutes} min read
                   </Text>
-                  <Heading size="section" id="home-latest-insight" className="max-w-3xl">
+                  <Heading
+                    size="section"
+                    id="home-latest-insight"
+                    className="max-w-3xl"
+                  >
                     {latestInsight.title}
                   </Heading>
                   <Text variant="lead" className="mt-5 max-w-2xl">
                     {latestInsight.description}
                   </Text>
                   {latestInsight.tags.length > 0 && (
-                    <TagList tags={latestInsight.tags} variant="pill" className="mt-5" />
+                    <TagList
+                      tags={latestInsight.tags}
+                      variant="pill"
+                      className="mt-5"
+                    />
                   )}
                 </div>
                 <ArrowLink
@@ -93,11 +108,16 @@ export default function HomePage() {
             >
               <div className="min-w-0">
                 <Text variant="muted">
-                  I am an engineering director and hands-on architect in Toronto, usually working
-                  where systems, teams, and messy production constraints meet.
+                  I am an engineering director and hands-on architect in
+                  Toronto, usually working where systems, teams, and messy
+                  production constraints meet.
                 </Text>
                 <div className="mt-4">
-                  <ArrowLink href="/about" label="About me" nebulaShape="bars" />
+                  <ArrowLink
+                    href="/about"
+                    label="About me"
+                    nebulaShape="bars"
+                  />
                 </div>
               </div>
               <Link
@@ -109,6 +129,7 @@ export default function HomePage() {
                   src="/images/portrait.webp"
                   alt={site.name}
                   fill
+                  loading="eager"
                   sizes="(max-width: 1024px) 12rem, 10rem"
                   className="object-cover"
                 />
@@ -122,7 +143,13 @@ export default function HomePage() {
               title="More notes on systems and decisions"
               id="home-insights"
               variant="card"
-              action={<ArrowLink href="/insights" label="All insights" nebulaShape="book" />}
+              action={
+                <ArrowLink
+                  href="/insights"
+                  label="All insights"
+                  nebulaShape="book"
+                />
+              }
             >
               <DividedList className="mt-6">
                 {insights.map((insight) => (
@@ -137,23 +164,37 @@ export default function HomePage() {
             title="Systems that changed how the business runs"
             id="home-work"
             variant="card"
-            action={<ArrowLink href="/work" label="All case studies" nebulaShape="hex" />}
+            action={
+              <ArrowLink
+                href="/work"
+                label="All case studies"
+                nebulaShape="hex"
+              />
+            }
           >
             <DividedList className="mt-6">
               {featured.map((caseStudy) => (
-                <CaseStudyListItem key={caseStudy.slug} caseStudy={caseStudy} cta={caseStudyCta} />
+                <CaseStudyListItem
+                  key={caseStudy.slug}
+                  caseStudy={caseStudy}
+                  cta={caseStudyCta}
+                />
               ))}
             </DividedList>
           </Section>
 
-          <Section title="I like hard modernization problems." id="home-contact" variant="card">
+          <Section
+            title="I like hard modernization problems."
+            id="home-contact"
+            variant="card"
+          >
             <Text variant="muted" className="mt-4 max-w-prose">
               If you have one, email{" "}
               <TextLink href={`mailto:${site.email}`} nebulaShape="plane">
                 {site.email}
               </TextLink>{" "}
-              or find me on <TextLink href={site.linkedin}>LinkedIn</TextLink>. More ways to reach
-              me are on the{" "}
+              or find me on <TextLink href={site.linkedin}>LinkedIn</TextLink>.
+              More ways to reach me are on the{" "}
               <TextLink href="/contact" nebulaShape="plane">
                 contact page
               </TextLink>
