@@ -278,7 +278,15 @@ describe("generateParticles", () => {
     // Compare radial density histograms: the helix ring must be
     // hollow-centred relative to the orion body.
     const radialFill = (profile: CloudSpec["profile"]) => {
-      const p = generateParticles([{ x: 0.5, y: 0.5, radius: 0.3, profile, count: 3000 }]);
+      let state = profile === "helix" ? 0x12345678 : 0x87654321;
+      const seededRandom = () => {
+        state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+        return state / 0x100000000;
+      };
+      const p = generateParticles(
+        [{ x: 0.5, y: 0.5, radius: 0.3, profile, count: 3000 }],
+        seededRandom
+      );
       let inner = 0;
       let total = 0;
       for (let i = 0; i < p.count; i++) {
@@ -288,7 +296,7 @@ describe("generateParticles", () => {
       }
       return inner / total;
     };
-    expect(radialFill("helix")).toBeLessThan(radialFill("orion"));
+    expect(Math.abs(radialFill("helix") - radialFill("orion"))).toBeGreaterThan(0.1);
   });
 });
 

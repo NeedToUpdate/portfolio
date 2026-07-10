@@ -792,8 +792,7 @@ const profiles: Record<
 };
 
 /** Builds packed GPU buffers for the given clouds. */
-export function generateParticles(clouds: CloudSpec[]): ParticleBuffers {
-  const rng = Math.random;
+export function generateParticles(clouds: CloudSpec[], rng: Rng = Math.random): ParticleBuffers {
   const dustFlat: { p: RawParticle; c: CloudSpec }[] = [];
   const emissionFlat: { p: RawParticle; c: CloudSpec }[] = [];
 
