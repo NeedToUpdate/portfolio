@@ -12,5 +12,3 @@ s3BucketName: portfolio-site-assets-dev
 # Basic auth gate. Both values must be set or the site deploys open.
 basicAuthUsername: ${env:DEV_BASIC_AUTH_USERNAME, ''}
 basicAuthPassword: ${env:DEV_BASIC_AUTH_PASSWORD, ''}
-
-lambdaReservedConcurrency: 5

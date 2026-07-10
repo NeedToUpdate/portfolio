@@ -4,7 +4,7 @@
 The standalone output contains the server and traced node_modules, but not
 the static assets or public files. This script copies those in, normalizes
 the cache handler path (Windows builds serialize it with backslashes), and
-zips everything with run.sh marked executable.
+zips everything with the Node launcher marked executable.
 """
 
 import json
@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import stat
+import tempfile
 import zipfile
 
 STANDALONE_DIR = os.path.join(".next", "standalone")
@@ -65,12 +66,18 @@ def copy_assets() -> None:
     shutil.copytree("public", public_dst)
     print(f"copied public -> {public_dst}")
 
+    # Remove launchers left by an earlier packaging strategy.
+    for launcher in ("run.sh", "run.cjs"):
+        launcher_path = os.path.join(STANDALONE_DIR, launcher)
+        if os.path.exists(launcher_path):
+            os.remove(launcher_path)
+
     # Copy the entrypoint with LF endings; CRLF breaks the shebang in Lambda.
-    with open(os.path.join("scripts", "run.cjs"), "rb") as f:
+    with open(os.path.join("scripts", "run.sh"), "rb") as f:
         entrypoint = f.read().replace(b"\r\n", b"\n")
-    with open(os.path.join(STANDALONE_DIR, "run.cjs"), "wb") as f:
+    with open(os.path.join(STANDALONE_DIR, "run.sh"), "wb") as f:
         f.write(entrypoint)
-    print("copied scripts/run.cjs")
+    print("copied scripts/run.sh")
 
 
 def ensure_cache_handler() -> None:
@@ -79,6 +86,26 @@ def ensure_cache_handler() -> None:
     os.makedirs(lib_dst, exist_ok=True)
     shutil.copy(os.path.join("lib", "isr-cache-handler.js"), lib_dst)
     print("copied lib/isr-cache-handler.js")
+
+
+def materialize_directory_links() -> None:
+    """Replace traced directory links with files so ZIP packaging is portable."""
+    links = []
+    for root, dirs, _files in os.walk(STANDALONE_DIR):
+        for directory in dirs:
+            path = os.path.join(root, directory)
+            if os.path.islink(path):
+                links.append(path)
+
+    for link_path in links:
+        target = os.path.realpath(link_path)
+        temp_parent = os.path.dirname(link_path)
+        temp_path = tempfile.mkdtemp(prefix=".materialized-", dir=temp_parent)
+        os.rmdir(temp_path)
+        shutil.copytree(target, temp_path, symlinks=False)
+        os.unlink(link_path)
+        os.replace(temp_path, link_path)
+        print(f"materialized traced module link {os.path.relpath(link_path, STANDALONE_DIR)}")
 
 
 def zip_standalone() -> None:
@@ -91,7 +118,7 @@ def zip_standalone() -> None:
                 arcname = os.path.relpath(file_path, STANDALONE_DIR).replace(os.sep, "/")
                 info = zipfile.ZipInfo(arcname)
                 # Lambda executes the entrypoint directly; it needs the exec bit.
-                mode = 0o755 if arcname == "run.cjs" else 0o644
+                mode = 0o755 if arcname == "run.sh" else 0o644
                 info.external_attr = (stat.S_IFREG | mode) << 16
                 info.compress_type = zipfile.ZIP_DEFLATED
                 with open(file_path, "rb") as f:
@@ -106,6 +133,7 @@ def main() -> None:
     copy_assets()
     ensure_cache_handler()
     fix_cache_handler_paths()
+    materialize_directory_links()
     zip_standalone()
 
 

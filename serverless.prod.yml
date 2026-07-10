@@ -7,5 +7,3 @@ certificateArn: ${env:PROD_CERTIFICATE_ARN, ''}
 
 # S3 bucket names are global; change this if the name is taken.
 s3BucketName: portfolio-site-assets-prod
-
-lambdaReservedConcurrency: 10

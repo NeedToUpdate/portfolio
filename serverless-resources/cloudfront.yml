@@ -1,5 +1,8 @@
 # CloudFront distribution: Lambda function URL for pages, S3 for static assets.
 
+Conditions:
+  IsDevStage: !Equals ["${self:provider.stage}", "dev"]
+
 Resources:
   OriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
@@ -26,13 +29,28 @@ Resources:
           EnableAcceptEncodingBrotli: true
           EnableAcceptEncodingGzip: true
           QueryStringsConfig:
-            QueryStringBehavior: none
+            # Next.js App Router uses _rsc to separate navigation payloads
+            # from full HTML documents. It must be part of the cache key.
+            QueryStringBehavior: all
           HeadersConfig:
             HeaderBehavior: whitelist
             Headers:
               - Authorization
           CookiesConfig:
             CookieBehavior: none
+
+  DevResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Condition: IsDevStage
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: ${self:service}-${self:provider.stage}-auth
+        Comment: Restores the browser Basic Auth challenge header for dev
+        CustomHeadersConfig:
+          Items:
+            - Header: WWW-Authenticate
+              Value: Basic realm="Dev Site"
+              Override: false
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -74,9 +92,34 @@ Resources:
             - HEAD
           CachePolicyId: !Ref AppCachePolicy
           OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AllViewerExceptHostHeader
-          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
+          ResponseHeadersPolicyId:
+            !If
+              - IsDevStage
+              - !Ref DevResponseHeadersPolicy
+              - 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
           Compress: true
         CacheBehaviors:
+          - PathPattern: "/api/*"
+            TargetOriginId: LambdaOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed CachingDisabled
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AllViewerExceptHostHeader
+            ResponseHeadersPolicyId:
+              !If
+                - IsDevStage
+                - !Ref DevResponseHeadersPolicy
+                - 67f7725c-6f97-4210-82d7-5512b31e9d03
           - PathPattern: "/_next/static/*"
             TargetOriginId: S3Origin
             ViewerProtocolPolicy: redirect-to-https
