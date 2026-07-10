@@ -112,7 +112,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
           each one is drawn. */}
       <Exhibit
         src={caseStudy.diagram}
-        alt={`Solution architecture — ${caseStudy.title}`}
+        alt={caseStudy.diagramAlt ?? `Solution architecture — ${caseStudy.title}`}
         label={`Architecture diagram — ${caseStudy.title}`}
         icon={categoryIcon(caseStudy.category)}
         caption={caseStudy.diagram ? "Exhibit: solution architecture." : undefined}

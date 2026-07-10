@@ -6,6 +6,7 @@ priority: 5
 category: payments
 role: "Led architecture, controls, and delivery"
 diagram: "/images/enterprise-payment-integration.svg"
+diagramAlt: "Multiple payment sources flow through normalization, payment controls, bank processing, receipt handling, and reconciliation."
 context:
   - term: "Client"
     value: "Large insurer"

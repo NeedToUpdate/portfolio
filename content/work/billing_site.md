@@ -6,6 +6,7 @@ priority: 7
 category: payments
 role: "Led delivery under a three-week deadline"
 diagram: "/images/billing-payment-processing.svg"
+diagramAlt: "A member uses a self-service billing site, validates against enrollment data, enters payment details inside Moneris, and sends a payment reference to the TPA billing system. Support remains as a fallback path."
 context:
   - term: "Client"
     value: "Large Canadian insurer"

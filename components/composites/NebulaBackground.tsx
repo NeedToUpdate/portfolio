@@ -403,18 +403,53 @@ export default function NebulaBackground({
       renderFrame(time, Math.min(elapsed / 1000, 0.1));
     };
 
+    // A trigger's data-nebula-shape can sit on the hovered/focused element
+    // itself (nav links, TextLink, footer icons) or on a decorative span
+    // nested inside a larger link (a card's title, a list row's CTA).
+    // Pointer hover naturally lands on whichever element is innermost, so
+    // closest() alone finds it; keyboard focus lands on the outer link, so
+    // a descendant lookup is needed too.
+    const resolveShapeKey = (
+      el: Element | null,
+      includeDescendants = false
+    ): string | null => {
+      if (!el) return null;
+      const match =
+        el.closest?.("[data-nebula-shape]") ??
+        (includeDescendants ? el.querySelector?.("[data-nebula-shape]") : null);
+      return match?.getAttribute("data-nebula-shape") ?? null;
+    };
+
+    const setPendingShape = (key: string | null) => {
+      if (key === state.pendingShape) return;
+      state.pendingShape = key;
+      if (reducedMotion) {
+        state.activeShape = key;
+        uploadTargets(key);
+        state.mix = key ? 1 : 0;
+        renderFrame(12000, 0.016);
+      }
+    };
+
     const onPointerOver = (e: Event) => {
       if (!state.started) return;
-      const target = (e.target as Element | null)?.closest?.("[data-nebula-shape]");
-      const key = target?.getAttribute("data-nebula-shape") ?? null;
-      if (key !== state.pendingShape) {
-        state.pendingShape = key;
-        if (reducedMotion) {
-          state.activeShape = key;
-          uploadTargets(key);
-          state.mix = key ? 1 : 0;
-          renderFrame(12000, 0.016);
-        }
+      setPendingShape(resolveShapeKey(e.target as Element | null));
+    };
+
+    // Keyboard parity: focusing a trigger morphs the shape the same way
+    // hovering it does. focusin/focusout bubble (focus/blur don't), so one
+    // pair of document listeners covers every trigger on the page.
+    const onFocusIn = (e: FocusEvent) => {
+      if (!state.started) return;
+      setPendingShape(resolveShapeKey(e.target as Element | null, true));
+    };
+
+    const onFocusOut = (e: FocusEvent) => {
+      if (!state.started) return;
+      // Tabbing directly from one trigger to another should hand off, not
+      // flash back to "no shape" in between.
+      if (resolveShapeKey(e.relatedTarget as Element | null, true) === null) {
+        setPendingShape(null);
       }
     };
 
@@ -795,6 +830,8 @@ export default function NebulaBackground({
 
     window.addEventListener("resize", resize);
     document.addEventListener("pointerover", onPointerOver, { passive: true });
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
     canvas.addEventListener("webglcontextlost", onContextLost);
     canvas.addEventListener("webglcontextrestored", onContextRestored);
     if (!reducedMotion) {
@@ -824,6 +861,8 @@ export default function NebulaBackground({
       canvas.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("resize", resize);
       document.removeEventListener("pointerover", onPointerOver);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
       window.removeEventListener("pointermove", onPointerMove);
       document.documentElement.removeEventListener("pointerleave", onPointerLeave);
       window.removeEventListener("touchstart", onTouchStart);

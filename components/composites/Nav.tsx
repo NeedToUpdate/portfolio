@@ -17,7 +17,7 @@ export default function Nav() {
       >
         <Link
           href="/"
-          className="shrink-0 font-display text-sm font-semibold tracking-tight text-ink hover:text-accent"
+          className="inline-flex min-h-6 shrink-0 items-center font-display text-sm font-semibold tracking-tight text-ink hover:text-accent"
         >
           {site.name}
         </Link>
@@ -30,7 +30,7 @@ export default function Nav() {
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`text-sm transition-colors ${
+                  className={`inline-flex min-h-6 items-center text-sm transition-colors ${
                     active ? "text-accent" : "text-muted hover:text-ink"
                   }`}
                 >

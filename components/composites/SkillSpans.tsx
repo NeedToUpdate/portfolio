@@ -117,10 +117,11 @@ export default function SkillSpans({ domains, className = "" }: SkillSpansProps)
           {rows.map(({ skill, domain }) => (
             <div
               key={`${domain.slug}-${skill.name}`}
-              className="group relative flex items-center gap-3"
+              tabIndex={0}
+              className="group relative flex items-center gap-3 rounded-sm"
             >
               {/* Sized to fit the longest skill name in full; never truncates. */}
-              <span className="w-[8.5rem] shrink-0 text-right text-[11px] leading-5 text-muted transition-colors group-hover:text-ink sm:w-[9.5rem] sm:text-xs">
+              <span className="w-[8.5rem] shrink-0 text-right text-[11px] leading-5 text-muted transition-colors group-hover:text-ink group-focus:text-ink sm:w-[9.5rem] sm:text-xs">
                 {skill.name}
                 {/* Screen readers get the data without the hover layer. */}
                 <span className="sr-only">
@@ -131,14 +132,14 @@ export default function SkillSpans({ domains, className = "" }: SkillSpansProps)
               <div className="relative h-5 min-w-0 flex-1">
                 <span
                   aria-hidden
-                  className="absolute right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full opacity-80 transition-opacity group-hover:opacity-100"
+                  className="absolute right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full opacity-80 transition-opacity group-hover:opacity-100 group-focus:opacity-100"
                   style={{ left: `${pct(skill.since)}%`, backgroundColor: DOMAIN_COLOR[domain.slug] }}
                 />
-                {/* Hover detail card. Anchored to the track's left edge and
-                    allowed to wrap, so it can never widen the page. */}
+                {/* Hover/focus detail card. Anchored to the track's left edge
+                    and allowed to wrap, so it can never widen the page. */}
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute bottom-6 left-0 z-10 hidden max-w-full rounded-md border border-line/70 bg-surface px-3 py-1.5 shadow-lg shadow-black/40 group-hover:block"
+                  className="pointer-events-none absolute bottom-6 left-0 z-10 hidden max-w-full rounded-md border border-line/70 bg-surface px-3 py-1.5 shadow-lg shadow-black/40 group-hover:block group-focus:block"
                 >
                   <p className="text-xs font-semibold text-ink">
                     {skill.name}
