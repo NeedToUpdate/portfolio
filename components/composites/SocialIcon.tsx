@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type SocialIconName = "email" | "github" | "linkedin";
 
@@ -20,8 +20,18 @@ const paths: Record<SocialIconName, string> = {
 
 export default function SocialIcon({ name, className = "" }: SocialIconProps) {
   const [hovering, setHovering] = useState(false);
+  // Default to static until hydration confirms that motion is welcome.
+  const [reducedMotion, setReducedMotion] = useState(true);
   const gradientId = `${name}-social-gradient`;
   const animatedGradientId = `${name}-social-gradient-animated`;
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPreference = () => setReducedMotion(media.matches);
+    syncPreference();
+    media.addEventListener("change", syncPreference);
+    return () => media.removeEventListener("change", syncPreference);
+  }, []);
 
   return (
     <svg
@@ -45,16 +55,18 @@ export default function SocialIcon({ name, className = "" }: SocialIconProps) {
           <stop offset="35%" stopColor="rgb(var(--c-star))" />
           <stop offset="70%" stopColor="rgb(var(--c-nebula))" />
           <stop offset="100%" stopColor="rgb(var(--c-plasma))" />
-          <animateTransform
-            attributeName="gradientTransform"
-            type="translate"
-            from="-1 -1"
-            to="2 1"
-            additive="sum"
-            begin="0s"
-            dur="1.2s"
-            repeatCount="indefinite"
-          />
+          {!reducedMotion && (
+            <animateTransform
+              attributeName="gradientTransform"
+              type="translate"
+              from="-1 -1"
+              to="2 1"
+              additive="sum"
+              begin="0s"
+              dur="1.2s"
+              repeatCount="indefinite"
+            />
+          )}
         </linearGradient>
       </defs>
       <path fill={`url(#${hovering ? animatedGradientId : gradientId})`} d={paths[name]} />

@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import TextLink from "@/components/ui/TextLink";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+};
 
 export default function NotFound() {
   return (

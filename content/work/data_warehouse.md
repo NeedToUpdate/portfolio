@@ -6,6 +6,7 @@ priority: 1
 category: data
 role: "Spearheaded architecture and multi-year delivery"
 diagram: "/images/data-warehouse-architecture.svg"
+diagramAlt: "Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and user outputs."
 context:
   - term: "Client"
     value: "Major insurance client"

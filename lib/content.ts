@@ -98,6 +98,7 @@ export function getCaseStudies(): CaseStudy[] {
       role: entry.data.role as string | undefined,
       context: entry.data.context as CaseStudy["context"],
       diagram: entry.data.diagram as string | undefined,
+      diagramAlt: entry.data.diagramAlt as string | undefined,
       body: entry.content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);

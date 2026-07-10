@@ -21,6 +21,8 @@ export interface CaseStudy {
   context?: ScorecardEntry[];
   /** Path to an architecture diagram image, once one exists. */
   diagram?: string;
+  /** Equivalent text for the architecture diagram's important flow and components. */
+  diagramAlt?: string;
   body: string;
 }
 

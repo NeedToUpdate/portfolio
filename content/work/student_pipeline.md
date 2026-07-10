@@ -6,6 +6,7 @@ priority: 6
 category: infrastructure
 role: "Led architecture and delivery"
 diagram: "/images/enrollment-processing-system.svg"
+diagramAlt: "Monthly SFTP enrollment files flow through state reconciliation, controlled manual changes, nightly delta generation, TPA delivery, and monitoring."
 context:
   - term: "Client"
     value: "Insurance provider"
