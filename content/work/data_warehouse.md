@@ -5,7 +5,7 @@ impact: "Gave a major insurer control over its data landscape across 150+ daily 
 priority: 1
 category: data
 role: "Spearheaded architecture and multi-year delivery"
-diagram: "/images/data-warehouse-square.webp"
+diagram: "/images/data-warehouse-architecture.svg"
 context:
   - term: "Client"
     value: "Major insurance client"

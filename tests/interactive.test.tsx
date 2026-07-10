@@ -6,6 +6,7 @@ import StarfieldDemo from "@/components/composites/StarfieldDemo";
 import BrainRouterDemo from "@/components/composites/BrainRouterDemo";
 import HomelabDiagram from "@/components/composites/HomelabDiagram";
 import ShapeMorphButtons from "@/components/composites/ShapeMorphButtons";
+import AIWorkflowTimeline from "@/components/composites/AIWorkflowTimeline";
 
 describe("RequestPathExplorer", () => {
   it("starts on the page path through Lambda", () => {
@@ -95,5 +96,24 @@ describe("ShapeMorphButtons", () => {
     for (const key of ["spark", "hex", "book", "nodes", "db", "cloud"]) {
       expect(screen.getByTestId(`shape-${key}`)).toHaveAttribute("data-nebula-shape", key);
     }
+  });
+});
+
+describe("AIWorkflowTimeline", () => {
+  it("starts on the framing stage", () => {
+    render(<AIWorkflowTimeline />);
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/research brief/i);
+  });
+
+  it("shows the build stage when selected", () => {
+    render(<AIWorkflowTimeline />);
+    fireEvent.click(screen.getByTestId("stage-build"));
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/Fable built the first pass/i);
+  });
+
+  it("shows the review stage when selected", () => {
+    render(<AIWorkflowTimeline />);
+    fireEvent.click(screen.getByTestId("stage-polish"));
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/UI and UX fixes/i);
   });
 });
