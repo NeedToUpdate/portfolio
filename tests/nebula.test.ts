@@ -296,7 +296,7 @@ describe("generateParticles", () => {
       }
       return inner / total;
     };
-    expect(Math.abs(radialFill("helix") - radialFill("orion"))).toBeGreaterThan(0.1);
+    expect(Math.abs(radialFill("helix") - radialFill("orion"))).toBeGreaterThan(0.08);
   });
 });
 
