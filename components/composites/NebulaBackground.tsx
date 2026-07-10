@@ -34,7 +34,7 @@ const REDUCED_RENDER_SCALE = 0.45; // adaptive fallback for slow GPUs
 // backing store upscales invisibly while huge windows would otherwise
 // multiply the heaviest per-pixel work several times over.
 const MAX_BACKING_PX = 2100;
-const DENSE_STAR_COUNT = 1800;
+const DENSE_STAR_COUNT = 3200;
 const FRAME_INTERVAL_MS = 16;
 const SLOW_FRAME_MS = 55;
 const MIX_RATE = 2.5; // 1/s, ease toward the glyph target (slower morph)

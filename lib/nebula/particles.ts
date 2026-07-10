@@ -458,6 +458,27 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
+  // Innermost band: compact cool blue gas. Generate it before the warm
+  // band so premultiplied compositing always places orange gas above it.
+  dust.push(
+    ...lobeCluster(rng, {
+      count: Math.round(count * 0.025),
+      lobes: [
+        { cx: jitter(rng, 0.045), cy: jitter(rng, 0.045), r: ringR * 0.28, w: 1.5, sx: 1.1, sy: 0.85 },
+        { cx: jitter(rng, 0.06), cy: jitter(rng, 0.06), r: ringR * 0.15 },
+      ],
+      colors: pal.body,
+      brightColors: pal.bodyBright,
+      brightChance: 0.12,
+      gradient: true,
+      alpha: [0.025, 0.07],
+      size: [0.13, 0.26],
+      drift: 0.02,
+      pointer: 0.45,
+      morph: 1,
+    })
+  );
+
   // Middle band: the warm half. Loose orange clouds in a broad annulus
   // outside the ring, deliberately shapeless — the orange never takes
   // an arc form, the blue ring alone draws the boundary. Without this
@@ -470,8 +491,9 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   // the same density per area, not a brighter band. Lobe centres run
   // through the shared stretch, and one tail lobe gets flung farther
   // out for a lopsided extension.
-  const warmLobes = Array.from({ length: 15 }, (_, i) => {
-    const a = tilt + ((i + 0.5) / 15) * Math.PI * 2 + jitter(rng, 0.5);
+  const warmLobeCount = 20;
+  const warmLobes = Array.from({ length: warmLobeCount }, (_, i) => {
+    const a = tilt + ((i + 0.5) / warmLobeCount) * Math.PI * 2 + jitter(rng, 0.5);
     const rr = ringR * range(rng, 1.25, 2.5);
     const [cx, cy] = stretch(Math.cos(a) * rr, Math.sin(a) * rr);
     return { cx, cy, r: range(rng, 0.26, 0.4) };
@@ -483,7 +505,9 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   }
   dust.push(
     ...lobeCluster(rng, {
-      count: Math.round(count * 0.24),
+      // Scale particles with the added lobes to expand coverage while
+      // preserving approximately the same brightness per cloud.
+      count: Math.round(count * 0.32),
       lobes: warmLobes,
       colors: pal.shell,
       brightColors: pal.shellBright,
@@ -493,29 +517,6 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
       drift: 0.024,
       pointer: 0.4,
       morph: 0.3,
-    })
-  );
-
-  // Innermost band: cool blue gas, deliberately smaller than the
-  // cavity so a band of near-empty sky peeks through between the blue
-  // core and the ring. The radial gradient warms the centre toward
-  // pale blue-white.
-  dust.push(
-    ...lobeCluster(rng, {
-      count: Math.round(count * 0.12),
-      lobes: [
-        { cx: jitter(rng, 0.06), cy: jitter(rng, 0.06), r: ringR * 0.35, w: 1.5, sx: 1.1, sy: 0.85 },
-        { cx: jitter(rng, 0.08), cy: jitter(rng, 0.08), r: ringR * 0.2 },
-      ],
-      colors: pal.body,
-      brightColors: pal.bodyBright,
-      brightChance: 0.12,
-      gradient: true,
-      alpha: [0.025, 0.07],
-      size: [0.13, 0.26],
-      drift: 0.02,
-      pointer: 0.45,
-      morph: 1,
     })
   );
 
@@ -687,19 +688,20 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
     })
   );
 
-  // Emission: cool glow in the cavity, warm glow on ring sections.
+  // Emission along ring sections. Keep the cavity itself free of an
+  // additive glow spot: even with sparse blue gas, stacking a large
+  // soft emission sprite at the origin washes the centre toward white.
   emission.push(
     ...glowSpots(rng, {
-      count: Math.round(count * 0.05),
-      // The cavity glow hugs the shrunken blue core; a wider spot would
-      // fill the negative space between the core and the ring back in.
+      // Two spots instead of the former three; scale the count with the
+      // spot count so the surviving ring accents keep their old density.
+      count: Math.round(count * 0.033),
       spots: [
-        { x: 0, y: 0, r: ringR * 0.35, w: 1.4 },
         { x: Math.cos(tilt) * ringR, y: Math.sin(tilt) * ringR, r: ringR * 0.5 },
         { x: Math.cos(tilt + 2.4) * ringR, y: Math.sin(tilt + 2.4) * ringR, r: ringR * 0.5 },
       ],
       colors: pal.glow,
-      alpha: [0.007, 0.032],
+      alpha: [0.0035, 0.016],
       size: [0.26, 0.55],
       drift: 0.018,
       pointer: 0.4,
@@ -713,7 +715,7 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   // gets fewer of these than the hero.
   emission.push(
     ...starSprinkle(rng, {
-      count: Math.max(14, Math.round(count * 0.0032)),
+      count: Math.max(36, Math.round(count * 0.008)),
       arcs: [
         { ...ringA, width: 0.1 },
         { ...ringB, width: 0.12 },

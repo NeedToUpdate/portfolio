@@ -12,8 +12,8 @@ interface Star {
   color: string;
 }
 
-const STAR_DENSITY = 1 / 14000; // stars per px², keeps it sparse
-const MAX_STARS = 220;
+const STAR_DENSITY = 1 / 7000; // stars per px²
+const MAX_STARS = 430;
 const PARALLAX_PX = 14; // max drift toward the pointer at full depth
 
 const STAR_COLORS = [
