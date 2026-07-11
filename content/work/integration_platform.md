@@ -1,5 +1,6 @@
 ---
 title: "Unified Cloud Architecture"
+date: "2025-12-01"
 techs: ["azure", "typescript", "iac", "containers"]
 impact: "Turned an expensive SaaS purchase into board approval for an eight-person in-house cloud platform build."
 priority: 3

@@ -1,5 +1,6 @@
 ---
 title: "Data Warehousing & Infrastructure Build"
+date: "2024-06-01"
 techs: ["aws", "python", "redshift", "serverless", "splunk"]
 impact: "Gave a major insurer control over its data landscape across 150+ daily extracts and 5 external companies."
 priority: 1

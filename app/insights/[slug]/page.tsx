@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: insight.description,
       url: `/insights/${slug}`,
       type: "article",
-      publishedTime: insight.date,
+      publishedTime: new Date(insight.date).toISOString(),
       images: insight.previewImage ? [insight.previewImage] : undefined,
       locale: "en_CA",
     },

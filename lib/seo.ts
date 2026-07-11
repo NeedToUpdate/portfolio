@@ -97,12 +97,16 @@ export function websiteSchema() {
 }
 
 export function articleSchema(insight: InsightMeta) {
+  // Frontmatter stores date-only strings; Google wants a full ISO 8601
+  // datetime with a timezone. Date-only input parses as UTC midnight.
+  const published = new Date(insight.date).toISOString();
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: insight.title,
     description: insight.description,
-    datePublished: insight.date,
+    datePublished: published,
+    dateModified: published,
     inLanguage: "en-CA",
     image: insight.previewImage
       ? new URL(insight.previewImage, site.url).toString()
@@ -116,19 +120,30 @@ export function articleSchema(insight: InsightMeta) {
   };
 }
 
+/**
+ * Article rather than CreativeWork: case studies are long-form
+ * write-ups, and Article is the type Google's rich results detect.
+ * The date is the project's delivery date from frontmatter.
+ */
 export function caseStudySchema(caseStudy: CaseStudy) {
+  const published = new Date(caseStudy.date).toISOString();
   return {
     "@context": "https://schema.org",
-    "@type": "CreativeWork",
-    name: caseStudy.title,
+    "@type": "Article",
+    headline: caseStudy.title,
     description: caseStudy.impact,
-    url: `${site.url}/work/${caseStudy.slug}`,
+    datePublished: published,
+    dateModified: published,
     inLanguage: "en-CA",
+    image: caseStudy.diagram
+      ? new URL(caseStudy.diagram, site.url).toString()
+      : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
       name: site.name,
       url: site.url,
     },
+    mainEntityOfPage: `${site.url}/work/${caseStudy.slug}`,
     keywords: caseStudy.techs.join(", "),
   };
 }
