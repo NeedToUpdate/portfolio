@@ -3,6 +3,7 @@
 domainName: artnikitin.dev
 domainAliases:
   - artnikitin.dev
+  - artnikitin.com
 
 # Must be in us-east-1 for CloudFront.
 certificateArn: ${env:PROD_CERTIFICATE_ARN, ''}
