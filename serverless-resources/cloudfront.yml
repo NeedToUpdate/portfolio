@@ -81,8 +81,7 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: ${self:service}-${self:provider.stage}
-        Aliases:
-          - ${self:custom.config.domainName}
+        Aliases: ${self:custom.config.domainAliases}
         HttpVersion: http2and3
         DefaultRootObject: ""
         Origins:

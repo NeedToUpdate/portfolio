@@ -2,6 +2,9 @@
 # a local .env file for manual deploys).
 
 domainName: dev.artnikitin.dev
+domainAliases:
+  - dev.artnikitin.dev
+  - dev.artnikitin.com
 
 # Must be in us-east-1 for CloudFront.
 certificateArn: ${env:DEV_CERTIFICATE_ARN, ''}
