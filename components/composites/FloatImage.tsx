@@ -1,6 +1,10 @@
+import Image from "next/image";
+
 interface FloatImageProps {
   src: string;
   alt: string;
+  width: number;
+  height: number;
   caption?: string;
   /** Which side the text wraps around on desktop. "none" spans full
    *  width, unfloated. Stacks on mobile regardless. */
@@ -17,6 +21,8 @@ interface FloatImageProps {
 export default function FloatImage({
   src,
   alt,
+  width,
+  height,
   caption,
   side = "right",
   widthClass,
@@ -26,9 +32,14 @@ export default function FloatImage({
   const resolvedWidth = widthClass ?? (floating ? "md:w-64" : "");
   return (
     <figure className={`my-4 w-full ${resolvedWidth} ${floatClass}`}>
-      {/* Plain img: MDX authors pass arbitrary local or remote paths. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="w-full rounded-lg border border-line/60" />
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes={floating ? "(max-width: 768px) 100vw, 20rem" : "(max-width: 768px) 100vw, 48rem"}
+        className="h-auto w-full rounded-lg border border-line/60"
+      />
       {caption && <figcaption>{caption}</figcaption>}
     </figure>
   );
