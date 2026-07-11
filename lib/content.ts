@@ -91,6 +91,7 @@ export function getCaseStudies(): CaseStudy[] {
     .map((entry) => ({
       slug: entry.slug,
       title: requireString(entry, "title"),
+      date: requireString(entry, "date"),
       impact: requireString(entry, "impact"),
       techs: (entry.data.techs as string[]) ?? [],
       category: (entry.data.category as string) ?? "systems",

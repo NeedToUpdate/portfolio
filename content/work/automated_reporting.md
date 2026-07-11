@@ -1,5 +1,6 @@
 ---
 title: "Automated Financial Reporting Suite"
+date: "2025-03-01"
 techs: ["aws", "python", "redshift", "serverless", "glue"]
 impact: "Reduced month-close IFRS 17 reporting from a manual month-long process to an auditable run that completes in under 15 minutes."
 priority: 4

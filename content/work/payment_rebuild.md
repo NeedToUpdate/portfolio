@@ -1,5 +1,6 @@
 ---
 title: "Enterprise Payment Integration"
+date: "2025-01-01"
 techs: ["aws", "python", "serverless", "legacy"]
 impact: "Stabilized a high-risk claims payment workflow that had been failing monthly and costing millions in outage impact."
 priority: 5

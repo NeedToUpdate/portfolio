@@ -1,5 +1,6 @@
 ---
 title: "Enrollment Processing System"
+date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
 impact: "Removed a week-long manual enrollment delay for 1M+ students."
 priority: 6
