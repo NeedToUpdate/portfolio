@@ -35,6 +35,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       publishedTime: insight.date,
       images: insight.previewImage ? [insight.previewImage] : undefined,
+      locale: "en_CA",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: insight.title,
+      description: insight.description,
+      images: insight.previewImage ? [insight.previewImage] : undefined,
     },
   };
 }

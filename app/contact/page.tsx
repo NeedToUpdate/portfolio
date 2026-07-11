@@ -7,11 +7,13 @@ import TextLink from "@/components/ui/TextLink";
 import Icon, { IconName } from "@/components/ui/Icon";
 import Text from "@/components/ui/Text";
 import { site, socialChannels, SocialChannel } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description: "How to reach Art Nikitin: email, LinkedIn, and GitHub.",
-};
+  path: "/contact",
+});
 
 /** Channel data lives in lib/site.ts; only the icon choice is local. */
 const channelIcons: Record<SocialChannel["key"], IconName> = {

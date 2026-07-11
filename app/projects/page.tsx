@@ -4,12 +4,14 @@ import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import ProjectCard from "@/components/composites/ProjectCard";
 import { getProjectsByEra } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
     "Personal projects, past and present. Current work built with AI in the toolchain, and an archive of hardware, games, and tools built entirely by hand.",
-};
+  path: "/projects",
+});
 
 export default function ProjectsPage() {
   const postAi = getProjectsByEra("post-ai");
