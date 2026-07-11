@@ -82,6 +82,7 @@ functions:
     handler: run.sh
     timeout: 28
     memorySize: 1024
+    reservedConcurrency: 50
     layers:
       - arn:aws:lambda:${aws:region}:753240598075:layer:LambdaAdapterLayerX86:20
     environment:
