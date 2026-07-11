@@ -3,7 +3,7 @@ import InteractiveFigure from "./InteractiveFigure";
 const SHAPES: { key: string; label: string }[] = [
   { key: "spark", label: "Spark" },
   { key: "hex", label: "Hexagon" },
-  { key: "book", label: "Book" },
+  { key: "plane", label: "Arrow" },
   { key: "nodes", label: "Node web" },
   { key: "db", label: "Database" },
   { key: "cloud", label: "Cloud" },
