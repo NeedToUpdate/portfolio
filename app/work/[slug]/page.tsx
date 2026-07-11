@@ -16,7 +16,7 @@ import { categoryShape } from "@/lib/nebula/shapes";
 import JsonLd from "@/components/ui/JsonLd";
 import { getCaseStudies, getCaseStudy } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
-import { breadcrumbSchema } from "@/lib/seo";
+import { breadcrumbSchema, caseStudySchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 interface PageProps {
@@ -40,6 +40,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: caseStudy.impact,
       url: `/work/${slug}`,
       type: "article",
+      locale: "en_CA",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: caseStudy.title,
+      description: caseStudy.impact,
     },
   };
 }
@@ -78,6 +84,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
           { name: caseStudy.title, path: `/work/${slug}` },
         ])}
       />
+      <JsonLd data={caseStudySchema(caseStudy)} />
       <Breadcrumbs
         items={[{ label: "Work", href: "/work" }, { label: caseStudy.title }]}
       />

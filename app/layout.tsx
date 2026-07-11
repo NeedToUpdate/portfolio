@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     url: site.url,
     title: `${site.name} — ${site.role}`,
     description: site.description,
+    locale: "en_CA",
   },
   twitter: {
     card: "summary_large_image",

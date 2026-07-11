@@ -12,14 +12,14 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Panel from "@/components/ui/Panel";
 import { getCareerEntries, getSkillDomains, getWorkIntro } from "@/lib/content";
-import { personSchema } from "@/lib/seo";
+import { pageMetadata, personSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
-  description:
-    "Engineering director and hands-on architect in Toronto. Enterprise modernization, data platforms, AI adoption, and the teams that deliver them.",
-};
+  description: "Engineering director and hands-on architect in Toronto. Enterprise modernization, data platforms, AI adoption, and the teams that deliver them.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   const { capabilities } = getWorkIntro();

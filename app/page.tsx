@@ -20,7 +20,7 @@ import {
   getWorkIntro,
 } from "@/lib/content";
 import { formatDate } from "@/lib/format";
-import { personSchema } from "@/lib/seo";
+import { personSchema, websiteSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export default function HomePage() {
@@ -32,6 +32,7 @@ export default function HomePage() {
   return (
     <>
       <JsonLd data={personSchema()} />
+      <JsonLd data={websiteSchema()} />
       <NebulaBackground />
       <PageShell>
         <div className="space-y-6 md:space-y-8">

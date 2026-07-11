@@ -8,12 +8,14 @@ import CaseStudyListItem from "@/components/composites/CaseStudyListItem";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import { getCaseStudies, getWorkIntro } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Work",
   description:
     "Case studies from enterprise modernization work: data platforms, payment systems, enrollment pipelines, and delivery automation.",
-};
+  path: "/work",
+});
 
 export default function WorkPage() {
   const caseStudies = getCaseStudies();

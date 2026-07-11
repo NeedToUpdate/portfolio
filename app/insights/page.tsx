@@ -5,12 +5,14 @@ import SectionHeading from "@/components/composites/SectionHeading";
 import DividedList from "@/components/composites/DividedList";
 import InsightListItem from "@/components/composites/InsightListItem";
 import { getInsights } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Insights",
   description:
     "Write-ups on architecture, AI, and engineering decisions, written from real projects.",
-};
+  path: "/insights",
+});
 
 export default function InsightsPage() {
   const insights = getInsights();
