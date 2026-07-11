@@ -36,24 +36,29 @@ export default function HomePage() {
       <NebulaBackground />
       <PageShell>
         <div className="space-y-6 md:space-y-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
+          {/* Mobile min-heights and spacing stay tight: the fold on a
+              phone has to fit the hero plus most of the insight card. */}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
             {/* Hero */}
             <Panel
               as="section"
               variant="glass"
-              className="grid min-h-[20rem] items-center !backdrop-blur-none md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
+              className="grid items-center !backdrop-blur-none md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
             >
               <div className="min-w-0">
-                <Eyebrow nebulaShape="spark" className="mb-5">
+                <Eyebrow nebulaShape="spark" className="mb-4 md:mb-5">
                   {site.name} · {site.location}
                 </Eyebrow>
                 <Heading size="hero" className="max-w-3xl">
                   I design the systems enterprises run on.
                 </Heading>
-                <Text variant="emphasis" className="mt-7">
+                <Text variant="emphasis" className="mt-5 md:mt-7">
                   Engineering director and hands-on architect.
                 </Text>
-                <Text variant="muted" className="mt-3 max-w-2xl">
+                {/* Cut on phones: the About card below covers the same
+                    ground, and every line here pushes the insight card
+                    further below the fold. */}
+                <Text variant="muted" className="mt-3 hidden max-w-2xl md:block">
                   I take modernization from the first whiteboard session through
                   production: architecture, teams, and delivery.
                 </Text>
@@ -65,7 +70,7 @@ export default function HomePage() {
                 as="section"
                 variant="glass"
                 aria-labelledby="home-latest-insight"
-                className="flex min-h-[18rem] flex-col justify-between gap-8 !backdrop-blur-none"
+                className="flex flex-col justify-between gap-5 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
               >
                 <div className="min-w-0">
                   <Text
@@ -82,14 +87,19 @@ export default function HomePage() {
                   >
                     {latestInsight.title}
                   </Heading>
-                  <Text variant="lead" className="mt-5 max-w-2xl">
+                  {/* Phones get a three-line teaser and no tag row; the
+                      full description and tags live on the write-up. */}
+                  <Text
+                    variant="lead"
+                    className="mt-4 line-clamp-3 max-w-2xl md:mt-5 md:line-clamp-none"
+                  >
                     {latestInsight.description}
                   </Text>
                   {latestInsight.tags.length > 0 && (
                     <TagList
                       tags={latestInsight.tags}
                       variant="pill"
-                      className="mt-5"
+                      className="mt-5 hidden md:flex"
                     />
                   )}
                 </div>
@@ -105,7 +115,7 @@ export default function HomePage() {
               as="section"
               variant="glass"
               aria-label="About Art"
-              className="grid gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
+              className="grid grid-cols-[minmax(0,1fr)_6rem] items-start gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
             >
               <div className="min-w-0">
                 <Text variant="muted">
@@ -121,10 +131,12 @@ export default function HomePage() {
                   />
                 </div>
               </div>
+              {/* Phones get a small square crop so the panel still reads
+                  as a person; sm+ keeps the taller portrait. */}
               <Link
                 href="/about"
                 aria-label="About Art"
-                className="relative hidden aspect-[4/5] w-full overflow-hidden rounded-xl border border-line/50 sm:block"
+                className="relative aspect-square w-full overflow-hidden rounded-xl border border-line/50 sm:aspect-[4/5]"
               >
                 <Image
                   src="/images/portrait.webp"
@@ -132,7 +144,7 @@ export default function HomePage() {
                   width={800}
                   height={1000}
                   loading="eager"
-                  sizes="(max-width: 1024px) 12rem, 10rem"
+                  sizes="(max-width: 640px) 6rem, (max-width: 1024px) 12rem, 10rem"
                   className="h-full w-full object-cover"
                 />
               </Link>
@@ -188,13 +200,13 @@ export default function HomePage() {
           </Section>
 
           <Section
-            title="I like hard modernization problems."
+            title="Bring me a messy problem."
             id="home-contact"
             variant="card"
             className="!backdrop-blur-none"
           >
             <Text variant="muted" className="mt-4 max-w-prose">
-              If you have one, email{" "}
+              Email{" "}
               <TextLink href={`mailto:${site.email}`} nebulaShape="email">
                 {site.email}
               </TextLink>{" "}
@@ -202,8 +214,7 @@ export default function HomePage() {
               <TextLink href={site.linkedin} nebulaShape="linkedin">
                 LinkedIn
               </TextLink>
-              .
-              More ways to reach me are on the{" "}
+              . More ways to reach me are on the{" "}
               <TextLink href="/contact" nebulaShape="plane">
                 contact page
               </TextLink>

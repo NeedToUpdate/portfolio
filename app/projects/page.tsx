@@ -22,6 +22,14 @@ export default function ProjectsPage() {
       {/* The heading block is left-aligned; the upper-right is open
           before the card grid begins. */}
       <NebulaBackground variant="mini" corner="top-right" miniShape="crab" color="frost" />
+      <div className="mb-12">
+        <SectionHeading
+          eyebrow="Projects"
+          title="I still have the itch to build."
+          description="I lead teams for a living. Building is my hobby, and it keeps my technical judgment current. When a board discussion turns technical, I speak from recent hands-on work. These are the projects I build on weekends."
+          asPageTitle
+        />
+      </div>
       {postAi.length > 0 && (
         <section aria-labelledby="projects-current" className="mb-20">
           <SectionHeading
@@ -29,7 +37,6 @@ export default function ProjectsPage() {
             title="Current projects"
             description="Current work, built with AI in the toolchain."
             id="projects-current"
-            asPageTitle
           />
           <div className="mt-12 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-5">
             {postAi.map((project) => (
