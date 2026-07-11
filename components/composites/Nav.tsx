@@ -9,19 +9,21 @@ export default function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line/60 bg-base/85 backdrop-blur">
-      {/* min-height + wrapping: on narrow phones the links flow to a
-          second row instead of scrolling off-screen invisibly. */}
+      {/* Narrow phones: the text and gaps shrink with the viewport
+          (clamp) so everything holds one row; the sizes cap at text-sm
+          from ~470px up. Wrapping stays as the last resort so nothing
+          ever scrolls off-screen invisibly. */}
       <nav
         aria-label="Main"
-        className="mx-auto flex min-h-14 max-w-content flex-wrap items-center justify-between gap-x-6 px-5 py-2 md:px-8"
+        className="mx-auto flex min-h-14 max-w-content flex-wrap items-center justify-between gap-x-4 px-5 py-2 md:gap-x-6 md:px-8"
       >
         <Link
           href="/"
-          className="inline-flex min-h-6 shrink-0 items-center font-display text-sm font-semibold tracking-tight text-ink hover:text-accent"
+          className="inline-flex min-h-6 shrink-0 items-center font-display text-[clamp(0.6875rem,3vw,0.875rem)] font-semibold tracking-tight text-ink hover:text-accent"
         >
           {site.name}
         </Link>
-        <ul className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 md:gap-x-7">
+        <ul className="flex min-w-0 flex-wrap items-center gap-x-[clamp(0.625rem,2.6vw,1rem)] gap-y-1 md:gap-x-7">
           {navItems.map((item) => {
             const active =
               pathname === item.href || pathname?.startsWith(item.href + "/");
@@ -31,7 +33,7 @@ export default function Nav() {
                   href={item.href}
                   data-nebula-shape={item.shape}
                   aria-current={active ? "page" : undefined}
-                  className={`inline-flex min-h-6 items-center text-sm transition-colors ${
+                  className={`inline-flex min-h-6 items-center text-[clamp(0.6875rem,3vw,0.875rem)] transition-colors ${
                     active ? "text-accent" : "text-muted hover:text-ink"
                   }`}
                 >

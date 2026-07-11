@@ -15,7 +15,7 @@ const variantClasses: Record<PanelVariant, string> = {
    *  faintly warm near-black base counters the blue cast the sky wash
    *  otherwise gives the blurred glass. */
   glass:
-    "rounded-lg border border-white/10 bg-[#0d0a08]/50 p-6 shadow-2xl shadow-black/30 backdrop-blur-sm ring-1 ring-white/5 md:p-8",
+    "rounded-lg border border-white/10 bg-[#0d0a08]/50 p-5 shadow-2xl shadow-black/30 backdrop-blur-sm ring-1 ring-white/5 md:p-8",
 };
 
 export default function Panel({

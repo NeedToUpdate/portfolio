@@ -135,9 +135,11 @@ export default function AboutPage() {
         <CareerTimeline entries={careerEntries} />
       </div>
 
+      {/* No wrap: the badge stays beside the title on phones instead of
+          dropping to its own row when the title breaks across lines. */}
       <section
         aria-labelledby="credentials"
-        className="mt-14 flex flex-wrap items-center justify-between gap-6 border-t border-line/60 pt-8"
+        className="mt-14 flex items-center justify-between gap-6 border-t border-line/60 pt-8"
       >
         <div className="min-w-0">
           <Heading size="small" as="h2" id="credentials">
