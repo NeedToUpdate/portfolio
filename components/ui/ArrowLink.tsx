@@ -7,13 +7,15 @@ interface ArrowLinkProps {
   nebulaShape?: string;
 }
 
-/** Small forward link, e.g. "All case studies" at the end of a section. */
+/** Small forward link, e.g. "All case studies" at the end of a section.
+ *  Muted-until-hover only works where hover exists; touch screens get
+ *  full ink so the link reads as tappable instead of disabled. */
 export default function ArrowLink({ href, label, nebulaShape }: ArrowLinkProps) {
   return (
     <Link
       href={href}
       data-nebula-shape={nebulaShape}
-      className="group inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-accent"
+      className="group inline-flex items-center gap-1.5 text-sm text-ink transition-colors [@media(hover:hover)]:text-muted [@media(hover:hover)]:hover:text-accent"
     >
       {label}
       <span aria-hidden className="transition-transform group-hover:translate-x-0.5">

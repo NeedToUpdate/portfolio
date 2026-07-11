@@ -10,7 +10,7 @@ interface PageShellProps {
 export default function PageShell({ children, narrow = false }: PageShellProps) {
   return (
     <div
-      className={`mx-auto w-full px-5 py-14 md:px-8 md:py-20 ${
+      className={`mx-auto w-full px-5 py-8 md:px-8 md:py-20 ${
         narrow ? "max-w-prose" : "max-w-content"
       }`}
     >

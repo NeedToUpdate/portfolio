@@ -85,11 +85,15 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
 
       {/* The hidden layer goes absolute so only the visible one sets the
           container height; stacking both in one grid cell reserved the
-          taller (split) layout's height and left a dead gap below. */}
+          taller (split) layout's height and left a dead gap below.
+          overflow-y-clip because the absolute layer still extends the
+          page's scrollable area: on phones the split layout stacks to
+          roughly twice the merged height and scrolled past the footer.
+          Horizontal overflow stays visible for the timeline dots. */}
       <div
         onMouseEnter={() => hoverAllowed() && setSplit(true)}
         onMouseLeave={() => hoverAllowed() && setSplit(false)}
-        className="relative mt-8"
+        className="relative mt-8 overflow-y-clip"
       >
         <ol
           aria-hidden={split}
@@ -144,8 +148,11 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                 }`}
                 style={staggerStyle(index, entries.length, split)}
               >
+                {/* Stacked on phones, the two streams look like one list;
+                    color-coded rails and dotted labels make the split
+                    read at a glance. sm+ resets to the plain columns. */}
                 <div
-                  className={`transition-all duration-500 ease-out ${
+                  className={`border-l-2 border-accent/60 pl-4 transition-all duration-500 ease-out sm:border-l-0 sm:pl-0 ${
                     entry.tech ? "" : "hidden sm:block"
                   } ${
                     split && entry.tech ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
@@ -155,13 +162,16 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                 >
                   {entry.tech && (
                     <>
-                      <Eyebrow className="mb-2 sm:hidden">Engineering</Eyebrow>
+                      <Eyebrow className="mb-2 sm:hidden">
+                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+                        Engineering
+                      </Eyebrow>
                       <EntryCard view={entry.tech} period={entry.period} />
                     </>
                   )}
                 </div>
                 <div
-                  className={`relative border-l border-line/70 pl-6 transition-colors duration-700 ${
+                  className={`relative border-l-2 border-nebula/60 pl-4 transition-colors duration-700 sm:border-l sm:border-line/70 sm:pl-6 ${
                     entry.lead ? "" : "hidden sm:block"
                   }`}
                 >
@@ -169,12 +179,15 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                     <>
                       <span
                         aria-hidden
-                        className={`absolute -left-[0.28rem] top-1.5 h-2 w-2 rounded-full bg-nebula transition-all duration-500 ease-out ${
+                        className={`absolute -left-[0.28rem] top-1.5 hidden h-2 w-2 rounded-full bg-nebula transition-all duration-500 ease-out sm:block ${
                           split ? "scale-100 opacity-100" : "scale-50 opacity-0"
                         }`}
                         style={staggerStyle(index, entries.length, split)}
                       />
-                      <Eyebrow className="mb-2 sm:hidden">Teaching &amp; leadership</Eyebrow>
+                      <Eyebrow className="mb-2 sm:hidden">
+                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-nebula" />
+                        Teaching &amp; leadership
+                      </Eyebrow>
                       <EntryCard view={entry.lead} period={entry.period} />
                     </>
                   )}

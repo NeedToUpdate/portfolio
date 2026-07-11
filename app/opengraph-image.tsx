@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/site";
 
@@ -5,6 +7,9 @@ import { site } from "@/lib/site";
  * Default social card for every page. Insights and case studies fall
  * back to this until they ship their own. Colors mirror the theme
  * tokens in styles/globals.css (base, ink, muted, accent).
+ * The portrait rides inside the 1.91:1 card instead of being the
+ * og:image itself, so platforms can never crop the face away. It is
+ * inlined as JPEG because satori does not decode webp.
  */
 
 export const alt = `${site.name} · ${site.role}`;
@@ -28,14 +33,18 @@ const stars: { x: number; y: number; r: number; o: number }[] = [
 ];
 
 export default function OpengraphImage() {
+  const portrait = fs.readFileSync(
+    path.join(process.cwd(), "public", "images", "portrait.jpg"),
+  );
+  const portraitSrc = `data:image/jpeg;base64,${portrait.toString("base64")}`;
+
   return new ImageResponse(
     <div
       style={{
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
+        alignItems: "center",
         padding: "80px",
         backgroundColor: "#080a10",
         backgroundImage:
@@ -60,33 +69,53 @@ export default function OpengraphImage() {
       <div
         style={{
           display: "flex",
-          width: 72,
-          height: 6,
-          backgroundColor: "#deba6c",
-          borderRadius: 3,
-          marginBottom: 40,
+          flexDirection: "column",
+          justifyContent: "center",
+          flexGrow: 1,
+          paddingRight: 64,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            width: 72,
+            height: 6,
+            backgroundColor: "#deba6c",
+            borderRadius: 3,
+            marginBottom: 40,
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            fontSize: 88,
+            fontWeight: 700,
+            letterSpacing: -2,
+          }}
+        >
+          {site.name}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 34,
+            color: "#969dad",
+            marginTop: 24,
+          }}
+        >
+          I design the systems enterprises run on.
+        </div>
+      </div>
+      <img
+        src={portraitSrc}
+        width={352}
+        height={470}
+        style={{
+          borderRadius: 16,
+          border: "1px solid rgba(235, 237, 243, 0.18)",
+          objectFit: "cover",
         }}
       />
-      <div
-        style={{
-          display: "flex",
-          fontSize: 88,
-          fontWeight: 700,
-          letterSpacing: -2,
-        }}
-      >
-        {site.name}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          fontSize: 38,
-          color: "#969dad",
-          marginTop: 24,
-        }}
-      >
-        I design the systems enterprises run on.
-      </div>
       <div
         style={{
           display: "flex",

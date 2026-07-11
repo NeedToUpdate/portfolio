@@ -42,6 +42,9 @@ export function personSchema() {
     "@type": "Person",
     name: site.name,
     url: site.url,
+    // JPEG rather than the webp used on-page: search engines and
+    // scrapers are less consistent about webp.
+    image: `${site.url}/images/portrait.jpg`,
     email: `mailto:${site.email}`,
     jobTitle: site.role,
     address: {
