@@ -37,5 +37,8 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/((?!_next/static|_next/image|favicon.ico|site.webmanifest).*)",
+  // Public assets are also fetched internally by Next's image optimizer.
+  // Keeping /images behind this gate would turn that internal fetch into a
+  // 401 response without an image Content-Type.
+  matcher: "/((?!_next/static|_next/image|images/|favicon.ico|site.webmanifest).*)",
 };
