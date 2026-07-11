@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: caseStudy.impact,
       url: `/work/${slug}`,
       type: "article",
+      publishedTime: new Date(caseStudy.date).toISOString(),
       locale: "en_CA",
     },
     twitter: {

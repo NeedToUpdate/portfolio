@@ -1,5 +1,6 @@
 ---
 title: "Billing & Payment Processing System"
+date: "2024-08-01"
 techs: ["aws", "typescript", "python", "serverless"]
 impact: "Delivered a self-service billing update flow for a 50k-member insurance program in three weeks, moving routine card changes out of the call center."
 priority: 7

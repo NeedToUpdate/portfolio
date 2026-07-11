@@ -10,6 +10,9 @@ export interface ScorecardEntry {
 export interface CaseStudy {
   slug: string;
   title: string;
+  /** When the project delivered (YYYY-MM-DD, month precision).
+   *  Feeds structured data; not shown on the page. */
+  date: string;
   impact: string;
   techs: string[];
   category: string;

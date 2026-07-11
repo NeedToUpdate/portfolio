@@ -1,5 +1,6 @@
 ---
 title: "SDLC & Deployment Automation"
+date: "2025-09-01"
 techs: ["azure", "azure-pipelines", "iac", "powershell"]
 impact: "Cut deployment time from a week to four hours, bug to production."
 priority: 2

@@ -12,7 +12,7 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Panel from "@/components/ui/Panel";
 import { getCareerEntries, getSkillDomains, getWorkIntro } from "@/lib/content";
-import { pageMetadata, personSchema } from "@/lib/seo";
+import { pageMetadata, profilePageSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -35,7 +35,7 @@ export default function AboutPage() {
         miniShape="orion"
         color="aurora"
       />
-      <JsonLd data={personSchema()} />
+      <JsonLd data={profilePageSchema()} />
 
       <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
