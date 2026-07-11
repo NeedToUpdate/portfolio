@@ -123,6 +123,16 @@ def zip_standalone() -> None:
                 info.compress_type = zipfile.ZIP_DEFLATED
                 with open(file_path, "rb") as f:
                     zf.writestr(info, f.read())
+
+        # Next's image optimizer hardcodes its disk cache under
+        # <distDir>/cache/images. Lambda's /var/task is read-only, so package
+        # that directory as a symlink to writable ephemeral storage. run.sh
+        # creates the target before starting Next.js.
+        cache_link = zipfile.ZipInfo(".next/cache")
+        cache_link.create_system = 3
+        cache_link.external_attr = (stat.S_IFLNK | 0o777) << 16
+        cache_link.compress_type = zipfile.ZIP_STORED
+        zf.writestr(cache_link, "/tmp/next-cache")
     size_mb = os.path.getsize(ZIP_PATH) / (1024 * 1024)
     print(f"wrote {ZIP_PATH} ({size_mb:.1f} MB)")
 
