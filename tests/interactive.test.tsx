@@ -100,7 +100,7 @@ describe("HomelabDiagram", () => {
 describe("ShapeMorphButtons", () => {
   it("renders a real data-nebula-shape trigger for every shape", () => {
     render(<ShapeMorphButtons />);
-    for (const key of ["spark", "hex", "book", "nodes", "db", "cloud"]) {
+    for (const key of ["spark", "hex", "plane", "nodes", "db", "cloud"]) {
       expect(screen.getByTestId(`shape-${key}`)).toHaveAttribute("data-nebula-shape", key);
     }
   });
