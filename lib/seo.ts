@@ -49,9 +49,7 @@ export function personSchema() {
       addressLocality: "Toronto",
       addressCountry: "CA",
     },
-    sameAs: [site.github, site.linkedin].filter(
-      (url) => !url.toLowerCase().includes("needtoupdate")
-    ),
+    sameAs: [site.github, site.linkedin],
   };
 }
 
