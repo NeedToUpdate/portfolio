@@ -13,7 +13,7 @@ export const nebulaShapes: Record<string, string> = {
   hex: "M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z",
   // Document page with a folded corner: a single strong silhouette for
   // insights and reading, without internal contours that split the gas.
-  book:
+  document:
     "M18 7 L64 7 L88 31 L88 93 L18 93 Z",
   // Magnifying glass: reading, inspecting, and exploring an insight.
   article:
@@ -81,7 +81,7 @@ const tagShapes: Record<string, NebulaShapeKey> = {
   "home-automation": "cloud",
 };
 
-/** Insight tags map to glyphs; anything unknown gets the book. */
+/** Insight tags map to glyphs; anything unknown gets the article shape. */
 export function tagShape(tag: string): NebulaShapeKey {
   return tagShapes[tag] ?? "article";
 }
