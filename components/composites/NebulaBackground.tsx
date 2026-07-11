@@ -145,6 +145,16 @@ export default function NebulaBackground({
     }
     if (!gl) return;
 
+    // Headless and GPU-less environments (Lighthouse runners, CI, some
+    // VMs) emulate WebGL on the CPU via SwiftShader/llvmpipe. There the
+    // render loop turns into one long main-thread task per frame and
+    // blocking time explodes, so those machines keep the starfield only.
+    const dbgExt = gl.getExtension("WEBGL_debug_renderer_info");
+    if (dbgExt) {
+      const renderer = String(gl.getParameter(dbgExt.UNMASKED_RENDERER_WEBGL) ?? "");
+      if (/swiftshader|llvmpipe|software/i.test(renderer)) return;
+    }
+
     // Assigned in boot(), which always runs before any closure reads them.
     // The mini variant only compiles the particle and glyph programs.
     let bgProgram!: WebGLProgram;
