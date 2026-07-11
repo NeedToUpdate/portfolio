@@ -49,6 +49,14 @@ Every change went through the same pull request process a human contributor's wo
 
 That habit caught things a glance at the running site would have missed. A color palette that looked fine to my eyes failed a contrast check under review and got swapped for one that passed. A "fix" that solved the symptom in one component turned out to duplicate logic that already existed elsewhere in the codebase, and the review caught the duplication before it shipped. Treating the model's output as a draft, not an answer, is what the process is for.
 
+## Most of a website is not code
+
+The build reaching "done" was the halfway mark. What followed was two days of short working sessions with the model, spent on the parts of a website that never show up in a screenshot.
+
+The list from those two days: the title and description each page shows in a Google or Bing result. The card a link unfurls into on LinkedIn and Slack. Structured data that validated but carried datetime warnings in Google's testing tool. An accessibility pass. A navbar that wrapped to two rows on Chrome for Android and nowhere else. Dead scroll space under the footer that only existed on phones. Favicons and the web manifest. A Lighthouse score dragged down by the WebGL sky rendering on a CPU inside the test lab. Whether the site still reads when an AI agent browses it instead of a person. Cache policies per asset class at the CDN. Analytics to measure whether any of it works.
+
+The model fixed each item in minutes once asked. Knowing what to ask was the work. No screenshot announces a missing timezone in structured data or an uncached asset. Each surface needed a name, its own checking tool, and the same review loop as the code.
+
 ## The rule
 
 Detail in, quality out. That held at every stage of the pipeline, not only the one that wrote code. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.
