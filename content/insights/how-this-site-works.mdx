@@ -60,4 +60,8 @@ Claude, running Anthropic's Fable model inside Claude Code, wrote most of this c
 
 That order matters. The model is fast. The plan is why the output was worth keeping. I wrote about that split in [the previous write-up](/insights/ai-tools-reward-preparation).
 
+The first pass was not the finished site. Fable could turn a detailed specification into pages, components, and a working visual system, but it did not know which omissions mattered most. That takes an experienced person looking beyond whether the page renders: checking semantic structure and keyboard behavior, reading a Lighthouse report, tuning cache policy, verifying metadata and social previews, and making sure search engines and analytics can see what they need without seeing what they should not.
+
+Those details are easy to miss because none of them announce themselves in a screenshot. A site can look complete while shipping weak SEO, inaccessible interactions, uncached assets, incomplete meta tags, or no useful measurement of how people move through it. The human contribution was knowing to ask those questions, interpreting the results, and returning for the second and third passes that an AI working toward visible completion would not initiate on its own.
+
 The source is on [GitHub](https://github.com/NeedToUpdate). The details behind any of it are a conversation away: [hello@artnikitin.dev](mailto:hello@artnikitin.dev).

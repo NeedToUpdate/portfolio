@@ -5,6 +5,10 @@ const nextConfig = {
   reactStrictMode: true,
   // Self-contained server build, deployed to Lambda behind CloudFront.
   output: "standalone",
+  // Dev-only: lets phones/other devices on the Tailscale mesh load the
+  // dev server and hot-reload over it. No effect on production builds.
+  // Add more addresses here as new devices need to test against dev.
+  allowedDevOrigins: ["100.111.95.96", "desktop-1ef2r3n.neon-gamma.ts.net"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "fra1.digitaloceanspaces.com" },
@@ -30,6 +34,14 @@ const nextConfig = {
   },
 
   async headers() {
+    const scriptSources = ["'self'", "'unsafe-inline'"];
+
+    // React's development tooling uses eval to reconstruct cross-environment
+    // call stacks. Keep that capability out of the production CSP.
+    if (process.env.NODE_ENV !== "production") {
+      scriptSources.push("'unsafe-eval'");
+    }
+
     const securityHeaders = [
       { key: "X-Frame-Options", value: "SAMEORIGIN" },
       { key: "X-Content-Type-Options", value: "nosniff" },
@@ -46,7 +58,7 @@ const nextConfig = {
         key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline'",
+          `script-src ${scriptSources.join(" ")}`,
           "style-src 'self' 'unsafe-inline'",
           "font-src 'self' data:",
           "img-src 'self' https: data: blob:",
@@ -74,10 +86,6 @@ const nextConfig = {
               value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400",
             },
           ],
-        },
-        {
-          source: "/_next/static/(.*)",
-          headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
         },
         {
           source: "/images/(.*)",
