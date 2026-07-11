@@ -39,6 +39,11 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    // Large image previews make insights eligible for the big-thumbnail
+    // treatment in Discover and image-led result layouts; unrestricted
+    // snippets let Google show longer descriptive text.
+    "max-image-preview": "large",
+    "max-snippet": -1,
   },
   openGraph: {
     type: "website",

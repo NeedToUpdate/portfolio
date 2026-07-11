@@ -53,6 +53,30 @@ export function personSchema() {
       addressCountry: "CA",
     },
     sameAs: [site.github, site.linkedin],
+    // Mirrors the about page's own words; entity signals must match
+    // visible content or Google discounts them.
+    knowsAbout: [
+      "Enterprise modernization",
+      "Data platforms",
+      "AI adoption",
+      "Cloud architecture",
+      "Engineering leadership",
+    ],
+  };
+}
+
+/**
+ * Google's documented markup for an "about the person" page: the
+ * Person wrapped as the main entity of a ProfilePage. This is what
+ * feeds person-entity understanding (and the photo) rather than any
+ * visible badge.
+ */
+export function profilePageSchema() {
+  const { ["@context"]: _context, ...person } = personSchema();
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntity: person,
   };
 }
 
