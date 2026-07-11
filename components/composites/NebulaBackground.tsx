@@ -16,6 +16,7 @@ import {
   generateParticles,
   sampleShapeTargets,
   CloudSpec,
+  ParticleBuffers,
   ShapePools,
 } from "@/lib/nebula/particles";
 import {
@@ -198,6 +199,16 @@ export default function NebulaBackground({
     let wispCount = 0;
     let starCount = 0;
     const targetCache = new Map<string, ShapePools>();
+
+    const jitter = () => (Math.random() - 0.5) * 0.06;
+    // The scene layout, fixed at boot; start() also reads it for the
+    // background wash uniforms. Kept across context restores so the
+    // regenerated GPU buffers rebuild the same sky.
+    let clouds: CloudSpec[] = [];
+    // CPU-side particle buffers, normally built by the worker while the
+    // shaders compile. Kept for the same restore reason as the clouds.
+    let particles: ParticleBuffers | null = null;
+    let particleWorker: Worker | null = null;
 
     const uploadTargets = (key: string | null) => {
       if (!key) return; // mix eases to 0; stale targets are invisible
@@ -533,18 +544,8 @@ export default function NebulaBackground({
       }
     };
 
-    // Runs once all programs have finished compiling in the background.
-    const start = () => {
-      try {
-        for (const program of activePrograms) finishProgram(gl!, program);
-      } catch (error) {
-        console.error("Nebula shaders failed, keeping starfield only:", error);
-        return;
-      }
-
-      const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
+    const buildClouds = (): CloudSpec[] => {
       const isDesktop = window.innerWidth >= 768;
-      const jitter = () => (Math.random() - 0.5) * 0.06;
 
       // Particle count scales with footprint; the smaller clouds carry
       // finer structure, so they get a higher areal density.
@@ -576,7 +577,7 @@ export default function NebulaBackground({
           : miniShape;
       const pickedMiniColor =
         color === "random" ? MINI_COLORS[Math.floor(Math.random() * MINI_COLORS.length)] : color;
-      const clouds: CloudSpec[] = isDemo
+      return isDemo
         ? [{ x: 0.5, y: 0.5, radius: 0.34, profile: "helix", count: 15000 }]
         : isMini
         ? [
@@ -649,17 +650,32 @@ export default function NebulaBackground({
               count: countFor(webR, 170000),
             },
           ];
+    };
 
-      // Particle buffers.
-      const particles = generateParticles(clouds);
-      particleCount = particles.count;
-      dustCount = particles.dustCount;
-      wispCount = particles.wispCount;
-      starCount = particles.starCount;
-      particleRoles = particles.roles;
+    // Runs once the programs have finished compiling in the background
+    // and the worker has delivered the particle buffers.
+    const start = () => {
+      try {
+        for (const program of activePrograms) finishProgram(gl!, program);
+      } catch (error) {
+        console.error("Nebula shaders failed, keeping starfield only:", error);
+        return;
+      }
+
+      const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+      // Particle buffers, prebuilt by the worker in the common case. The
+      // sync path covers a worker that failed to spawn or crashed.
+      const particleData = particles ?? generateParticles(clouds);
+      particles = particleData;
+      particleCount = particleData.count;
+      dustCount = particleData.dustCount;
+      wispCount = particleData.wispCount;
+      starCount = particleData.starCount;
+      particleRoles = particleData.roles;
       particleSeeds = new Float32Array(particleCount);
       for (let i = 0; i < particleCount; i++) {
-        particleSeeds[i] = particles.data[i * 3 + 1];
+        particleSeeds[i] = particleData.data[i * 3 + 1];
       }
 
       const makeBuffer = (data: Float32Array): WebGLBuffer | null => {
@@ -669,12 +685,12 @@ export default function NebulaBackground({
         return buffer;
       };
       buffers = {
-        position: makeBuffer(particles.position),
-        data: makeBuffer(particles.data),
-        cloud: makeBuffer(particles.cloud),
-        color: makeBuffer(particles.color),
-        motion: makeBuffer(particles.motion),
-        angle: makeBuffer(particles.angle),
+        position: makeBuffer(particleData.position),
+        data: makeBuffer(particleData.data),
+        cloud: makeBuffer(particleData.cloud),
+        color: makeBuffer(particleData.color),
+        motion: makeBuffer(particleData.motion),
+        angle: makeBuffer(particleData.angle),
         target: makeBuffer(new Float32Array(particleCount * 2)),
       };
 
@@ -824,15 +840,16 @@ export default function NebulaBackground({
       canvas.style.opacity = "1";
     };
 
-    // Poll for compile completion without blocking the main thread.
+    // Poll for compile and particle-generation completion without
+    // blocking the main thread. The worker nulls itself when it delivers.
     const waitForCompile = () => {
       if (state.disposed) return;
-      if (
+      const compiling =
         parallelCompile &&
         activePrograms.some(
           (program) => !gl!.getProgramParameter(program, parallelCompile!.COMPLETION_STATUS_KHR)
-        )
-      ) {
+        );
+      if (compiling || particleWorker) {
         state.frame = requestAnimationFrame(waitForCompile);
         return;
       }
@@ -843,6 +860,32 @@ export default function NebulaBackground({
     // either immediately or after a parked context is restored.
     const boot = () => {
       if (state.disposed) return;
+
+      // Build the particle buffers on a worker while the shaders
+      // compile; both finish under the starfield's cover. On a context
+      // restore the cached result re-uploads without regenerating.
+      if (!particles) {
+        if (clouds.length === 0) clouds = buildClouds();
+        try {
+          particleWorker = new Worker(
+            new URL("../../lib/nebula/particles.worker.ts", import.meta.url)
+          );
+          particleWorker.onmessage = (e: MessageEvent<ParticleBuffers>) => {
+            particles = e.data;
+            particleWorker?.terminate();
+            particleWorker = null;
+          };
+          // On error, fall through to the sync path in start().
+          particleWorker.onerror = () => {
+            particleWorker?.terminate();
+            particleWorker = null;
+          };
+          particleWorker.postMessage(clouds);
+        } catch {
+          particleWorker = null;
+        }
+      }
+
       try {
         particleProgram = beginProgram(gl!, PARTICLE_VERTEX_SRC, PARTICLE_FRAGMENT_SRC);
         glyphProgram = beginProgram(gl!, PARTICLE_VERTEX_SRC, GLYPH_FRAGMENT_SRC);
@@ -893,6 +936,8 @@ export default function NebulaBackground({
       state.disposed = true;
       state.running = false;
       cancelAnimationFrame(state.frame);
+      particleWorker?.terminate();
+      particleWorker = null;
       canvas.removeEventListener("webglcontextlost", onContextLost);
       canvas.removeEventListener("webglcontextrestored", onContextRestored);
       window.removeEventListener("resize", resize);
