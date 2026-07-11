@@ -23,7 +23,7 @@ const WORDS_PER_MINUTE = 200;
 
 interface ContentEntry {
   slug: string;
-  /** "work/payment_rebuild", for error messages. */
+  /** "work/payment-rebuild", for error messages. */
   source: string;
   data: Record<string, unknown>;
   content: string;
