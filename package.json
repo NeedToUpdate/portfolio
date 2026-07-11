@@ -15,36 +15,37 @@
     "deploy:prod": "npm run build && npm run zip && serverless deploy --stage prod"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.700.0",
-    "@types/node": "25.3.2",
-    "@types/react-dom": "19.2.3",
-    "eslint": "10.0.2",
-    "eslint-config-next": "16.1.6",
+    "@aws-sdk/client-s3": "^3.1085.0",
+    "@types/node": "^26.1.1",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
     "gray-matter": "^4.0.3",
-    "next": "^16.1.6",
-    "next-mdx-remote": "^5.0.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-intersection-observer": "^10.0.3",
+    "next": "^16.2.10",
+    "next-mdx-remote": "^6.0.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
-    "react-spring": "^10.0.3",
     "remark-gfm": "^4.0.1",
-    "sharp": "^0.34.5",
-    "typescript": "5.9.3"
+    "sharp": "^0.35.3",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
-    "@types/react": "19.2.14",
-    "autoprefixer": "^10.4.27",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "postcss": "^8.5.6",
+    "@types/react": "^19.2.17",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "postcss": "^8.5.16",
     "serverless": "^3.40.0",
     "serverless-cloudfront-invalidate": "^1.12.2",
-    "serverless-s3-sync": "^3.4.0",
-    "tailwindcss": "^3.4.17"
+    "serverless-s3-sync": "^3.5.1",
+    "tailwindcss": "^4.3.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.16"
   }
 }
