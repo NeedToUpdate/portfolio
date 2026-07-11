@@ -39,6 +39,29 @@ Resources:
           CookiesConfig:
             CookieBehavior: none
 
+  # Optimized image URLs are content-addressed by their complete query string
+  # (`url`, `w`, and `q`). Lambda renders each variant once per edge cache.
+  ImageCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: ${self:service}-${self:provider.stage}-images
+        Comment: Next.js image optimizer variants, cached for one year
+        DefaultTTL: 31536000
+        MaxTTL: 31536000
+        MinTTL: 31536000
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          QueryStringsConfig:
+            QueryStringBehavior: all
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Accept
+          CookiesConfig:
+            CookieBehavior: none
+
   DevResponseHeadersPolicy:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Condition: IsDevStage
@@ -99,6 +122,24 @@ Resources:
               - 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
           Compress: true
         CacheBehaviors:
+          - PathPattern: "/_next/image*"
+            TargetOriginId: LambdaOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: !Ref ImageCachePolicy
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AllViewerExceptHostHeader
+            ResponseHeadersPolicyId:
+              !If
+                - IsDevStage
+                - !Ref DevResponseHeadersPolicy
+                - 67f7725c-6f97-4210-82d7-5512b31e9d03
+            Compress: true
           - PathPattern: "/api/*"
             TargetOriginId: LambdaOrigin
             ViewerProtocolPolicy: redirect-to-https
