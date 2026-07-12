@@ -3,7 +3,19 @@ import fs from "fs";
 import path from "path";
 
 const HASH_LENGTH = 8;
-const cache = new Map<string, string>();
+const hashCache = new Map<string, string>();
+
+function hashOf(publicPath: string): string {
+  const cached = hashCache.get(publicPath);
+  if (cached) return cached;
+
+  const rel = publicPath.replace(/^\//, "");
+  const abs = path.join(process.cwd(), "public", rel);
+  const hash = crypto.createHash("sha256").update(fs.readFileSync(abs)).digest("hex").slice(0, HASH_LENGTH);
+
+  hashCache.set(publicPath, hash);
+  return hash;
+}
 
 /**
  * Resolves a canonical `/images/foo.svg` frontmatter path to its
@@ -15,15 +27,7 @@ const cache = new Map<string, string>();
  * function on the naming scheme (same hash algorithm, same length).
  */
 export function fingerprintedPath(publicPath: string): string {
-  const cached = cache.get(publicPath);
-  if (cached) return cached;
-
   const rel = publicPath.replace(/^\//, "");
-  const abs = path.join(process.cwd(), "public", rel);
-  const hash = crypto.createHash("sha256").update(fs.readFileSync(abs)).digest("hex").slice(0, HASH_LENGTH);
   const ext = path.extname(rel);
-  const resolved = `/${rel.slice(0, -ext.length)}.${hash}${ext}`;
-
-  cache.set(publicPath, resolved);
-  return resolved;
+  return `/${rel.slice(0, -ext.length)}.${hashOf(publicPath)}${ext}`;
 }
