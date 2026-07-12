@@ -3,11 +3,13 @@ import Image from "next/image";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
+import Breadcrumbs from "@/components/composites/Breadcrumbs";
+import JsonLd from "@/components/ui/JsonLd";
 import TextLink from "@/components/ui/TextLink";
 import Icon, { IconName } from "@/components/ui/Icon";
 import Text from "@/components/ui/Text";
 import { site, socialChannels, SocialChannel } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -28,6 +30,14 @@ export default function ContactPage() {
       {/* Channels fill the left column; the lower-right stays open
           below the portrait. */}
       <NebulaBackground variant="mini" corner="bottom-right" miniShape="crab" color="solar" />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ])}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
+
       <div className="grid gap-12 lg:grid-cols-[1fr_minmax(16rem,24rem)]">
         <div className="min-w-0">
           <SectionHeading

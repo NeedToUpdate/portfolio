@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
+import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import ProjectCard from "@/components/composites/ProjectCard";
+import JsonLd from "@/components/ui/JsonLd";
 import { getProjectsByEra } from "@/lib/content";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Projects",
@@ -22,6 +24,14 @@ export default function ProjectsPage() {
       {/* The heading block is left-aligned; the upper-right is open
           before the card grid begins. */}
       <NebulaBackground variant="mini" corner="top-right" miniShape="crab" color="frost" />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Projects", path: "/projects" },
+        ])}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Projects" }]} />
+
       <div className="mb-12">
         <SectionHeading
           eyebrow="Projects"
