@@ -6,8 +6,9 @@ import { CaseStudy, InsightMeta } from "./types";
  * previewImage/diagram fields point at webp or svg source files —
  * neither is reliable as an og:image/twitter:image across social
  * crawlers (Facebook, Twitter, and LinkedIn have long-standing bugs
- * or outright non-support for both). `scripts/generate-og-jpgs.mjs`
- * pre-renders a JPEG twin of each one; this just resolves the path.
+ * or outright non-support for both). `scripts/build-image-assets.mjs`
+ * pre-renders a JPEG twin of each one at the same hashed path; this
+ * just resolves the name (`src` here is already fingerprinted).
  */
 export function ogImagePath(src: string): string {
   const ext = src.slice(src.lastIndexOf("."));

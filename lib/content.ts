@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { fingerprintedPath } from "./images";
 import {
   CareerEntry,
   CaseStudy,
@@ -98,7 +99,9 @@ export function getCaseStudies(): CaseStudy[] {
       priority: (entry.data.priority as number) ?? 99,
       role: entry.data.role as string | undefined,
       context: entry.data.context as CaseStudy["context"],
-      diagram: entry.data.diagram as string | undefined,
+      diagram: entry.data.diagram
+        ? fingerprintedPath(entry.data.diagram as string)
+        : undefined,
       diagramAlt: entry.data.diagramAlt as string | undefined,
       body: entry.content.trim(),
     }))
@@ -142,7 +145,9 @@ function toInsightMeta(entry: ContentEntry): InsightMeta {
     slug: entry.slug,
     title: requireString(entry, "title"),
     description: requireString(entry, "description"),
-    previewImage: entry.data.previewImage as string | undefined,
+    previewImage: entry.data.previewImage
+      ? fingerprintedPath(entry.data.previewImage as string)
+      : undefined,
     date: requireString(entry, "date"),
     tags: (entry.data.tags as string[]) ?? [],
     readingTimeMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),

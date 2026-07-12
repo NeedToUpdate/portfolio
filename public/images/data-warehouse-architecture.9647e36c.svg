@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1500" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise data warehouse architecture</title>
+  <desc id="desc">Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and user outputs.</desc>
+
+  <rect width="900" height="1500" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="880" height="1480" rx="16" fill="#151924" stroke="#2a303f"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#deba6c"/>
+    </marker>
+    <style>
+      .panel { fill: #0e1119; stroke: #2a303f; stroke-width: 2; }
+      .stage { fill: #121723; stroke: #3a4358; stroke-width: 2; }
+      .cyan { fill: #101a23; stroke: #60cdd8; stroke-width: 2.25; }
+      .warn { fill: #1e1812; stroke: #b65a3d; stroke-width: 2; }
+      .lake { fill: #182033; stroke: #3a4358; stroke-width: 2; }
+      .raw { fill: #20242b; stroke: #6f7480; stroke-width: 2; }
+      .bronze { fill: #20292a; stroke: #8c907f; stroke-width: 2; }
+      .silver { fill: #252838; stroke: #9a9fad; stroke-width: 2; }
+      .gold-zone { fill: #252914; stroke: #d8d34a; stroke-width: 2; }
+      .label { fill: #ebedf3; font: 700 18px Arial, sans-serif; }
+      .small { fill: #aab1c0; font: 14px Arial, sans-serif; }
+      .tiny { fill: #aab1c0; font: 12px Arial, sans-serif; }
+      .line { stroke: #deba6c; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #deba6c; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .monitor { stroke: #687085; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+      .icon { fill: none; stroke: #ebedf3; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .icon-fill { fill: #ebedf3; }
+      .file-text { fill: #ebedf3; font: 700 11px Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <text x="54" y="62" fill="#ebedf3" font-family="Arial, sans-serif" font-size="28" font-weight="700">Enterprise data warehouse rebuild</text>
+  <text x="54" y="94" fill="#aab1c0" font-family="Arial, sans-serif" font-size="15">150+ daily extracts moved through governed ingestion, layered warehouse zones, monitoring, and reporting.</text>
+
+  <g aria-label="Source file formats">
+    <path class="icon" d="M76 160 H104 L122 178 V224 H76 Z M104 160 V178 H122"/>
+    <text class="file-text" x="99" y="208" text-anchor="middle">CSV</text>
+    <path class="icon" d="M76 238 H104 L122 256 V302 H76 Z M104 238 V256 H122"/>
+    <text class="file-text" x="99" y="286" text-anchor="middle">DOC</text>
+    <path class="icon" d="M76 316 H104 L122 334 V380 H76 Z M104 316 V334 H122"/>
+    <text class="file-text" x="99" y="364" text-anchor="middle">TXT</text>
+    <path class="icon" opacity="0.65" d="M72 396 H100 L118 414 V460 H72 Z M100 396 V414 H118"/>
+    <path class="icon" d="M86 412 H114 L132 430 V476 H86 Z M114 412 V430 H132"/>
+  </g>
+
+  <path class="line" d="M154 292 H212"/>
+
+  <rect class="stage" x="236" y="244" width="178" height="98" rx="8"/>
+  <text class="label" x="325" y="286" text-anchor="middle">Data</text>
+  <text class="label" x="325" y="314" text-anchor="middle">Ingestion</text>
+
+  <rect class="warn" x="236" y="386" width="178" height="96" rx="8"/>
+  <text class="label" x="325" y="426" text-anchor="middle">Data</text>
+  <text class="label" x="325" y="454" text-anchor="middle">Quarantine</text>
+  <path class="thin" d="M325 342 V386"/>
+
+  <rect class="cyan" x="492" y="244" width="292" height="132" rx="26"/>
+  <text fill="#ebedf3" font-family="Arial, sans-serif" font-size="31" font-weight="700" x="638" y="320" text-anchor="middle">Landing Zone</text>
+  <path class="line" d="M414 292 H492"/>
+
+  <rect class="stage" x="252" y="548" width="196" height="98" rx="8"/>
+  <text class="label" x="350" y="590" text-anchor="middle">File Delivery</text>
+  <text class="label" x="350" y="618" text-anchor="middle">System</text>
+  <path class="thin" d="M568 376 V500 H350 V548"/>
+
+  <rect class="stage" x="530" y="548" width="224" height="98" rx="8"/>
+  <text class="label" x="642" y="590" text-anchor="middle">File Based ETL</text>
+  <text class="label" x="642" y="618" text-anchor="middle">System</text>
+  <path class="thin" d="M642 376 V548"/>
+
+  <rect class="stage" x="284" y="712" width="224" height="98" rx="8"/>
+  <text class="label" x="396" y="754" text-anchor="middle">SQL-Based ETL</text>
+  <text class="label" x="396" y="782" text-anchor="middle">System</text>
+  <path class="line" d="M712 376 V500 H824 V682 H396 V712"/>
+
+  <rect class="stage" x="564" y="712" width="224" height="98" rx="8"/>
+  <text class="label" x="676" y="754" text-anchor="middle">SQL Extractor</text>
+
+  <rect class="stage" x="564" y="862" width="224" height="98" rx="8"/>
+  <text class="label" x="676" y="904" text-anchor="middle">Report Generator</text>
+  <path class="line" d="M676 810 V862"/>
+
+  <rect class="lake" x="72" y="1018" width="666" height="330" rx="10"/>
+  <text class="label" x="140" y="1064" text-anchor="middle">Data Lake</text>
+
+  <rect class="raw" x="112" y="1110" width="122" height="180" rx="22"/>
+  <text class="label" x="173" y="1208" text-anchor="middle">Raw</text>
+
+  <rect class="bronze" x="276" y="1110" width="122" height="180" rx="22"/>
+  <text class="label" x="337" y="1208" text-anchor="middle">Bronze</text>
+
+  <rect class="silver" x="440" y="1110" width="122" height="180" rx="22"/>
+  <text class="label" x="501" y="1208" text-anchor="middle">Silver</text>
+
+  <rect class="gold-zone" x="604" y="1110" width="122" height="180" rx="22"/>
+  <text class="label" x="665" y="1208" text-anchor="middle">Gold</text>
+
+  <path class="line" d="M284 761 H52 V1200 H112"/>
+  <path class="line" d="M234 1200 H276"/>
+  <path class="line" d="M398 1200 H440"/>
+  <path class="line" d="M562 1200 H604"/>
+  <path class="line" d="M738 1220 H778"/>
+  <path class="line" d="M396 810 V890 H279 V1018"/>
+  <path class="line" d="M738 1018 H824 V761 H788"/>
+
+  <rect class="stage" x="300" y="1404" width="220" height="46" rx="8"/>
+  <text class="small" x="410" y="1432" text-anchor="middle">Metadata &amp; Health System</text>
+  <path class="monitor" d="M405 1348 V1404"/>
+
+  <g aria-label="Business users" transform="translate(748 1032)">
+    <circle class="icon-fill" cx="84" cy="22" r="10"/>
+    <circle class="icon-fill" cx="62" cy="30" r="8"/>
+    <circle class="icon-fill" cx="106" cy="30" r="8"/>
+    <path class="icon-fill" d="M64 44 C70 34 98 34 104 44 L104 52 H64 Z"/>
+    <path class="icon-fill" d="M42 52 C46 42 64 40 72 48 L68 58 H42 Z"/>
+    <path class="icon-fill" d="M96 48 C104 40 122 42 126 52 L126 58 H100 Z"/>
+    <text class="small" x="84" y="84" text-anchor="middle">Internal</text>
+
+    <circle class="icon-fill" cx="84" cy="152" r="11"/>
+    <path class="icon-fill" d="M62 180 L72 162 H96 L106 180 Z"/>
+    <path fill="#151924" d="M82 162 H86 L89 180 H79 Z"/>
+    <text class="small" x="84" y="210" text-anchor="middle">Clients</text>
+
+    <path class="icon" d="M62 284 H108 V332 H62 Z M76 284 V266 L108 278 V284"/>
+    <path class="icon" d="M74 298 V300 M86 298 V300 M98 298 V300 M74 312 V314 M86 312 V314 M98 312 V314"/>
+    <text class="small" x="84" y="364" text-anchor="middle">Partners</text>
+  </g>
+</svg>
