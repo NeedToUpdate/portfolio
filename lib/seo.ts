@@ -116,6 +116,10 @@ export function articleSchema(insight: InsightMeta) {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
+    // Same string as headline. Article's own rich-result eligibility
+    // reads headline, but Search Console's generic item listing reads
+    // the schema.org base "name" property and shows "N/A" without it.
+    name: insight.title,
     headline: insight.title,
     description: insight.description,
     datePublished: published,
@@ -143,6 +147,7 @@ export function caseStudySchema(caseStudy: CaseStudy) {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
+    name: caseStudy.title,
     headline: caseStudy.title,
     description: caseStudy.impact,
     datePublished: published,
@@ -165,6 +170,10 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    // Each ListItem already carries its own name; this is the trail's
+    // own name as a BreadcrumbList entity, which Search Console's item
+    // listing reads separately and shows "N/A" for without it.
+    name: items[items.length - 1]?.name,
     itemListElement: items.map((item, i) => ({
       "@type": "ListItem",
       position: i + 1,

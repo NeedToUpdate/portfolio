@@ -61,13 +61,19 @@ export const metadata: Metadata = {
     description: site.description,
   },
   icons: {
+    // Versioned filenames (bump the suffix by hand next redesign):
+    // browsers cache favicons far more stubbornly than ordinary
+    // assets, and a query-string bust is known not to reliably clear
+    // it — a new path is the only dependable way to force a refresh.
+    // /favicon.ico itself stays in place, unversioned, since browsers
+    // also probe that literal path directly regardless of <link>.
     icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon-v2.ico", sizes: "48x48" },
+      { url: "/favicon-v2.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96-v2.png", sizes: "96x96", type: "image/png" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon-v2.png", sizes: "180x180", type: "image/png" },
     ],
   },
 };
