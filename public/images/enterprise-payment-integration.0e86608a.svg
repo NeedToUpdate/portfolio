@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise payment integration workflow</title>
+  <desc id="desc">Multiple payment sources flow through normalization, payment controls, bank processing, receipt handling, and reconciliation.</desc>
+
+  <rect width="1280" height="620" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="1260" height="600" rx="16" fill="#151924" stroke="#2a303f"/>
+
+  <text x="54" y="58" fill="#ebedf3" font-family="Arial, sans-serif" font-size="27" font-weight="700">Enterprise payment integration</text>
+  <text x="54" y="88" fill="#aab1c0" font-family="Arial, sans-serif" font-size="15">Payment batches move through normalization, controls, bank processing, and reconciliation.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#deba6c"/>
+    </marker>
+    <style>
+      .panel { fill: #0e1119; stroke: #2a303f; stroke-width: 2; }
+      .stage { fill: #121723; stroke: #3a4358; stroke-width: 2; }
+      .gold { fill: #171b26; stroke: #deba6c; stroke-width: 2.25; }
+      .cyan { fill: #101a23; stroke: #60cdd8; stroke-width: 2.25; }
+      .warn { fill: #1e1812; stroke: #deba6c; stroke-width: 2; }
+      .label { fill: #ebedf3; font: 700 16px Arial, sans-serif; }
+      .small { fill: #aab1c0; font: 13px Arial, sans-serif; }
+      .line { stroke: #deba6c; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #687085; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="panel" x="54" y="148" width="184" height="178" rx="12"/>
+  <text class="label" x="146" y="188" text-anchor="middle">Payment sources</text>
+  <text class="small" x="146" y="218" text-anchor="middle">Full files</text>
+  <text class="small" x="146" y="244" text-anchor="middle">Delta files</text>
+  <text class="small" x="146" y="270" text-anchor="middle">Different timing</text>
+  <text class="small" x="146" y="296" text-anchor="middle">Legacy formats</text>
+
+  <rect class="cyan" x="318" y="184" width="210" height="104" rx="12"/>
+  <text class="label" x="423" y="224" text-anchor="middle">Normalize</text>
+  <text class="small" x="423" y="250" text-anchor="middle">Standard payment</text>
+  <text class="small" x="423" y="272" text-anchor="middle">format</text>
+  <path class="line" d="M238 236 H318"/>
+
+  <rect class="gold" x="608" y="148" width="260" height="178" rx="14"/>
+  <text class="label" x="738" y="188" text-anchor="middle">Payment controls</text>
+  <text class="small" x="738" y="218" text-anchor="middle">Duplicate checks</text>
+  <text class="small" x="738" y="244" text-anchor="middle">Holiday handling</text>
+  <text class="small" x="738" y="270" text-anchor="middle">Correctness checks</text>
+  <text class="small" x="738" y="296" text-anchor="middle">Retry protection</text>
+  <path class="line" d="M528 236 H608"/>
+
+  <rect class="stage" x="948" y="184" width="190" height="104" rx="12"/>
+  <text class="label" x="1043" y="224" text-anchor="middle">Banking system</text>
+  <text class="small" x="1043" y="250" text-anchor="middle">Processes</text>
+  <text class="small" x="1043" y="272" text-anchor="middle">payment file</text>
+  <path class="line" d="M868 236 H948"/>
+
+  <rect class="stage" x="948" y="392" width="190" height="104" rx="12"/>
+  <text class="label" x="1043" y="432" text-anchor="middle">Bank receipt</text>
+  <text class="small" x="1043" y="458" text-anchor="middle">Returned text file</text>
+  <text class="small" x="1043" y="480" text-anchor="middle">Processed total</text>
+  <path class="line" d="M1043 288 V392"/>
+
+  <rect class="gold" x="608" y="392" width="260" height="104" rx="12"/>
+  <text class="label" x="738" y="432" text-anchor="middle">Reconciliation</text>
+  <text class="small" x="738" y="458" text-anchor="middle">Input + output</text>
+  <text class="small" x="738" y="480" text-anchor="middle">+ bank receipt</text>
+  <path class="line" d="M948 444 H868"/>
+
+  <rect class="panel" x="318" y="392" width="210" height="104" rx="12"/>
+  <text class="label" x="423" y="432" text-anchor="middle">Report</text>
+  <text class="small" x="423" y="458" text-anchor="middle">Same-day</text>
+  <text class="small" x="423" y="480" text-anchor="middle">end-of-day view</text>
+  <path class="line" d="M608 444 H528"/>
+
+  <rect class="warn" x="54" y="392" width="184" height="104" rx="12"/>
+  <text class="label" x="146" y="432" text-anchor="middle">Reliability</text>
+  <text class="small" x="146" y="458" text-anchor="middle">99.99% uptime</text>
+  <text class="small" x="146" y="480" text-anchor="middle">Monthly failures gone</text>
+
+  <path class="thin" d="M423 288 C488 340 575 384 608 444"/>
+  <path class="thin" d="M738 326 V392"/>
+</svg>
