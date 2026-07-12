@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run images && next build",
     "test": "jest --transformIgnorePatterns \"node_modules/(?!your-module-name)/\"",
     "test:watch": "jest --watch",
     "start": "next start -p 4400",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "images": "node scripts/build-image-assets.mjs",
     "zip": "python scripts/zip_standalone.py",
     "deploy:dev": "npm run build && npm run zip && serverless deploy --stage dev",
     "deploy:prod": "npm run build && npm run zip && serverless deploy --stage prod"

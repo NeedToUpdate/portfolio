@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 620" role="img" aria-labelledby="title desc">
+  <title id="title">SDLC and deployment automation</title>
+  <desc id="desc">A release branch builds once, then promotes the same artifact through SIT, UAT, preprod, and production with app support managing later environments.</desc>
+
+  <rect width="1280" height="620" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="1260" height="600" rx="16" fill="#151924" stroke="#2a303f"/>
+
+  <text x="54" y="58" fill="#ebedf3" font-family="Arial, sans-serif" font-size="27" font-weight="700">Build once, promote through environments</text>
+  <text x="54" y="88" fill="#aab1c0" font-family="Arial, sans-serif" font-size="15">A manual release path became a traceable pipeline from bug fix to production.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 Z" fill="#deba6c"/>
+    </marker>
+    <style>
+      .panel { fill: #0e1119; stroke: #2a303f; stroke-width: 2; }
+      .stage { fill: #121723; stroke: #3a4358; stroke-width: 2; }
+      .gold { fill: #171b26; stroke: #deba6c; stroke-width: 2.25; }
+      .green { fill: #102318; stroke: #46d17d; stroke-width: 2.25; }
+      .warn { fill: #1e1812; stroke: #deba6c; stroke-width: 2; }
+      .label { fill: #ebedf3; font: 700 16px Arial, sans-serif; }
+      .small { fill: #aab1c0; font: 13px Arial, sans-serif; }
+      .line { stroke: #deba6c; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .darkline { stroke: #aab1c0; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .thin { stroke: #687085; stroke-width: 1.8; fill: none; stroke-dasharray: 7 7; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="panel" x="54" y="142" width="242" height="138" rx="12"/>
+  <text class="label" x="175" y="182" text-anchor="middle">Before</text>
+  <text class="small" x="175" y="214" text-anchor="middle">Manual scripts</text>
+  <text class="small" x="175" y="238" text-anchor="middle">File uploads</text>
+  <text class="small" x="175" y="262" text-anchor="middle">No clear release path</text>
+
+  <rect class="warn" x="54" y="360" width="242" height="104" rx="12"/>
+  <text class="label" x="175" y="400" text-anchor="middle">Result</text>
+  <text class="small" x="175" y="426" text-anchor="middle">1 week to 4 hours</text>
+  <text class="small" x="175" y="448" text-anchor="middle">Bug fix to production</text>
+
+  <rect class="gold" x="374" y="142" width="172" height="104" rx="12"/>
+  <text class="label" x="460" y="182" text-anchor="middle">Release branch</text>
+  <text class="small" x="460" y="208" text-anchor="middle">Test + review</text>
+  <text class="small" x="460" y="230" text-anchor="middle">Release ticket</text>
+
+  <rect class="green" x="374" y="342" width="172" height="104" rx="12"/>
+  <text class="label" x="460" y="382" text-anchor="middle">Build once</text>
+  <text class="small" x="460" y="408" text-anchor="middle">Build ID tag</text>
+  <text class="small" x="460" y="430" text-anchor="middle">Linked stories</text>
+  <path class="line" d="M460 246 V342"/>
+
+  <rect class="stage" x="632" y="116" width="112" height="80" rx="10"/>
+  <text class="label" x="688" y="152" text-anchor="middle">INTDEV</text>
+  <text class="small" x="688" y="176" text-anchor="middle">Auto deploy</text>
+
+  <rect class="stage" x="632" y="240" width="112" height="80" rx="10"/>
+  <text class="label" x="688" y="276" text-anchor="middle">SIT</text>
+  <text class="small" x="688" y="300" text-anchor="middle">Auto deploy</text>
+
+  <rect class="stage" x="810" y="240" width="112" height="80" rx="10"/>
+  <text class="label" x="866" y="276" text-anchor="middle">UAT</text>
+  <text class="small" x="866" y="300" text-anchor="middle">Input vars</text>
+
+  <rect class="stage" x="988" y="240" width="112" height="80" rx="10"/>
+  <text class="label" x="1044" y="276" text-anchor="middle">PREPROD</text>
+  <text class="small" x="1044" y="300" text-anchor="middle">Promote</text>
+
+  <rect class="stage" x="1138" y="240" width="100" height="80" rx="10"/>
+  <text class="label" x="1188" y="276" text-anchor="middle">PROD</text>
+  <text class="small" x="1188" y="300" text-anchor="middle">Promote</text>
+
+  <path class="line" d="M546 394 H588 V280 H632"/>
+  <path class="line" d="M744 280 H810"/>
+  <path class="line" d="M922 280 H988"/>
+  <path class="darkline" d="M1100 280 H1138"/>
+  <path class="thin" d="M588 280 V156 H632"/>
+
+  <rect class="panel" x="632" y="410" width="250" height="74" rx="10"/>
+  <text class="label" x="757" y="440" text-anchor="middle">Development managed</text>
+  <text class="small" x="757" y="464" text-anchor="middle">Branching, build, review</text>
+
+  <rect class="panel" x="926" y="410" width="250" height="74" rx="10"/>
+  <text class="label" x="1051" y="440" text-anchor="middle">App support managed</text>
+  <text class="small" x="1051" y="464" text-anchor="middle">Controlled promotion</text>
+
+  <path class="thin" d="M757 320 V410"/>
+  <path class="thin" d="M1051 320 V410"/>
+</svg>
