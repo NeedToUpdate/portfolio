@@ -9,7 +9,7 @@ import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import JsonLd from "@/components/ui/JsonLd";
 import { getInsight, getInsights } from "@/lib/content";
-import { articleSchema, breadcrumbSchema } from "@/lib/seo";
+import { articleSchema, breadcrumbSchema, ogImagePath } from "@/lib/seo";
 import { formatDate } from "@/lib/format";
 
 interface PageProps {
@@ -34,14 +34,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `/insights/${slug}`,
       type: "article",
       publishedTime: new Date(insight.date).toISOString(),
-      images: insight.previewImage ? [insight.previewImage] : undefined,
+      images: insight.previewImage ? [ogImagePath(insight.previewImage)] : undefined,
       locale: "en_CA",
     },
     twitter: {
       card: "summary_large_image",
       title: insight.title,
       description: insight.description,
-      images: insight.previewImage ? [insight.previewImage] : undefined,
+      images: insight.previewImage ? [ogImagePath(insight.previewImage)] : undefined,
     },
   };
 }

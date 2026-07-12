@@ -2,6 +2,18 @@ import type { Metadata } from "next";
 import { site } from "./site";
 import { CaseStudy, InsightMeta } from "./types";
 
+/**
+ * previewImage/diagram fields point at webp or svg source files —
+ * neither is reliable as an og:image/twitter:image across social
+ * crawlers (Facebook, Twitter, and LinkedIn have long-standing bugs
+ * or outright non-support for both). `scripts/generate-og-jpgs.mjs`
+ * pre-renders a JPEG twin of each one; this just resolves the path.
+ */
+export function ogImagePath(src: string): string {
+  const ext = src.slice(src.lastIndexOf("."));
+  return `${src.slice(0, -ext.length)}.og.jpg`;
+}
+
 export function pageMetadata({
   title,
   description,
@@ -109,7 +121,7 @@ export function articleSchema(insight: InsightMeta) {
     dateModified: published,
     inLanguage: "en-CA",
     image: insight.previewImage
-      ? new URL(insight.previewImage, site.url).toString()
+      ? new URL(ogImagePath(insight.previewImage), site.url).toString()
       : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
@@ -136,7 +148,7 @@ export function caseStudySchema(caseStudy: CaseStudy) {
     dateModified: published,
     inLanguage: "en-CA",
     image: caseStudy.diagram
-      ? new URL(caseStudy.diagram, site.url).toString()
+      ? new URL(ogImagePath(caseStudy.diagram), site.url).toString()
       : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
