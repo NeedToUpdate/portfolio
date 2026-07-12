@@ -83,13 +83,18 @@ export default async function CaseStudyPage({ params }: PageProps) {
       <NebulaBackground variant="mini" corner="top-right" miniShape="helix" color="frost" />
       <JsonLd
         data={breadcrumbSchema([
+          { name: "Home", path: "/" },
           { name: "Work", path: "/work" },
           { name: caseStudy.title, path: `/work/${slug}` },
         ])}
       />
       <JsonLd data={caseStudySchema(caseStudy)} />
       <Breadcrumbs
-        items={[{ label: "Work", href: "/work" }, { label: caseStudy.title }]}
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Work", href: "/work" },
+          { label: caseStudy.title },
+        ]}
       />
 
       <header>

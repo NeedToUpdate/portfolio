@@ -4,6 +4,7 @@ import Link from "next/link";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
+import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import JsonLd from "@/components/ui/JsonLd";
 import CareerTimeline from "@/components/composites/CareerTimeline";
 import CapabilityList from "@/components/composites/CapabilityList";
@@ -12,7 +13,7 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Panel from "@/components/ui/Panel";
 import { getCareerEntries, getSkillDomains, getWorkIntro } from "@/lib/content";
-import { pageMetadata, profilePageSchema } from "@/lib/seo";
+import { pageMetadata, profilePageSchema, breadcrumbSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -36,6 +37,13 @@ export default function AboutPage() {
         color="aurora"
       />
       <JsonLd data={profilePageSchema()} />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ])}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "About" }]} />
 
       <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">

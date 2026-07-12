@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
+import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import DividedList from "@/components/composites/DividedList";
 import InsightListItem from "@/components/composites/InsightListItem";
+import JsonLd from "@/components/ui/JsonLd";
 import { getInsights } from "@/lib/content";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Insights",
@@ -27,6 +29,14 @@ export default function InsightsPage() {
         color="aurora"
         size="lg"
       />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Insights", path: "/insights" },
+        ])}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Insights" }]} />
+
       <SectionHeading
         eyebrow="Insights"
         title="Write-ups from production"

@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
+import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import CapabilityList from "@/components/composites/CapabilityList";
 import DividedList from "@/components/composites/DividedList";
 import CaseStudyListItem from "@/components/composites/CaseStudyListItem";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
+import JsonLd from "@/components/ui/JsonLd";
 import { getCaseStudies, getWorkIntro } from "@/lib/content";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Work",
@@ -25,6 +27,14 @@ export default function WorkPage() {
     <PageShell>
       {/* The intro is capped at prose width, leaving the upper-right open. */}
       <NebulaBackground variant="mini" corner="top-right" miniShape="orion" color="solar" />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Work", path: "/work" },
+        ])}
+      />
+      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Work" }]} />
+
       <div className="max-w-prose">
         <SectionHeading eyebrow="Case studies" title={intro.title} asPageTitle />
         <Text variant="muted" className="mt-5">
