@@ -71,11 +71,18 @@ export default async function InsightPage({ params }: PageProps) {
       <JsonLd data={articleSchema(insight)} />
       <JsonLd
         data={breadcrumbSchema([
+          { name: "Home", path: "/" },
           { name: "Insights", path: "/insights" },
           { name: insight.title, path: `/insights/${slug}` },
         ])}
       />
-      <Breadcrumbs items={[{ label: "Insights", href: "/insights" }, { label: insight.title }]} />
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Insights", href: "/insights" },
+          { label: insight.title },
+        ]}
+      />
 
       <header>
         <Heading size="page">{insight.title}</Heading>
