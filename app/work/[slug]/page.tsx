@@ -16,7 +16,7 @@ import { categoryShape } from "@/lib/nebula/shapes";
 import JsonLd from "@/components/ui/JsonLd";
 import { getCaseStudies, getCaseStudy } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
-import { breadcrumbSchema, caseStudySchema } from "@/lib/seo";
+import { breadcrumbSchema, caseStudySchema, ogImagePath } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 interface PageProps {
@@ -41,12 +41,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `/work/${slug}`,
       type: "article",
       publishedTime: new Date(caseStudy.date).toISOString(),
+      images: caseStudy.diagram ? [ogImagePath(caseStudy.diagram)] : undefined,
       locale: "en_CA",
     },
     twitter: {
       card: "summary_large_image",
       title: caseStudy.title,
       description: caseStudy.impact,
+      images: caseStudy.diagram ? [ogImagePath(caseStudy.diagram)] : undefined,
     },
   };
 }
