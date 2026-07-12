@@ -32,14 +32,16 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
           <span className="flex min-w-0 flex-col justify-center p-6 sm:p-8">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
               {featured.hint}
-            </span>
+            </span>{" "}
             <span className="mt-3 block font-display text-xl font-semibold leading-snug text-ink sm:text-2xl">
               {featured.title}
-            </span>
+            </span>{" "}
             {featured.description && (
-              <span className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted">
-                {featured.description}
-              </span>
+              <>
+                <span className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted">
+                  {featured.description}
+                </span>{" "}
+              </>
             )}
             <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-accent">
               Continue reading
@@ -96,10 +98,10 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
               <span className="flex min-w-0 flex-col justify-center p-4">
                 <span className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-accent">
                   Also worth reading
-                </span>
+                </span>{" "}
                 <span className="mt-2 line-clamp-3 font-display text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-accent">
                   {item.title}
-                </span>
+                </span>{" "}
                 <span className="mt-2 text-xs text-muted">Read now →</span>
               </span>
             </Link>
