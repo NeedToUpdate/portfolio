@@ -1,6 +1,6 @@
 ---
 title: "Enterprise Payment Integration"
-date: "2025-01-01"
+date: "2024-09-01"
 techs: ["aws", "python", "serverless", "legacy"]
 keywords: ["payment rebuild", "payment integration", "payment processing", "claims payment workflow", "legacy system modernization"]
 impact: "Rebuilt a high-risk claims payment workflow that had been failing monthly and costing millions in outage impact."
