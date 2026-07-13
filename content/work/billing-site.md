@@ -1,6 +1,6 @@
 ---
 title: "Billing & Payment Processing System"
-date: "2024-08-01"
+date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless"]
 keywords: ["billing system", "payment processing", "self-service billing", "insurance billing"]
 impact: "Delivered a self-service billing update flow for a 50k-member insurance program in three weeks, moving routine card changes out of the call center."

@@ -18,12 +18,17 @@ custom:
       localDir: scripts/.empty
       bucketPrefix: _cache/
       deleteRemoved: true
-    # Hashed immutable build assets.
+    # Hashed immutable build assets. Never deleteRemoved here: an
+    # in-flight visitor's already-loaded page can still reference an
+    # older build's hashed filenames, and CloudFront's edge cache is
+    # only a probabilistic safety net for those, not a guarantee. If
+    # the file's gone from S3, a cache miss 403s instead of serving
+    # the last-known-good copy. These are small and content-addressed,
+    # so letting them accumulate is cheap.
     - bucketName: ${self:custom.config.s3BucketName}
       localDir: .next/static
       bucketPrefix: _next/static/
       acl: private
-      deleteRemoved: true
       defaultContentType: application/javascript
       params:
         - "**/*.js":
