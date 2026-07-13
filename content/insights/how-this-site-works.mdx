@@ -52,9 +52,11 @@ Each particle also carries a second, optional position: a point sampled from a s
 
 <ShapeMorphButtons />
 
-Move the pointer anywhere on the page and it carves a directional wake through the gas: a bow push at the front, gas parting to the sides, a trailing pull behind. The wake settles back on its own once the pointer moves on.
+The scene respects the machine it runs on. It is fill-bound, so the canvas backing store is capped: soft gas upscales invisibly, and a 4K window would otherwise triple the per-pixel work. The gas sprites run a minimal fragment shader, and the star and wisp glyphs draw through a separate program, so the heaviest layer never pays for glyph math. Slow GPUs get a reduced render scale after a few dropped frames. Phones drop the big cloud entirely and run two small, brighter ones in the open corners, because the card stack covers everything else.
 
-The scene respects the machine it runs on. The scene is fill-bound, so the canvas backing store is capped: soft gas upscales invisibly, and a 4K window would otherwise triple the per-pixel work. The gas sprites run a minimal fragment shader, and the star and wisp glyphs draw through a separate program, so the heaviest layer never pays for glyph math. Slow GPUs get a reduced render scale after a few dropped frames. Phones drop the big cloud entirely and run two small, brighter ones in the open corners, because the card stack covers everything else. Users with reduced motion get a still frame.
+It respects the person running it too. The scene checks `prefers-reduced-motion` once at boot. If the flag is set, every hover morph snaps straight to its target with no easing: no drift, no half-second ease, just the shape. Every device exposes that flag at the OS level, independent of browser.
+
+Claude's first pass didn't check for it at all: the hover morph animated the same way no matter what the operating system was told. Adding the branch was a direct call-out, not something a review of the shader math would have caught. That is the gap this project keeps surfacing: the model ships the visible feature; a person has to notice what it left out.
 
 ## The AI
 
