@@ -6,7 +6,6 @@ useDotenv: true
 
 plugins:
   - serverless-s3-sync
-  - serverless-cloudfront-invalidate
 
 custom:
   # Stage-specific values: domain, cert, bucket, auth.
@@ -45,11 +44,6 @@ custom:
       params:
         - "**/*":
             CacheControl: "public, max-age=604800"
-
-  cloudfrontInvalidate:
-    - distributionIdKey: CloudFrontDistributionId
-      items:
-        - "/*"
 
 provider:
   name: aws

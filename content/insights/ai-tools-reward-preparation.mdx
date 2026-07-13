@@ -5,11 +5,11 @@ date: "2026-07-08"
 tags: ["ai", "process", "engineering"]
 ---
 
-An AI wrote most of this site. That sentence is true and it hides the real work. The model produced good code in hours instead of weeks, but only because two things were in place before and after it ran: a detailed plan going in, and enough engineering knowledge to catch what came out wrong.
+An AI wrote most of this website's code, infrastructure, and deployment. The LLM produced good code in hours instead of weeks, but only because two things were in place before and after it ran: a detailed plan going in, and enough engineering knowledge to catch what came out wrong.
 
 ## The plan took longer than the build
 
-"Write the plan first" undersells what "first" means here. The plan did not fit in one document, and it did not come together in an afternoon. It came out of a pipeline with five stages and four different models, and code did not show up until the fourth.
+"Write the plan first" undersells what "write" means here. The plan did not fit in one document, and it did not come together in an afternoon. It came out of a pipeline with five stages and four different models, and code did not show up until the fourth.
 
 <AIWorkflowTimeline />
 
@@ -24,9 +24,10 @@ That plan did two jobs. It told the model what to build, and it gave me a fixed 
 The difference between that outcome and a vague prompt is the difference between a spec and a wish. "Make a nice space background" produces a stock particle cloud. "Shell opacity between 0.04 and 0.28, brighter along the inner edge, broken into arcs" produces the thing you actually pictured. "Use good CSS practices" produces nothing checkable. "Every flex child gets `min-width: 0`, every image keeps `object-fit`, no fixed heights" produces a page that survives a phone with a collapsing URL bar.
 
 <Note>
-  The plan is also the review standard. When the first nebula render looked like a rainbow smear,
-  the fix was one line of feedback: match the opacity budget in the document. Without the
-  document, that conversation takes ten rounds of "less of that, more of this."
+  The plan is also the review standard. When the first nebula render looked like
+  a rainbow smear, the fix was one line of feedback: match the opacity budget in
+  the document. Without the document, that conversation takes ten rounds of
+  "less of that, more of this."
 </Note>
 
 ## Know the failure classes
