@@ -19,14 +19,17 @@ export function pageMetadata({
   title,
   description,
   path,
+  keywords,
 }: {
   title: string;
   description: string;
   path: string;
+  keywords?: string[];
 }): Metadata {
   return {
     title,
     description,
+    keywords,
     alternates: { canonical: path },
     openGraph: {
       type: "website",
@@ -134,6 +137,7 @@ export function articleSchema(insight: InsightMeta) {
       url: site.url,
     },
     mainEntityOfPage: `${site.url}/insights/${insight.slug}`,
+    keywords: insight.tags.join(", "),
   };
 }
 
@@ -162,7 +166,7 @@ export function caseStudySchema(caseStudy: CaseStudy) {
       url: site.url,
     },
     mainEntityOfPage: `${site.url}/work/${caseStudy.slug}`,
-    keywords: caseStudy.techs.join(", "),
+    keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs].join(", "),
   };
 }
 

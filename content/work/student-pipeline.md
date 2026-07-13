@@ -2,7 +2,8 @@
 title: "Enrollment Processing System"
 date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
-impact: "Removed a week-long manual enrollment delay for 1M+ students."
+keywords: ["student pipeline", "enrollment processing", "student data pipeline", "SFTP integration", "reconciliation workflow"]
+impact: "Rebuilt the student enrollment pipeline to remove a week-long manual delay for 1M+ students."
 priority: 6
 category: infrastructure
 role: "Led architecture and delivery"
@@ -78,6 +79,6 @@ The business gained a traceable path from source file to student state to TPA de
 
 ## What this proves
 
-This project shows that I can turn brittle reconciliation work into a controlled integration process for 1M+ people.
+This project shows that I can turn brittle reconciliation work into a controlled student enrollment pipeline for 1M+ people.
 
 The work required judgment around state, exceptions, business signoff, and operational support. The result changed how enrollment work ran every cycle.

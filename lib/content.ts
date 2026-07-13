@@ -95,6 +95,7 @@ export function getCaseStudies(): CaseStudy[] {
       date: requireString(entry, "date"),
       impact: requireString(entry, "impact"),
       techs: (entry.data.techs as string[]) ?? [],
+      keywords: (entry.data.keywords as string[]) ?? [],
       category: (entry.data.category as string) ?? "systems",
       priority: (entry.data.priority as number) ?? 99,
       role: entry.data.role as string | undefined,

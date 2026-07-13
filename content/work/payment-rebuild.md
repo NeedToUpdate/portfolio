@@ -2,7 +2,8 @@
 title: "Enterprise Payment Integration"
 date: "2025-01-01"
 techs: ["aws", "python", "serverless", "legacy"]
-impact: "Stabilized a high-risk claims payment workflow that had been failing monthly and costing millions in outage impact."
+keywords: ["payment rebuild", "payment integration", "payment processing", "claims payment workflow", "legacy system modernization"]
+impact: "Rebuilt a high-risk claims payment workflow that had been failing monthly and costing millions in outage impact."
 priority: 5
 category: payments
 role: "Led architecture, controls, and delivery"
@@ -82,6 +83,6 @@ Every payment can be traced from source file to normalized output to bank receip
 
 ## What this proves
 
-This project shows that I can stabilize a high-risk financial workflow without hiding complexity behind manual support.
+This project shows that I can lead a high-risk payment rebuild without hiding complexity behind manual support.
 
 The work required architecture, controls, payment traceability, retry design, and business signoff. It turned a fragile monthly failure point into an auditable payment process.
