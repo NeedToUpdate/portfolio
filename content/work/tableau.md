@@ -2,6 +2,7 @@
 title: "Tableau Integration"
 date: "2025-01-01"
 techs: ["tableau", "aws", "redshift", "python", "ec2"]
+keywords: ["Tableau integration", "business intelligence", "BI platform", "data visualization"]
 impact: "Created a governed BI platform so business teams could access warehouse data directly."
 priority: 8
 category: reporting

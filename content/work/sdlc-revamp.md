@@ -2,7 +2,8 @@
 title: "SDLC & Deployment Automation"
 date: "2025-09-01"
 techs: ["azure", "azure-pipelines", "iac", "powershell"]
-impact: "Cut deployment time from a week to four hours, bug to production."
+keywords: ["SDLC", "deployment automation", "release management", "CI/CD pipeline", "DevOps"]
+impact: "Modernized the SDLC to cut deployment time from a week to four hours, bug to production."
 priority: 2
 category: infrastructure
 role: "Led release-process modernization"
@@ -43,7 +44,7 @@ Azure Pipelines fit company policy, so the solution had to work inside that tool
 
 ## The solution
 
-I led the release-process modernization around Azure Pipelines and a structured branching model.
+I led the SDLC and release-process modernization around Azure Pipelines and a structured branching model.
 
 The team released from a release branch. The pipeline built the artifact once, tagged it with a build ID, and promoted that same artifact through the environments. The tag linked the deployed build to the release ticket and the user stories included in the release.
 

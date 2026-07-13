@@ -2,7 +2,8 @@
 title: "Data Warehousing & Infrastructure Build"
 date: "2024-06-01"
 techs: ["aws", "python", "redshift", "serverless", "splunk"]
-impact: "Gave a major insurer control over its data landscape across 150+ daily extracts and 5 external companies."
+keywords: ["data warehouse", "enterprise data warehouse", "data platform", "ETL pipeline", "data governance"]
+impact: "Built an AWS data warehouse that gave a major insurer control over its data landscape across 150+ daily extracts and 5 external companies."
 priority: 1
 category: data
 role: "Spearheaded architecture and multi-year delivery"
@@ -23,7 +24,7 @@ context:
 
 A major insurer depended on more than 150 daily data extracts across five external companies. The data arrived in different formats, mainly CSV, with some JSONL, TXT, and Excel files.
 
-The company had no central warehouse and no governed data model. Data lived in disconnected extracts, vendor handoffs, and local reporting processes. It could take months before data became usable for broad analysis.
+The company had no central data warehouse and no governed data model. Data lived in disconnected extracts, vendor handoffs, and local reporting processes. It could take months before data became usable for broad analysis.
 
 That meant the organization did not really control its own data. Teams could not rely on a shared view of customers, partners, products, and operations. Many decisions happened without trusted data because the data foundation did not exist.
 
@@ -80,6 +81,6 @@ The company gained control over its own data instead of depending on disconnecte
 
 ## What this proves
 
-This project shows that I can lead enterprise-scale data-platform work across architecture, governance, delivery, and operations over a long horizon.
+This project shows that I can lead enterprise-scale data warehouse and data-platform work across architecture, governance, delivery, and operations over a long horizon.
 
 The work required more than building ETL. It required shaping a multi-year platform plan, coordinating data governance, designing quality controls, and delivering usable pieces over time without waiting for a single waterfall launch.

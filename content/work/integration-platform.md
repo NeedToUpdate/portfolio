@@ -2,7 +2,8 @@
 title: "Unified Cloud Architecture"
 date: "2025-12-01"
 techs: ["azure", "typescript", "iac", "containers"]
-impact: "Turned an expensive SaaS purchase into board approval for an eight-person in-house cloud platform build."
+keywords: ["integration platform", "cloud integration platform", "cloud architecture", "infrastructure as code", "build vs buy"]
+impact: "Turned an expensive SaaS purchase into board approval for an eight-person in-house cloud integration platform build."
 priority: 3
 category: infrastructure
 role: "Built the target architecture and board case"
@@ -23,7 +24,7 @@ context:
 
 The business was ready to buy a SaaS product to patch a gap in the integration layer. The purchase would have added another vendor, another contract, and another disconnected system.
 
-The annual cost sat in the six-to-seven-figure range. The larger issue was architectural. The company did not need another isolated product. It needed a repeatable way to build and operate cloud-native services.
+The annual cost sat in the six-to-seven-figure range. The larger issue was architectural. The company did not need another isolated product. It needed its own integration platform: a repeatable way to build and operate cloud-native services.
 
 ## The stakes
 
@@ -43,7 +44,7 @@ The design had to include security, logging, monitoring, auditing, compliance, a
 
 ## The solution
 
-I proposed one cloud architecture instead of a bolt-on SaaS purchase.
+I proposed a shared cloud integration platform instead of a bolt-on SaaS purchase.
 
 The model used a shared communication layer, cloud-native compute for services and applications, and infrastructure as code for repeatable deployment. The services shared the same operating layers: security, logging, monitoring, auditing, compliance, and enterprise standards.
 

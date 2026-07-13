@@ -2,7 +2,8 @@
 title: "Automated Financial Reporting Suite"
 date: "2025-03-01"
 techs: ["aws", "python", "redshift", "serverless", "glue"]
-impact: "Reduced month-close IFRS 17 reporting from a manual month-long process to an auditable run that completes in under 15 minutes."
+keywords: ["automated reporting", "financial reporting", "IFRS 17 reporting", "reporting pipeline", "month-end close automation"]
+impact: "Built an automated reporting pipeline that reduced month-close IFRS 17 reporting from a manual month-long process to an auditable run under 15 minutes."
 priority: 4
 category: reporting
 role: "Led planning, architecture, delivery, and handoff"
@@ -43,7 +44,7 @@ The validation rules had to work for governance and finance, not just the techni
 
 ## The solution
 
-I led a team that designed and delivered a Glue-based reporting pipeline. It validates and normalizes every source into Parquet in S3. The workflow cleans up intermediate files, applies the required transformations, and produces the month-close output finance needs.
+I led a team that designed and delivered an automated, Glue-based reporting pipeline. It validates and normalizes every source into Parquet in S3. The workflow cleans up intermediate files, applies the required transformations, and produces the month-close output finance needs.
 
 Validation rules live in CSV files. The files list human-readable rule names that map directly to the functions running against each column. Governance and finance could review the rules in a format they understood, while the technical implementation stayed controlled and traceable.
 
