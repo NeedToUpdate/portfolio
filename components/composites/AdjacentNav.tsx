@@ -55,7 +55,7 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
             {featured.image ? (
               <Image
                 src={featured.image}
-                alt=""
+                alt={featured.title}
                 fill
                 sizes="(min-width: 640px) 208px, 100vw"
                 className="object-cover opacity-80 transition duration-500 group-hover:scale-[1.04] group-hover:opacity-100"
@@ -83,7 +83,7 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
                 {item.image ? (
                   <Image
                     src={item.image}
-                    alt=""
+                    alt={item.title}
                     fill
                     sizes="112px"
                     className="object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
