@@ -62,6 +62,69 @@ Resources:
           CookiesConfig:
             CookieBehavior: none
 
+  # PostHog reverse proxy (/relay/*, see the CacheBehaviors below).
+  # Requests arrive same-origin so browser/extension ad-blockers that
+  # target posthog.com by domain don't see them. The function strips
+  # the /relay prefix, since PostHog's origin expects unprefixed paths.
+  PostHogProxyFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: ${self:service}-${self:provider.stage}-posthog-proxy
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Strips the /relay prefix before forwarding to PostHog
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          request.uri = request.uri.replace(/^\/relay/, "") || "/";
+          return request;
+        }
+
+  # PostHog needs Origin and Authorization plus every query string
+  # forwarded to its origin. This only controls what's sent upstream;
+  # caching itself is governed per-behavior below.
+  PostHogOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: ${self:service}-${self:provider.stage}-posthog-origin-request
+        Comment: Forwards auth/origin headers and query strings to PostHog
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Origin
+            - Authorization
+        QueryStringsConfig:
+          QueryStringBehavior: all
+        CookiesConfig:
+          CookieBehavior: none
+
+  # Static SDK assets and remote config are cacheable; event capture
+  # and flag evaluation are not (they use Managed-CachingDisabled on
+  # the /relay/* catch-all behavior instead).
+  PostHogAssetCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: ${self:service}-${self:provider.stage}-posthog-assets
+        Comment: PostHog SDK assets and remote config
+        DefaultTTL: 3600
+        MaxTTL: 86400
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingBrotli: true
+          EnableAcceptEncodingGzip: true
+          QueryStringsConfig:
+            QueryStringBehavior: all
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Origin
+              - Authorization
+          CookiesConfig:
+            CookieBehavior: none
+
   DevResponseHeadersPolicy:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Condition: IsDevStage
@@ -98,6 +161,22 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
+          # PostHog Cloud, US region. Swap both domains for the eu.*
+          # equivalents together if the project ever moves regions.
+          - Id: PostHogOrigin
+            DomainName: us.i.posthog.com
+            CustomOriginConfig:
+              HTTPPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+          - Id: PostHogAssetsOrigin
+            DomainName: us-assets.i.posthog.com
+            CustomOriginConfig:
+              HTTPPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
         DefaultCacheBehavior:
           TargetOriginId: LambdaOrigin
           ViewerProtocolPolicy: redirect-to-https
@@ -121,6 +200,65 @@ Resources:
               - 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
           Compress: true
         CacheBehaviors:
+          # Order matters: CloudFront matches the first pattern in this
+          # list, not the most specific one, so /relay/static/* and
+          # /relay/array/* must precede the /relay/* catch-all.
+          - PathPattern: "/relay/static/*"
+            TargetOriginId: PostHogAssetsOrigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref PostHogAssetCachePolicy
+            OriginRequestPolicyId: !Ref PostHogOriginRequestPolicy
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt PostHogProxyFunction.FunctionMetadata.FunctionARN
+            Compress: true
+          - PathPattern: "/relay/array/*"
+            TargetOriginId: PostHogAssetsOrigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: !Ref PostHogAssetCachePolicy
+            OriginRequestPolicyId: !Ref PostHogOriginRequestPolicy
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt PostHogProxyFunction.FunctionMetadata.FunctionARN
+            Compress: true
+          # Catch-all: event capture, flag evaluation. Never cached —
+          # these are live API calls, not assets.
+          - PathPattern: "/relay/*"
+            TargetOriginId: PostHogOrigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed CachingDisabled
+            OriginRequestPolicyId: !Ref PostHogOriginRequestPolicy
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt PostHogProxyFunction.FunctionMetadata.FunctionARN
+            Compress: true
           - PathPattern: "/_next/image*"
             TargetOriginId: LambdaOrigin
             ViewerProtocolPolicy: redirect-to-https
