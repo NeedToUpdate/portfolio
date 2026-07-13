@@ -15,6 +15,8 @@ export interface CaseStudy {
   date: string;
   impact: string;
   techs: string[];
+  /** Search-intent phrases for this case study, e.g. "data warehouse". Feeds meta keywords and JSON-LD, distinct from techs. */
+  keywords?: string[];
   category: string;
   /** Lower number = higher prominence. 1 is the flagship. */
   priority: number;
