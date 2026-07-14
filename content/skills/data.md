@@ -16,6 +16,9 @@ skills:
   - name: "Elasticsearch"
     since: 2022
     context: "Search on the Eon Media platform"
+  - name: "Neo4j"
+    since: 2025
+    context: "Knowledge graph for the Ziggy assistant"
   - name: "pandas"
     since: 2020
 ---
