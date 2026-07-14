@@ -53,7 +53,7 @@ export default function HomePage() {
                   I design the systems enterprises run on.
                 </Heading>
                 <Text variant="emphasis" className="mt-5 md:mt-7">
-                  Engineering director and hands-on architect.
+                  I lead the architecture and the teams that ship it.
                 </Text>
                 {/* Cut on phones: the About card below covers the same
                     ground, and every line here pushes the insight card
@@ -119,9 +119,8 @@ export default function HomePage() {
             >
               <div className="min-w-0">
                 <Text variant="muted">
-                  I am an engineering director and hands-on architect in
-                  Toronto, usually working where systems, teams, and messy
-                  production constraints meet.
+                  I work where systems, teams, and messy production constraints
+                  meet. Based in Toronto.
                 </Text>
                 <div className="mt-4">
                   <ArrowLink
