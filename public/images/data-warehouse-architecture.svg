@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1500" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 1500" role="img" aria-labelledby="title desc">
   <title id="title">Enterprise data warehouse architecture</title>
-  <desc id="desc">Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and user outputs.</desc>
+  <desc id="desc">Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and three gold-layer data marts serving internal teams, clients, and partners.</desc>
 
-  <rect width="900" height="1500" rx="16" fill="#151924"/>
-  <rect x="10" y="10" width="880" height="1480" rx="16" fill="#151924" stroke="#2a303f"/>
+  <rect width="1050" height="1500" rx="16" fill="#151924"/>
+  <rect x="10" y="10" width="1030" height="1480" rx="16" fill="#151924" stroke="#2a303f"/>
 
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
@@ -82,7 +82,7 @@
   <text class="label" x="676" y="904" text-anchor="middle">Report Generator</text>
   <path class="line" d="M676 810 V862"/>
 
-  <rect class="lake" x="72" y="1018" width="666" height="330" rx="10"/>
+  <rect class="lake" x="72" y="1018" width="854" height="330" rx="10"/>
   <text class="label" x="140" y="1064" text-anchor="middle">Data Lake</text>
 
   <rect class="raw" x="112" y="1110" width="122" height="180" rx="22"/>
@@ -101,15 +101,26 @@
   <path class="line" d="M234 1200 H276"/>
   <path class="line" d="M398 1200 H440"/>
   <path class="line" d="M562 1200 H604"/>
-  <path class="line" d="M738 1220 H778"/>
+  <path class="line" d="M726 1200 H766"/>
   <path class="line" d="M396 810 V890 H279 V1018"/>
   <path class="line" d="M738 1018 H824 V761 H788"/>
+
+  <rect class="gold-zone" x="766" y="1110" width="140" height="50" rx="8"/>
+  <text class="label" x="836" y="1141" text-anchor="middle">Data Mart</text>
+
+  <rect class="gold-zone" x="766" y="1175" width="140" height="50" rx="8"/>
+  <text class="label" x="836" y="1206" text-anchor="middle">Data Mart</text>
+
+  <rect class="gold-zone" x="766" y="1240" width="140" height="50" rx="8"/>
+  <text class="label" x="836" y="1271" text-anchor="middle">Data Mart</text>
+
+  <path class="line" d="M906 1200 H936"/>
 
   <rect class="stage" x="300" y="1404" width="220" height="46" rx="8"/>
   <text class="small" x="410" y="1432" text-anchor="middle">Metadata &amp; Health System</text>
   <path class="monitor" d="M405 1348 V1404"/>
 
-  <g aria-label="Business users" transform="translate(748 1032)">
+  <g aria-label="Business users" transform="translate(898 1032)">
     <circle class="icon-fill" cx="84" cy="22" r="10"/>
     <circle class="icon-fill" cx="62" cy="30" r="8"/>
     <circle class="icon-fill" cx="106" cy="30" r="8"/>
