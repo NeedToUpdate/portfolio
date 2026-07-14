@@ -15,19 +15,20 @@ An AI wrote most of this website's code, infrastructure, and deployment. The LLM
 
 The first two stages never produced anything for the site itself. They were about finding the right questions before answering them: what a site like this needs to prove, to whom, and what to verify before assuming any of it. Only once that framing held up did the questions turn into documents specific enough for a model to build from without guessing. The build was the fast part. Everything before it was not.
 
-## Write the plan first
+## Structure in, detail out
 
-Before a line of this site existed, it existed as documents. Not a one-paragraph brief. A working folder of rules: a defensive CSS checklist (never trust a fixed height, always give a flex child `min-width: 0`, images always keep their aspect ratio), a responsive-first mandate (flexbox and grid before fixed breakpoints, `min()`/`max()`/`clamp()` over hard-coded jumps), a DRY and SOLID standard for every component, a content schema for every collection, and a separate specification just for the nebula background: hex ranges for every palette, opacity bands per layer, how dust should occlude stars, how the gas should move, what the pointer should do to it. Behind those sat documents that never became visible on the page: research into how sites like this get read and trusted, and a layout guide covering every component, its states, the user flows through it, and the use cases it had to hold up under. Combined, the planning documents ran past three thousand lines, longer than every article on this site put together.
+Those documents ran past three thousand lines, longer than every article on this site put together. They held a defensive CSS checklist, a responsive-first mandate, a DRY and SOLID standard for every component, a content schema for every collection, and a full specification for the nebula background: its palette, its layers, its motion, and its response to the pointer. Behind them sat the documents that never reached the page: research into how a site like this earns trust, and a layout guide for every component, its states, its user flows, and the cases it had to survive.
 
-That plan did two jobs. It told the model what to build, and it gave me a fixed standard to hold the output against. Both jobs matter. Skip the first and you get a generic result. Skip the second and you have no way to tell "different from what I imagined" apart from "wrong."
+I did not write most of that detail. I wrote the structure and named the sources. The nebula began as an order: a dense star field, then gaseous point clouds, then wisps, then young stars on top. The defensive CSS rules began as an address: read [defensiveCSS.dev](https://defensivecss.dev/) and fold it into the document. A refinement pass turned the order into an opacity band for every layer, and the address into a concrete checklist: `min-width: 0` on every flex child, `object-fit` on every image, no fixed heights.
 
-The difference between that outcome and a vague prompt is the difference between a spec and a wish. "Make a nice space background" produces a stock particle cloud. I never specified an opacity value myself. I said the gas should look translucent and named the order it should stack in: a dense star field first, gaseous point clouds above it, a layer of wisps above that, young stars scattered on top of all of it. The ChatGPT conversation that followed turned "translucent" into an opacity band for every layer. "Use good CSS practices" produces nothing checkable. "Every flex child gets `min-width: 0`, every image keeps `object-fit`, no fixed heights" produces a page that survives a phone with a collapsing URL bar.
+Structure is what turns a request into a spec. "Make a nice space background" gives a model nothing to build from, so it returns a stock particle cloud. A layer order gives it something to fill in. The work was knowing which decisions the plan had to settle, and where the authoritative answer already lived. The detail followed from that.
+
+Those same documents were also the review standard. When the output drifted, I could hold it against a fixed reference instead of a hunch that something was off. Without them, there is no way to tell "different from what I imagined" apart from "wrong."
 
 <Note>
-  The plan is also the review standard. When the first nebula render looked like
-  a rainbow smear, the fix was one line of feedback: match the opacity budget in
-  the document. Without the document, that conversation takes ten rounds of
-  "less of that, more of this."
+  When the first nebula render came back looking like a rainbow smear, the fix
+  was one line: match the opacity budget in the document. Without the document,
+  that same correction takes ten rounds of "less of that, more of this."
 </Note>
 
 ## Know the failure classes
@@ -60,4 +61,4 @@ The model fixed each item in minutes once asked. Knowing what to ask was the wor
 
 ## The rule
 
-Detail in, quality out. That held at every stage of the pipeline, not only the one that wrote code. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.
+Judgment in, quality out. That held at every stage of the pipeline, not only the one that wrote code. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.
