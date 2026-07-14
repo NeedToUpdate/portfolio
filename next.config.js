@@ -82,7 +82,9 @@ const nextConfig = {
       rules.push(
         {
           // Cache pages at the CDN, allow serving stale while refreshing.
-          source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+          // Icon files are excluded here and cached explicitly below.
+          source:
+            "/((?!api|_next/static|_next/image|favicon|apple-touch-icon).*)",
           headers: [
             {
               key: "Cache-Control",
@@ -94,6 +96,19 @@ const nextConfig = {
         {
           source: "/images/(.*)",
           headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
+        },
+        {
+          // Versioned icon files carry a -v2 suffix that bumps on redesign,
+          // so they are safe to cache immutably. The unversioned favicon.ico
+          // is intentionally left out — it must stay updatable.
+          source:
+            "/:icon(favicon-v2\\.svg|favicon-v2\\.ico|favicon-96x96-v2\\.png|apple-touch-icon-v2\\.png)",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=31536000, immutable",
+            },
+          ],
         },
       );
     }
