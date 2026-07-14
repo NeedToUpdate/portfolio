@@ -14,5 +14,7 @@ if (process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     ui_host: "https://us.posthog.com",
     defaults: "2026-05-30",
+    // Surveys are unused; skip loading surveys.js (~32KB) at runtime.
+    disable_surveys: true,
   });
 }
