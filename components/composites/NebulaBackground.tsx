@@ -39,6 +39,10 @@ const DENSE_STAR_COUNT = 3200;
 const FRAME_INTERVAL_MS = 16;
 const SLOW_FRAME_MS = 55;
 const MIX_RATE = 2.5; // 1/s, ease toward the glyph target (slower morph)
+// 1/s, ramp the sky wash in once its shader finishes compiling. The sky
+// is by far the slowest program to build, so the scene reveals without
+// it and it eases in a beat later rather than gating the whole canvas.
+const SKY_FADE_RATE = 2.2;
 const MOUSE_FADE_RATE = 4; // 1/s, push fade only
 const MOUSE_VEL_RATE = 7; // 1/s, velocity smoothing for the wake
 // Pointer position smoothing. Raw pointer events arrive quantized to
@@ -163,6 +167,15 @@ export default function NebulaBackground({
     let fgProgram!: WebGLProgram;
     let denseProgram!: WebGLProgram;
     let activePrograms: WebGLProgram[] = [];
+    // The reveal waits on these; the 238-line sky shader is not among
+    // them. Gas, glyphs, and stars are small programs that build in a
+    // fraction of the sky's compile time, and the scene reads fine
+    // without the wash, so gating everything on the slowest program only
+    // bought a longer stare at an empty starfield.
+    let revealPrograms: WebGLProgram[] = [];
+    let skyPrograms: WebGLProgram[] = [];
+    let skyFrame = 0;
+    let seed: [number, number, number, number] = [0, 0, 0, 0];
     let parallelCompile: KHR_parallel_shader_compile | null = null;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -181,6 +194,9 @@ export default function NebulaBackground({
       // programs still have zeroed uniforms.
       uploadedW: 0,
       uploadedH: 0,
+      // The sky wash lands after the reveal; skyFade eases it in.
+      skyReady: false,
+      skyFade: 0,
       mix: 0,
       activeShape: null as string | null,
       pendingShape: null as string | null,
@@ -277,8 +293,14 @@ export default function NebulaBackground({
       canvas.height = height;
       gl!.viewport(0, 0, canvas.width, canvas.height);
       if (!isMini) {
-        gl!.useProgram(bgProgram);
-        gl!.uniform2f(bgU.res, canvas.width, canvas.height);
+        // Touching the sky program before its async compile finishes would
+        // force the driver to complete it synchronously — exactly the
+        // main-thread stall the staged reveal exists to avoid. startSky()
+        // uploads the size it missed.
+        if (state.skyReady) {
+          gl!.useProgram(bgProgram);
+          gl!.uniform2f(bgU.res, canvas.width, canvas.height);
+        }
         gl!.useProgram(fgProgram);
         gl!.uniform2f(fgU.res, canvas.width, canvas.height);
       }
@@ -336,22 +358,31 @@ export default function NebulaBackground({
         gl!.disable(gl!.BLEND);
         gl!.clearColor(0, 0, 0, 0);
         gl!.clear(gl!.COLOR_BUFFER_BIT);
-      } else if (visible("background")) {
-        // Pass 1: background (sky, stars, H II, cirrus).
-        gl!.disable(gl!.BLEND);
-        gl!.useProgram(bgProgram);
-        gl!.uniform1f(bgU.time, time);
-        gl!.uniform2f(bgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
-        gl!.uniform1f(bgU.mouseActive, state.mouseActive);
-        gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
-        const quadLoc = gl!.getAttribLocation(bgProgram, "aPosition");
-        gl!.enableVertexAttribArray(quadLoc);
-        gl!.vertexAttribPointer(quadLoc, 2, gl!.FLOAT, false, 0, 0);
-        gl!.drawArrays(gl!.TRIANGLES, 0, 3);
       } else {
+        // Pass 1: background (sky, stars, H II, cirrus). The clear is the
+        // sky shader's own base color, so drawing the wash over it with a
+        // 0..1 alpha is continuous: at fade 0 the buffer already holds
+        // exactly what the sky would paint before anything is added to it.
         gl!.disable(gl!.BLEND);
         gl!.clearColor(0.004, 0.004, 0.006, 1);
         gl!.clear(gl!.COLOR_BUFFER_BIT);
+
+        if (visible("background") && state.skyReady) {
+          state.skyFade += (1 - state.skyFade) * (1 - Math.exp(-SKY_FADE_RATE * dtSec));
+          gl!.enable(gl!.BLEND);
+          gl!.blendFunc(gl!.SRC_ALPHA, gl!.ONE_MINUS_SRC_ALPHA);
+          gl!.useProgram(bgProgram);
+          gl!.uniform1f(bgU.time, time);
+          gl!.uniform2f(bgU.mouse, state.smoothMouse.x, state.smoothMouse.y);
+          gl!.uniform1f(bgU.mouseActive, state.mouseActive);
+          gl!.uniform1f(bgU.fade, state.skyFade);
+          gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
+          const quadLoc = gl!.getAttribLocation(bgProgram, "aPosition");
+          gl!.enableVertexAttribArray(quadLoc);
+          gl!.vertexAttribPointer(quadLoc, 2, gl!.FLOAT, false, 0, 0);
+          gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+          gl!.disable(gl!.BLEND);
+        }
       }
 
       // Pass 1.5: the dense dust of faint distant suns, as static
@@ -666,13 +697,13 @@ export default function NebulaBackground({
     // and the worker has delivered the particle buffers.
     const start = () => {
       try {
-        for (const program of activePrograms) finishProgram(gl!, program);
+        for (const program of revealPrograms) finishProgram(gl!, program);
       } catch (error) {
         console.error("Nebula shaders failed, keeping starfield only:", error);
         return;
       }
 
-      const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
+      seed = [Math.random(), Math.random(), Math.random(), Math.random()];
 
       // Particle buffers, prebuilt by the worker in the common case. The
       // sync path covers a worker that failed to spawn or crashed.
@@ -707,50 +738,6 @@ export default function NebulaBackground({
       quadBuffer = gl!.createBuffer();
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuffer);
       gl!.bufferData(gl!.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl!.STATIC_DRAW);
-
-      if (!isMini) {
-        // Uniforms: background program. The wash tints come from the
-        // profiles: A follows the lowest cloud, B the upper one. The
-        // portrait scene has no third cloud; the cool accent falls
-        // back to the first (the teal web).
-        const palA = profilePalettes[clouds[0].profile].bg;
-        const palB = profilePalettes[(clouds[1] ?? clouds[0]).profile].bg;
-        const palC = profilePalettes[(clouds[2] ?? clouds[0]).profile].bg;
-        gl!.useProgram(bgProgram);
-        bgU = {
-          res: gl!.getUniformLocation(bgProgram, "uRes"),
-          time: gl!.getUniformLocation(bgProgram, "uTime"),
-          mouse: gl!.getUniformLocation(bgProgram, "uMouse"),
-          mouseActive: gl!.getUniformLocation(bgProgram, "uMouseActive"),
-        };
-        gl!.uniform4f(gl!.getUniformLocation(bgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
-        clouds.forEach((c, i) => {
-          gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, 1);
-        });
-        const hiiSpots: [number, number][] = [
-          [0.5, 0.9],
-          [0.15, 0.5],
-          [0.85, 0.55],
-          [0.5, 0.1],
-        ];
-        hiiSpots.sort(() => Math.random() - 0.5);
-        for (let i = 0; i < 2; i++) {
-          gl!.uniform4f(
-            gl!.getUniformLocation(bgProgram, `uHii${i}`),
-            hiiSpots[i][0] + jitter(),
-            hiiSpots[i][1] + jitter(),
-            0.55 + Math.random() * 0.35,
-            0.5 + Math.random() * 0.4
-          );
-        }
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreA"), ...palA.core);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreB"), ...palB.core);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidA"), ...palA.mid);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidB"), ...palB.mid);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.fil);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.fil);
-        gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColBlue"), ...palC.core);
-      }
 
       // Uniforms and attributes: particle program.
       gl!.useProgram(particleProgram);
@@ -850,20 +837,101 @@ export default function NebulaBackground({
       canvas.style.opacity = "1";
     };
 
+    /**
+     * Second stage: the sky wash, once its shader has finally linked. The
+     * scene is already on screen and animating by now, so a failure here
+     * is survivable — the near-black clear the sky paints over stands in
+     * for it, and the gas and stars carry the frame.
+     */
+    const startSky = () => {
+      try {
+        for (const program of skyPrograms) finishProgram(gl!, program);
+      } catch (error) {
+        console.error("Nebula sky shader failed, keeping the bare scene:", error);
+        return;
+      }
+
+      // The wash tints come from the profiles: A follows the lowest cloud,
+      // B the upper one. The portrait scene has no third cloud; the cool
+      // accent falls back to the first (the teal web).
+      const palA = profilePalettes[clouds[0].profile].bg;
+      const palB = profilePalettes[(clouds[1] ?? clouds[0]).profile].bg;
+      const palC = profilePalettes[(clouds[2] ?? clouds[0]).profile].bg;
+      gl!.useProgram(bgProgram);
+      bgU = {
+        res: gl!.getUniformLocation(bgProgram, "uRes"),
+        time: gl!.getUniformLocation(bgProgram, "uTime"),
+        mouse: gl!.getUniformLocation(bgProgram, "uMouse"),
+        mouseActive: gl!.getUniformLocation(bgProgram, "uMouseActive"),
+        fade: gl!.getUniformLocation(bgProgram, "uFade"),
+      };
+      gl!.uniform4f(gl!.getUniformLocation(bgProgram, "uSeed"), seed[0], seed[1], seed[2], seed[3]);
+      clouds.forEach((c, i) => {
+        gl!.uniform4f(gl!.getUniformLocation(bgProgram, `uCloud${i}`), c.x, c.y, c.radius, 1);
+      });
+      const hiiSpots: [number, number][] = [
+        [0.5, 0.9],
+        [0.15, 0.5],
+        [0.85, 0.55],
+        [0.5, 0.1],
+      ];
+      hiiSpots.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < 2; i++) {
+        gl!.uniform4f(
+          gl!.getUniformLocation(bgProgram, `uHii${i}`),
+          hiiSpots[i][0] + jitter(),
+          hiiSpots[i][1] + jitter(),
+          0.55 + Math.random() * 0.35,
+          0.5 + Math.random() * 0.4
+        );
+      }
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreA"), ...palA.core);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColCoreB"), ...palB.core);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidA"), ...palA.mid);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColMidB"), ...palB.mid);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilA"), ...palA.fil);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColFilB"), ...palB.fil);
+      gl!.uniform3f(gl!.getUniformLocation(bgProgram, "uColBlue"), ...palC.core);
+      // resize() skipped this program while it was still compiling.
+      gl!.uniform2f(bgU.res, canvas.width, canvas.height);
+
+      state.skyReady = true;
+      if (reducedMotion) {
+        // No render loop to ease it in; land on the finished sky.
+        state.skyFade = 1;
+        renderFrame(12000, 0.016);
+      }
+    };
+
+    const isCompiling = (programs: WebGLProgram[]) =>
+      parallelCompile &&
+      programs.some(
+        (program) => !gl!.getProgramParameter(program, parallelCompile!.COMPLETION_STATUS_KHR)
+      );
+
+    // Poll for the sky's compile on its own, after the scene is up.
+    const waitForSky = () => {
+      if (state.disposed) return;
+      if (isCompiling(skyPrograms)) {
+        skyFrame = requestAnimationFrame(waitForSky);
+        return;
+      }
+      startSky();
+    };
+
     // Poll for compile and particle-generation completion without
     // blocking the main thread. The worker nulls itself when it delivers.
+    // Only the reveal programs are waited on here; the sky follows.
     const waitForCompile = () => {
       if (state.disposed) return;
-      const compiling =
-        parallelCompile &&
-        activePrograms.some(
-          (program) => !gl!.getProgramParameter(program, parallelCompile!.COMPLETION_STATUS_KHR)
-        );
-      if (compiling || particleWorker) {
+      if (isCompiling(revealPrograms) || particleWorker) {
         state.frame = requestAnimationFrame(waitForCompile);
         return;
       }
       start();
+      // start() bails on a compile failure and leaves the scene unbooted;
+      // there is then nothing for the sky to draw over.
+      if (state.started && skyPrograms.length > 0) waitForSky();
     };
 
     // Compiles the programs and kicks off the async-compile poll. Runs
@@ -896,16 +964,26 @@ export default function NebulaBackground({
         }
       }
 
+      // A restored context starts over with programs that know nothing.
+      state.skyReady = false;
+      state.skyFade = 0;
+
       try {
         particleProgram = beginProgram(gl!, PARTICLE_VERTEX_SRC, PARTICLE_FRAGMENT_SRC);
         glyphProgram = beginProgram(gl!, PARTICLE_VERTEX_SRC, GLYPH_FRAGMENT_SRC);
         denseProgram = beginProgram(gl!, DENSE_STAR_VERTEX_SRC, DENSE_STAR_FRAGMENT_SRC);
-        activePrograms = [particleProgram, glyphProgram, denseProgram];
+        revealPrograms = [particleProgram, glyphProgram, denseProgram];
+        skyPrograms = [];
         if (!isMini) {
           bgProgram = beginProgram(gl!, VERTEX_SRC, BACKGROUND_FRAGMENT_SRC);
           fgProgram = beginProgram(gl!, VERTEX_SRC, FOREGROUND_FRAGMENT_SRC);
-          activePrograms.push(bgProgram, fgProgram);
+          // The foreground stars are a small program and draw over the
+          // clear just as happily as over the wash, so they reveal with
+          // the scene. Only the heavy sky is deferred.
+          revealPrograms.push(fgProgram);
+          skyPrograms.push(bgProgram);
         }
+        activePrograms = [...revealPrograms, ...skyPrograms];
       } catch (error) {
         console.error("Nebula shaders failed, keeping starfield only:", error);
         return;
@@ -946,6 +1024,7 @@ export default function NebulaBackground({
       state.disposed = true;
       state.running = false;
       cancelAnimationFrame(state.frame);
+      cancelAnimationFrame(skyFrame);
       particleWorker?.terminate();
       particleWorker = null;
       canvas.removeEventListener("webglcontextlost", onContextLost);
@@ -981,13 +1060,16 @@ export default function NebulaBackground({
     <canvas
       ref={canvasRef}
       aria-hidden
-      // Starts invisible; start() fades it in once the shaders compile,
-      // so the DOM starfield covers the wait. h-lvh, not h-full: the
-      // largest-viewport unit ignores the mobile URL bar collapsing,
-      // so the sky doesn't shift and re-snap while scrolling.
+      // Starts invisible; start() fades it in once the fast shaders
+      // compile, so the DOM starfield covers the wait. ease-out over half
+      // a second: the old second-long default ramp spent its first third
+      // near-invisible, which read as the scene still loading after it
+      // had already arrived. h-lvh, not h-full: the largest-viewport unit
+      // ignores the mobile URL bar collapsing, so the sky doesn't shift
+      // and re-snap while scrolling.
       className={variant === "demo"
-        ? "pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-1000"
-        : "pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"}
+        ? "pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-500 ease-out"
+        : "pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-500 ease-out"}
     />
   );
 }
