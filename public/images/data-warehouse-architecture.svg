@@ -76,11 +76,11 @@
   <path class="line" d="M712 376 V500 H824 V682 H396 V712"/>
 
   <rect class="stage" x="564" y="712" width="224" height="98" rx="8"/>
-  <text class="label" x="676" y="754" text-anchor="middle">SQL Extractor</text>
+  <text class="label" x="676" y="754" text-anchor="middle">Report Generator</text>
 
   <rect class="stage" x="564" y="862" width="224" height="98" rx="8"/>
-  <text class="label" x="676" y="904" text-anchor="middle">Report Generator</text>
-  <path class="line" d="M676 810 V862"/>
+  <text class="label" x="676" y="904" text-anchor="middle">SQL Extractor</text>
+  <path class="line" d="M676 862 V810"/>
 
   <rect class="lake" x="72" y="1018" width="854" height="330" rx="10"/>
   <text class="label" x="140" y="1064" text-anchor="middle">Data Lake</text>
@@ -103,7 +103,7 @@
   <path class="line" d="M562 1200 H604"/>
   <path class="line" d="M726 1200 H766"/>
   <path class="line" d="M396 810 V890 H279 V1018"/>
-  <path class="line" d="M738 1018 H824 V761 H788"/>
+  <path class="line" d="M676 1018 V960"/>
 
   <rect class="gold-zone" x="766" y="1110" width="140" height="50" rx="8"/>
   <text class="label" x="836" y="1141" text-anchor="middle">Data Mart</text>
