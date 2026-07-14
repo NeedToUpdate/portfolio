@@ -2,13 +2,20 @@
 title: "Data Warehousing & Infrastructure Build"
 date: "2024-06-01"
 techs: ["aws", "python", "redshift", "serverless", "splunk"]
-keywords: ["data warehouse", "enterprise data warehouse", "data platform", "ETL pipeline", "data governance"]
+keywords:
+  [
+    "data warehouse",
+    "enterprise data warehouse",
+    "data platform",
+    "ETL pipeline",
+    "data governance",
+  ]
 impact: "Built an AWS data warehouse that gave a major insurer control over its data landscape across 150+ daily extracts and 5 external companies."
 priority: 1
 category: data
 role: "Spearheaded architecture and multi-year delivery"
 diagram: "/images/data-warehouse-architecture.svg"
-diagramAlt: "Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and user outputs."
+diagramAlt: "Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and gold-layer data marts serving internal teams, clients, and partners."
 context:
   - term: "Client"
     value: "Major insurance client"
@@ -50,18 +57,18 @@ I spearheaded the architecture and multi-year delivery of an AWS-based data ware
 
 The design introduced a clear flow: ingest files, land them safely, process them through custom ETL, quarantine bad records, and publish trusted data for reporting and analysis.
 
-The warehouse followed layered data zones: raw, bronze, silver, and gold. Each layer had a purpose. Raw preserved incoming data. Bronze standardized it. Silver applied business logic. Gold exposed trusted datasets to reporting, internal teams, clients, and partners.
+The warehouse followed layered data zones: raw, bronze, silver, and gold. Each layer had a purpose. Raw preserved incoming data. Bronze standardized it. Silver applied business logic. Gold modeled the data Kimball-style, tracked with SCD Type 2 so a changed record kept its history instead of overwriting it. From gold, we built data marts that exposed trusted datasets to reporting, internal teams, clients, and partners.
 
 Splunk received logs for alerting and monitoring. A metadata and health system tracked the platform's operating state. Data governance owned validation rules, so quality controls could evolve with the business.
 
 ## Decision points
 
-| Decision | Options | Why this path |
-| --- | --- | --- |
-| Platform approach | Keep local extracts or build a central warehouse | A central warehouse gave the insurer control over its own data landscape. |
-| ETL strategy | Use no-code tooling or custom ETL | The rules were complex, specific, and changed often. Custom ETL gave the team the control the business needed. |
-| Data quality | Let bad data flow downstream or quarantine it | Quarantine protected reporting while giving the team a controlled repair path. |
-| Delivery model | Big-bang platform launch or incremental delivery | A multi-year, piece-by-piece rollout let the business gain value while the platform expanded. |
+| Decision          | Options                                          | Why this path                                                                                                  |
+| ----------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Platform approach | Keep local extracts or build a central warehouse | A central warehouse gave the insurer control over its own data landscape.                                      |
+| ETL strategy      | Use no-code tooling or custom ETL                | The rules were complex, specific, and changed often. Custom ETL gave the team the control the business needed. |
+| Data quality      | Let bad data flow downstream or quarantine it    | Quarantine protected reporting while giving the team a controlled repair path.                                 |
+| Delivery model    | Big-bang platform launch or incremental delivery | A multi-year, piece-by-piece rollout let the business gain value while the platform expanded.                  |
 
 ## Rollout
 
