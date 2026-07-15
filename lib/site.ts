@@ -10,7 +10,7 @@ export const site = {
   // Public-facing headline: everywhere a title/preview is shown to a
   // reader (page title, OG/twitter cards, opengraph-image alt). Kept
   // separate from `role` so those surfaces can drop the job title.
-  tagline: "Hands-on Architect",
+  tagline: "Architecture & engineering leadership",
   domain: "artnikitin.dev",
   url: process.env.SITE_URL || "https://artnikitin.dev",
   email: "hello@artnikitin.dev",
