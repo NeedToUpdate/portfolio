@@ -1,6 +1,5 @@
 // Computes which CloudFront paths need invalidating from the git diff
-// since the last successful invalidation, then runs it. See
-// CDN_INVALIDATION_PLAN.md for the design and why it's shaped this way.
+// since the last successful invalidation, then runs it.
 //
 // Usage: node scripts/invalidate-cloudfront.mjs <dev|prod>
 // Requires: aws CLI configured, GITHUB_TOKEN + GITHUB_REPOSITORY env vars
