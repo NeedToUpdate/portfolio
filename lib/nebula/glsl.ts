@@ -48,10 +48,6 @@ uniform vec3 uColMidB;
 uniform vec3 uColFilA;
 uniform vec3 uColFilB;
 uniform vec3 uColBlue;  // reflection-blue accent for the gradient wash
-// 0..1 reveal. The sky compiles far slower than the particle programs, so
-// the scene shows without it and this ramps the wash in once it lands.
-// Blended over a clear of the same near-black base, so fade 0 is seamless.
-uniform float uFade;
 
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -266,7 +262,7 @@ void main() {
   col *= vig;
   col = col / (1.0 + col); // Reinhard
 
-  gl_FragColor = vec4(col, uFade);
+  gl_FragColor = vec4(col, 1.0);
 }
 `;
 
