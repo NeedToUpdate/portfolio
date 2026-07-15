@@ -58,7 +58,10 @@ export default function HomePage() {
                 {/* Cut on phones: the About card below covers the same
                     ground, and every line here pushes the insight card
                     further below the fold. */}
-                <Text variant="muted" className="mt-3 hidden max-w-2xl md:block">
+                <Text
+                  variant="muted"
+                  className="mt-3 hidden max-w-2xl md:block"
+                >
                   I take modernization from the first whiteboard session through
                   production: architecture, teams, and delivery.
                 </Text>
@@ -120,7 +123,7 @@ export default function HomePage() {
               <div className="min-w-0">
                 <Text variant="muted">
                   I work where systems, teams, and messy production constraints
-                  meet. Based in Toronto.
+                  meet. I'm always ready to take on the next challenge.
                 </Text>
                 <div className="mt-4">
                   <ArrowLink
