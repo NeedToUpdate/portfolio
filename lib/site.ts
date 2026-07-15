@@ -4,7 +4,13 @@
  */
 export const site = {
   name: "Art Nikitin",
-  role: "Hands-on Architect",
+  // Actual job title: feeds structured data (jobTitle) and llms.txt,
+  // where accuracy matters more than how it reads on a page.
+  role: "Engineering Director & Hands-on Architect",
+  // Public-facing headline: everywhere a title/preview is shown to a
+  // reader (page title, OG/twitter cards, opengraph-image alt). Kept
+  // separate from `role` so those surfaces can drop the job title.
+  tagline: "Hands-on Architect",
   domain: "artnikitin.dev",
   url: process.env.SITE_URL || "https://artnikitin.dev",
   email: "hello@artnikitin.dev",
