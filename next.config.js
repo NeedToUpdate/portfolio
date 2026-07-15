@@ -3,6 +3,11 @@ const path = require("path");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Inline CSS into the HTML so the stylesheet stops blocking first
+  // render (App Router native; optimizeCss/beasties is Pages-only).
+  experimental: {
+    inlineCss: true,
+  },
   // Self-contained server build, deployed to Lambda behind CloudFront.
   output: "standalone",
   images: {
