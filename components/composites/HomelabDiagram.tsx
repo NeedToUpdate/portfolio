@@ -103,8 +103,10 @@ function NodeRow({
               data-testid={`node-${node.id}`}
               aria-pressed={activeId === node.id}
               onClick={() => onSelect(node)}
-              className={`appearance-none bg-transparent cursor-pointer ${routeNodeClass(
-                activeId === node.id
+              className={`appearance-none ${routeNodeClass(
+                activeId === node.id,
+                false,
+                true
               )}`}
             >
               {node.label}
@@ -121,7 +123,7 @@ export default function HomelabDiagram() {
   const [active, setActive] = useState<DiagramNode>(INGRESS[1]);
 
   return (
-    <InteractiveFigure caption="Click a node in either path. Ingress on top: how a request reaches an app. Deployment on the bottom: how a change reaches the cluster.">
+    <InteractiveFigure prompt="click a node" caption="Click a node in either path. Ingress on top: how a request reaches an app. Deployment on the bottom: how a change reaches the cluster.">
       <div className="flex flex-col gap-6">
         <NodeRow title="Ingress" nodes={INGRESS} activeId={active.id} onSelect={setActive} />
         <NodeRow title="Deployment" nodes={DEPLOY} activeId={active.id} onSelect={setActive} />

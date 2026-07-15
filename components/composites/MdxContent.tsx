@@ -15,7 +15,14 @@ export default function MdxContent({ source }: MdxContentProps) {
       <MDXRemote
         source={source}
         components={mdxComponents}
-        options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+        // blockJS defaults to true in next-mdx-remote v6: a remark plugin
+        // strips every JSX attribute whose value is an expression, so
+        // width={3406} on a FloatImage silently vanishes and next/image
+        // throws "missing required width". Our MDX is first-party content
+        // from this repo, not user input, so that sandbox buys nothing and
+        // costs us real props. blockDangerousJS stays on (its default), so
+        // eval/Function/process and friends are still blocked.
+        options={{ mdxOptions: { remarkPlugins: [remarkGfm] }, blockJS: false }}
       />
     </Prose>
   );

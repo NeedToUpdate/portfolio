@@ -16,7 +16,7 @@ export default function MinWidthDemo() {
   const [fixed, setFixed] = useState(false);
 
   return (
-    <InteractiveFigure caption="A flex child's default min-width is its content size. Long unbroken strings blow the row open until min-width: 0 lets it shrink.">
+    <InteractiveFigure prompt="toggle the fix" caption="A flex child's default min-width is its content size. Long unbroken strings blow the row open until min-width: 0 lets it shrink.">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button onClick={() => setFixed((f) => !f)} aria-pressed={fixed}>
