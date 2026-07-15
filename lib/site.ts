@@ -4,7 +4,13 @@
  */
 export const site = {
   name: "Art Nikitin",
+  // Actual job title: feeds structured data (jobTitle) and llms.txt,
+  // where accuracy matters more than how it reads on a page.
   role: "Engineering Director & Hands-on Architect",
+  // Public-facing headline: everywhere a title/preview is shown to a
+  // reader (page title, OG/twitter cards, opengraph-image alt). Kept
+  // separate from `role` so those surfaces can drop the job title.
+  tagline: "Hands-on Architect",
   domain: "artnikitin.dev",
   url: process.env.SITE_URL || "https://artnikitin.dev",
   email: "hello@artnikitin.dev",
@@ -12,7 +18,7 @@ export const site = {
   github: "https://github.com/NeedToUpdate",
   linkedin: "https://linkedin.com/in/art-nikitin-dev",
   description:
-    "Engineering director and hands-on architect. I design the systems enterprises run on and lead the teams that build them.",
+    "I design the systems enterprises run on and lead the teams that build them.",
 } as const;
 
 export interface SocialChannel {
