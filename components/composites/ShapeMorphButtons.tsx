@@ -18,7 +18,7 @@ const SHAPES: { key: string; label: string }[] = [
  */
 export default function ShapeMorphButtons() {
   return (
-    <InteractiveFigure caption="Hover a shape and watch the nebula in the corner of this page.">
+    <InteractiveFigure prompt="hover a shape" caption="Hover a shape and watch the nebula in the corner of this page.">
       <div className="flex flex-wrap gap-3">
         {SHAPES.map((shape) => (
           <span
@@ -26,7 +26,7 @@ export default function ShapeMorphButtons() {
             data-testid={`shape-${shape.key}`}
             data-nebula-shape={shape.key}
             tabIndex={0}
-            className="cursor-default rounded-md border border-line/60 px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent/70 hover:text-ink focus-visible:border-accent/70 focus-visible:text-ink"
+            className="cursor-pointer rounded-md border border-line/60 px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent/70 hover:bg-accent/5 hover:text-ink focus-visible:border-accent/70 focus-visible:text-ink"
           >
             {shape.label}
           </span>

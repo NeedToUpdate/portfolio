@@ -28,7 +28,7 @@ export default function StarfieldDemo() {
   };
 
   return (
-    <InteractiveFigure caption="This is the production WebGL renderer, cropped to one Helix-like nebula. Toggle its actual draw groups from the distant interstellar medium forward.">
+    <InteractiveFigure prompt="toggle a layer" caption="This is the production WebGL renderer, cropped to one Helix-like nebula. Toggle its actual draw groups from the distant interstellar medium forward.">
       <div className="flex flex-col gap-4">
         <div className="relative aspect-video w-full overflow-hidden rounded-md border border-line/60 bg-[#05070c]">
           <NebulaBackground key={generation} variant="demo" layers={layers} />

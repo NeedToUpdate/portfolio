@@ -56,7 +56,7 @@ export default function RequestPathExplorer() {
   const active = (id: string) => spec.path.includes(id);
 
   return (
-    <InteractiveFigure caption="One CloudFront distribution, two origins. The request type picks the path.">
+    <InteractiveFigure prompt="pick a request" caption="One CloudFront distribution, two origins. The request type picks the path.">
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap gap-3">
           {(Object.keys(REQUESTS) as RequestKind[]).map((key) => (
