@@ -14,6 +14,9 @@ skills:
     since: 2024
   - name: "System design"
     since: 2018
+  - name: "Temporal.io"
+    since: 2025
+    context: "Agentic AI PM tool, Innovation Labs"
   - name: "Security"
     since: 2018
 ---
