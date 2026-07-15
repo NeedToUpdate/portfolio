@@ -847,7 +847,14 @@ export default function NebulaBackground({
       }
 
       // Reveal: the starfield covered the compile wait; fade the nebula in.
-      canvas.style.opacity = "1";
+      // Flip opacity on a later frame so the opacity:0 baseline is painted
+      // first and the transition animates. Drivers that finish compiling
+      // within the reveal frame (Windows D3D11) otherwise snap in.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (!state.disposed) canvas.style.opacity = "1";
+        });
+      });
     };
 
     // Poll for compile and particle-generation completion without
