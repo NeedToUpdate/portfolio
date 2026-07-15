@@ -56,7 +56,7 @@ export default function AIWorkflowTimeline() {
   const stage = STAGES[index];
 
   return (
-    <InteractiveFigure caption="Five stages, four models, one site. Click a stage for what it actually involved.">
+    <InteractiveFigure prompt="click a stage" caption="Five stages, four models, one site. Click a stage for what it actually involved.">
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap gap-3">
           {STAGES.map((s, i) => (

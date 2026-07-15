@@ -9,7 +9,8 @@ export type IconName =
   | "data"
   | "reporting"
   | "infrastructure"
-  | "systems";
+  | "systems"
+  | "pointer";
 
 interface IconProps {
   name: IconName;
@@ -79,6 +80,9 @@ const icons: Record<IconName, ReactNode> = {
       <circle cx="10" cy="18" r="2.5" />
       <path d="m8.3 7 7.3 0.7M7 8.3l2.2 7.3M16.3 9.9l-4.6 6.3" />
     </>
+  ),
+  pointer: (
+    <path d="M4.04 4.69a.5.5 0 0 1 .65-.65l16 6.5a.5.5 0 0 1-.06.94l-6.13 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.94.06z" />
   ),
   github: (
     <path

@@ -45,7 +45,7 @@ export default function BrainRouterDemo() {
   const message = MESSAGES[index];
 
   return (
-    <InteractiveFigure caption="Every message passes through one router before it reaches a specialized cortex.">
+    <InteractiveFigure prompt="pick a message" caption="Every message passes through one router before it reaches a specialized cortex.">
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap gap-3">
           {MESSAGES.map((m, i) => (
