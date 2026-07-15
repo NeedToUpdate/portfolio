@@ -4,7 +4,7 @@
  */
 export const site = {
   name: "Art Nikitin",
-  role: "Engineering Director & Hands-on Architect",
+  role: "Hands-on Architect",
   domain: "artnikitin.dev",
   url: process.env.SITE_URL || "https://artnikitin.dev",
   email: "hello@artnikitin.dev",
@@ -12,7 +12,7 @@ export const site = {
   github: "https://github.com/NeedToUpdate",
   linkedin: "https://linkedin.com/in/art-nikitin-dev",
   description:
-    "Engineering director and hands-on architect. I design the systems enterprises run on and lead the teams that build them.",
+    "I design the systems enterprises run on and lead the teams that build them.",
 } as const;
 
 export interface SocialChannel {
