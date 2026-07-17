@@ -2,6 +2,11 @@ const path = require("path");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Cross-origin origins allowed to reach the dev server.
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   reactStrictMode: true,
   // Self-contained server build, deployed to Lambda behind CloudFront.
   output: "standalone",
