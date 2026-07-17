@@ -6,7 +6,7 @@ date: "2026-07-09"
 tags: ["architecture", "engineering", "ai"]
 ---
 
-This site looks like a static portfolio. It is a server-rendered Next.js application running on AWS Lambda, with a sky that no one has seen before and no one will see again. This post explains the three parts worth explaining: the hosting, the background, and the AI that built most of it.
+This site looks like a static portfolio. It is a server-rendered Next.js application running on AWS Lambda, with a sky that no one has seen before and no one will see again. This post explains the four parts worth explaining: the hosting, the pipeline, the background, and the AI that built most of it.
 
 <FloatImage
   src="/images/portfolio_site.webp"
@@ -34,6 +34,19 @@ The practical result is "serverless side rendered" Next.js. It behaves like a re
   open for the interactive work I want this site to carry: live models,
   calculators, and pages that respond to data. Static sites close that door at
   the build step.
+</Note>
+
+## The pipeline
+
+Every change ships the same way, whether it rewrites the sky or fixes a typo. I branch off `main` and open a pull request into `dev`. GitHub Actions runs the type check, the unit tests, and a full build on every pull request. Merging deploys a live nonprod site behind auth, and I check the change there. When it holds up, I open a second pull request from the same branch into `main`, and that merge deploys production. Nothing reaches either environment by hand.
+
+The deploy itself is one Serverless Framework command in CI. CloudFormation updates the Lambda, the S3 bucket, and the CloudFront distribution as a unit. The same template builds both environments; only the stage name and the secrets differ.
+
+The last step of a deploy decides what CloudFront should forget. Every path it forgets is a cache miss, and every miss sends another request to the Lambda. So the deploy invalidates dynamically: a script diffs the deployed commit against a git tag that marks the last invalidation, and maps every changed file to the pages it can affect. Editing one write-up invalidates that page, the lists that link to it, and the sitemap. Touching a shared layout component invalidates every text route. Changing an image invalidates nothing, because images ship under content-hashed names and a changed image is a new URL. Most of the cache survives each deploy, so the Lambda only re-renders the pages that changed. When the invalidation completes, the tag moves forward and the next deploy diffs from there.
+
+<Note>
+  Overkill for a personal site, and that's the point. I run side projects the
+  way I approach my work, so the skills stay sharp.
 </Note>
 
 ## The sky

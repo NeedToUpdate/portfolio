@@ -10,10 +10,14 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  // Some projects have no public repo or live site: their url points
-  // at the write-up instead, and gets internal client-side routing
-  // rather than a new tab, same rule TextLink uses.
+  // When a write-up exists it is the card's main destination; the
+  // project url moves to the small link below. Otherwise the url is
+  // the destination — some point at the write-up itself and get
+  // internal client-side routing rather than a new tab, same rule
+  // TextLink uses.
+  const hasWriteup = Boolean(project.insightSlug);
   const external = project.url.startsWith("http");
+  const isGithub = project.url.includes("github.com");
 
   const content = (
     <>
@@ -51,11 +55,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <div className="flex flex-col overflow-hidden rounded-xl border border-line/50 bg-surface transition-colors hover:border-line">
-      {/* The card's main click target. The write-up link below is a
+      {/* The card's main click target. The repo link below is a
           second, small, deliberate target, kept out of this anchor
-          since anchors cannot nest; it only renders when the main
-          link goes somewhere else (a real repo or live site). */}
-      {external ? (
+          since anchors cannot nest. */}
+      {hasWriteup ? (
+        <Link href={`/insights/${project.insightSlug}`} className="group flex flex-1 flex-col">
+          {content}
+        </Link>
+      ) : external ? (
         <a
           href={project.url}
           target="_blank"
@@ -69,14 +76,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           {content}
         </Link>
       )}
-      {project.insightSlug && (
-        <Link
-          href={`/insights/${project.insightSlug}`}
-          data-nebula-shape="article"
+      {hasWriteup && external && (
+        <a
+          href={project.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-nebula-shape={isGithub ? "github" : "spark"}
           className="border-t border-line/40 px-5 py-2.5 text-xs text-muted transition-colors hover:text-accent"
         >
-          Read the write-up →
-        </Link>
+          {isGithub ? "Check out the code →" : "Visit the project →"}
+        </a>
       )}
     </div>
   );
