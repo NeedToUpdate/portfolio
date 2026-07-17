@@ -42,14 +42,11 @@ Every change ships the same way, whether it rewrites the sky or fixes a typo. I 
 
 The deploy itself is one Serverless Framework command in CI. CloudFormation updates the Lambda, the S3 bucket, and the CloudFront distribution as a unit. The same template builds both environments; only the stage name and the secrets differ.
 
-The last step of a deploy decides what CloudFront should forget. Purging the whole cache on every deploy works, but it throws away a warm cache to ship a typo. Instead, a script diffs the deployed commit against a git tag that marks the last invalidation, and maps every changed file to the pages it can affect. Editing one write-up invalidates that page, the lists that link to it, and the sitemap. Touching a shared layout component invalidates every text route. Changing an image invalidates nothing, because images ship under content-hashed names and a changed image is a new URL. Any file the script cannot classify triggers a full purge, so an unmapped change costs a bigger purge instead of a stale page. When the invalidation completes, the tag moves forward and the next deploy diffs from there.
+The last step of a deploy decides what CloudFront should forget. Every path it forgets is a cache miss, and every miss sends another request to the Lambda. So the deploy invalidates dynamically: a script diffs the deployed commit against a git tag that marks the last invalidation, and maps every changed file to the pages it can affect. Editing one write-up invalidates that page, the lists that link to it, and the sitemap. Touching a shared layout component invalidates every text route. Changing an image invalidates nothing, because images ship under content-hashed names and a changed image is a new URL. Most of the cache survives each deploy, so the Lambda only re-renders the pages that changed. When the invalidation completes, the tag moves forward and the next deploy diffs from there.
 
 <Note>
-  This is an enterprise release process attached to a personal blog: protected
-  environments, staged rollout, selective cache invalidation, no manual steps.
-  The blog does not need it. I run it because the discipline costs nothing once
-  it is automated, and because a pipeline this small is a good place to
-  practice running one properly.
+  Overkill for a personal site, and that's the point. I run side projects the
+  way I approach my work, so the skills stay sharp.
 </Note>
 
 ## The sky
