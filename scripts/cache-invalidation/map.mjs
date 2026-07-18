@@ -23,6 +23,18 @@ export const TEXT_FIXED_PATHS = [
   "/sitemap.xml",
   "/opengraph-image",
   "/llms.txt",
+  // Agent surface: fixed markdown-mirror documents and the well-known
+  // discovery files (see lib/agent-markdown.ts and app/.well-known/).
+  "/md",
+  "/md/about",
+  "/md/capabilities",
+  "/md/contact",
+  "/md/insights",
+  "/md/projects",
+  "/md/work",
+  "/.well-known/api-catalog",
+  "/.well-known/agent-skills/index.json",
+  "/.well-known/agent-skills/using-this-site/SKILL.md",
 ];
 
 // Only used by the bootstrap (no tag yet) and diff-failure fallbacks,
@@ -110,8 +122,24 @@ export function fullPathList(ctx) {
 export function fullTextPathList(ctx) {
   return [
     ...TEXT_FIXED_PATHS,
-    ...ctx.insightSlugs.map((s) => `/insights/${s}`),
-    ...ctx.workSlugs.map((s) => `/work/${s}`),
+    ...ctx.insightSlugs.flatMap((s) => [`/insights/${s}`, `/md/insights/${s}`]),
+    ...ctx.workSlugs.flatMap((s) => [`/work/${s}`, `/md/work/${s}`]),
+  ];
+}
+
+// Everything the markdown mirror route serves: the twin of each page
+// plus the agent-only /md/capabilities document (lib/agent-markdown.ts).
+export function mdMirrorPathList(ctx) {
+  return [
+    "/md",
+    "/md/about",
+    "/md/capabilities",
+    "/md/contact",
+    "/md/insights",
+    "/md/projects",
+    "/md/work",
+    ...ctx.insightSlugs.map((s) => `/md/insights/${s}`),
+    ...ctx.workSlugs.map((s) => `/md/work/${s}`),
   ];
 }
 
@@ -176,8 +204,8 @@ export function discoverRoots(ctx, appDir = "app") {
         roots.push({ file, paths: fullTextPathList(ctx) });
       } else if (file === `${appDir}/sitemap.ts`) {
         roots.push({ file, paths: ["/sitemap.xml"] });
-      } else if (file === `${appDir}/robots.ts`) {
-        roots.push({ file, paths: ["/robots.txt"] });
+      } else if (file === `${appDir}/md/[[...slug]]/route.ts`) {
+        roots.push({ file, paths: mdMirrorPathList(ctx) });
       } else if (file === `${appDir}/opengraph-image.tsx`) {
         roots.push({ file, paths: ["/opengraph-image"] });
       } else if (file === `${appDir}/insights/[slug]/page.tsx`) {
@@ -233,16 +261,21 @@ export function discoverRoots(ctx, appDir = "app") {
 export function classifyChange(file, status, ctx) {
   let m;
 
+  // Content rules carry each page's markdown twin (/md/...) alongside it,
+  // and /llms.txt wherever the changed collection is listed there.
   if ((m = file.match(/^content\/insights\/([^/]+)\.mdx?$/))) {
     return {
       bucket: "insight",
       slug: m[1],
-      // A brand-new slug was never cached, so its own path needs nothing.
+      // A brand-new slug was never cached, so its own paths need nothing.
       paths: [
-        ...(status === "A" ? [] : [`/insights/${m[1]}`]),
+        ...(status === "A" ? [] : [`/insights/${m[1]}`, `/md/insights/${m[1]}`]),
         "/insights",
+        "/md/insights",
         "/",
+        "/md",
         "/sitemap.xml",
+        "/llms.txt",
       ],
     };
   }
@@ -251,18 +284,40 @@ export function classifyChange(file, status, ctx) {
       bucket: "work",
       slug: m[1],
       paths: [
-        ...(status === "A" ? [] : [`/work/${m[1]}`]),
+        ...(status === "A" ? [] : [`/work/${m[1]}`, `/md/work/${m[1]}`]),
         "/work",
+        "/md/work",
         "/",
+        "/md",
+        "/md/capabilities",
         "/sitemap.xml",
+        "/llms.txt",
       ],
     };
   }
   if (file.startsWith("content/projects/"))
-    return { bucket: "projects", paths: ["/projects", "/sitemap.xml"] };
-  if (file.startsWith("content/career/")) return { bucket: "career", paths: ["/about"] };
-  if (file.startsWith("content/skills/")) return { bucket: "skills", paths: ["/about"] };
-  if (file === "content/home.md") return { bucket: "home", paths: ["/", "/about"] };
+    return { bucket: "projects", paths: ["/projects", "/md/projects", "/sitemap.xml"] };
+  if (file.startsWith("content/career/"))
+    return { bucket: "career", paths: ["/about", "/md/about"] };
+  if (file.startsWith("content/skills/"))
+    return { bucket: "skills", paths: ["/about", "/md/about", "/md/capabilities"] };
+  // home.md feeds the home page, the about capabilities strip, and the
+  // work intro (getWorkIntro renders on /work too), plus their twins.
+  if (file === "content/home.md")
+    return { bucket: "home", paths: ["/", "/md", "/about", "/work", "/md/work"] };
+  // agent.md feeds every agent-facing surface: llms.txt, the
+  // capabilities document, and the published skill (whose digest in
+  // index.json changes with it).
+  if (file === "content/agent.md")
+    return {
+      bucket: "agent-guide",
+      paths: [
+        "/llms.txt",
+        "/md/capabilities",
+        "/.well-known/agent-skills/index.json",
+        "/.well-known/agent-skills/using-this-site/SKILL.md",
+      ],
+    };
   if (file.startsWith("content/"))
     return { bucket: "content-unmapped", paths: [], warn: true };
 
@@ -289,6 +344,13 @@ export function classifyChange(file, status, ctx) {
   if (BROAD_CONFIG_FILES.has(file)) {
     return { bucket: "broad-config", paths: fullTextPathList(ctx) };
   }
+
+  // app/robots.ts was replaced by app/robots.txt/route.ts. The new route
+  // arrives as an "A" (never-cached, purges nothing), but its URL was
+  // already cached by the metadata route it replaces, so the old file's
+  // deletion must evict it.
+  if (file === "app/robots.ts" && status === "D")
+    return { bucket: "deleted-route", paths: ["/robots.txt"] };
 
   if (isSourceFile(file)) {
     const servedPath = staticRoutePath(file);

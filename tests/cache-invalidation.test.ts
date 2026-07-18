@@ -3,6 +3,7 @@ import {
   discoverRoots,
   fullPathList,
   fullTextPathList,
+  mdMirrorPathList,
   optimizerVariantPaths,
   parseNameStatus,
   staticRoutePath,
@@ -22,31 +23,83 @@ function makeContext(fileToPaths = new Map<string, Set<string>>()) {
 describe("content classification", () => {
   const ctx = makeContext();
 
-  it("maps an edited insight to its slug, the index, home, and sitemap", () => {
+  it("maps an edited insight to its slug, the indexes, their twins, and llms.txt", () => {
     const entry = classifyChange("content/insights/ziggy.mdx", "M", ctx);
     expect(entry.bucket).toBe("insight");
-    expect(entry.paths).toEqual(["/insights/ziggy", "/insights", "/", "/sitemap.xml"]);
+    expect(entry.paths).toEqual([
+      "/insights/ziggy",
+      "/md/insights/ziggy",
+      "/insights",
+      "/md/insights",
+      "/",
+      "/md",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
   });
 
-  it("skips the never-cached slug path for a brand-new insight", () => {
+  it("skips the never-cached slug paths for a brand-new insight", () => {
     const entry = classifyChange("content/insights/brand-new.mdx", "A", ctx);
-    expect(entry.paths).toEqual(["/insights", "/", "/sitemap.xml"]);
+    expect(entry.paths).toEqual([
+      "/insights",
+      "/md/insights",
+      "/",
+      "/md",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
   });
 
-  it("maps an edited case study to its slug, the index, home, and sitemap", () => {
+  it("maps an edited case study to its slug, the indexes, their twins, and llms.txt", () => {
     const entry = classifyChange("content/work/payment_rebuild.md", "M", ctx);
     expect(entry.bucket).toBe("work");
-    expect(entry.paths).toEqual(["/work/payment_rebuild", "/work", "/", "/sitemap.xml"]);
+    expect(entry.paths).toEqual([
+      "/work/payment_rebuild",
+      "/md/work/payment_rebuild",
+      "/work",
+      "/md/work",
+      "/",
+      "/md",
+      "/md/capabilities",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
   });
 
-  it("maps projects, career, skills, and home content to their pages", () => {
+  it("maps projects, career, skills, and home content to their pages and twins", () => {
     expect(classifyChange("content/projects/ziggy.md", "M", ctx).paths).toEqual([
       "/projects",
+      "/md/projects",
       "/sitemap.xml",
     ]);
-    expect(classifyChange("content/career/senior.md", "M", ctx).paths).toEqual(["/about"]);
-    expect(classifyChange("content/skills/cloud.md", "M", ctx).paths).toEqual(["/about"]);
-    expect(classifyChange("content/home.md", "M", ctx).paths).toEqual(["/", "/about"]);
+    expect(classifyChange("content/career/senior.md", "M", ctx).paths).toEqual([
+      "/about",
+      "/md/about",
+    ]);
+    expect(classifyChange("content/skills/cloud.md", "M", ctx).paths).toEqual([
+      "/about",
+      "/md/about",
+      "/md/capabilities",
+    ]);
+    // home.md also feeds the /work intro through getWorkIntro().
+    expect(classifyChange("content/home.md", "M", ctx).paths).toEqual([
+      "/",
+      "/md",
+      "/about",
+      "/work",
+      "/md/work",
+    ]);
+  });
+
+  it("maps the agent guide to every agent-facing surface", () => {
+    const entry = classifyChange("content/agent.md", "M", ctx);
+    expect(entry.bucket).toBe("agent-guide");
+    expect(entry.paths).toEqual([
+      "/llms.txt",
+      "/md/capabilities",
+      "/.well-known/agent-skills/index.json",
+      "/.well-known/agent-skills/using-this-site/SKILL.md",
+    ]);
   });
 
   it("warns on an unmapped content collection instead of purging", () => {
@@ -131,6 +184,14 @@ describe("source code classification", () => {
     const entry = classifyChange("app/lab/page.tsx", "D", makeContext());
     expect(entry.bucket).toBe("deleted-route");
     expect(entry.paths).toEqual(["/lab", "/sitemap.xml"]);
+  });
+
+  it("evicts /robots.txt when the old metadata route is deleted", () => {
+    // Its replacement (app/robots.txt/route.ts) arrives as a brand-new
+    // route and purges nothing, but the URL itself was already cached.
+    const entry = classifyChange("app/robots.ts", "D", makeContext());
+    expect(entry.bucket).toBe("deleted-route");
+    expect(entry.paths).toEqual(["/robots.txt"]);
   });
 
   it("refreshes all text routes for broad build config, never images", () => {
@@ -258,8 +319,20 @@ describe("route topology against the real app directory", () => {
     expect(byFile.get("app/about/page.tsx")).toEqual(["/about"]);
     expect(byFile.get("app/llms.txt/route.ts")).toEqual(["/llms.txt"]);
     expect(byFile.get("app/sitemap.ts")).toEqual(["/sitemap.xml"]);
-    expect(byFile.get("app/robots.ts")).toEqual(["/robots.txt"]);
+    expect(byFile.get("app/robots.txt/route.ts")).toEqual(["/robots.txt"]);
     expect(byFile.get("app/opengraph-image.tsx")).toEqual(["/opengraph-image"]);
+    expect(byFile.get("app/.well-known/api-catalog/route.ts")).toEqual([
+      "/.well-known/api-catalog",
+    ]);
+  });
+
+  it("expands the markdown mirror to every twin plus /md/capabilities", () => {
+    const paths = byFile.get("app/md/[[...slug]]/route.ts")!;
+    expect(paths).toEqual(mdMirrorPathList(ctx));
+    expect(paths).toContain("/md");
+    expect(paths).toContain("/md/capabilities");
+    expect(paths).toContain("/md/insights/ziggy");
+    expect(paths).toContain("/md/work/tableau");
   });
 
   it("expands dynamic templates with the content slugs", () => {
@@ -287,6 +360,9 @@ describe("path lists and diff parsing", () => {
     expect(text).toContain("/insights/ziggy");
     expect(text).toContain("/work/tableau");
     expect(text).toContain("/llms.txt");
+    expect(text).toContain("/md/insights/ziggy");
+    expect(text).toContain("/md/work/tableau");
+    expect(text).toContain("/.well-known/api-catalog");
     expect(text).not.toContain("/images/*");
     expect(text).not.toContain("/_next/image*");
   });
