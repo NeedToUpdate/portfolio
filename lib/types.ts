@@ -28,6 +28,8 @@ export interface CaseStudy {
   diagram?: string;
   /** Equivalent text for the architecture diagram's important flow and components. */
   diagramAlt?: string;
+  /** Manually selected canonical paths to genuinely related local content. */
+  related?: string[];
   body: string;
 }
 
@@ -65,6 +67,17 @@ export interface InsightMeta {
   date: string;
   tags: string[];
   readingTimeMinutes: number;
+  /** Manually selected canonical paths to genuinely related local content. */
+  related?: string[];
+}
+
+/** Resolved editorial link shared by insight and case-study pages. */
+export interface RelatedContent {
+  href: string;
+  title: string;
+  description: string;
+  image?: string;
+  kind: "Insight" | "Case study";
 }
 
 /** A full insight: metadata plus raw MDX source. */

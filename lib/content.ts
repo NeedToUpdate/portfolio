@@ -11,6 +11,7 @@ import {
   Insight,
   InsightMeta,
   Project,
+  RelatedContent,
   SkillDomain,
   StreamView,
   WorkIntro,
@@ -107,6 +108,7 @@ export function getCaseStudies(): CaseStudy[] {
         ? fingerprintedPath(entry.data.diagram as string)
         : undefined,
       diagramAlt: entry.data.diagramAlt as string | undefined,
+      related: (entry.data.related as string[]) ?? [],
       body: entry.content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);
@@ -156,7 +158,36 @@ function toInsightMeta(entry: ContentEntry): InsightMeta {
     date: requireString(entry, "date"),
     tags: (entry.data.tags as string[]) ?? [],
     readingTimeMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
+    related: (entry.data.related as string[]) ?? [],
   };
+}
+
+/** Resolve explicit editorial paths and fail loudly when frontmatter goes stale. */
+export function getRelatedContent(paths: string[] = []): RelatedContent[] {
+  const insights = new Map(getInsights().map((item) => [`/insights/${item.slug}`, item]));
+  const studies = new Map(getCaseStudies().map((item) => [`/work/${item.slug}`, item]));
+
+  return paths.map((href) => {
+    const insight = insights.get(href);
+    if (insight) return {
+      href,
+      title: insight.title,
+      description: insight.description,
+      image: insight.previewImage,
+      kind: "Insight" as const,
+    };
+
+    const study = studies.get(href);
+    if (study) return {
+      href,
+      title: study.title,
+      description: study.impact,
+      image: study.diagram,
+      kind: "Case study" as const,
+    };
+
+    throw new Error(`Related content path does not resolve: ${href}`);
+  });
 }
 
 export function getInsights(): InsightMeta[] {

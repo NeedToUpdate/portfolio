@@ -56,6 +56,7 @@ export function personSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `${site.url}/#person`,
     name: site.name,
     url: site.url,
     // JPEG rather than the webp used on-page: search engines and
@@ -106,6 +107,7 @@ export function websiteSchema() {
     inLanguage: "en-CA",
     author: {
       "@type": "Person",
+      "@id": `${site.url}/#person`,
       name: site.name,
       url: site.url,
     },
@@ -133,6 +135,7 @@ export function articleSchema(insight: InsightMeta) {
       : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
+      "@id": `${site.url}/#person`,
       name: site.name,
       url: site.url,
     },
@@ -162,6 +165,7 @@ export function caseStudySchema(caseStudy: CaseStudy) {
       : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
+      "@id": `${site.url}/#person`,
       name: site.name,
       url: site.url,
     },

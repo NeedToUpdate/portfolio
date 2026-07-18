@@ -6,6 +6,7 @@ import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import Markdown from "@/components/composites/Markdown";
 import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
+import ArticleByline from "@/components/composites/ArticleByline";
 import CaseScorecard from "@/components/composites/CaseScorecard";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
@@ -15,7 +16,7 @@ import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape } from "@/lib/nebula/shapes";
 import JsonLd from "@/components/ui/JsonLd";
-import { getCaseStudies, getCaseStudy } from "@/lib/content";
+import { getCaseStudies, getCaseStudy, getRelatedContent } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
 import { breadcrumbSchema, caseStudySchema, ogImagePath } from "@/lib/seo";
 import { mailtoUrl } from "@/lib/site";
@@ -65,12 +66,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const all = getCaseStudies();
   const index = all.findIndex((c) => c.slug === slug);
   const previous = index > 0 ? all[index - 1] : undefined;
-  const recommendations =
-    index >= 0
-      ? Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) =>
-          all[(index + offset + 1) % all.length]
-        )
-      : [];
+  const recommendations = getRelatedContent(caseStudy.related);
 
   // The exhibit belongs to the solution: problem, then solution, then
   // the diagram it just described, then the result.
@@ -113,6 +109,9 @@ export default async function CaseStudyPage({ params }: PageProps) {
         <Text variant="emphasis" className="mt-5 max-w-prose">
           {caseStudy.impact}
         </Text>
+        <div className="mt-5">
+          <ArticleByline label="Case study by" />
+        </div>
 
         <CaseScorecard
           entries={caseStudy.context ?? []}
@@ -191,14 +190,11 @@ export default async function CaseStudyPage({ params }: PageProps) {
           }
         }
         recommendations={recommendations.map((recommended, recommendationIndex) => ({
-          href: `/work/${recommended.slug}`,
+          href: recommended.href,
           title: recommended.title,
-          hint:
-            recommendationIndex === 0
-              ? "Suggested next case study"
-              : "Another case study",
-          description: recommended.impact,
-          image: recommended.diagram,
+          hint: recommendationIndex === 0 ? recommended.kind : "Also worth reading",
+          description: recommended.description,
+          image: recommended.image,
         }))}
       />
     </PageShell>

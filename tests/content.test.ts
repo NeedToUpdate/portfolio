@@ -6,9 +6,11 @@ import {
   getInsights,
   getProjects,
   getProjectsByEra,
+  getRelatedContent,
   getSkillDomains,
   getWorkIntro,
 } from "@/lib/content";
+import { articleSchema, caseStudySchema, personSchema, websiteSchema } from "@/lib/seo";
 
 describe("content loaders", () => {
   it("loads case studies sorted by priority", () => {
@@ -60,6 +62,15 @@ describe("content loaders", () => {
     expect(insight?.body).toContain("Lambda");
   });
 
+  it("resolves every manually selected related-content path", () => {
+    const entries = [...getInsights(), ...getCaseStudies()];
+    const linked = entries.filter((entry) => entry.related?.length);
+    expect(linked.length).toBeGreaterThan(0);
+    for (const entry of linked) {
+      expect(getRelatedContent(entry.related)).toHaveLength(entry.related!.length);
+    }
+  });
+
   it("loads the work intro with capabilities", () => {
     const intro = getWorkIntro();
     expect(intro.title).toBeTruthy();
@@ -85,5 +96,15 @@ describe("content loaders", () => {
     const linked = getProjects().filter((p) => p.insightSlug);
     expect(linked.length).toBeGreaterThan(0);
     expect(linked.every((p) => insightSlugs.has(p.insightSlug!))).toBe(true);
+  });
+});
+
+describe("structured identity", () => {
+  it("reuses one stable Person id across page schemas", () => {
+    const personId = personSchema()["@id"];
+    expect(personId).toBe("https://artnikitin.dev/#person");
+    expect(websiteSchema().author["@id"]).toBe(personId);
+    expect(articleSchema(getInsights()[0]).author["@id"]).toBe(personId);
+    expect(caseStudySchema(getCaseStudies()[0]).author["@id"]).toBe(personId);
   });
 });

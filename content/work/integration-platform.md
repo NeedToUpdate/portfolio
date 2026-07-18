@@ -8,6 +8,7 @@ priority: 3
 category: infrastructure
 role: "Built the target architecture and board case"
 diagram: "/images/unified-cloud-architecture.svg"
+related: ["/insights/k3s-homelab"]
 diagramAlt: "A reusable Azure delivery platform combines a shared communication layer and cloud-native compute with infrastructure as code, security, logging, monitoring, and compliance standards."
 context:
   - term: "Client"

@@ -8,6 +8,7 @@ priority: 2
 category: infrastructure
 role: "Led release-process modernization"
 diagram: "/images/sdlc-deployment-automation.svg"
+related: ["/insights/how-this-site-works", "/insights/k3s-homelab"]
 diagramAlt: "A release branch builds once, then promotes the same artifact through SIT, UAT, preproduction, and production, with application support managing later environments."
 context:
   - term: "Client"
