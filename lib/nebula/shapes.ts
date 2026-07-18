@@ -54,6 +54,9 @@ export const nebulaShapes: Record<string, string> = {
   // Puffy cloud: cloud platforms.
   cloud:
     "stroke:M26 78 C12 78 6 68 10 58 C12 53 16 50 21 49 C17 37 27 28 38 31 C43 18 64 17 72 31 C84 27 94 36 92 48 C98 53 98 63 93 69 C89 75 82 78 72 78 Z",
+  // Two interlocking capsules: a chain link, for "copy link".
+  link:
+    "stroke:M23 35 L43 35 A15 15 0 0 1 43 65 L23 65 A15 15 0 0 1 23 35 Z M57 35 L77 35 A15 15 0 0 1 77 65 L57 65 A15 15 0 0 1 57 35 Z",
 };
 
 export type NebulaShapeKey = keyof typeof nebulaShapes;

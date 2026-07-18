@@ -10,7 +10,10 @@ export type IconName =
   | "reporting"
   | "infrastructure"
   | "systems"
-  | "pointer";
+  | "pointer"
+  | "link"
+  | "check"
+  | "share";
 
 interface IconProps {
   name: IconName;
@@ -83,6 +86,21 @@ const icons: Record<IconName, ReactNode> = {
   ),
   pointer: (
     <path d="M4.04 4.69a.5.5 0 0 1 .65-.65l16 6.5a.5.5 0 0 1-.06.94l-6.13 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.94.06z" />
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </>
+  ),
+  check: <path d="M20 6 9 17l-5-5" />,
+  share: (
+    <>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98" />
+    </>
   ),
   github: (
     <path
