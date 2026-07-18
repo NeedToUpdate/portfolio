@@ -21,6 +21,22 @@ export const site = {
     "I design the systems enterprises run on and lead the teams that build them.",
 } as const;
 
+/**
+ * Builds a mailto: link with an optional pre-filled subject and body.
+ * encodeURIComponent (not URLSearchParams) so spaces become %20 and
+ * newlines %0A, which every mail client decodes; the `+` that
+ * URLSearchParams emits is left literal by some clients.
+ */
+export function mailtoUrl({
+  subject,
+  body,
+}: { subject?: string; body?: string } = {}): string {
+  const parts: string[] = [];
+  if (subject) parts.push(`subject=${encodeURIComponent(subject)}`);
+  if (body) parts.push(`body=${encodeURIComponent(body)}`);
+  return `mailto:${site.email}${parts.length ? `?${parts.join("&")}` : ""}`;
+}
+
 export interface SocialChannel {
   key: "email" | "github" | "linkedin";
   label: string;

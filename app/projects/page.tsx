@@ -9,7 +9,7 @@ import { getProjectsByEra } from "@/lib/content";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Projects",
+  title: "Personal projects, hardware to AI builds",
   description:
     "Personal projects, past and present. Current work built with AI in the toolchain, and an archive of hardware, games, and tools built entirely by hand.",
   path: "/projects",

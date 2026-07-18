@@ -55,6 +55,9 @@ export interface Project {
 export interface InsightMeta {
   slug: string;
   title: string;
+  /** Shorter title for the <title> tag, when the on-page headline runs
+   *  past the ~60-char length search engines truncate. Falls back to title. */
+  seoTitle?: string;
   description: string;
   /** Editorial image used by insight lists, recommendations, and social previews. */
   previewImage?: string;

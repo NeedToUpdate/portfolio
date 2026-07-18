@@ -4,6 +4,7 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import MdxContent from "@/components/composites/MdxContent";
+import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
 import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
@@ -25,7 +26,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const insight = getInsight(slug);
   if (!insight) return {};
   return {
-    title: insight.title,
+    // seoTitle keeps the <title> tag under the length search engines
+    // truncate; the punchy headline stays as the OG/on-page title.
+    title: insight.seoTitle ?? insight.title,
     description: insight.description,
     keywords: insight.tags,
     alternates: { canonical: `/insights/${slug}` },
@@ -103,6 +106,12 @@ export default async function InsightPage({ params }: PageProps) {
       <article className="mt-10">
         <MdxContent source={insight.body} />
       </article>
+
+      <ShareButton
+        title={insight.title}
+        path={`/insights/${slug}`}
+        contentType="insight"
+      />
 
       <AdjacentNav
         previous={
