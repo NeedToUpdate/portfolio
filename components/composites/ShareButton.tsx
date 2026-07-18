@@ -120,9 +120,10 @@ export default function ShareButton({
 
         {canNativeShare && (
           <Button
-            variant="outline"
+            variant="outline-strong"
             shape="pill"
             onClick={onNative}
+            data-nebula-shape="nodes"
             className="inline-flex items-center gap-2"
           >
             <Icon name="share" size={15} />
@@ -131,9 +132,10 @@ export default function ShareButton({
         )}
 
         <Button
-          variant="outline"
+          variant="outline-strong"
           shape="pill"
           onClick={onCopy}
+          data-nebula-shape="link"
           className="inline-flex items-center gap-2"
           aria-label={copied ? "Link copied" : "Copy link"}
         >
@@ -142,9 +144,10 @@ export default function ShareButton({
         </Button>
 
         <Button
-          variant="outline"
+          variant="outline-strong"
           shape="pill"
           onClick={onLinkedIn}
+          data-nebula-shape="linkedin"
           className="inline-flex items-center gap-2"
         >
           <Icon name="linkedin" size={15} />
@@ -152,9 +155,10 @@ export default function ShareButton({
         </Button>
 
         <Button
-          variant="outline"
+          variant="outline-strong"
           shape="pill"
           onClick={onEmail}
+          data-nebula-shape="email"
           className="inline-flex items-center gap-2"
         >
           <Icon name="mail" size={15} />

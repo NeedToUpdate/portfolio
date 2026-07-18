@@ -10,7 +10,7 @@ import CaseScorecard from "@/components/composites/CaseScorecard";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
-import ArrowLink from "@/components/ui/ArrowLink";
+import ButtonLink from "@/components/ui/ButtonLink";
 import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape } from "@/lib/nebula/shapes";
@@ -141,28 +141,37 @@ export default async function CaseStudyPage({ params }: PageProps) {
         </div>
       )}
 
+      <div className="mt-14 border-t border-line/60 pt-8">
+        <Text variant="small">
+          Exact names, figures, and details are confidential. I can walk
+          through the technical decisions in a conversation.
+        </Text>
+      </div>
+
       <section
         aria-labelledby="work-cta"
-        className="mt-14 border-t border-line/60 pt-8"
+        className="mt-12 border-t border-line/60 pt-8"
       >
         <Heading size="sub" id="work-cta">
           Facing something like this?
         </Heading>
-        <Text variant="muted" className="mt-4 max-w-prose">
-          The client, names, and exact figures stay confidential. The
-          architecture and the results are real. If you are working on a
-          problem like this one, email me. I can walk through how these
-          decisions apply to your systems, or build something similar for you.
+        <Text variant="muted" className="mt-3 max-w-prose">
+          If your team is up against a problem like this, I can help. Tell me
+          what you are working on and I will show you how I would approach it.
         </Text>
         <div className="mt-6">
-          <ArrowLink
+          <ButtonLink
             href={mailtoUrl({
               subject: "A system I'd like to talk through",
               body: `Hi Art,\n\nI read your case study "${caseStudy.title}". I'm working through `,
             })}
-            label="Email me about your system"
+            variant="solid"
+            shape="pill"
             nebulaShape="email"
-          />
+          >
+            Reach out now
+            <span aria-hidden>→</span>
+          </ButtonLink>
         </div>
       </section>
 
