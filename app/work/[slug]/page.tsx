@@ -10,7 +10,7 @@ import CaseScorecard from "@/components/composites/CaseScorecard";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
-import TextLink from "@/components/ui/TextLink";
+import ArrowLink from "@/components/ui/ArrowLink";
 import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape } from "@/lib/nebula/shapes";
@@ -18,7 +18,7 @@ import JsonLd from "@/components/ui/JsonLd";
 import { getCaseStudies, getCaseStudy } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
 import { breadcrumbSchema, caseStudySchema, ogImagePath } from "@/lib/seo";
-import { site } from "@/lib/site";
+import { mailtoUrl } from "@/lib/site";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -141,16 +141,30 @@ export default async function CaseStudyPage({ params }: PageProps) {
         </div>
       )}
 
-      <div className="mt-14 border-t border-line/60 pt-8">
-        <Text variant="small">
-          Exact names, figures, and details are confidential. I can walk through the
-          technical decisions in a conversation. Email{" "}
-          <TextLink href={`mailto:${site.email}`} nebulaShape="email">
-            {site.email}
-          </TextLink>
-          .
+      <section
+        aria-labelledby="work-cta"
+        className="mt-14 border-t border-line/60 pt-8"
+      >
+        <Heading size="sub" id="work-cta">
+          Facing something like this?
+        </Heading>
+        <Text variant="muted" className="mt-4 max-w-prose">
+          The client, names, and exact figures stay confidential. The
+          architecture and the results are real. If you are working on a
+          problem like this one, email me. I can walk through how these
+          decisions apply to your systems, or build something similar for you.
         </Text>
-      </div>
+        <div className="mt-6">
+          <ArrowLink
+            href={mailtoUrl({
+              subject: "A system I'd like to talk through",
+              body: `Hi Art,\n\nI read your case study "${caseStudy.title}". I'm working through `,
+            })}
+            label="Email me about your system"
+            nebulaShape="email"
+          />
+        </div>
+      </section>
 
       <ShareButton
         title={caseStudy.title}
