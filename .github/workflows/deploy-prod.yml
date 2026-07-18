@@ -60,3 +60,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           GITHUB_TOKEN: ${{ github.token }}
+
+      # Best-effort ping to IndexNow (Bing et al.) with the pages that
+      # changed this deploy. Keyed off its own git tag, so it pushes a tag
+      # via the checkout's persisted credentials — no extra secrets needed.
+      - name: Submit to IndexNow
+        run: node scripts/notify-indexnow.mjs
