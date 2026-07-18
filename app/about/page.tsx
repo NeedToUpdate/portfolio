@@ -17,7 +17,7 @@ import { pageMetadata, profilePageSchema, breadcrumbSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About",
+  title: "Engineering leadership & enterprise systems",
   description: "Engineering director and hands-on architect in Toronto. Enterprise modernization, data platforms, AI adoption, and the teams that deliver them.",
   path: "/about",
 });

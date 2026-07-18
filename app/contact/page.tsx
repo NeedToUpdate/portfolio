@@ -12,7 +12,7 @@ import { site, socialChannels, SocialChannel } from "@/lib/site";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact",
+  title: "Contact for architecture & delivery work",
   description: "How to reach Art Nikitin: email, LinkedIn, and GitHub.",
   path: "/contact",
 });

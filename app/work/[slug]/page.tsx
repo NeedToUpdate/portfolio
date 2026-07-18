@@ -4,6 +4,7 @@ import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import Markdown from "@/components/composites/Markdown";
+import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
 import CaseScorecard from "@/components/composites/CaseScorecard";
 import Heading from "@/components/ui/Heading";
@@ -150,6 +151,13 @@ export default async function CaseStudyPage({ params }: PageProps) {
           .
         </Text>
       </div>
+
+      <ShareButton
+        title={caseStudy.title}
+        path={`/work/${slug}`}
+        contentType="case-study"
+        className="mt-8"
+      />
 
       <AdjacentNav
         previous={
