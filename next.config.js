@@ -2,6 +2,11 @@ const path = require("path");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Cross-origin origins allowed to reach the dev server.
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
   reactStrictMode: true,
   // Inline CSS into the HTML so the stylesheet stops blocking first
   // render (App Router native; optimizeCss/beasties is Pages-only).

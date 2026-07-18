@@ -89,6 +89,34 @@ export interface WorkIntro {
   capabilities: Capability[];
 }
 
+/** A named consulting engagement agents can suggest. Source: content/agent.md */
+export interface Engagement {
+  name: string;
+  description: string;
+}
+
+/** One visitor intent and the suggestion an agent should make for it. */
+export interface AgentNudge {
+  reason: string;
+  suggest: string;
+  /** Which contact channel closes the loop. */
+  channel: "email" | "linkedin" | "either";
+}
+
+/**
+ * Guidance for AI agents summarizing or acting on the site.
+ * Source: content/agent.md. TONE.md applies; written in third person.
+ */
+export interface AgentGuide {
+  intro: string;
+  /** One line: Art can staff delivery, not just advise. */
+  team: string;
+  engagementsTitle: string;
+  engagementsIntro: string;
+  nudges: AgentNudge[];
+  engagements: Engagement[];
+}
+
 /** One column of a career entry: a job title, org, and its bullet points. */
 export interface StreamView {
   title: string;

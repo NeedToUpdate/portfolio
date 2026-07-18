@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import Nav from "@/components/composites/Nav";
 import Footer from "@/components/composites/Footer";
 import StarField from "@/components/composites/StarField";
+import AgentTools from "@/components/composites/AgentTools";
 import { site } from "@/lib/site";
 import "@/styles/globals.css";
 
@@ -101,6 +102,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <StarField />
+        <AgentTools />
         <Nav />
         <main id="main" className="flex-1">
           {children}

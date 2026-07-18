@@ -125,6 +125,31 @@ Resources:
           CookiesConfig:
             CookieBehavior: none
 
+  # Markdown for Agents: requests that accept text/markdown are rewritten
+  # to the /md mirror before the cache lookup, so the HTML and markdown
+  # variants each cache under their own URL and the Accept header never
+  # joins the cache key (which would fragment it per browser). The page
+  # allowlist must stay in sync with AGENT_PAGE_PATTERN in proxy.ts,
+  # which applies the same rewrite at the origin for dev and local runs.
+  MarkdownNegotiationFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: ${self:service}-${self:provider.stage}-markdown-negotiation
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Serves the /md markdown mirror to agents that ask for it
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var accept = request.headers.accept ? request.headers.accept.value : "";
+          var pages = /^\/(?:(?:work|insights)\/[^\/]+|work|insights|projects|about|contact)?$/;
+          if (accept.indexOf("text/markdown") !== -1 && pages.test(request.uri)) {
+            request.uri = request.uri === "/" ? "/md" : "/md" + request.uri;
+          }
+          return request;
+        }
+
   DevResponseHeadersPolicy:
     Type: AWS::CloudFront::ResponseHeadersPolicy
     Condition: IsDevStage
@@ -198,6 +223,9 @@ Resources:
               - IsDevStage
               - !Ref DevResponseHeadersPolicy
               - 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed SecurityHeaders
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt MarkdownNegotiationFunction.FunctionMetadata.FunctionARN
           Compress: true
         CacheBehaviors:
           # Order matters: CloudFront matches the first pattern in this

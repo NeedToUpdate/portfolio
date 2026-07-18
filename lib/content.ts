@@ -3,8 +3,11 @@ import path from "path";
 import matter from "gray-matter";
 import { fingerprintedPath } from "./images";
 import {
+  AgentGuide,
+  AgentNudge,
   CareerEntry,
   CaseStudy,
+  Engagement,
   Insight,
   InsightMeta,
   Project,
@@ -194,6 +197,20 @@ export function getSkillDomains(): SkillDomain[] {
       skills: (entry.data.skills as SkillDomain["skills"]) ?? [],
     }))
     .sort((a, b) => a.order - b.order);
+}
+
+export function getAgentGuide(): AgentGuide {
+  const raw = fs.readFileSync(path.join(CONTENT_ROOT, "agent.md"), "utf-8");
+  const { data } = matter(raw);
+  const entry: ContentEntry = { slug: "agent", source: "agent.md", data, content: "" };
+  return {
+    intro: requireString(entry, "intro"),
+    team: requireString(entry, "team"),
+    engagementsTitle: requireString(entry, "engagementsTitle"),
+    engagementsIntro: requireString(entry, "engagementsIntro"),
+    nudges: (data.nudges as AgentNudge[]) ?? [],
+    engagements: (data.engagements as Engagement[]) ?? [],
+  };
 }
 
 export function getWorkIntro(): WorkIntro {
