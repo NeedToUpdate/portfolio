@@ -152,7 +152,7 @@ export default function HomePage() {
                       <Heading size="item" className="mt-3">
                         {insight.title}
                       </Heading>
-                      <Text variant="muted" className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere">
+                      <Text variant="muted" className="mt-2 mb-5 min-w-0 text-sm line-clamp-3 wrap-anywhere">
                         {insight.description}
                       </Text>
                       {/* C6: a full-width action bar pinned to the card bottom
