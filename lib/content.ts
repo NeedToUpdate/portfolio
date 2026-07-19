@@ -200,10 +200,59 @@ export function getRelatedContent(paths: string[] = []): RelatedContent[] {
       description: study.impact,
       image: study.diagram,
       kind: "Case study" as const,
+      category: study.category,
     };
 
     throw new Error(`Related content path does not resolve: ${href}`);
   });
+}
+
+/**
+ * Build the "Keep exploring" list for a detail page.
+ *
+ * Curated `related` links lead — they are the most relevant next reads. The
+ * catch: curated links are often reciprocal (A→B, B→A), so following the top
+ * card alone can trap a reader in a 2–3 item loop. As a guaranteed escape,
+ * the sequential next entry — which, followed on its own, tours every item
+ * before repeating — rides in the next open slot (2nd or 3rd). So any list
+ * with fewer than `limit` curated links always carries one loop-free
+ * "break". When curated links fill every slot, that is fine: the reader
+ * still escapes through the cross-links elsewhere in the loop.
+ */
+export function buildRecommendations<T>(options: {
+  /** The full same-type collection, in the order the reader walks it. */
+  ordered: T[];
+  currentSlug: string;
+  slugOf: (item: T) => string;
+  /** Map a same-type entry to its recommendation card. */
+  toRelated: (item: T) => RelatedContent;
+  /** Resolved editorial `related` links; may point across types. */
+  curated?: RelatedContent[];
+  limit?: number;
+}): RelatedContent[] {
+  const { ordered, currentSlug, slugOf, toRelated, curated = [], limit = 3 } = options;
+  const count = ordered.length;
+  const index = ordered.findIndex((item) => slugOf(item) === currentSlug);
+  if (index === -1 || count <= 1) return [];
+
+  const selfHref = toRelated(ordered[index]).href;
+  // The tour: next entry first, wrapping once, current entry excluded.
+  const tour = Array.from({ length: count - 1 }, (_, offset) =>
+    toRelated(ordered[(index + offset + 1) % count])
+  );
+
+  // Curated links lead; the sequential next (tour[0]) follows as a loop-free
+  // "break", then the rest of the tour fills any slot still open.
+  const ordering = [...curated, ...tour];
+  const seen = new Set<string>();
+  const recommendations: RelatedContent[] = [];
+  for (const item of ordering) {
+    if (item.href === selfHref || seen.has(item.href)) continue;
+    seen.add(item.href);
+    recommendations.push(item);
+    if (recommendations.length >= limit) break;
+  }
+  return recommendations;
 }
 
 export function getInsights(): InsightMeta[] {

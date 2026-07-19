@@ -76,6 +76,12 @@ interface NebulaBackgroundProps {
   /** Decorative mini footprint. Defaults to a larger medium. */
   size?: NebulaMiniSize;
   layers?: NebulaLayerVisibility;
+  /**
+   * Portrait (phone) scene only. "default" spreads the two bright clouds
+   * across the width; "right" pins both to the right margin so a
+   * left-aligned text column rides clean dark sky.
+   */
+  heroClouds?: "default" | "right";
 }
 
 const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
@@ -120,6 +126,7 @@ export default function NebulaBackground({
   color = "profile",
   size = "md",
   layers = {},
+  heroClouds = "default",
 }: NebulaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const layersRef = useRef(layers);
@@ -615,7 +622,7 @@ export default function NebulaBackground({
             // Ordered bottom-first so the tint pair (A low, B high)
             // lines up.
             {
-              x: 0.35 + jitter(),
+              x: (heroClouds === "right" ? 0.82 : 0.35) + jitter(),
               y: 0.24 + jitter(),
               radius: ringR,
               profile: "orion",
@@ -623,7 +630,12 @@ export default function NebulaBackground({
               bright: 1.35,
             },
             {
-              x: (Math.random() < 0.5 ? 0.3 : 0.7) + jitter(),
+              x:
+                (heroClouds === "right"
+                  ? 0.8
+                  : Math.random() < 0.5
+                    ? 0.3
+                    : 0.7) + jitter(),
               y: 0.74 + jitter(),
               radius: ringR,
               profile: "helix",
@@ -982,7 +994,7 @@ export default function NebulaBackground({
         }
       }
     };
-  }, [variant, corner, miniShape, color, size]);
+  }, [variant, corner, miniShape, color, size, heroClouds]);
 
   return (
     <canvas

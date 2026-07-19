@@ -10,7 +10,7 @@ import ArticleByline from "@/components/composites/ArticleByline";
 import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import JsonLd from "@/components/ui/JsonLd";
-import { getInsight, getInsights, getRelatedContent } from "@/lib/content";
+import { buildRecommendations, getInsight, getInsights, getRelatedContent } from "@/lib/content";
 import { articleSchema, breadcrumbSchema, ogImagePath } from "@/lib/seo";
 import { formatDate } from "@/lib/format";
 
@@ -60,25 +60,19 @@ export default async function InsightPage({ params }: PageProps) {
   const all = getInsights();
   const index = all.findIndex((i) => i.slug === slug);
   const newer = index > 0 ? all[index - 1] : undefined;
-  const curatedRecommendations = getRelatedContent(insight.related);
-  const fallbackRecommendations = Array.from(
-    { length: Math.max(0, all.length - 1) },
-    (_, offset) => {
-        const fallback = all[(index + offset + 1) % all.length];
-        return {
-          href: `/insights/${fallback.slug}`,
-          title: fallback.title,
-          description: fallback.description,
-          image: fallback.previewImage,
-          kind: "Insight" as const,
-        };
-      }
-  );
-  const curatedPaths = new Set(curatedRecommendations.map((item) => item.href));
-  const recommendations = [
-    ...curatedRecommendations,
-    ...fallbackRecommendations.filter((item) => !curatedPaths.has(item.href)),
-  ].slice(0, Math.min(3, all.length - 1));
+  const recommendations = buildRecommendations({
+    ordered: all,
+    currentSlug: slug,
+    slugOf: (i) => i.slug,
+    toRelated: (i) => ({
+      href: `/insights/${i.slug}`,
+      title: i.title,
+      description: i.description,
+      image: i.previewImage,
+      kind: "Insight" as const,
+    }),
+    curated: getRelatedContent(insight.related),
+  });
 
   return (
     <PageShell narrow>
@@ -132,13 +126,7 @@ export default async function InsightPage({ params }: PageProps) {
         previous={
           newer && { href: `/insights/${newer.slug}`, title: newer.title, hint: "Previous" }
         }
-        recommendations={recommendations.map((recommended, recommendationIndex) => ({
-          href: recommended.href,
-          title: recommended.title,
-          hint: recommendationIndex === 0 ? recommended.kind : "Also worth reading",
-          description: recommended.description,
-          image: recommended.image,
-        }))}
+        recommendations={recommendations}
       />
     </PageShell>
   );

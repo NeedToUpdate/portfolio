@@ -17,7 +17,7 @@ import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape } from "@/lib/nebula/shapes";
 import JsonLd from "@/components/ui/JsonLd";
-import { getCaseStudies, getCaseStudy, getRelatedContent } from "@/lib/content";
+import { buildRecommendations, getCaseStudies, getCaseStudy, getRelatedContent } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
 import { breadcrumbSchema, caseStudySchema, ogImagePath } from "@/lib/seo";
 import { mailtoUrl } from "@/lib/site";
@@ -67,25 +67,20 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const all = getCaseStudies();
   const index = all.findIndex((c) => c.slug === slug);
   const previous = index > 0 ? all[index - 1] : undefined;
-  const curatedRecommendations = getRelatedContent(caseStudy.related);
-  const fallbackRecommendations = Array.from(
-    { length: Math.max(0, all.length - 1) },
-    (_, offset) => {
-        const fallback = all[(index + offset + 1) % all.length];
-        return {
-          href: `/work/${fallback.slug}`,
-          title: fallback.title,
-          description: fallback.impact,
-          image: fallback.diagram,
-          kind: "Case study" as const,
-        };
-      }
-  );
-  const curatedPaths = new Set(curatedRecommendations.map((item) => item.href));
-  const recommendations = [
-    ...curatedRecommendations,
-    ...fallbackRecommendations.filter((item) => !curatedPaths.has(item.href)),
-  ].slice(0, Math.min(3, all.length - 1));
+  const recommendations = buildRecommendations({
+    ordered: all,
+    currentSlug: slug,
+    slugOf: (c) => c.slug,
+    toRelated: (c) => ({
+      href: `/work/${c.slug}`,
+      title: c.title,
+      description: c.impact,
+      image: c.diagram,
+      kind: "Case study" as const,
+      category: c.category,
+    }),
+    curated: getRelatedContent(caseStudy.related),
+  });
 
   // The exhibit belongs to the solution: problem, then solution, then
   // the diagram it just described, then the result.
@@ -209,13 +204,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
             hint: "Previous",
           }
         }
-        recommendations={recommendations.map((recommended, recommendationIndex) => ({
-          href: recommended.href,
-          title: recommended.title,
-          hint: recommendationIndex === 0 ? recommended.kind : "Also worth reading",
-          description: recommended.description,
-          image: recommended.image,
-        }))}
+        recommendations={recommendations}
       />
     </PageShell>
   );

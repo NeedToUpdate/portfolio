@@ -15,7 +15,7 @@ export default function Nav() {
           ever scrolls off-screen invisibly. */}
       <nav
         aria-label="Main"
-        className="mx-auto flex min-h-14 max-w-content flex-wrap items-center justify-between gap-x-4 px-5 py-2 md:gap-x-6 md:px-8"
+        className="mx-auto flex min-h-14 max-w-content flex-wrap items-center justify-between gap-x-4 px-5 py-2 md:gap-x-6 md:px-8 2xl:max-w-[90rem]"
       >
         <div data-nosnippet className="contents">
           <Link

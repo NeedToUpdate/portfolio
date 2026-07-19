@@ -49,7 +49,7 @@ export default function AboutPage() {
       <div className="flex flex-col-reverse gap-8 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <SectionHeading
-            eyebrow="About"
+            eyebrow={`About ${site.name}`}
             title="I turn ambiguous problems into running systems."
             asPageTitle
           />
