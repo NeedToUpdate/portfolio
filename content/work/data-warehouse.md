@@ -1,5 +1,5 @@
 ---
-title: "Data Warehousing & Infrastructure Build"
+title: "Enterprise AWS Data Warehouse"
 date: "2024-06-01"
 techs: ["aws", "python", "redshift", "serverless", "splunk"]
 keywords:

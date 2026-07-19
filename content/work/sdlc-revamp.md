@@ -1,5 +1,5 @@
 ---
-title: "SDLC & Deployment Automation"
+title: "CI/CD & Release Automation Modernization"
 date: "2025-09-01"
 techs: ["azure", "azure-pipelines", "iac", "powershell"]
 keywords: ["SDLC", "deployment automation", "release management", "CI/CD pipeline", "DevOps"]

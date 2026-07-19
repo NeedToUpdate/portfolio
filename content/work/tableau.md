@@ -1,5 +1,5 @@
 ---
-title: "Tableau Integration"
+title: "Governed Tableau BI Platform"
 date: "2025-01-01"
 techs: ["tableau", "aws", "redshift", "python", "ec2"]
 keywords: ["Tableau integration", "business intelligence", "BI platform", "data visualization"]

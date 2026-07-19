@@ -1,5 +1,5 @@
 ---
-title: "Enrollment Processing System"
+title: "Million-Student Enrollment Processing Pipeline"
 date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
 keywords: ["student pipeline", "enrollment processing", "student data pipeline", "SFTP integration", "reconciliation workflow"]

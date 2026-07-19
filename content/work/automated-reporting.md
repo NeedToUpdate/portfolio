@@ -1,5 +1,5 @@
 ---
-title: "Automated Financial Reporting Suite"
+title: "Automated IFRS 17 Reporting Platform"
 date: "2025-03-01"
 techs: ["aws", "python", "redshift", "serverless", "glue"]
 keywords: ["automated reporting", "financial reporting", "IFRS 17 reporting", "reporting pipeline", "month-end close automation"]

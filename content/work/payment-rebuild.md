@@ -1,5 +1,5 @@
 ---
-title: "Enterprise Payment Integration"
+title: "Claims Payment Workflow Modernization"
 date: "2024-09-01"
 techs: ["aws", "python", "serverless", "legacy"]
 keywords: ["payment rebuild", "payment integration", "payment processing", "claims payment workflow", "legacy system modernization"]

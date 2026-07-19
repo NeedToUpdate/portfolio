@@ -1,5 +1,5 @@
 ---
-title: "Unified Cloud Architecture"
+title: "In-House Cloud Integration Platform"
 date: "2025-12-01"
 techs: ["azure", "typescript", "iac", "containers"]
 keywords: ["integration platform", "cloud integration platform", "cloud architecture", "infrastructure as code", "build vs buy"]

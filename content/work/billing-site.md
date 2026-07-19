@@ -1,5 +1,5 @@
 ---
-title: "Billing & Payment Processing System"
+title: "Self-Service Billing & Payment System"
 date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless"]
 keywords: ["billing system", "payment processing", "self-service billing", "insurance billing"]
