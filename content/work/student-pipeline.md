@@ -1,5 +1,5 @@
 ---
-title: "Enrollment Processing System"
+title: "Million-Student Enrollment Processing Pipeline"
 date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
 keywords: ["student pipeline", "enrollment processing", "student data pipeline", "SFTP integration", "reconciliation workflow"]
@@ -18,6 +18,11 @@ context:
     value: "Monthly enrollment files"
   - term: "Integration"
     value: "SFTP to TPA"
+comments:
+  - question: "How do you build a system when nobody can give you complete requirements?"
+    answer: "This build took two completely incompatible systems and made them work together. We did that by constantly shadowing both sides of the business to see how the data actually flowed. The engineers had to walk a mile in the claims adjusters' shoes to get the pipeline working. You extract the requirements from subject-matter experts slowly, through observation, trial, and error."
+  - question: "How should an automated enrollment pipeline handle manual corrections and exceptions?"
+    answer: "There will always be mistakes in enrollment because data is never perfect. Front-line workers need a simple UI that lets them make ad hoc corrections to details such as names and birth dates."
 ---
 
 ## The problem

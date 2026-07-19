@@ -212,11 +212,19 @@ function caseStudyPage(slug: string): AgentPage | undefined {
   const diagram =
     c.diagram && c.diagramAlt ? `\n![${c.diagramAlt}](${abs(c.diagram)})\n` : "";
 
+  const comments = `\n## Art's Comments\n\nQuestions that came out of the work.\n\n${c.comments
+    .map(
+      (comment) =>
+        `### ${comment.question}\n\n${comment.answer}`
+    )
+    .join("\n\n")}\n`;
+
   const markdown = `# ${c.title}
 
 > ${c.impact}
 
 ${facts.join("\n")}
+${comments}
 ${diagram}
 ${c.body}
 `;

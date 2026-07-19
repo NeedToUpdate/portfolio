@@ -1,5 +1,5 @@
 ---
-title: "Data Warehousing & Infrastructure Build"
+title: "Enterprise AWS Data Warehouse"
 date: "2024-06-01"
 techs: ["aws", "python", "redshift", "serverless", "splunk"]
 keywords:
@@ -25,6 +25,11 @@ context:
     value: "Enterprise data platform"
   - term: "Outcome"
     value: "360-degree data view"
+comments:
+  - question: "When does an organization need a central data warehouse instead of more local extracts and reports?"
+    answer: "Putting all your data in a single repository opens a Pandora's box of data-driven possibilities: AI, ML, analytics, and projections. When the CEO asks, “How is my business actually doing?”, you now have the foundation needed to produce that dashboard."
+  - question: "When is custom ETL worth the additional engineering and operating cost?"
+    answer: "No-code tools are good for small, simple projects. The second you introduce a legacy system, integrate two systems that were never meant to connect, or go through an M&A where two sets of business rules collide, every no-code tool will struggle. You will hack around the limitations and get the job done, but then you may be left with a $1-million-a-year monolith that nobody wants to touch with a ten-foot pole. Ask me how I know."
 ---
 
 ## The problem

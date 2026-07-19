@@ -1,13 +1,16 @@
 ---
-title: "Ziggy: an assistant built like a brain, not a chatbot"
-seoTitle: "Ziggy: an AI assistant built like a brain"
-description: "A home AI assistant that routes, remembers, and forgets the way a brain does, built on FastMCP, Neo4j, and Haystack."
+title: "Ziggy: building a personalized RAG agent with long-term memory"
+seoTitle: "Building a personalized RAG agent with long-term memory"
+description: "How I built a personalized RAG agent from scratch using graph memory, routed reasoning, MCP tools, and deliberate forgetting—and why it is working."
 previewImage: "/images/ziggy_diagram.webp"
 date: "2025-09-21"
 tags: ["ai", "home-automation", "architecture"]
+related: ["/insights/k3s-homelab", "/insights/groundnet"]
 ---
 
-As a kid I wanted my own Jarvis. Not a voice that follows commands, one that understands them. Say "I'm heading out" and it turns off the AC, and reminds you to grab the thing you keep forgetting on the way. That gap between "follows commands" and "understands intent" is the whole project. I named it Ziggy, because Jarvis was taken by every other home assistant demo on the internet.
+Companies constantly promise personalized AI, but personalization is difficult to scale when every user needs evolving context that cannot fit inside a prompt. I wanted to know whether I could build a complete personalized RAG agent from scratch—one that accumulates useful context, forgets stale information, and becomes more personal over time. Ziggy is my answer, and it is working.
+
+As a kid I wanted my own Jarvis. Not a voice that follows commands, but one that understands them. Say "I'm heading out" and it turns off the AC, then reminds you to grab the thing you keep forgetting on the way. That gap between "follows commands" and "understands intent" is the whole project. I named it Ziggy because Jarvis was taken by every other home-assistant demo on the internet.
 
 <FloatImage
   src="/images/ziggy-chat.webp"
@@ -61,3 +64,5 @@ The whole thing is stateless enough to run anywhere: AWS Lambda, Azure Container
 The prefrontal-to-cortex routing, the memory consolidation pipeline, the MCP tool layer, and the device control all run today. A visual cortex is still on paper: SR501 presence sensors to give Ziggy awareness of who's in a room, not just what they typed. Splitting each cortex into its own container is the other open item, mostly for blast-radius reasons once more of the house depends on this staying up.
 
 This project sits exactly where my degree and my job do: psychology and neuroscience on one side, distributed systems on the other. Ziggy is the closest I've gotten to that childhood idea of an assistant that understands what you meant, not just what you typed.
+
+The experiment has also changed how I think about AI readiness. A company is not ready to deliver genuinely personalized AI because it can call a model. It needs to operate memory, retrieval, evaluation, identity, observability, and the data lifecycle around that model. Ziggy works because those concerns are part of the architecture rather than personalization being reduced to a prompt.

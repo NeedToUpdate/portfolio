@@ -1,5 +1,5 @@
 ---
-title: "SDLC & Deployment Automation"
+title: "CI/CD & Release Automation Modernization"
 date: "2025-09-01"
 techs: ["azure", "azure-pipelines", "iac", "powershell"]
 keywords: ["SDLC", "deployment automation", "release management", "CI/CD pipeline", "DevOps"]
@@ -8,6 +8,7 @@ priority: 2
 category: infrastructure
 role: "Led release-process modernization"
 diagram: "/images/sdlc-deployment-automation.svg"
+related: ["/insights/how-this-site-works", "/insights/k3s-homelab"]
 diagramAlt: "A release branch builds once, then promotes the same artifact through SIT, UAT, preproduction, and production, with application support managing later environments."
 context:
   - term: "Client"
@@ -18,6 +19,11 @@ context:
     value: "1M-customer website"
   - term: "Release"
     value: "Build once, promote upward"
+comments:
+  - question: "How can an organization modernize CI/CD without stopping normal delivery?"
+    answer: "It takes an incremental, systematic approach that is unique to each business. Start with the fundamentals and engineering practices, then move through the technology stack, CI, and finally CD. Each piece requires a bespoke approach."
+  - question: "What should a release-modernization effort standardize first?"
+    answer: "Artifact tagging. Being able to say, “This is the exact thing I need to deploy to production,” on the release ticket is crucial. Otherwise, you may spend a weekend cleaning up a mess because the wrong thing was deployed."
 ---
 
 ## The problem
