@@ -167,6 +167,19 @@ export default function HomePage() {
                     </Link>
                   );
                 })}
+                {/* Trailing "see all" card closes the rail, matching work. */}
+                <Link
+                  href="/insights"
+                  className={`${railCard} items-start justify-center !bg-[#0d0a08]/40`}
+                >
+                  <Heading size="item">All insights</Heading>
+                  <span
+                    data-nebula-shape="article"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm text-accent"
+                  >
+                    Open the archive <span aria-hidden>→</span>
+                  </span>
+                </Link>
               </div>
             </section>
           )}
@@ -197,30 +210,38 @@ export default function HomePage() {
                 <Link
                   key={caseStudy.slug}
                   href={`/work/${caseStudy.slug}`}
-                  className={`group ${railCard}`}
+                  className={`group ${railCard} overflow-hidden`}
                 >
-                  <Eyebrow
-                    icon={categoryIcon(caseStudy.category)}
-                    pill
-                    nebulaShape={categoryShape(caseStudy.category)}
-                  >
-                    {caseStudy.category}
-                  </Eyebrow>
+                  {/* Icon chip + category. Case studies are icon-forward and
+                      date-less, unlike the tag + date insight cards. */}
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      aria-hidden
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line/50 bg-white/4 text-muted"
+                    >
+                      <Icon name={categoryIcon(caseStudy.category)} size={16} />
+                    </span>
+                    <Eyebrow nebulaShape={categoryShape(caseStudy.category)}>
+                      {caseStudy.category}
+                    </Eyebrow>
+                  </div>
                   <Heading size="item" className="mt-3">
                     {caseStudy.title}
                   </Heading>
-                  <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
+                  <Text variant="muted" className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere">
                     {caseStudy.impact}
                   </Text>
                   <div className="mt-auto pt-4">
                     <TagList tags={caseStudy.techs} limit={3} />
                   </div>
+                  {/* Neutral read-bar (not the insight's accent bar) marks
+                      these as delivered work, read separately from writing. */}
                   <span
                     data-nebula-shape={categoryShape(caseStudy.category)}
-                    className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent"
+                    className="-mx-4 -mb-4 mt-4 flex items-center justify-between gap-1.5 border-t border-line/50 bg-white/3 px-4 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-white/6"
                   >
                     {caseStudyCta}
-                    <span aria-hidden>→</span>
+                    <span aria-hidden className="text-accent">→</span>
                   </span>
                 </Link>
               ))}
@@ -521,39 +542,54 @@ export default function HomePage() {
                 />
               }
             >
-              {/* Delivered-work cards: category badge + tech chips + plain
-                  accent CTA, distinct from the fresh-article insight cards. */}
+              {/* Delivered-work cards: prominent category icon chip + tech
+                  chips + a neutral read-bar, distinct from the fresh-article
+                  insight cards (tag + date + accent bar). */}
               <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {featured.map((caseStudy) => (
                   <Link
                     key={caseStudy.slug}
                     href={`/work/${caseStudy.slug}`}
-                    className="group flex min-w-0 flex-col rounded-xl border border-white/10 bg-[#0d0a08]/60 p-6 shadow-2xl shadow-black/30 ring-1 ring-white/5"
+                    className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d0a08]/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
                   >
-                    <Eyebrow
-                      icon={categoryIcon(caseStudy.category)}
-                      pill
-                      nebulaShape={categoryShape(caseStudy.category)}
-                    >
-                      {caseStudy.category}
-                    </Eyebrow>
-                    <Heading size="item" className="mt-3">
-                      {caseStudy.title}
-                    </Heading>
-                    <Text
-                      variant="muted"
-                      className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
-                    >
-                      {caseStudy.impact}
-                    </Text>
-                    <div className="mt-auto pt-4">
-                      <TagList tags={caseStudy.techs} limit={3} />
+                    <div className="flex flex-1 flex-col p-6">
+                      {/* Icon chip + category — icon-forward, date-less. */}
+                      <div className="flex items-center gap-2.5">
+                        <span
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line/50 bg-white/4 text-muted"
+                        >
+                          <Icon
+                            name={categoryIcon(caseStudy.category)}
+                            size={18}
+                          />
+                        </span>
+                        <Eyebrow nebulaShape={categoryShape(caseStudy.category)}>
+                          {caseStudy.category}
+                        </Eyebrow>
+                      </div>
+                      <Heading size="item" className="mt-3">
+                        {caseStudy.title}
+                      </Heading>
+                      <Text
+                        variant="muted"
+                        className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
+                      >
+                        {caseStudy.impact}
+                      </Text>
+                      <div className="mt-auto pt-4">
+                        <TagList tags={caseStudy.techs} limit={3} />
+                      </div>
                     </div>
+                    {/* Neutral read-bar, distinct from the accent insight bar. */}
                     <span
                       data-nebula-shape={categoryShape(caseStudy.category)}
-                      className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent"
+                      className="flex items-center justify-between gap-1.5 border-t border-line/50 bg-white/3 px-6 py-3.5 text-sm font-medium text-ink transition-colors group-hover:bg-white/6"
                     >
-                      {caseStudyCta} <span aria-hidden>→</span>
+                      {caseStudyCta}{" "}
+                      <span aria-hidden className="text-accent">
+                        →
+                      </span>
                     </span>
                   </Link>
                 ))}
