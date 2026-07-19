@@ -113,18 +113,25 @@ export default function ShareButton({
     )}&body=${encodeURIComponent(body)}`;
   }
 
+  // On mobile the buttons form a clean two-column grid: full-width cells with
+  // comfortable tap targets, so nothing wraps into an orphaned, misaligned row
+  // against the busy background. From sm up they flow back to the inline pill
+  // row. The shared classes keep every button consistent across both layouts.
+  const buttonClass =
+    "inline-flex w-full items-center justify-center gap-2 py-2 sm:w-auto sm:justify-start sm:py-1.5";
+
   return (
     <section data-nosnippet aria-label="Share this page" className={className}>
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm text-muted">Share</span>
+      <span className="mb-3 block text-sm text-muted">Share this</span>
 
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
         {canNativeShare && (
           <Button
             variant="outline-strong"
             shape="pill"
             onClick={onNative}
             data-nebula-shape="nodes"
-            className="inline-flex items-center gap-2"
+            className={buttonClass}
           >
             <Icon name="share" size={15} />
             Share
@@ -136,7 +143,7 @@ export default function ShareButton({
           shape="pill"
           onClick={onCopy}
           data-nebula-shape="link"
-          className="inline-flex items-center gap-2"
+          className={buttonClass}
           aria-label={copied ? "Link copied" : "Copy link"}
         >
           <Icon name={copied ? "check" : "link"} size={15} />
@@ -148,7 +155,7 @@ export default function ShareButton({
           shape="pill"
           onClick={onLinkedIn}
           data-nebula-shape="linkedin"
-          className="inline-flex items-center gap-2"
+          className={buttonClass}
         >
           <Icon name="linkedin" size={15} />
           LinkedIn
@@ -159,7 +166,7 @@ export default function ShareButton({
           shape="pill"
           onClick={onEmail}
           data-nebula-shape="email"
-          className="inline-flex items-center gap-2"
+          className={buttonClass}
         >
           <Icon name="mail" size={15} />
           Email
