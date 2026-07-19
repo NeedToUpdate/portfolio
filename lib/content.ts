@@ -207,6 +207,52 @@ export function getRelatedContent(paths: string[] = []): RelatedContent[] {
   });
 }
 
+/**
+ * Build the "Keep exploring" list for a detail page.
+ *
+ * The featured card (the one a reader clicks to keep going) always steps to
+ * the NEXT entry in the ordered list, wrapping once. That single step is a
+ * full cycle: follow it from any page and you visit every entry before
+ * repeating, never a 2–3 item loop. Curated `related` links can be
+ * reciprocal (A→B, B→A), so they fill only the secondary slots, where they
+ * add relevance without trapping the reader.
+ */
+export function buildRecommendations<T>(options: {
+  /** The full same-type collection, in the order the reader walks it. */
+  ordered: T[];
+  currentSlug: string;
+  slugOf: (item: T) => string;
+  /** Map a same-type entry to its recommendation card. */
+  toRelated: (item: T) => RelatedContent;
+  /** Resolved editorial `related` links; may point across types. */
+  curated?: RelatedContent[];
+  limit?: number;
+}): RelatedContent[] {
+  const { ordered, currentSlug, slugOf, toRelated, curated = [], limit = 3 } = options;
+  const count = ordered.length;
+  const index = ordered.findIndex((item) => slugOf(item) === currentSlug);
+  if (index === -1 || count <= 1) return [];
+
+  const selfHref = toRelated(ordered[index]).href;
+  // The tour: next entry first, wrapping once, current entry excluded.
+  const tour = Array.from({ length: count - 1 }, (_, offset) =>
+    toRelated(ordered[(index + offset + 1) % count])
+  );
+
+  // Featured (tour[0]) is loop-free; curated relevance and the rest of the
+  // tour fill the remaining slots.
+  const ordering = [tour[0], ...curated, ...tour.slice(1)];
+  const seen = new Set<string>();
+  const recommendations: RelatedContent[] = [];
+  for (const item of ordering) {
+    if (item.href === selfHref || seen.has(item.href)) continue;
+    seen.add(item.href);
+    recommendations.push(item);
+    if (recommendations.length >= limit) break;
+  }
+  return recommendations;
+}
+
 export function getInsights(): InsightMeta[] {
   return readCollection("insights")
     .map(toInsightMeta)
