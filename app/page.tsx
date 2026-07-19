@@ -3,9 +3,6 @@ import Link from "next/link";
 import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
 import Section from "@/components/composites/Section";
-import DividedList from "@/components/composites/DividedList";
-import CaseStudyListItem from "@/components/composites/CaseStudyListItem";
-import InsightListItem from "@/components/composites/InsightListItem";
 import TagList from "@/components/composites/TagList";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
@@ -149,13 +146,15 @@ export default function HomePage() {
                       <Heading size="item" className="mt-2">
                         {insight.title}
                       </Heading>
-                      <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
+                      <Text variant="muted" className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere">
                         {insight.description}
                       </Text>
-                      {/* C6: a full-width action bar across the card bottom. */}
+                      {/* C6: a full-width action bar pinned to the card bottom
+                          (mt-auto) so footers line up across the stretched rail
+                          cards, without a flex-1 fighting the line-clamp. */}
                       <span
                         data-nebula-shape="article"
-                        className="-mx-5 -mb-5 mt-4 flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
+                        className="-mx-5 -mb-5 mt-auto flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
                       >
                         Read the write-up <span aria-hidden>→</span>
                       </span>
@@ -207,12 +206,12 @@ export default function HomePage() {
                   <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
                     {caseStudy.impact}
                   </Text>
-                  <div className="mt-4">
+                  <div className="mt-auto pt-4">
                     <TagList tags={caseStudy.techs} limit={3} />
                   </div>
                   <span
                     data-nebula-shape={categoryShape(caseStudy.category)}
-                    className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
+                    className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent"
                   >
                     {caseStudyCta}
                     <span aria-hidden>→</span>
@@ -284,9 +283,12 @@ export default function HomePage() {
         ------------------------------------------------------------------ */}
         <div className="hidden md:block">
           <div className="space-y-6 md:space-y-8">
-            {/* Mobile min-heights and spacing stay tight: the fold on a
-                phone has to fit the hero plus most of the insight card. */}
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
+            {/* FOLD: on desktop the bento fills the viewport (min-h in dvh, a
+                minimum not a fixed height, so short/landscape screens still
+                scroll) with a scroll cue pinned to the bottom — the same
+                deliberate fold the phone gets. */}
+            <div className="lg:flex lg:min-h-[calc(100dvh-9rem)] lg:flex-col">
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
               {/* Hero */}
               {/* Borderless editorial hero (borrowed from the winning desktop),
                   keeping the rule-masthead identity. */}
@@ -417,6 +419,20 @@ export default function HomePage() {
                   />
                 </Link>
               </Panel>
+              </div>
+              {/* Scroll cue pinned to the fold bottom (desktop only). */}
+              <div className="mt-10 hidden items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted lg:mt-auto lg:flex">
+                <span aria-hidden className="animate-bounce text-accent">
+                  ↓
+                </span>
+                <a href="#home-insights" className="hover:text-ink">
+                  Insights
+                </a>
+                <span aria-hidden>·</span>
+                <a href="#home-work" className="hover:text-ink">
+                  Case studies
+                </a>
+              </div>
             </div>
 
             {insights.length > 0 && (
@@ -424,8 +440,7 @@ export default function HomePage() {
                 eyebrow="More insights"
                 title="More notes on systems and decisions"
                 id="home-insights"
-                variant="card"
-                className="!backdrop-blur-none"
+                variant="flow"
                 action={
                   <ArrowLink
                     href="/insights"
@@ -434,11 +449,43 @@ export default function HomePage() {
                   />
                 }
               >
-                <DividedList className="mt-6">
+                {/* Card grid, not divided rows — the below-fold picks up the
+                    same fresh-article treatment (accent footer bar) as the
+                    fold insight and the mobile rail. */}
+                <div className="mt-6 grid gap-4 lg:grid-cols-3">
                   {insights.map((insight) => (
-                    <InsightListItem key={insight.slug} insight={insight} />
+                    <Link
+                      key={insight.slug}
+                      href={`/insights/${insight.slug}`}
+                      className="group flex min-w-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0d0a08]/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
+                    >
+                      <div className="flex flex-1 flex-col p-5">
+                        <Text
+                          variant="muted"
+                          className="text-xs uppercase tracking-wide"
+                        >
+                          {formatDate(insight.date)} ·{" "}
+                          {insight.readingTimeMinutes} min
+                        </Text>
+                        <Heading size="item" className="mt-2">
+                          {insight.title}
+                        </Heading>
+                        <Text
+                          variant="muted"
+                          className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
+                        >
+                          {insight.description}
+                        </Text>
+                      </div>
+                      <span
+                        data-nebula-shape="article"
+                        className="flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
+                      >
+                        Read the write-up <span aria-hidden>→</span>
+                      </span>
+                    </Link>
                   ))}
-                </DividedList>
+                </div>
               </Section>
             )}
 
@@ -446,8 +493,7 @@ export default function HomePage() {
               eyebrow="Case studies"
               title="Systems that changed how the business runs"
               id="home-work"
-              variant="card"
-              className="!backdrop-blur-none"
+              variant="flow"
               action={
                 <ArrowLink
                   href="/work"
@@ -456,15 +502,43 @@ export default function HomePage() {
                 />
               }
             >
-              <DividedList className="mt-6">
+              {/* Delivered-work cards: category badge + tech chips + plain
+                  accent CTA, distinct from the fresh-article insight cards. */}
+              <div className="mt-6 grid gap-4 lg:grid-cols-3">
                 {featured.map((caseStudy) => (
-                  <CaseStudyListItem
+                  <Link
                     key={caseStudy.slug}
-                    caseStudy={caseStudy}
-                    cta={caseStudyCta}
-                  />
+                    href={`/work/${caseStudy.slug}`}
+                    className="group flex min-w-0 flex-col rounded-lg border border-white/10 bg-[#0d0a08]/60 p-5 shadow-2xl shadow-black/30 ring-1 ring-white/5"
+                  >
+                    <Eyebrow
+                      icon={categoryIcon(caseStudy.category)}
+                      pill
+                      nebulaShape={categoryShape(caseStudy.category)}
+                    >
+                      {caseStudy.category}
+                    </Eyebrow>
+                    <Heading size="item" className="mt-3">
+                      {caseStudy.title}
+                    </Heading>
+                    <Text
+                      variant="muted"
+                      className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
+                    >
+                      {caseStudy.impact}
+                    </Text>
+                    <div className="mt-auto pt-4">
+                      <TagList tags={caseStudy.techs} limit={3} />
+                    </div>
+                    <span
+                      data-nebula-shape={categoryShape(caseStudy.category)}
+                      className="mt-3 inline-flex items-center gap-1.5 text-sm text-accent"
+                    >
+                      {caseStudyCta} <span aria-hidden>→</span>
+                    </span>
+                  </Link>
                 ))}
-              </DividedList>
+              </div>
             </Section>
 
             <Section
