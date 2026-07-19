@@ -327,14 +327,18 @@ export default function HomePage() {
                   as="section"
                   variant="glass"
                   aria-labelledby="home-latest-insight"
-                  className="flex flex-col justify-between gap-5 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
+                  className="flex flex-col justify-between gap-5 border-l-2 border-l-accent/60 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
                 >
                   <div className="min-w-0">
+                    {/* Accent label + edge + date mark this as a fresh, dated
+                        article — content that changes — versus the permanent
+                        About section below. */}
                     <Text
                       variant="muted"
                       className="mb-4 text-sm uppercase tracking-wide"
                     >
-                      Latest insight · {formatDate(latestInsight.date)} ·{" "}
+                      <span className="text-accent">Latest insight</span> ·{" "}
+                      {formatDate(latestInsight.date)} ·{" "}
                       {latestInsight.readingTimeMinutes} min read
                     </Text>
                     <Heading
@@ -375,6 +379,9 @@ export default function HomePage() {
                 className="grid grid-cols-[minmax(0,1fr)_6rem] items-start gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
               >
                 <div className="min-w-0">
+                  {/* A plain section label marks About as a permanent fixture
+                      of the site, not timely content. */}
+                  <Eyebrow className="mb-3">About</Eyebrow>
                   <Text variant="muted">
                     I work where systems, teams, and messy production constraints
                     meet. I'm always ready to take on the next challenge.
