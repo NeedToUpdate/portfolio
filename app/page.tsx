@@ -26,7 +26,7 @@ import { site } from "@/lib/site";
 // Shared glass-card shell for the horizontal rails. A fixed width lets the
 // next card peek, which is the whole "swipe me" signal.
 const railCard =
-  "flex w-[82%] shrink-0 snap-start flex-col rounded-lg border border-white/10 bg-[#0d0a08]/60 p-5 shadow-2xl shadow-black/30 ring-1 ring-white/5";
+  "flex w-[82%] shrink-0 snap-start flex-col rounded-lg border border-white/10 bg-[#0d0a08]/60 p-4 shadow-2xl shadow-black/30 ring-1 ring-white/5";
 // Horizontal rail: full-bleed to the screen edges, snap points, no scrollbar.
 const rail =
   "mt-5 -mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 scroll-px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
@@ -131,19 +131,25 @@ export default function HomePage() {
                       href={`/insights/${insight.slug}`}
                       className={`group ${railCard} overflow-hidden`}
                     >
-                      {primaryTag && (
-                        <Eyebrow pill nebulaShape={tagShape(primaryTag)}>
-                          {primaryTag}
-                        </Eyebrow>
-                      )}
-                      <Text
-                        variant="muted"
-                        className="mt-3 text-xs uppercase tracking-wide"
-                      >
-                        {formatDate(insight.date)} ·{" "}
-                        {insight.readingTimeMinutes} min
-                      </Text>
-                      <Heading size="item" className="mt-2">
+                      {/* Tag left, date/read-time small and right-aligned;
+                          both shrunk (pill + date) so the pair fits the narrow
+                          rail card, and the row wraps rather than clipping. */}
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        {primaryTag && (
+                          <Eyebrow
+                            pill
+                            nebulaShape={tagShape(primaryTag)}
+                            className="!px-2.5 !py-0.5 !text-[0.625rem] !tracking-[0.1em]"
+                          >
+                            {primaryTag}
+                          </Eyebrow>
+                        )}
+                        <span className="ml-auto shrink-0 text-[0.625rem] uppercase tracking-wide tabular-nums text-muted">
+                          {formatDate(insight.date)} ·{" "}
+                          {insight.readingTimeMinutes} min
+                        </span>
+                      </div>
+                      <Heading size="item" className="mt-3">
                         {insight.title}
                       </Heading>
                       <Text variant="muted" className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere">
@@ -154,7 +160,7 @@ export default function HomePage() {
                           cards, without a flex-1 fighting the line-clamp. */}
                       <span
                         data-nebula-shape="article"
-                        className="-mx-5 -mb-5 mt-auto flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
+                        className="-mx-4 -mb-4 mt-auto flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-4 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
                       >
                         Read the write-up <span aria-hidden>→</span>
                       </span>
@@ -288,7 +294,10 @@ export default function HomePage() {
                 scroll) with a scroll cue pinned to the bottom — the same
                 deliberate fold the phone gets. */}
             <div className="lg:flex lg:min-h-[calc(100dvh-9rem)] lg:flex-col">
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
+              {/* Center the bento vertically so tall/large screens get
+                  balanced breathing room instead of a gap under the hero. */}
+              <div className="lg:flex lg:flex-1 lg:items-center">
+                <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
               {/* Hero */}
               {/* Borderless editorial hero (borrowed from the winning desktop),
                   keeping the rule-masthead identity. */}
@@ -418,10 +427,11 @@ export default function HomePage() {
                     className="h-full w-full object-cover"
                   />
                 </Link>
-              </Panel>
+                </Panel>
+                </div>
               </div>
-              {/* Scroll cue pinned to the fold bottom (desktop only). */}
-              <div className="mt-10 hidden items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted lg:mt-auto lg:flex">
+              {/* Scroll cue at the fold bottom (desktop only). */}
+              <div className="mt-10 hidden items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted lg:flex">
                 <span aria-hidden className="animate-bounce text-accent">
                   ↓
                 </span>
@@ -452,39 +462,48 @@ export default function HomePage() {
                 {/* Card grid, not divided rows — the below-fold picks up the
                     same fresh-article treatment (accent footer bar) as the
                     fold insight and the mobile rail. */}
-                <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                  {insights.map((insight) => (
-                    <Link
-                      key={insight.slug}
-                      href={`/insights/${insight.slug}`}
-                      className="group flex min-w-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0d0a08]/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
-                    >
-                      <div className="flex flex-1 flex-col p-5">
-                        <Text
-                          variant="muted"
-                          className="text-xs uppercase tracking-wide"
-                        >
-                          {formatDate(insight.date)} ·{" "}
-                          {insight.readingTimeMinutes} min
-                        </Text>
-                        <Heading size="item" className="mt-2">
-                          {insight.title}
-                        </Heading>
-                        <Text
-                          variant="muted"
-                          className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
-                        >
-                          {insight.description}
-                        </Text>
-                      </div>
-                      <span
-                        data-nebula-shape="article"
-                        className="flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
+                <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {insights.map((insight) => {
+                    const [primaryTag] = insight.tags;
+                    return (
+                      <Link
+                        key={insight.slug}
+                        href={`/insights/${insight.slug}`}
+                        className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d0a08]/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
                       >
-                        Read the write-up <span aria-hidden>→</span>
-                      </span>
-                    </Link>
-                  ))}
+                        <div className="flex flex-1 flex-col p-6">
+                          {/* Tag left, date/read-time small and right-aligned;
+                              wraps rather than clipping on narrow cards. */}
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            {primaryTag && (
+                              <Eyebrow pill nebulaShape={tagShape(primaryTag)}>
+                                {primaryTag}
+                              </Eyebrow>
+                            )}
+                            <span className="ml-auto shrink-0 text-[0.7rem] uppercase tracking-wide tabular-nums text-muted">
+                              {formatDate(insight.date)} ·{" "}
+                              {insight.readingTimeMinutes} min
+                            </span>
+                          </div>
+                          <Heading size="item" className="mt-3">
+                            {insight.title}
+                          </Heading>
+                          <Text
+                            variant="muted"
+                            className="mt-2 min-w-0 text-sm line-clamp-2 wrap-anywhere"
+                          >
+                            {insight.description}
+                          </Text>
+                        </div>
+                        <span
+                          data-nebula-shape="article"
+                          className="flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-6 py-3.5 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
+                        >
+                          Read the write-up <span aria-hidden>→</span>
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </Section>
             )}
@@ -504,12 +523,12 @@ export default function HomePage() {
             >
               {/* Delivered-work cards: category badge + tech chips + plain
                   accent CTA, distinct from the fresh-article insight cards. */}
-              <div className="mt-6 grid gap-4 lg:grid-cols-3">
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {featured.map((caseStudy) => (
                   <Link
                     key={caseStudy.slug}
                     href={`/work/${caseStudy.slug}`}
-                    className="group flex min-w-0 flex-col rounded-lg border border-white/10 bg-[#0d0a08]/60 p-5 shadow-2xl shadow-black/30 ring-1 ring-white/5"
+                    className="group flex min-w-0 flex-col rounded-xl border border-white/10 bg-[#0d0a08]/60 p-6 shadow-2xl shadow-black/30 ring-1 ring-white/5"
                   >
                     <Eyebrow
                       icon={categoryIcon(caseStudy.category)}
