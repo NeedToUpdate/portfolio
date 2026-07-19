@@ -85,7 +85,7 @@ export default function HomePage() {
               enterprises run on.
             </Heading>
             <Text variant="emphasis" className="mt-5">
-              I lead the architecture and the teams that ship it.
+              I lead the architecture and the teams that build it.
             </Text>
             <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted">
               <span aria-hidden className="animate-bounce text-accent">
@@ -152,7 +152,10 @@ export default function HomePage() {
                       <Heading size="item" className="mt-3">
                         {insight.title}
                       </Heading>
-                      <Text variant="muted" className="mt-2 mb-5 min-w-0 text-sm line-clamp-3 wrap-anywhere">
+                      <Text
+                        variant="muted"
+                        className="mt-2 mb-5 min-w-0 text-sm line-clamp-3 wrap-anywhere"
+                      >
                         {insight.description}
                       </Text>
                       {/* C6: a full-width action bar pinned to the card bottom
@@ -228,7 +231,10 @@ export default function HomePage() {
                   <Heading size="item" className="mt-3">
                     {caseStudy.title}
                   </Heading>
-                  <Text variant="muted" className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere">
+                  <Text
+                    variant="muted"
+                    className="mt-2 min-w-0 text-sm line-clamp-3 wrap-anywhere"
+                  >
                     {caseStudy.impact}
                   </Text>
                   <div className="mt-auto pt-4">
@@ -241,7 +247,9 @@ export default function HomePage() {
                     className="-mx-4 -mb-4 mt-4 flex items-center justify-between gap-1.5 border-t border-line/50 bg-white/3 px-4 py-3 text-sm font-medium text-ink transition-colors group-hover:bg-white/6"
                   >
                     {caseStudyCta}
-                    <span aria-hidden className="text-accent">→</span>
+                    <span aria-hidden className="text-accent">
+                      →
+                    </span>
                   </span>
                 </Link>
               ))}
@@ -319,136 +327,137 @@ export default function HomePage() {
                   balanced breathing room instead of a gap under the hero. */}
               <div className="lg:flex lg:flex-1 lg:items-center">
                 <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
-              {/* Hero */}
-              {/* Borderless editorial hero (borrowed from the winning desktop),
+                  {/* Hero */}
+                  {/* Borderless editorial hero (borrowed from the winning desktop),
                   keeping the rule-masthead identity. */}
-              <section className="grid items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]">
-                <div className="min-w-0 [text-shadow:0_1px_16px_rgba(3,5,10,0.6)]">
-                  {/* Rule-masthead hero identity, matching the mobile rails. */}
-                  <div className="mb-5 flex items-center gap-4 text-xs uppercase tracking-[0.18em] text-muted">
-                    <span className="font-display font-semibold text-ink">
-                      {site.name.split(" ")[0]}
-                    </span>
-                    <span aria-hidden className="h-px flex-1 bg-line/60" />
-                    <span>{site.location}</span>
-                  </div>
-                  <Heading size="hero" className="max-w-3xl">
-                    I design the{" "}
-                    <span className="text-accent" data-nebula-shape="hex">
-                      systems
-                    </span>{" "}
-                    enterprises run on.
-                  </Heading>
-                  <Text variant="emphasis" className="mt-5 md:mt-7">
-                    I lead the architecture and the teams that ship it.
-                  </Text>
-                  {/* Cut on phones: the About card below covers the same
+                  <section className="grid items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]">
+                    <div className="min-w-0 [text-shadow:0_1px_16px_rgba(3,5,10,0.6)]">
+                      {/* Rule-masthead hero identity, matching the mobile rails. */}
+                      <div className="mb-5 flex items-center gap-4 text-xs uppercase tracking-[0.18em] text-muted">
+                        <span className="font-display font-semibold text-ink">
+                          {site.name.split(" ")[0]}
+                        </span>
+                        <span aria-hidden className="h-px flex-1 bg-line/60" />
+                        <span>{site.location}</span>
+                      </div>
+                      <Heading size="hero" className="max-w-3xl">
+                        I design the{" "}
+                        <span className="text-accent" data-nebula-shape="hex">
+                          systems
+                        </span>{" "}
+                        enterprises run on.
+                      </Heading>
+                      <Text variant="emphasis" className="mt-5 md:mt-7">
+                        I lead the architecture and the teams that build it.
+                      </Text>
+                      {/* Cut on phones: the About card below covers the same
                       ground, and every line here pushes the insight card
                       further below the fold. */}
-                  <Text
-                    variant="muted"
-                    className="mt-3 hidden max-w-2xl md:block"
-                  >
-                    I take modernization from the first whiteboard session through
-                    production: architecture, teams, and delivery.
-                  </Text>
-                </div>
-              </section>
+                      <Text
+                        variant="muted"
+                        className="mt-3 hidden max-w-2xl md:block"
+                      >
+                        I take modernization from the first whiteboard session
+                        through production: architecture, teams, and delivery.
+                      </Text>
+                    </div>
+                  </section>
 
-              {latestInsight && (
-                <Panel
-                  as="section"
-                  variant="glass"
-                  aria-labelledby="home-latest-insight"
-                  className="flex flex-col justify-between gap-5 overflow-hidden border-l-2 border-l-accent/60 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
-                >
-                  <div className="min-w-0">
-                    {/* Accent label + edge + date mark this as a fresh, dated
+                  {latestInsight && (
+                    <Panel
+                      as="section"
+                      variant="glass"
+                      aria-labelledby="home-latest-insight"
+                      className="flex flex-col justify-between gap-5 overflow-hidden border-l-2 border-l-accent/60 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
+                    >
+                      <div className="min-w-0">
+                        {/* Accent label + edge + date mark this as a fresh, dated
                         article — content that changes — versus the permanent
                         About section below. */}
-                    <Text
-                      variant="muted"
-                      className="mb-4 text-sm uppercase tracking-wide"
-                    >
-                      <span className="text-accent">Latest insight</span> ·{" "}
-                      {formatDate(latestInsight.date)} ·{" "}
-                      {latestInsight.readingTimeMinutes} min read
-                    </Text>
-                    <Heading
-                      size="section"
-                      id="home-latest-insight"
-                      className="max-w-3xl"
-                    >
-                      {latestInsight.title}
-                    </Heading>
-                    {/* Phones get a three-line teaser and no tag row; the
+                        <Text
+                          variant="muted"
+                          className="mb-4 text-sm uppercase tracking-wide"
+                        >
+                          <span className="text-accent">Latest insight</span> ·{" "}
+                          {formatDate(latestInsight.date)} ·{" "}
+                          {latestInsight.readingTimeMinutes} min read
+                        </Text>
+                        <Heading
+                          size="section"
+                          id="home-latest-insight"
+                          className="max-w-3xl"
+                        >
+                          {latestInsight.title}
+                        </Heading>
+                        {/* Phones get a three-line teaser and no tag row; the
                         full description and tags live on the write-up. */}
-                    <Text
-                      variant="lead"
-                      className="mt-4 line-clamp-3 max-w-2xl md:mt-5 md:line-clamp-none"
-                    >
-                      {latestInsight.description}
-                    </Text>
-                    {latestInsight.tags.length > 0 && (
-                      <TagList
-                        tags={latestInsight.tags}
-                        variant="pill"
-                        className="mt-5 hidden md:flex"
-                      />
-                    )}
-                  </div>
-                  {/* D3: an article-style footer bar makes the insight read
+                        <Text
+                          variant="lead"
+                          className="mt-4 line-clamp-3 max-w-2xl md:mt-5 md:line-clamp-none"
+                        >
+                          {latestInsight.description}
+                        </Text>
+                        {latestInsight.tags.length > 0 && (
+                          <TagList
+                            tags={latestInsight.tags}
+                            variant="pill"
+                            className="mt-5 hidden md:flex"
+                          />
+                        )}
+                      </div>
+                      {/* D3: an article-style footer bar makes the insight read
                       as a tappable write-up, echoing the mobile card. */}
-                  <Link
-                    href={`/insights/${latestInsight.slug}`}
-                    data-nebula-shape="article"
-                    className="-mx-5 -mb-5 flex items-center justify-between border-t border-accent/25 bg-accent/10 px-5 py-4 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-accent-ink md:-mx-8 md:-mb-8 md:px-8"
-                  >
-                    Read the write-up <span aria-hidden>→</span>
-                  </Link>
-                </Panel>
-              )}
+                      <Link
+                        href={`/insights/${latestInsight.slug}`}
+                        data-nebula-shape="article"
+                        className="-mx-5 -mb-5 flex items-center justify-between border-t border-accent/25 bg-accent/10 px-5 py-4 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-accent-ink md:-mx-8 md:-mb-8 md:px-8"
+                      >
+                        Read the write-up <span aria-hidden>→</span>
+                      </Link>
+                    </Panel>
+                  )}
 
-              <Panel
-                as="section"
-                variant="glass"
-                aria-label="About Art"
-                className="grid grid-cols-[minmax(0,1fr)_6rem] items-start gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
-              >
-                <div className="min-w-0">
-                  {/* A plain section label marks About as a permanent fixture
+                  <Panel
+                    as="section"
+                    variant="glass"
+                    aria-label="About Art"
+                    className="grid grid-cols-[minmax(0,1fr)_6rem] items-start gap-5 !backdrop-blur-none sm:grid-cols-[minmax(0,1fr)_minmax(9rem,12rem)] sm:items-center lg:grid-cols-[minmax(0,1fr)_minmax(8rem,10rem)]"
+                  >
+                    <div className="min-w-0">
+                      {/* A plain section label marks About as a permanent fixture
                       of the site, not timely content. */}
-                  <Eyebrow className="mb-3">About</Eyebrow>
-                  <Text variant="muted">
-                    I work where systems, teams, and messy production constraints
-                    meet. I'm always ready to take on the next challenge.
-                  </Text>
-                  <div className="mt-4">
-                    <ArrowLink
-                      href="/about"
-                      label="About me"
-                      nebulaShape="profile"
-                    />
-                  </div>
-                </div>
-                {/* Phones get a small square crop so the panel still reads
+                      <Eyebrow className="mb-3">About</Eyebrow>
+                      <Text variant="muted">
+                        I work where systems, teams, and messy production
+                        constraints meet. I'm always ready to take on the next
+                        challenge.
+                      </Text>
+                      <div className="mt-4">
+                        <ArrowLink
+                          href="/about"
+                          label="About me"
+                          nebulaShape="profile"
+                        />
+                      </div>
+                    </div>
+                    {/* Phones get a small square crop so the panel still reads
                     as a person; sm+ keeps the taller portrait. */}
-                <Link
-                  href="/about"
-                  aria-label="About Art"
-                  className="relative aspect-square w-full overflow-hidden rounded-xl border border-line/50 sm:aspect-[4/5]"
-                >
-                  <Image
-                    src="/images/portrait.webp"
-                    alt={site.name}
-                    width={800}
-                    height={1000}
-                    loading="eager"
-                    sizes="(max-width: 640px) 6rem, (max-width: 1024px) 12rem, 10rem"
-                    className="h-full w-full object-cover"
-                  />
-                </Link>
-                </Panel>
+                    <Link
+                      href="/about"
+                      aria-label="About Art"
+                      className="relative aspect-square w-full overflow-hidden rounded-xl border border-line/50 sm:aspect-[4/5]"
+                    >
+                      <Image
+                        src="/images/portrait.webp"
+                        alt={site.name}
+                        width={800}
+                        height={1000}
+                        loading="eager"
+                        sizes="(max-width: 640px) 6rem, (max-width: 1024px) 12rem, 10rem"
+                        className="h-full w-full object-cover"
+                      />
+                    </Link>
+                  </Panel>
                 </div>
               </div>
               {/* Scroll cue at the fold bottom (desktop only). */}
@@ -564,7 +573,9 @@ export default function HomePage() {
                             size={18}
                           />
                         </span>
-                        <Eyebrow nebulaShape={categoryShape(caseStudy.category)}>
+                        <Eyebrow
+                          nebulaShape={categoryShape(caseStudy.category)}
+                        >
                           {caseStudy.category}
                         </Eyebrow>
                       </div>
