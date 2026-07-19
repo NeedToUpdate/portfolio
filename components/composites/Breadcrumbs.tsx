@@ -14,7 +14,8 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-10 text-sm text-muted">
-      <ol className="flex items-center gap-2">
+      <div data-nosnippet>
+        <ol className="flex items-center gap-2">
         {items.map((item, i) => {
           const last = i === items.length - 1;
           return (
@@ -35,7 +36,8 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
             </li>
           );
         })}
-      </ol>
+        </ol>
+      </div>
     </nav>
   );
 }

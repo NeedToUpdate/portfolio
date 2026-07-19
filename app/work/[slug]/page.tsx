@@ -68,9 +68,9 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const index = all.findIndex((c) => c.slug === slug);
   const previous = index > 0 ? all[index - 1] : undefined;
   const curatedRecommendations = getRelatedContent(caseStudy.related);
-  const recommendations = curatedRecommendations.length > 0
-    ? curatedRecommendations
-    : Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) => {
+  const fallbackRecommendations = Array.from(
+    { length: Math.max(0, all.length - 1) },
+    (_, offset) => {
         const fallback = all[(index + offset + 1) % all.length];
         return {
           href: `/work/${fallback.slug}`,
@@ -79,7 +79,13 @@ export default async function CaseStudyPage({ params }: PageProps) {
           image: fallback.diagram,
           kind: "Case study" as const,
         };
-      });
+      }
+  );
+  const curatedPaths = new Set(curatedRecommendations.map((item) => item.href));
+  const recommendations = [
+    ...curatedRecommendations,
+    ...fallbackRecommendations.filter((item) => !curatedPaths.has(item.href)),
+  ].slice(0, Math.min(3, all.length - 1));
 
   // The exhibit belongs to the solution: problem, then solution, then
   // the diagram it just described, then the result.

@@ -114,7 +114,7 @@ export default function ShareButton({
   }
 
   return (
-    <section aria-label="Share this page" className={className}>
+    <section data-nosnippet aria-label="Share this page" className={className}>
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm text-muted">Share</span>
 
