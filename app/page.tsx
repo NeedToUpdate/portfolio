@@ -132,7 +132,7 @@ export default function HomePage() {
                     <Link
                       key={insight.slug}
                       href={`/insights/${insight.slug}`}
-                      className={`group ${railCard}`}
+                      className={`group ${railCard} overflow-hidden`}
                     >
                       {primaryTag && (
                         <Eyebrow pill nebulaShape={tagShape(primaryTag)}>
@@ -152,9 +152,10 @@ export default function HomePage() {
                       <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
                         {insight.description}
                       </Text>
+                      {/* C6: a full-width action bar across the card bottom. */}
                       <span
                         data-nebula-shape="article"
-                        className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
+                        className="-mx-5 -mb-5 mt-4 flex items-center justify-between gap-1.5 border-t border-accent/25 bg-accent/10 px-5 py-3 text-sm font-medium text-accent transition-colors group-hover:bg-accent group-hover:text-accent-ink"
                       >
                         Read the write-up <span aria-hidden>→</span>
                       </span>
