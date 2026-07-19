@@ -210,12 +210,14 @@ export function getRelatedContent(paths: string[] = []): RelatedContent[] {
 /**
  * Build the "Keep exploring" list for a detail page.
  *
- * The featured card (the one a reader clicks to keep going) always steps to
- * the NEXT entry in the ordered list, wrapping once. That single step is a
- * full cycle: follow it from any page and you visit every entry before
- * repeating, never a 2–3 item loop. Curated `related` links can be
- * reciprocal (A→B, B→A), so they fill only the secondary slots, where they
- * add relevance without trapping the reader.
+ * Curated `related` links lead — they are the most relevant next reads. The
+ * catch: curated links are often reciprocal (A→B, B→A), so following the top
+ * card alone can trap a reader in a 2–3 item loop. As a guaranteed escape,
+ * the sequential next entry — which, followed on its own, tours every item
+ * before repeating — rides in the next open slot (2nd or 3rd). So any list
+ * with fewer than `limit` curated links always carries one loop-free
+ * "break". When curated links fill every slot, that is fine: the reader
+ * still escapes through the cross-links elsewhere in the loop.
  */
 export function buildRecommendations<T>(options: {
   /** The full same-type collection, in the order the reader walks it. */
@@ -239,9 +241,9 @@ export function buildRecommendations<T>(options: {
     toRelated(ordered[(index + offset + 1) % count])
   );
 
-  // Featured (tour[0]) is loop-free; curated relevance and the rest of the
-  // tour fill the remaining slots.
-  const ordering = [tour[0], ...curated, ...tour.slice(1)];
+  // Curated links lead; the sequential next (tour[0]) follows as a loop-free
+  // "break", then the rest of the tour fills any slot still open.
+  const ordering = [...curated, ...tour];
   const seen = new Set<string>();
   const recommendations: RelatedContent[] = [];
   for (const item of ordering) {
