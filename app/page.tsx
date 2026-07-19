@@ -17,6 +17,7 @@ import JsonLd from "@/components/ui/JsonLd";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape, tagShape } from "@/lib/nebula/shapes";
 import {
+  getCaseStudies,
   getFeaturedCaseStudies,
   getInsights,
   getWorkIntro,
@@ -36,10 +37,13 @@ const rail =
 export default function HomePage() {
   const featured = getFeaturedCaseStudies(3);
   const { caseStudyCta } = getWorkIntro();
-  const [latestInsight, ...moreInsights] = getInsights();
+  const allInsights = getInsights();
+  const [latestInsight, ...moreInsights] = allInsights;
   const insights = moreInsights.slice(0, 3);
   // The rail leads with the freshest read, then the rest.
   const railInsights = [latestInsight, ...insights].filter(Boolean);
+  const insightCount = allInsights.length;
+  const caseCount = getCaseStudies().length;
 
   return (
     <>
@@ -63,9 +67,9 @@ export default function HomePage() {
             first rail card peeking up, signalling the sideways motion.
         ------------------------------------------------------------------ */}
         <div className="md:hidden [text-shadow:0_1px_14px_rgba(3,5,10,0.7)]">
-          {/* Hero. Sized so the first rail peeks above the fold on every
-              phone height (svh math). */}
-          <section className="flex min-h-[calc(100svh-17rem)] flex-col justify-center">
+          {/* Hero fills the fold; a cue names what's below instead of a
+              vertical peek. (The sideways peek lives inside the rails.) */}
+          <section className="flex min-h-[calc(100svh-5.5rem)] flex-col justify-center">
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted">
               <span className="font-display font-semibold text-ink">
                 {site.name}
@@ -77,20 +81,100 @@ export default function HomePage() {
               size="hero"
               className="mt-7 !text-[clamp(2.1rem,1.2rem+5vw,2.7rem)] !leading-[1.06]"
             >
-              I design the systems enterprises run on.
+              I design the{" "}
+              <span className="text-accent" data-nebula-shape="hex">
+                systems
+              </span>{" "}
+              enterprises run on.
             </Heading>
             <Text variant="emphasis" className="mt-5">
               I lead the architecture and the teams that ship it.
             </Text>
+            <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted">
+              <span aria-hidden className="animate-bounce text-accent">
+                ↓
+              </span>
+              <a href="#m-insights" className="hover:text-ink">
+                Insights
+              </a>
+              <span aria-hidden>·</span>
+              <a href="#m-work" className="hover:text-ink">
+                Case studies
+              </a>
+            </div>
           </section>
 
-          {/* Work rail. */}
-          <section className="pt-6" aria-labelledby="m-work">
+          {/* Insights rail, first. Cards lead with a tag + date: the
+              writing signature. */}
+          {railInsights.length > 0 && (
+            <section className="pt-6" aria-labelledby="m-insights">
+              <div className="flex items-baseline justify-between gap-4">
+                <div>
+                  <div className="flex items-baseline gap-3">
+                    <Eyebrow>Insights</Eyebrow>
+                    <span className="text-xs tabular-nums text-muted">
+                      {insightCount} written
+                    </span>
+                  </div>
+                  <Heading size="sub" id="m-insights" className="mt-2">
+                    Swipe the notes
+                  </Heading>
+                </div>
+                <ArrowLink href="/insights" label="All" nebulaShape="article" />
+              </div>
+              <div className={rail}>
+                {railInsights.map((insight) => {
+                  const [primaryTag] = insight.tags;
+                  return (
+                    <Link
+                      key={insight.slug}
+                      href={`/insights/${insight.slug}`}
+                      className={`group ${railCard}`}
+                    >
+                      {primaryTag && (
+                        <Eyebrow pill nebulaShape={tagShape(primaryTag)}>
+                          {primaryTag}
+                        </Eyebrow>
+                      )}
+                      <Text
+                        variant="muted"
+                        className="mt-3 text-xs uppercase tracking-wide"
+                      >
+                        {formatDate(insight.date)} ·{" "}
+                        {insight.readingTimeMinutes} min
+                      </Text>
+                      <Heading size="item" className="mt-2">
+                        {insight.title}
+                      </Heading>
+                      <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
+                        {insight.description}
+                      </Text>
+                      <span
+                        data-nebula-shape="article"
+                        className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
+                      >
+                        Read the write-up <span aria-hidden>→</span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Case studies rail, second. Cards lead with a category badge +
+              tech chips: clearly work, not a note. */}
+          <section className="pt-9" aria-labelledby="m-work">
             <div className="flex items-baseline justify-between gap-4">
               <div>
-                <Eyebrow>Selected work</Eyebrow>
+                <div className="flex items-baseline gap-3">
+                  <Eyebrow>Case studies</Eyebrow>
+                  <span className="text-xs tabular-nums text-muted">
+                    {caseCount} shipped
+                  </span>
+                </div>
                 <Heading size="sub" id="m-work" className="mt-2">
-                  Swipe the case studies
+                  Swipe the work
                 </Heading>
               </div>
               <ArrowLink href="/work" label="All" nebulaShape="hex" />
@@ -142,58 +226,6 @@ export default function HomePage() {
               </Link>
             </div>
           </section>
-
-          {/* Insights rail. */}
-          {railInsights.length > 0 && (
-            <section className="pt-9" aria-labelledby="m-insights">
-              <div className="flex items-baseline justify-between gap-4">
-                <div>
-                  <Eyebrow>Insights</Eyebrow>
-                  <Heading size="sub" id="m-insights" className="mt-2">
-                    Swipe the notes
-                  </Heading>
-                </div>
-                <ArrowLink href="/insights" label="All" nebulaShape="article" />
-              </div>
-              <div className={rail}>
-                {railInsights.map((insight) => {
-                  const [primaryTag] = insight.tags;
-                  return (
-                    <Link
-                      key={insight.slug}
-                      href={`/insights/${insight.slug}`}
-                      className={`group ${railCard}`}
-                    >
-                      {primaryTag && (
-                        <Eyebrow pill nebulaShape={tagShape(primaryTag)}>
-                          {primaryTag}
-                        </Eyebrow>
-                      )}
-                      <Text
-                        variant="muted"
-                        className="mt-3 text-xs uppercase tracking-wide"
-                      >
-                        {formatDate(insight.date)} ·{" "}
-                        {insight.readingTimeMinutes} min
-                      </Text>
-                      <Heading size="item" className="mt-2">
-                        {insight.title}
-                      </Heading>
-                      <Text variant="muted" className="mt-2 line-clamp-4 flex-1">
-                        {insight.description}
-                      </Text>
-                      <span
-                        data-nebula-shape="article"
-                        className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent"
-                      >
-                        Read the write-up <span aria-hidden>→</span>
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
 
           {/* About + contact: a single grounded strip after the rails. */}
           <section className="mt-10 border-t border-line/40 pt-8">
@@ -258,7 +290,11 @@ export default function HomePage() {
                     {site.name} · {site.location}
                   </Eyebrow>
                   <Heading size="hero" className="max-w-3xl">
-                    I design the systems enterprises run on.
+                    I design the{" "}
+                    <span className="text-accent" data-nebula-shape="hex">
+                      systems
+                    </span>{" "}
+                    enterprises run on.
                   </Heading>
                   <Text variant="emphasis" className="mt-5 md:mt-7">
                     I lead the architecture and the teams that ship it.
