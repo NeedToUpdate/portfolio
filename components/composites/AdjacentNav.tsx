@@ -83,7 +83,9 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
               </span>
             </span>
 
-            <span className="relative min-h-40 overflow-hidden border-t border-line/60 bg-surface sm:min-h-full sm:border-l sm:border-t-0">
+            {/* On mobile the image leads as a top banner (order-first); on
+                desktop it sits in the right column. */}
+            <span className="relative order-first min-h-40 overflow-hidden border-b border-line/60 bg-surface sm:order-0 sm:min-h-full sm:border-b-0 sm:border-l">
               {featured.image ? (
                 <Image
                   src={featured.image}
@@ -114,11 +116,14 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group grid min-h-32 grid-cols-[7rem_minmax(0,1fr)] overflow-hidden rounded-xl border border-line/60 bg-panel/30 transition duration-300 hover:-translate-y-0.5 hover:bg-panel/60 ${
+                  className={`group grid min-h-32 grid-cols-1 overflow-hidden rounded-xl border border-line/60 bg-panel/30 transition duration-300 hover:-translate-y-0.5 hover:bg-panel/60 sm:grid-cols-[7rem_minmax(0,1fr)] ${
                     isCase ? "hover:border-line" : "hover:border-accent/40"
                   }`}
                 >
-                  <span className="relative overflow-hidden border-r border-line/60 bg-surface">
+                  {/* Thumbnails crop the detailed diagrams into an unreadable
+                      sliver at 7rem, so drop them on mobile for clean text
+                      rows — same as the home page's mobile cards. */}
+                  <span className="relative hidden overflow-hidden border-r border-line/60 bg-surface sm:block">
                     {item.image ? (
                       <Image
                         src={item.image}
