@@ -14,7 +14,7 @@ import ArrowLink from "@/components/ui/ArrowLink";
 import TextLink from "@/components/ui/TextLink";
 import Panel from "@/components/ui/Panel";
 import JsonLd from "@/components/ui/JsonLd";
-import { categoryIcon } from "@/components/ui/Icon";
+import Icon, { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape, tagShape } from "@/lib/nebula/shapes";
 import {
   getCaseStudies,
@@ -72,7 +72,7 @@ export default function HomePage() {
           <section className="flex min-h-[calc(100svh-5.5rem)] flex-col justify-center">
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted">
               <span className="font-display font-semibold text-ink">
-                {site.name}
+                {site.name.split(" ")[0]}
               </span>
               <span aria-hidden className="h-px flex-1 bg-line/60" />
               <span>{site.location.split(",")[0]}</span>
@@ -119,6 +119,9 @@ export default function HomePage() {
                   <Heading size="sub" id="m-insights" className="mt-2">
                     Swipe the notes
                   </Heading>
+                  <Text variant="small" className="mt-1">
+                    How I think about systems, in writing.
+                  </Text>
                 </div>
                 <ArrowLink href="/insights" label="All" nebulaShape="article" />
               </div>
@@ -169,13 +172,17 @@ export default function HomePage() {
               <div>
                 <div className="flex items-baseline gap-3">
                   <Eyebrow>Case studies</Eyebrow>
-                  <span className="text-xs tabular-nums text-muted">
+                  <span className="inline-flex items-center gap-1 text-xs tabular-nums text-muted">
+                    <Icon name="check" size={13} className="text-accent" />
                     {caseCount} shipped
                   </span>
                 </div>
                 <Heading size="sub" id="m-work" className="mt-2">
                   Swipe the work
                 </Heading>
+                <Text variant="small" className="mt-1">
+                  Real work, delivered end to end.
+                </Text>
               </div>
               <ArrowLink href="/work" label="All" nebulaShape="hex" />
             </div>
@@ -286,9 +293,14 @@ export default function HomePage() {
                 className="grid items-center !backdrop-blur-none md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
               >
                 <div className="min-w-0">
-                  <Eyebrow nebulaShape="spark" className="mb-4 md:mb-5">
-                    {site.name} · {site.location}
-                  </Eyebrow>
+                  {/* Rule-masthead hero identity, matching the mobile rails. */}
+                  <div className="mb-5 flex items-center gap-4 text-xs uppercase tracking-[0.18em] text-muted">
+                    <span className="font-display font-semibold text-ink">
+                      {site.name.split(" ")[0]}
+                    </span>
+                    <span aria-hidden className="h-px flex-1 bg-line/60" />
+                    <span>{site.location}</span>
+                  </div>
                   <Heading size="hero" className="max-w-3xl">
                     I design the{" "}
                     <span className="text-accent" data-nebula-shape="hex">
