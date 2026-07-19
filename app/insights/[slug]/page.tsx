@@ -71,6 +71,7 @@ export default async function InsightPage({ params }: PageProps) {
           description: fallback.description,
           image: fallback.previewImage,
           kind: "Insight" as const,
+          category: undefined,
         };
       }
   );
@@ -132,10 +133,11 @@ export default async function InsightPage({ params }: PageProps) {
         previous={
           newer && { href: `/insights/${newer.slug}`, title: newer.title, hint: "Previous" }
         }
-        recommendations={recommendations.map((recommended, recommendationIndex) => ({
+        recommendations={recommendations.map((recommended) => ({
           href: recommended.href,
           title: recommended.title,
-          hint: recommendationIndex === 0 ? recommended.kind : "Also worth reading",
+          kind: recommended.kind,
+          category: recommended.category,
           description: recommended.description,
           image: recommended.image,
         }))}

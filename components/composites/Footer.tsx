@@ -5,7 +5,7 @@ import { site, socialChannels } from "@/lib/site";
 export default function Footer() {
   return (
     <footer className="border-t border-line/60">
-      <div data-nosnippet className="mx-auto flex max-w-content flex-wrap items-center justify-between gap-4 px-5 py-10 md:px-8">
+      <div data-nosnippet className="mx-auto flex max-w-content flex-wrap items-center justify-between gap-4 px-5 py-10 md:px-8 2xl:max-w-[90rem]">
         <Text variant="small" className="min-w-0">
           {site.name} · {site.location}
         </Text>
