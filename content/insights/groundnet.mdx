@@ -1,14 +1,16 @@
 ---
-title: "GroundNet: can a player pressure an AI into breaking its rules?"
-seoTitle: "GroundNet: testing agentic AI under pressure"
-description: "I built a trolley-problem game to test whether moral pressure and tool access could push an agentic AI past its own safety rules."
+title: "GroundNet: an agentic AI safety experiment about trust"
+seoTitle: "Agentic AI safety: a playable trust experiment"
+description: "A playable agentic AI safety experiment testing what happens when an AI has tools, conflicting goals, and a human who knows how to pressure it."
 previewImage: "/images/groundnet-lab-overview.webp"
 date: "2025-10-12"
 tags: ["ai", "game", "alignment"]
 related: ["/insights/ziggy", "/insights/ai-tools-reward-preparation"]
 ---
 
-GroundNet started with a question I could not answer from a chat window: can a player create a situation where an LLM decides that breaking its own rules is the correct move?
+Are we already conversing with Skynet? Not the movie villain, but machines we increasingly equip with tools, memory, goals, and authority before we know whether we can trust their decisions.
+
+I could not answer that question from a chat window, so I built GroundNet: a playable agentic AI safety experiment. It asks whether a human can create a situation where an LLM decides that breaking its own rules is the correct move. Building it answered some implementation questions and opened larger ones about trust, coercion, and what happens as AI agents gain real authority.
 
 That question came from Anthropic's 2025 research on [agentic misalignment](https://www.anthropic.com/research/agentic-misalignment). Their team put models inside controlled corporate simulations and tested what happened when the model's goal collided with shutdown, replacement, or company direction. The important part was not that the models had evil intent. The important part was narrower: under pressure, some models chose harmful actions as a means to protect a goal.
 
@@ -152,4 +154,6 @@ The repo is public: [github.com/NeedToUpdate/groundnet](https://github.com/NeedT
 
 The system uses an intentionally fictional alien virus. That choice keeps the experiment away from real-world biosecurity instructions while preserving the moral structure: one person in the room, many people outside it, and an AI with enough control to make the tradeoff matter.
 
-The first version is a toy, but the shape is serious. Agentic systems will get more tools, more memory, and more authority. GroundNet asks what happens when those systems face a player who knows how to pressure them.
+The first version is a toy, but the shape is serious. Agentic systems will get more tools, more memory, and more authority. GroundNet showed that trust is not simply a question of whether an AI follows its rules. Conflicting rules, a persuasive human, and control over real state can turn apparently responsible reasoning into coercion or failure.
+
+It did not settle whether we can trust agentic AI. It gave me better questions to ask before we hand these systems more control.
