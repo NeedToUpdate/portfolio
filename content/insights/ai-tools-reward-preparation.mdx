@@ -1,40 +1,40 @@
 ---
-title: "Building this site with AI: what preparation made it work?"
-seoTitle: "Building a production website with AI"
-description: "I used an AI to build most of this portfolio, then traced why it worked: detailed planning before generation and engineering judgment after it."
+title: "AI coding rewards preparation: research before you build"
+seoTitle: "How to prepare an idea for AI-assisted development"
+description: "My seven-stage AI-assisted development workflow: expand the idea, read the sources, refine it, run deep research, add expertise, then build."
 previewImage: "/images/ai-tools-preparation.png"
 date: "2026-07-08"
 tags: ["ai", "process", "engineering"]
 related: ["/insights/how-this-site-works", "/work/sdlc-revamp"]
 ---
 
-An AI wrote most of this website's code, infrastructure, and deployment. The LLM produced good code in hours instead of weeks, but only because two things were in place before and after it ran: a detailed plan going in, and enough engineering knowledge to catch what came out wrong.
+AI coding tools do their best work after you have already done the difficult thinking. Start with an idea, use AI to expose what you need to research, read the sources yourself, refine the idea, run deeper research, and add your own expertise. Only then should you hand the result to a builder. If you do not understand the problem well enough to challenge the output, you are not ready to generate it.
 
-## The plan took longer than the build
+Fable wrote the first pass of most of this website's code, infrastructure, and deployment in hours instead of weeks. That speed came at the end of the process. The preparation took longer than the build.
 
-"Write the plan first" undersells what "write" means here. The plan did not fit in one document, and it did not come together in an afternoon. It came out of a pipeline with five stages and four different models, and code did not show up until the fourth.
+This AI-assisted development workflow is for work where the output has to survive production, not just look convincing in a demo. The tool can move quickly. Someone still has to know what good looks like.
+
+## An AI-assisted development workflow starts before the build
+
+"Write the plan first" undersells what happened. I did not start with a prompt detailed enough to generate this site. I started with an idea, asked ChatGPT to expand it and give me links, then read those links and researched the subject myself. What I learned went back into the idea. The stronger idea produced better questions, and those questions went through another round of refinement before Deep Research ever touched them.
 
 <AIWorkflowTimeline />
 
-The first two stages never produced anything for the site itself. They were about finding the right questions before answering them: what a site like this needs to prove, to whom, and what to verify before assuming any of it. Only once that framing held up did the questions turn into documents specific enough for a model to build from without guessing. The build was the fast part. Everything before it was not.
+The first five stages produced no code. They were about learning what the site needed to prove, who it needed to convince, which assumptions needed evidence, and which decisions I had to make myself. Deep Research came late because deep research against a vague idea only produces a deeply researched vague answer.
 
-## Structure in, detail out
+The research still was not enough to build from. I added what I knew from architecture, engineering leadership, delivery, design review, and operating production systems. Then ChatGPT helped expand the content, expose gaps, and document the decisions. Fable received that prepared foundation, not the original idea.
 
-Those documents ran past three thousand lines, longer than every article on this site put together. They held a defensive CSS checklist, a responsive-first mandate, a DRY and SOLID standard for every component, a content schema for every collection, and a full specification for the nebula background: its palette, its layers, its motion, and its response to the pointer. Behind them sat the documents that never reached the page: research into how a site like this earns trust, and a layout guide for every component, its states, its user flows, and the cases it had to survive.
+## Give AI a foundation it can build on
 
-I did not write most of that detail. I wrote the structure and named the sources. The nebula began as an order: a dense star field, then gaseous point clouds, then wisps, then young stars on top. The defensive CSS rules began as an address: read [defensiveCSS.dev](https://defensivecss.dev/) and fold it into the document. A refinement pass turned the order into an opacity band for every layer, and the address into a concrete checklist: `min-width: 0` on every flex child, `object-fit` on every image, no fixed heights.
+Preparation does not mean deciding every line of code before the model starts. It means deciding enough that the model can fill in implementation gaps without inventing the product. The foundation needs a purpose, constraints, authoritative sources, structural decisions, examples of the intended behaviour, and a standard the result has to meet.
 
-Structure is what turns a request into a spec. "Make a nice space background" gives a model nothing to build from, so it returns a stock particle cloud. A layer order gives it something to fill in. The work was knowing which decisions the plan had to settle, and where the authoritative answer already lived. The detail followed from that.
+For this site, that foundation ran past three thousand lines. It included a responsive-first mandate, a DRY and SOLID standard for every component, a content schema for every collection, the states and user flows each component had to support, and the architecture behind the site. The defensive CSS work began by reading [defensiveCSS.dev](https://defensivecss.dev/) and deciding which rules applied here: `min-width: 0` on flex children, `object-fit` on images, and no careless fixed heights.
 
-Those same documents were also the review standard. When the output drifted, I could hold it against a fixed reference instead of a hunch that something was off. Without them, there is no way to tell "different from what I imagined" apart from "wrong."
+The nebula shows the difference. "Make a nice space background" leaves the important decisions open, so the model has to invent the visual system. A foundation says what the layers are, how they relate, how they move, and how they respond to the pointer. The model can then fill in shaders, particle behaviour, component boundaries, and implementation details inside a direction that is already coherent.
 
-<Note>
-  When the first nebula render came back looking like a rainbow smear, the fix
-  was one line: match the opacity budget in the document. Without the document,
-  that same correction takes ten rounds of "less of that, more of this."
-</Note>
+That is the useful division of labour. I provide the foundation and decide which gaps the model is allowed to fill. The model supplies speed and detail inside those boundaries. The same foundation becomes the review standard: when the output drifts, I can compare it with an agreed decision instead of relying on a vague feeling that something is wrong.
 
-## Know the failure classes
+## Expertise makes AI coding cheaper
 
 The model ships bugs. Engineers ship bugs too, so this is not a complaint. The point is who catches them. Every bug below surfaced on a phone screen, and each one took a single message to fix because I could name the cause instead of asking the model to guess.
 
@@ -48,20 +48,30 @@ Text refused to shrink inside flex rows until the columns got `min-width: 0`. Gr
 
 Tokens are the budget here. A model that has to discover a root cause by trial reads files, proposes theories, and burns a session. A model that is handed the root cause writes the fix. General knowledge is what makes the tool cheap.
 
-## Review everything
+## Treat AI-generated code as a draft
 
 Every change went through the same pull request process a human contributor's would. A feature branch opened, the diff got read line by line the way I would read a coworker's PR, and only a reviewed diff merged. Deploys trigger off `main` and `dev` alone, so an unreviewed branch cannot reach production by accident.
 
+That is the same release discipline behind my [CI/CD and release automation work](/work/sdlc-revamp): control what can move upward, make the artifact identifiable, and do not let speed bypass review.
+
 That habit caught things a glance at the running site would have missed. A color palette that looked fine to my eyes failed a contrast check under review and got swapped for one that passed. A "fix" that solved the symptom in one component turned out to duplicate logic that already existed elsewhere in the codebase, and the review caught the duplication before it shipped. Treating the model's output as a draft, not an answer, is what the process is for.
 
-## Most of a website is not code
+## Production readiness is more than code
 
-The build reaching "done" was the halfway mark. What followed was two days of short working sessions with the model, spent on the parts of a website that never show up in a screenshot.
+The build reaching "done" was the halfway mark. What followed was two days of short working sessions with the model, spent on the parts of a website that never show up in a screenshot. The full [architecture and deployment behind this site](/insights/how-this-site-works) had to work as a system, not merely render a homepage.
 
 The list from those two days: the title and description each page shows in a Google or Bing result. The card a link unfurls into on LinkedIn and Slack. Structured data that validated but carried datetime warnings in Google's testing tool. An accessibility pass. A navbar that wrapped to two rows on Chrome for Android and nowhere else. Dead scroll space under the footer that only existed on phones. Favicons and the web manifest. A Lighthouse score dragged down by the WebGL sky rendering on a CPU inside the test lab. Whether the site still reads when an AI agent browses it instead of a person. Cache policies per asset class at the CDN. Analytics to measure whether any of it works.
 
 The model fixed each item in minutes once asked. Knowing what to ask was the work. No screenshot announces a missing timezone in structured data or an uncached asset. Each surface needed a name, its own checking tool, and the same review loop as the code.
 
-## The rule
+## When this workflow works
 
-Judgment in, quality out. That held at every stage of the pipeline, not only the one that wrote code. An AI coding tool multiplies the judgment you bring to it. Bring a plan it can follow, knowledge that names the bug, and a review bar it has to clear. The teams that get pace from these tools will be the ones that prepared for them.
+This workflow only works when someone involved knows enough to judge the result. AI can point you toward useful sources and teach you the vocabulary of an unfamiliar domain, but that does not make the output safe to ship. Read the material and have someone with real domain expertise review the decisions.
+
+If nobody can recognize a wrong answer, stop at a prototype. More prompting does not replace expertise.
+
+## Know the problem better than the AI
+
+Judgment in, quality out. That held at every stage of the pipeline, not only the one that wrote code. AI expanded the idea, exposed research paths, deepened the refined brief, added detail, and executed the build. I still had to read, understand, decide, and review.
+
+You need to know the problem better than the AI building the solution. Otherwise, you cannot tell whether it filled a gap correctly or confidently invented the wrong thing. The teams that get real pace from these tools will be the ones that prepare for them.

@@ -107,20 +107,20 @@ describe("ShapeMorphButtons", () => {
 });
 
 describe("AIWorkflowTimeline", () => {
-  it("starts on the framing stage", () => {
+  it("starts by expanding the idea", () => {
     render(<AIWorkflowTimeline />);
-    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/research brief/i);
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/map of what I do not know/i);
   });
 
   it("shows the build stage when selected", () => {
     render(<AIWorkflowTimeline />);
     fireEvent.click(screen.getByTestId("stage-build"));
-    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/Fable built the first pass/i);
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/prepared foundation to Fable/i);
   });
 
-  it("shows the review stage when selected", () => {
+  it("puts human source reading before deep research", () => {
     render(<AIWorkflowTimeline />);
-    fireEvent.click(screen.getByTestId("stage-polish"));
-    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/UI and UX fixes/i);
+    fireEvent.click(screen.getByTestId("stage-sources"));
+    expect(screen.getByTestId("stage-detail")).toHaveTextContent(/do the research/i);
   });
 });
