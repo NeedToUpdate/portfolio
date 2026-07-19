@@ -75,7 +75,7 @@ export default function HomePage() {
                 {site.name.split(" ")[0]}
               </span>
               <span aria-hidden className="h-px flex-1 bg-line/60" />
-              <span>{site.location.split(",")[0]}</span>
+              <span>{site.location}</span>
             </div>
             <Heading
               size="hero"
@@ -287,12 +287,10 @@ export default function HomePage() {
                 phone has to fit the hero plus most of the insight card. */}
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)] lg:grid-rows-[auto_auto] md:gap-8">
               {/* Hero */}
-              <Panel
-                as="section"
-                variant="glass"
-                className="grid items-center !backdrop-blur-none md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]"
-              >
-                <div className="min-w-0">
+              {/* Borderless editorial hero (borrowed from the winning desktop),
+                  keeping the rule-masthead identity. */}
+              <section className="grid items-center md:min-h-[22rem] lg:row-span-2 lg:min-h-[34rem]">
+                <div className="min-w-0 [text-shadow:0_1px_16px_rgba(3,5,10,0.6)]">
                   {/* Rule-masthead hero identity, matching the mobile rails. */}
                   <div className="mb-5 flex items-center gap-4 text-xs uppercase tracking-[0.18em] text-muted">
                     <span className="font-display font-semibold text-ink">
@@ -322,7 +320,7 @@ export default function HomePage() {
                     production: architecture, teams, and delivery.
                   </Text>
                 </div>
-              </Panel>
+              </section>
 
               {latestInsight && (
                 <Panel
