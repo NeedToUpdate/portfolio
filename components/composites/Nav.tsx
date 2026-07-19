@@ -21,7 +21,7 @@ export default function Nav() {
           href="/"
           className="inline-flex min-h-6 shrink-0 items-center font-display text-[clamp(0.6875rem,3vw,0.875rem)] font-semibold tracking-tight text-ink hover:text-accent"
         >
-          {site.name}
+          {site.name.split(" ").at(0)}
         </Link>
         <ul className="flex min-w-0 flex-wrap items-center gap-x-[clamp(0.625rem,2.6vw,1rem)] gap-y-1 md:gap-x-7">
           {navItems.map((item) => {

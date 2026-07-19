@@ -60,7 +60,19 @@ export default async function InsightPage({ params }: PageProps) {
   const all = getInsights();
   const index = all.findIndex((i) => i.slug === slug);
   const newer = index > 0 ? all[index - 1] : undefined;
-  const recommendations = getRelatedContent(insight.related);
+  const curatedRecommendations = getRelatedContent(insight.related);
+  const recommendations = curatedRecommendations.length > 0
+    ? curatedRecommendations
+    : Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) => {
+        const fallback = all[(index + offset + 1) % all.length];
+        return {
+          href: `/insights/${fallback.slug}`,
+          title: fallback.title,
+          description: fallback.description,
+          image: fallback.previewImage,
+          kind: "Insight" as const,
+        };
+      });
 
   return (
     <PageShell narrow>

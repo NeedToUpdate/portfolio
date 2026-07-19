@@ -8,6 +8,7 @@ import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
 import ArticleByline from "@/components/composites/ArticleByline";
 import CaseScorecard from "@/components/composites/CaseScorecard";
+import CaseComments from "@/components/composites/CaseComments";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -66,7 +67,19 @@ export default async function CaseStudyPage({ params }: PageProps) {
   const all = getCaseStudies();
   const index = all.findIndex((c) => c.slug === slug);
   const previous = index > 0 ? all[index - 1] : undefined;
-  const recommendations = getRelatedContent(caseStudy.related);
+  const curatedRecommendations = getRelatedContent(caseStudy.related);
+  const recommendations = curatedRecommendations.length > 0
+    ? curatedRecommendations
+    : Array.from({ length: Math.min(3, all.length - 1) }, (_, offset) => {
+        const fallback = all[(index + offset + 1) % all.length];
+        return {
+          href: `/work/${fallback.slug}`,
+          title: fallback.title,
+          description: fallback.impact,
+          image: fallback.diagram,
+          kind: "Case study" as const,
+        };
+      });
 
   // The exhibit belongs to the solution: problem, then solution, then
   // the diagram it just described, then the result.
@@ -76,8 +89,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
   );
 
   return (
-    <PageShell narrow>
-      {/* Narrow centered article: the upper-right margin is open. */}
+    <PageShell>
       <NebulaBackground variant="mini" corner="top-right" miniShape="helix" color="frost" />
       <JsonLd
         data={breadcrumbSchema([
@@ -95,7 +107,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
         ]}
       />
 
-      <header>
+      <header className="max-w-prose">
         <Eyebrow
           icon={categoryIcon(caseStudy.category)}
           pill
@@ -120,36 +132,38 @@ export default async function CaseStudyPage({ params }: PageProps) {
         />
       </header>
 
-      <div className="mt-10">
-        <Markdown>{problemAndSolution}</Markdown>
-      </div>
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,23rem)] lg:items-start lg:gap-12">
+        <CaseComments comments={caseStudy.comments} />
 
-      {/* Every study gets a diagram; the slot stands reserved until
-          each one is drawn. */}
-      <Exhibit
-        src={caseStudy.diagram}
-        alt={caseStudy.diagramAlt ?? `Solution architecture — ${caseStudy.title}`}
-        label={`Architecture diagram — ${caseStudy.title}`}
-        icon={categoryIcon(caseStudy.category)}
-        caption={caseStudy.diagram ? "Exhibit: solution architecture." : undefined}
-      />
+        <div className="min-w-0 max-w-prose lg:col-start-1 lg:row-start-1">
+          <Markdown>{problemAndSolution}</Markdown>
 
-      {result && (
-        <div className="mt-10">
-          <Markdown>{result}</Markdown>
+          <Exhibit
+            src={caseStudy.diagram}
+            alt={caseStudy.diagramAlt ?? `Solution architecture — ${caseStudy.title}`}
+            label={`Architecture diagram — ${caseStudy.title}`}
+            icon={categoryIcon(caseStudy.category)}
+            caption={caseStudy.diagram ? "Exhibit: solution architecture." : undefined}
+          />
+
+          {result && (
+            <div className="mt-10">
+              <Markdown>{result}</Markdown>
+            </div>
+          )}
+
+          <div className="mt-14 border-t border-line/60 pt-8">
+            <Text variant="small">
+              Exact names, figures, and details are confidential. I can walk
+              through the technical decisions in a conversation.
+            </Text>
+          </div>
         </div>
-      )}
-
-      <div className="mt-14 border-t border-line/60 pt-8">
-        <Text variant="small">
-          Exact names, figures, and details are confidential. I can walk
-          through the technical decisions in a conversation.
-        </Text>
       </div>
 
       <section
         aria-labelledby="work-cta"
-        className="mt-12 border-t border-line/60 pt-8"
+        className="mt-12 max-w-prose border-t border-line/60 pt-8"
       >
         <Heading size="sub" id="work-cta">
           Facing something like this?

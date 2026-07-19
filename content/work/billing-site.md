@@ -18,6 +18,9 @@ context:
     value: "PCI, via Moneris"
   - term: "Timeline"
     value: "3 weeks to production"
+comments:
+  - question: "How can an enterprise deliver a production solution in only three weeks?"
+    answer: "Start with a well-defined pain point. Here, the problem was clear: customers needed a way to give the company their billing information while the company remained PCI compliant. There was no scope creep and only one cook in the kitchen: one goal, one deadline, one meeting, and one sprint cycle. The stars aligned and the technology was delivered. Velocity is born of necessity, and this was one of those cases."
 ---
 
 ## The problem

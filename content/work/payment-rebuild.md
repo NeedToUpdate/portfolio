@@ -18,6 +18,11 @@ context:
     value: "Banking system"
   - term: "Reliability"
     value: "99.99% uptime"
+comments:
+  - question: "When should a failing payment workflow be rebuilt instead of patched again?"
+    answer: "There is a formula you can use, which I will cover in a future insight. It comes down to whether the value being lost—through customers, outages, and the employees needed to keep fixing the system—outweighs the cost of having engineers rebuild it properly."
+  - question: "What matters most in a payment workflow spanning several systems?"
+    answer: "The absolutely critical piece is idempotency. Using hashes, primary keys, and critical data elements, you can ensure that no transaction happens twice. The last thing you need is to accidentally pay out a $600,000 life-insurance claim twice."
 ---
 
 ## The problem

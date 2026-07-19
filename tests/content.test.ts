@@ -34,6 +34,13 @@ describe("content loaders", () => {
     }
   });
 
+  it("loads structured comments for every case-study placard", () => {
+    for (const study of getCaseStudies()) {
+      expect(study.comments.length).toBeGreaterThanOrEqual(1);
+      expect(study.comments.every((item) => item.question && item.answer)).toBe(true);
+    }
+  });
+
   it("gives every case study a result section for the exhibit split", () => {
     // The detail page slots the architecture exhibit before this
     // heading; a study without it would render the exhibit last.

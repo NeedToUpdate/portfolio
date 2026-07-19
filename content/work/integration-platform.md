@@ -19,6 +19,11 @@ context:
     value: "Build vs buy"
   - term: "Outcome"
     value: "Eight-person build approved"
+comments:
+  - question: "When is building an integration platform better than buying an iPaaS or SaaS product?"
+    answer: "When the integrations are very straightforward or require extremely complex business logic. Think of it as a bell curve: iPaaS thrives in the middle, while custom builds thrive at both ends."
+  - question: "How do you keep a custom integration platform from becoming another collection of bespoke infrastructure?"
+    answer: "It is extremely hard. The best long-lived systems I have worked with always follow the KISS principle. Once a system takes on too much, it becomes technical debt you may never recover from. Then you need to hire another consulting company to modernize your infrastructure all over again."
 ---
 
 ## The problem

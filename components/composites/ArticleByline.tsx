@@ -10,7 +10,7 @@ export default function ArticleByline({ label = "By" }: ArticleBylineProps) {
   return (
     <Link
       href="/about"
-      data-nebula-shape="profile"
+      data-nebula-shape="nodes"
       className="group inline-flex items-center gap-2 rounded-full border border-line/70 bg-panel/45 px-3 py-1.5 text-sm text-muted transition hover:border-accent/50 hover:bg-panel/70 hover:text-ink"
       aria-label="About Art"
     >

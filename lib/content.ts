@@ -46,6 +46,21 @@ function requireString(entry: ContentEntry, field: string): string {
   return value;
 }
 
+function requireCaseComments(entry: ContentEntry): CaseStudy["comments"] {
+  const comments = entry.data.comments as Partial<CaseStudy["comments"][number]>[] | undefined;
+  if (!Array.isArray(comments) || comments.length < 1) {
+    throw new Error(`content/${entry.source}: "comments" must contain at least one entry`);
+  }
+  for (const comment of comments) {
+    if (!comment.question?.trim() || !comment.answer?.trim()) {
+      throw new Error(
+        `content/${entry.source}: every comment needs a question and answer`
+      );
+    }
+  }
+  return comments as CaseStudy["comments"];
+}
+
 /** Validates a nested { title, org, points } block, e.g. career.merged. */
 function requireStreamView(entry: ContentEntry, field: string): StreamView {
   const value = entry.data[field] as Partial<StreamView> | undefined;
@@ -109,6 +124,7 @@ export function getCaseStudies(): CaseStudy[] {
         : undefined,
       diagramAlt: entry.data.diagramAlt as string | undefined,
       related: (entry.data.related as string[]) ?? [],
+      comments: requireCaseComments(entry),
       body: entry.content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);

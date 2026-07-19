@@ -6,6 +6,12 @@ export interface ScorecardEntry {
   value: string;
 }
 
+/** One concise, experience-backed answer displayed in Art's Comments. */
+export interface CaseComment {
+  question: string;
+  answer: string;
+}
+
 /** A professional case study. Source: content/work/*.md */
 export interface CaseStudy {
   slug: string;
@@ -30,6 +36,8 @@ export interface CaseStudy {
   diagramAlt?: string;
   /** Manually selected canonical paths to genuinely related local content. */
   related?: string[];
+  /** Transferable decisions grounded in this project's evidence. */
+  comments: CaseComment[];
   body: string;
 }
 

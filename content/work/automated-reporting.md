@@ -18,6 +18,11 @@ context:
     value: "IFRS 17 month close"
   - term: "Run time"
     value: "Under 15 minutes"
+comments:
+  - question: "When is a financial-reporting process ready for automation?"
+    answer: "When finance is ready to explain its secrets. The biggest challenge is not the technology or the code. It is extracting critical knowledge from financial experts who may not even realize how much they know or which details are crucial to the project's success. You have to shadow them and almost read their minds to understand the core business processes, then turn that knowledge into code."
+  - question: "How do you automate financial reporting without losing auditability?"
+    answer: "Automation can actually increase auditability. If an ETL pipeline is built properly, it can log metadata as it runs. That metadata can then feed directly into an audit report."
 ---
 
 ## The problem
