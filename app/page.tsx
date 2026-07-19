@@ -328,7 +328,7 @@ export default function HomePage() {
                   as="section"
                   variant="glass"
                   aria-labelledby="home-latest-insight"
-                  className="flex flex-col justify-between gap-5 border-l-2 border-l-accent/60 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
+                  className="flex flex-col justify-between gap-5 overflow-hidden border-l-2 border-l-accent/60 !backdrop-blur-none md:min-h-[18rem] md:gap-8"
                 >
                   <div className="min-w-0">
                     {/* Accent label + edge + date mark this as a fresh, dated
@@ -365,11 +365,15 @@ export default function HomePage() {
                       />
                     )}
                   </div>
-                  <ArrowLink
+                  {/* D3: an article-style footer bar makes the insight read
+                      as a tappable write-up, echoing the mobile card. */}
+                  <Link
                     href={`/insights/${latestInsight.slug}`}
-                    label="Read the write-up"
-                    nebulaShape="article"
-                  />
+                    data-nebula-shape="article"
+                    className="-mx-5 -mb-5 flex items-center justify-between border-t border-accent/25 bg-accent/10 px-5 py-4 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-accent-ink md:-mx-8 md:-mb-8 md:px-8"
+                  >
+                    Read the write-up <span aria-hidden>→</span>
+                  </Link>
                 </Panel>
               )}
 
