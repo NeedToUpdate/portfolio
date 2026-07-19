@@ -11,6 +11,7 @@ import {
   Insight,
   InsightMeta,
   Project,
+  RelatedContent,
   SkillDomain,
   StreamView,
   WorkIntro,
@@ -43,6 +44,21 @@ function requireString(entry: ContentEntry, field: string): string {
     throw new Error(`content/${entry.source}: missing required frontmatter field "${field}"`);
   }
   return value;
+}
+
+function requireCaseComments(entry: ContentEntry): CaseStudy["comments"] {
+  const comments = entry.data.comments as Partial<CaseStudy["comments"][number]>[] | undefined;
+  if (!Array.isArray(comments) || comments.length < 1) {
+    throw new Error(`content/${entry.source}: "comments" must contain at least one entry`);
+  }
+  for (const comment of comments) {
+    if (!comment.question?.trim() || !comment.answer?.trim()) {
+      throw new Error(
+        `content/${entry.source}: every comment needs a question and answer`
+      );
+    }
+  }
+  return comments as CaseStudy["comments"];
 }
 
 /** Validates a nested { title, org, points } block, e.g. career.merged. */
@@ -107,6 +123,8 @@ export function getCaseStudies(): CaseStudy[] {
         ? fingerprintedPath(entry.data.diagram as string)
         : undefined,
       diagramAlt: entry.data.diagramAlt as string | undefined,
+      related: (entry.data.related as string[]) ?? [],
+      comments: requireCaseComments(entry),
       body: entry.content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);
@@ -156,7 +174,36 @@ function toInsightMeta(entry: ContentEntry): InsightMeta {
     date: requireString(entry, "date"),
     tags: (entry.data.tags as string[]) ?? [],
     readingTimeMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
+    related: (entry.data.related as string[]) ?? [],
   };
+}
+
+/** Resolve explicit editorial paths and fail loudly when frontmatter goes stale. */
+export function getRelatedContent(paths: string[] = []): RelatedContent[] {
+  const insights = new Map(getInsights().map((item) => [`/insights/${item.slug}`, item]));
+  const studies = new Map(getCaseStudies().map((item) => [`/work/${item.slug}`, item]));
+
+  return paths.map((href) => {
+    const insight = insights.get(href);
+    if (insight) return {
+      href,
+      title: insight.title,
+      description: insight.description,
+      image: insight.previewImage,
+      kind: "Insight" as const,
+    };
+
+    const study = studies.get(href);
+    if (study) return {
+      href,
+      title: study.title,
+      description: study.impact,
+      image: study.diagram,
+      kind: "Case study" as const,
+    };
+
+    throw new Error(`Related content path does not resolve: ${href}`);
+  });
 }
 
 export function getInsights(): InsightMeta[] {

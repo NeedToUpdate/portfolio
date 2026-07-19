@@ -41,12 +41,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
     // Large image previews make insights eligible for the big-thumbnail
-    // treatment in Discover and image-led result layouts. Snippet length
-    // is capped near our authored description length so that if Google
-    // does generate its own snippet instead of using ours, it can't run
-    // on indefinitely (e.g. scooping up unrelated on-page text).
+    // treatment in Discover and image-led result layouts. Snippets remain
+    // unrestricted so search engines can select the passage that best
+    // answers a long-tail query instead of being capped to description length.
     "max-image-preview": "large",
-    "max-snippet": 160,
   },
   openGraph: {
     type: "website",

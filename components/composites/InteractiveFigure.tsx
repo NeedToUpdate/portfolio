@@ -30,7 +30,7 @@ export default function InteractiveFigure({
 }: InteractiveFigureProps) {
   return (
     <figure className="relative my-8">
-      <span className="absolute -top-5 right-4 z-10 inline-flex items-center gap-2 rounded-md bg-accent px-3 py-1.5 text-accent-ink shadow-md lg:-top-3 lg:left-full lg:right-auto lg:ml-4">
+      <span data-nosnippet className="absolute -top-5 right-4 z-10 inline-flex items-center gap-2 rounded-md bg-accent px-3 py-1.5 text-accent-ink shadow-md lg:-top-3 lg:left-full lg:right-auto lg:ml-4">
         <Icon name="pointer" size={16} />
         <span className="flex min-w-0 flex-col leading-tight">
           <span className="text-[10px] font-medium uppercase tracking-wider text-accent-ink/60">
@@ -43,8 +43,10 @@ export default function InteractiveFigure({
       </span>
       {/* Extra top padding on mobile clears the corner tab, which sits in
           the right margin (not over the card) once there is room at lg. */}
-      <Panel className="pt-9 lg:pt-5">{children}</Panel>
-      <figcaption className="mt-3 text-sm text-muted">{caption}</figcaption>
+      <div data-nosnippet>
+        <Panel className="pt-9 lg:pt-5">{children}</Panel>
+      </div>
+      <figcaption className="mt-3 text-sm text-muted"><span data-nosnippet>{caption}</span></figcaption>
     </figure>
   );
 }

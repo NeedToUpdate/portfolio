@@ -1,5 +1,5 @@
 ---
-title: "Tableau Integration"
+title: "Governed Tableau BI Platform"
 date: "2025-01-01"
 techs: ["tableau", "aws", "redshift", "python", "ec2"]
 keywords: ["Tableau integration", "business intelligence", "BI platform", "data visualization"]
@@ -18,6 +18,11 @@ context:
     value: "Direct Redshift connection"
   - term: "Availability"
     value: "99.9% target"
+comments:
+  - question: "Can you hand the business an entire BI tool and call the job done?"
+    answer: "No. Engineering delivery is complex. You are not delivering a pizza, where the end goal and how to use it are obvious. You have to walk the business from the data marts all the way to the dashboard, build the solution hand in hand, and deliver the complete operating process—with documentation, operational notes, and support runbooks."
+  - question: "What turns a Tableau server into an enterprise BI platform?"
+    answer: "Data governance, auditing, observability, maintainability, and the support model make the difference. You cannot simply spin up a Tableau server and call it done. It has to connect to the employee directory, restrict data to the people who need it, prevent network leakage, and minimize threat vectors. The system also needs enough flexibility—and the team enough expertise—that when the CCO says, “My dashboard is slow,” you can quickly find the bottleneck."
 ---
 
 ## The problem

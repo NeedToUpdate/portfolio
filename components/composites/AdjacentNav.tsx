@@ -22,6 +22,7 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
 
   return (
     <nav aria-label="Keep exploring" className="mt-16 border-t border-line/60 pt-9">
+      <div data-nosnippet>
       <Eyebrow>Keep exploring</Eyebrow>
 
       {featured && (
@@ -122,6 +123,7 @@ export default function AdjacentNav({ previous, recommendations = [] }: Adjacent
           <span className="truncate font-medium text-ink">{previous.title}</span>
         </Link>
       )}
+      </div>
     </nav>
   );
 }

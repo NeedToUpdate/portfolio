@@ -1,13 +1,16 @@
 ---
-title: "A homelab with three-node HA, SSO, and zero open ports"
-seoTitle: "An enterprise-grade Kubernetes homelab"
-description: "Two old laptops, a homemade server, and two mini PCs, none of them enough alone, turned into a five-node Kubernetes cluster with enterprise-grade GitOps, identity, and network discipline."
+title: "An enterprise-grade k3s homelab with GitOps, SSO, and zero open ports"
+seoTitle: "Enterprise-grade k3s homelab with GitOps and SSO"
+description: "A five-node k3s homelab applying enterprise platform patterns: three-node HA, Argo CD GitOps, SSO, observability, network policy, and zero open ports."
 previewImage: "/images/k3s_homelab.webp"
 date: "2026-06-09"
 tags: ["infrastructure", "kubernetes", "platform-engineering"]
+related: ["/insights/ziggy", "/work/sdlc-revamp", "/work/integration-platform"]
 ---
 
-I had two old laptops and an old server doing nothing, the same server I [3D-printed a case for](https://icandoathing.com/thing/SlhPxf/i-made-a-case-for-my-server). None of them alone could run everything I wanted: a media server, photo backup, document storage, a bridge into the home automation setup, a handful of scheduled jobs. I also wanted to actually learn Kubernetes, not just read about it. The answer to both problems was the same one: stop asking one machine to do everything. Those three became a control plane, two mini PCs joined underneath as a worker pool, and five nodes did together what none of them could do alone.
+I wanted to know how closely a homelab could follow the same operating patterns as a large enterprise platform: GitOps, agentic development, observability, identity, and reliability. I also wanted to actually learn Kubernetes, not just read about it.
+
+I had two old laptops and an old server doing nothing—the same server I [3D-printed a case for](https://icandoathing.com/thing/SlhPxf/i-made-a-case-for-my-server). None of them alone could run everything I wanted: a media server, photo backup, document storage, a bridge into the home-automation setup, and a handful of scheduled jobs. The answer to both problems was the same: stop asking one machine to do everything. Those three machines became a control plane, two mini PCs joined underneath as a worker pool, and five nodes did together what none of them could do alone.
 
 What I ended up with runs an HA control plane, single sign-on across eighteen apps, and eBPF network policy enforcement, in my den, on hardware that was headed for a drawer. Most nights it serves a movie and runs a couple of cron jobs. That mismatch is the point: this is where I practice the same platform patterns I use at work, without a client's production traffic on the line if I get something wrong.
 
