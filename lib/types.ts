@@ -86,6 +86,8 @@ export interface RelatedContent {
   description: string;
   image?: string;
   kind: "Insight" | "Case study";
+  /** Case-study category, for the type icon in "Keep exploring". */
+  category?: string;
 }
 
 /** A full insight: metadata plus raw MDX source. */

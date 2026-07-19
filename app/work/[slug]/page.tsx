@@ -78,6 +78,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
           description: fallback.impact,
           image: fallback.diagram,
           kind: "Case study" as const,
+          category: fallback.category,
         };
       }
   );
@@ -209,10 +210,11 @@ export default async function CaseStudyPage({ params }: PageProps) {
             hint: "Previous",
           }
         }
-        recommendations={recommendations.map((recommended, recommendationIndex) => ({
+        recommendations={recommendations.map((recommended) => ({
           href: recommended.href,
           title: recommended.title,
-          hint: recommendationIndex === 0 ? recommended.kind : "Also worth reading",
+          kind: recommended.kind,
+          category: recommended.category,
           description: recommended.description,
           image: recommended.image,
         }))}

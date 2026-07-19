@@ -200,6 +200,7 @@ export function getRelatedContent(paths: string[] = []): RelatedContent[] {
       description: study.impact,
       image: study.diagram,
       kind: "Case study" as const,
+      category: study.category,
     };
 
     throw new Error(`Related content path does not resolve: ${href}`);
