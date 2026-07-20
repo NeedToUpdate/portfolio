@@ -4,6 +4,7 @@ import Nav from "@/components/composites/Nav";
 import Footer from "@/components/composites/Footer";
 import StarField from "@/components/composites/StarField";
 import AgentTools from "@/components/composites/AgentTools";
+import ShareOpenedTracker from "@/components/composites/ShareOpenedTracker";
 import { site } from "@/lib/site";
 import "@/styles/globals.css";
 
@@ -101,6 +102,7 @@ export default function RootLayout({
         </a>
         <StarField />
         <AgentTools />
+        <ShareOpenedTracker />
         <Nav />
         <main id="main" className="flex-1">
           {children}
