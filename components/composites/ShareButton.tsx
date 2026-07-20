@@ -62,12 +62,22 @@ export default function ShareButton({
 
   function record(channel: Channel, id: string) {
     if (process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) {
-      posthog.capture("share_created", {
-        share_id: id,
-        channel,
-        content_type: contentType,
-        path,
-      });
+      // send_instantly bypasses PostHog's batch queue. Copy-link on mobile
+      // doesn't navigate, so the user taps it and immediately switches apps
+      // to paste — freezing the page before the batch flushes (and iOS
+      // doesn't reliably fire pagehide on app-switch), which silently drops
+      // the queued event. The other channels navigate away and flush on the
+      // way out, so this only bit copy. Ship it on the tap, every channel.
+      posthog.capture(
+        "share_created",
+        {
+          share_id: id,
+          channel,
+          content_type: contentType,
+          path,
+        },
+        { send_instantly: true },
+      );
     }
   }
 
