@@ -1,11 +1,16 @@
 import { ReactNode } from "react";
 
-type HeadingLevel = "h1" | "h2" | "h3";
+type HeadingLevel = "h1" | "h2" | "h3" | "p";
 type HeadingSize = "hero" | "page" | "section" | "sub" | "item" | "small";
 
 interface HeadingProps {
   children: ReactNode;
-  /** Semantic tag. Defaults follow size: hero/page → h1, section/sub → h2, item/small → h3. */
+  /**
+   * Semantic tag. Defaults follow size: hero/page → h1, section/sub → h2,
+   * item/small → h3. Pass "p" to keep the visual size without emitting a
+   * heading — e.g. a duplicated responsive hero that must not add a second
+   * <h1> to the page source.
+   */
   as?: HeadingLevel;
   size: HeadingSize;
   id?: string;
