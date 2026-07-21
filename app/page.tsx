@@ -340,7 +340,12 @@ export default function HomePage() {
                         <span aria-hidden className="h-px flex-1 bg-line/60" />
                         <span>{site.location}</span>
                       </div>
-                      <Heading size="hero" className="max-w-3xl">
+                      {/* Rendered as <p>, not <h1>: this desktop hero is a
+                          responsive duplicate of the mobile hero above, which
+                          owns the page's single <h1>. Emitting a second <h1>
+                          here would put two in the page source (both are always
+                          in the DOM, only one visible per breakpoint). */}
+                      <Heading size="hero" as="p" className="max-w-3xl">
                         I design the{" "}
                         <span className="text-accent" data-nebula-shape="hex">
                           systems
