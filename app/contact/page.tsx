@@ -13,7 +13,8 @@ import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact for architecture & delivery work",
-  description: "How to reach Art: email, LinkedIn, and GitHub.",
+  description:
+    "How to reach Art for modernization work, architecture questions, or speaking: email, LinkedIn, and GitHub, with a note on when to use each channel.",
   path: "/contact",
 });
 

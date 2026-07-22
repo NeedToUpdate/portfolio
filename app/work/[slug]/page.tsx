@@ -34,14 +34,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const caseStudy = getCaseStudy(slug);
   if (!caseStudy) return {};
+  const description = caseStudy.seoDescription ?? caseStudy.impact;
   return {
     title: caseStudy.title,
-    description: caseStudy.impact,
+    description,
     keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs],
     alternates: { canonical: `/work/${slug}` },
     openGraph: {
       title: caseStudy.title,
-      description: caseStudy.impact,
+      description,
       url: `/work/${slug}`,
       type: "article",
       publishedTime: new Date(caseStudy.date).toISOString(),
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: caseStudy.title,
-      description: caseStudy.impact,
+      description,
       images: caseStudy.diagram ? [ogImagePath(caseStudy.diagram)] : undefined,
     },
   };

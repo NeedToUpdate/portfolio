@@ -4,6 +4,7 @@ date: "2025-09-01"
 techs: ["azure", "azure-pipelines", "iac", "powershell"]
 keywords: ["SDLC", "deployment automation", "release management", "CI/CD pipeline", "DevOps"]
 impact: "Modernized the SDLC to cut deployment time from a week to four hours, bug to production."
+seoDescription: "How a 1M-customer web platform cut bug-to-production time from a week to four hours: build-once artifacts, staged promotion, and automated releases."
 priority: 2
 category: infrastructure
 role: "Led release-process modernization"

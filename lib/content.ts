@@ -113,6 +113,8 @@ export function getCaseStudies(): CaseStudy[] {
       title: requireString(entry, "title"),
       date: requireString(entry, "date"),
       impact: requireString(entry, "impact"),
+      seoDescription:
+        typeof entry.data.seoDescription === "string" ? entry.data.seoDescription : undefined,
       techs: (entry.data.techs as string[]) ?? [],
       keywords: (entry.data.keywords as string[]) ?? [],
       category: (entry.data.category as string) ?? "systems",
