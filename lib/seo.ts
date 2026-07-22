@@ -156,7 +156,7 @@ export function caseStudySchema(caseStudy: CaseStudy) {
     "@type": "Article",
     name: caseStudy.title,
     headline: caseStudy.title,
-    description: caseStudy.impact,
+    description: caseStudy.seoDescription ?? caseStudy.impact,
     datePublished: published,
     dateModified: published,
     inLanguage: "en-CA",

@@ -8,8 +8,10 @@ interface HeadingProps {
   /**
    * Semantic tag. Defaults follow size: hero/page → h1, section/sub → h2,
    * item/small → h3. Pass "p" to keep the visual size without emitting a
-   * heading — e.g. a duplicated responsive hero that must not add a second
-   * <h1> to the page source.
+   * heading tag — e.g. a duplicated responsive hero that must not add a
+   * second <h1> to the page source. ARIA still exposes the size's heading
+   * level, so the breakpoint where the real twin is display:none (and gone
+   * from the accessibility tree) keeps a heading for assistive tech.
    */
   as?: HeadingLevel;
   size: HeadingSize;
@@ -44,8 +46,12 @@ const sizeClasses: Record<HeadingSize, string> = {
 /** The heading. Every title and subtitle on the site is one of these. */
 export default function Heading({ children, as, size, id, className = "" }: HeadingProps) {
   const Tag = as ?? defaultTag[size];
+  const aria =
+    Tag === "p"
+      ? ({ role: "heading", "aria-level": Number(defaultTag[size].slice(1)) } as const)
+      : undefined;
   return (
-    <Tag id={id} className={`font-display text-ink ${sizeClasses[size]} ${className}`}>
+    <Tag id={id} {...aria} className={`font-display text-ink ${sizeClasses[size]} ${className}`}>
       {children}
     </Tag>
   );

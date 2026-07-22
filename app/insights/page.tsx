@@ -16,7 +16,7 @@ import { mailtoUrl } from "@/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: "Architecture, AI & engineering write-ups",
   description:
-    "Write-ups on architecture, AI, and engineering decisions, written from real projects.",
+    "Write-ups on architecture, AI, and engineering decisions from real projects: RAG agents, Kubernetes platforms, AI safety, and AI-assisted delivery.",
   path: "/insights",
 });
 

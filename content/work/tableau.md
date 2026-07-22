@@ -4,6 +4,7 @@ date: "2025-01-01"
 techs: ["tableau", "aws", "redshift", "python", "ec2"]
 keywords: ["Tableau integration", "business intelligence", "BI platform", "data visualization"]
 impact: "Created a governed BI platform so business teams could access warehouse data directly."
+seoDescription: "How a governed Tableau platform on AWS gave business teams direct warehouse access: identity controls, private networking, and a 99.9% availability target."
 priority: 8
 category: reporting
 role: "Led platform design and automation"

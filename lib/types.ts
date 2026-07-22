@@ -20,6 +20,10 @@ export interface CaseStudy {
    *  Feeds structured data; not shown on the page. */
   date: string;
   impact: string;
+  /** Meta-description override for search snippets, when the on-page
+   *  impact line runs short of the 120–160 characters engines fill.
+   *  Falls back to impact. */
+  seoDescription?: string;
   techs: string[];
   /** Search-intent phrases for this case study, e.g. "data warehouse". Feeds meta keywords and JSON-LD, distinct from techs. */
   keywords?: string[];

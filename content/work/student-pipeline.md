@@ -4,6 +4,7 @@ date: "2023-12-01"
 techs: ["aws", "typescript", "python", "serverless", "splunk"]
 keywords: ["student pipeline", "enrollment processing", "student data pipeline", "SFTP integration", "reconciliation workflow"]
 impact: "Rebuilt the student enrollment pipeline to remove a week-long manual delay for 1M+ students."
+seoDescription: "How a monthly enrollment pipeline for 1M+ students replaced a week-long manual delay: SFTP ingestion, state reconciliation, and nightly delta delivery."
 priority: 6
 category: infrastructure
 role: "Led architecture and delivery"
