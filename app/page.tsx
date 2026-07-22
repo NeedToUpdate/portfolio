@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import PageShell from "@/components/composites/PageShell";
@@ -22,6 +23,29 @@ import {
 import { formatDate } from "@/lib/format";
 import { personSchema, websiteSchema } from "@/lib/seo";
 import { site } from "@/lib/site";
+
+// The layout's default description is the ~75-character brand line; search
+// snippets fill 120–160. This names what the site delivers without touching
+// the on-page hero. The <title> stays on the layout default.
+const homeDescription =
+  "I design the systems enterprises run on. Case studies and write-ups on enterprise modernization, data platforms, AI adoption, and engineering leadership.";
+
+export const metadata: Metadata = {
+  description: homeDescription,
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    url: site.url,
+    title: `${site.name} · ${site.tagline}`,
+    description: homeDescription,
+    locale: "en_CA",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} · ${site.tagline}`,
+    description: homeDescription,
+  },
+};
 
 // Shared glass-card shell for the horizontal rails. A fixed width lets the
 // next card peek, which is the whole "swipe me" signal.
