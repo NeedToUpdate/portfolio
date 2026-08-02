@@ -72,6 +72,8 @@ export interface InsightMeta {
   /** Shorter title for the <title> tag, when the on-page headline runs
    *  past the ~60-char length search engines truncate. Falls back to title. */
   seoTitle?: string;
+  /** Optional italicized standfirst rendered directly below the article H1. */
+  deck?: string;
   description: string;
   /** Editorial image used by insight lists, recommendations, and social previews. */
   previewImage?: string;

@@ -4,7 +4,9 @@ import Icon from "@/components/ui/Icon";
 
 interface InteractiveFigureProps {
   children: ReactNode;
-  caption: string;
+  caption?: string;
+  /** Nonvisual equivalent of alt text for a complex interactive figure. */
+  accessibleDescription?: string;
   /**
    * The action the reader takes, e.g. "click a node". Keep it to two or
    * three words: it renders on one line inside a fixed tab, so a long value
@@ -26,6 +28,7 @@ interface InteractiveFigureProps {
 export default function InteractiveFigure({
   children,
   caption,
+  accessibleDescription,
   prompt = "try it",
 }: InteractiveFigureProps) {
   return (
@@ -46,7 +49,12 @@ export default function InteractiveFigure({
       <div data-nosnippet>
         <Panel className="pt-9 lg:pt-5">{children}</Panel>
       </div>
-      <figcaption className="mt-3 text-sm text-muted"><span data-nosnippet>{caption}</span></figcaption>
+      {caption || accessibleDescription ? (
+        <figcaption className={caption ? "mt-3 text-sm text-muted" : ""}>
+          {caption ? <span data-nosnippet>{caption}</span> : null}
+          {accessibleDescription ? <span className="sr-only">{accessibleDescription}</span> : null}
+        </figcaption>
+      ) : null}
     </figure>
   );
 }

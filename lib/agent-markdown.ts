@@ -56,6 +56,12 @@ export function mdxToMarkdown(body: string): string {
           .map((line) => `> ${line.trim()}`.trimEnd())
           .join("\n"),
       )
+      // Interactive figures expose their nonvisual description to the
+      // agent-facing Markdown in place of the browser-only controls.
+      .replace(/<HumanReviewLab([\s\S]*?)\/>/g, (_, attrs: string) => {
+        const description = attrs.match(/description="([^"]*)"/)?.[1];
+        return description ? `> Interactive figure: ${description}` : "";
+      })
       // Remaining self-closing components are interactive demos.
       .replace(/^[ \t]*<[A-Z]\w*[^>]*\/>[ \t]*$/gm, "")
       // Any other paired component: keep the content, drop the wrapper.
@@ -250,7 +256,7 @@ function insightPage(slug: string): AgentPage | undefined {
 
   const markdown = `# ${insight.title}
 
-> ${insight.description}
+${insight.deck ? `*${insight.deck}*\n\n` : ""}> ${insight.description}
 
 - **Published:** ${insight.date}
 - **Tags:** ${insight.tags.join(", ")}

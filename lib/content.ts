@@ -169,6 +169,7 @@ function toInsightMeta(entry: ContentEntry): InsightMeta {
     slug: entry.slug,
     title: requireString(entry, "title"),
     seoTitle: typeof entry.data.seoTitle === "string" ? entry.data.seoTitle : undefined,
+    deck: typeof entry.data.deck === "string" ? entry.data.deck : undefined,
     description: requireString(entry, "description"),
     previewImage: entry.data.previewImage
       ? fingerprintedPath(entry.data.previewImage as string)
