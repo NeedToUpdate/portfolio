@@ -22,7 +22,7 @@ context:
   - term: "Scale"
     value: "250K monthly active users"
   - term: "Timeline"
-    value: "3 months to production"
+    value: "4 months to production"
   - term: "Cost"
     value: "Platform spend down 90%+"
 comments:
