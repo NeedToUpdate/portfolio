@@ -96,6 +96,11 @@ export default async function InsightPage({ params }: PageProps) {
 
       <header>
         <Heading size="page">{insight.title}</Heading>
+        {insight.deck ? (
+          <p className="mt-3 max-w-prose text-sm italic leading-relaxed text-muted/80">
+            {insight.deck}
+          </p>
+        ) : null}
         <div className="mt-5">
           <ArticleByline />
         </div>

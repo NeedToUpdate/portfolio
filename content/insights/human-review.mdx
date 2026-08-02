@@ -1,0 +1,90 @@
+---
+title: "Your team does not need more AI-generated code"
+seoTitle: "Why AI-generated code needs human review"
+deck: "Why AI-generated code needs human review, even when the tests pass."
+description: "AI compressed implementation, not thinking. Spend some of the time it saves reading the code together and making sure the software reflects reality."
+previewImage: "/images/human-review-ai-code.png"
+date: "2026-08-02"
+tags: ["ai", "engineering", "process"]
+related: ["/insights/ai-tools-reward-preparation", "/work/sdlc-revamp"]
+---
+
+Code is no longer the scarce part of software development. AI can generate more of it than most teams can properly review, test, and understand. The new constraint is whether the team can keep up with everything it produces.
+
+Now that AI has entrenched itself into almost every part of software development, we've managed to automate most of our work. Code is AI-written, AI-reviewed, AI-tested, AI-deployed, AI-validated. Everyone is shipping millions of lines of code, faster than ever before, and every executive presentation seems to have another chart showing developer productivity climbing.
+
+Yet every other week there's another major outage. [Cloudflare](https://blog.cloudflare.com/18-november-2025-outage/). [Azure](https://azure.status.microsoft/status/history/?trackingId=YKYN-BWZ). [AWS](https://aws.amazon.com/message/101925/). [GitHub](https://github.blog/news-insights/company-news/github-availability-report-february-2026/). [Claude](https://anthropic.statuspage.io/). [OpenAI](https://status.openai.com/incidents/01JXCAW3K3JAE0EP56AEZ7CBG3/write-up). I'm not saying these are related, but it's suspicious. Research shows that [the more AI-assisted code teams write, the more unstable their products become](https://dora.dev/research/2024/dora-report/2024-dora-accelerate-state-of-devops-report.pdf).
+
+So what's going on?
+
+Do we need more AI?
+
+No.
+
+What we need is what I like to call **human review**.
+
+I know. Groundbreaking stuff. Probably not the answer most people expected after clicking on a title like this, and definitely not something you'd hear getting applause in today's board meetings. Now that I've got your attention with an inflammatory title, onto the real story.
+
+## The problem with AI is that it writes a lot of great-looking code
+
+_AI-generated code still needs human review because automated checks cannot see undocumented business rules or operational context._
+
+At first glance, there's nothing wrong with it. Functions are nicely encapsulated. Everything is DRY. Error handling is solid. Logging is clean. The comments explain the strange business logic. The tests pass. It follows every best practice you've spent years trying to teach your team. If you handed that pull request to almost any engineer, they'd probably nod, skim through it, hit **LGTM**, and move on to the next one.
+
+That's exactly the problem. AI is incredibly good at writing software that looks correct.
+
+What it doesn't know is that your legacy CRM returns a misspelled status that somebody accidentally introduced twelve years ago and nobody ever fixed because too many downstream systems now depend on it. It doesn't know that the scheduling platform you're integrating with has no concept of permission boundaries, so anyone can cancel anyone else's appointment if you aren't careful. It doesn't know that a field called `completed` doesn't actually mean completed because someone added a second field during a migration back in 2018.
+
+None of that exists in the documentation, or in the prompt. It exists in the heads of the engineers who have been burned by those systems before.
+
+<Note>
+  There are methods to lower the amount of mistakes it can do. My [AI-assisted
+  development workflow](/insights/ai-tools-reward-preparation) covers the
+  research and preparation that could give the model a foundation to build from.
+</Note>
+
+Nowadays, when you open a pull request and everything looks clean, makes sense, follows good patterns, and has a reassuring wall of green checkmarks beside it, there's an enormous temptation to trust it. After all, the AI followed every convention, the tests passed, the reviewers approved it, and the pipeline deployed it.
+
+That's exactly how you end up with AI-generated, AI-reviewed, AI-sloppified code.
+
+## AI compressed implementation, not thinking
+
+_Use AI productivity gains for human review, QA, and reducing technical debt._
+
+The biggest mistake I see companies making is assuming that because AI can produce a month's worth of code in a day, the entire project should now only take a day.
+
+I push for the exact opposite. If AI saves my team three weeks of implementation, I don't immediately spend those three weeks generating even more code. I reinvest that time into understanding what we just built. If the business asks for a feature that used to take a month, it still gets an estimate of two weeks, not one day.
+
+AI gets us to a working implementation in one day, but the rest of that time is spent reading the code together, challenging assumptions, rewriting the parts that don't survive those discussions, reviewing it again, validating the business logic, testing the edge cases, and [following the rest of the SDLC properly](/work/sdlc-revamp).
+
+AI has compressed implementation, but it hasn't compressed thinking, and pretending those are the same thing is how subtle bugs make it all the way to production.
+
+<HumanReviewLab description="An interactive comparison of a business feature estimate with time allocated to AI coding, human review, and QA. Adjusting the controls shows generated feature scope, implementation time saved, bugs caught before production, bugs that escape, and technical debt in story points. Human review reduces both escaped bugs and technical debt. QA reduces escaped bugs but cannot reduce technical debt. The default example compares a ten-day feature with two days of AI coding, no human review, and two days of QA." />
+
+## Read the code like a book
+
+_How our team reviews AI-generated code before it reaches production._
+
+Instead of spending fifteen minutes skimming pull requests, we regularly book a few hours, usually on a Friday afternoon, and just read the code. We treat it like a book instead of a checklist. There's no rush to merge, no sprint pressure, and no obsession with getting through the review as quickly as possible. We stop every few minutes to ask why something exists, question assumptions, challenge edge cases, and make sure the implementation actually matches the business problem we're trying to solve.
+
+We joke around, yell at Claude, and inevitably someone asks, "Wait... what even is this?" Before long we're digging through an ancient API integration, uncovering a business rule everyone forgot about, or realizing an entire abstraction exists to solve a problem that disappeared years ago.
+
+It sounds inefficient on paper, but it's become one of our most valuable engineering practices because we're no longer just reviewing code, we're reviewing our understanding.
+
+Those conversations rarely end with us just approving the PR. More often than not, we delete code, simplify abstractions, remove unnecessary factories, or finally pay off a piece of technical debt that everyone had learned to work around. AI is fantastic at adding code; human review is fantastic at deciding what code should be deleted.
+
+Go read your team's code. Actually read it, and `git blame` as much as you need. It will probably be the first time anyone has actually read that code, because AI generated most of it in seconds.
+
+The implementation isn't the expensive part anymore. Since AI reduced implementation from days to minutes, spend those saved hours on something AI can't do: making sure the software actually reflects reality.
+
+Since we started doing these human review sessions, our production defect rate has dropped dramatically. Plus, holding regular sessions has reduced knowledge silos and strengthened the team's working relationships. We've caught unnecessary factories that only added complexity, security gates protecting absolutely nothing, fallbacks that should have never existed, duplicated business rules, and entire branches of logic solving problems that didn't actually exist.
+
+The business expects AI to help you ship faster, and it absolutely should. But don't take all of that saved time and immediately spend it generating even more code. Save some of it for the one activity that has become more valuable, not less.
+
+Sit down with your team.
+
+Open the pull request.
+
+Read it like a book.
+
+Leave room for the human review.
