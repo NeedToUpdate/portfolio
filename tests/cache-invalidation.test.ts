@@ -1,4 +1,5 @@
 import {
+  addedContentDetailPath,
   classifyChange,
   discoverRoots,
   fullPathList,
@@ -48,6 +49,17 @@ describe("content classification", () => {
       "/sitemap.xml",
       "/llms.txt",
     ]);
+  });
+
+  it("exposes newly added content routes for IndexNow", () => {
+    expect(addedContentDetailPath("content/insights/brand-new.mdx", "A")).toBe(
+      "/insights/brand-new",
+    );
+    expect(addedContentDetailPath("content/work/billing-portal-rebuild.md", "A")).toBe(
+      "/work/billing-portal-rebuild",
+    );
+    expect(addedContentDetailPath("content/work/existing.md", "M")).toBeNull();
+    expect(addedContentDetailPath("content/projects/new.md", "A")).toBeNull();
   });
 
   it("maps an edited case study to its slug, the indexes, their twins, and llms.txt", () => {

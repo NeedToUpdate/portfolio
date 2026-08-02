@@ -110,6 +110,17 @@ export function listSlugs(dir) {
     .map((f) => f.replace(/\.mdx?$/, ""));
 }
 
+/**
+ * Returns the public detail route introduced by a newly added content file.
+ * CloudFront deliberately omits these never-cached URLs from invalidation,
+ * while consumers such as IndexNow still need to announce them.
+ */
+export function addedContentDetailPath(file, status) {
+  if (status !== "A") return null;
+  const match = file.match(/^content\/(insights|work)\/([^/]+)\.mdx?$/);
+  return match ? `/${match[1]}/${match[2]}` : null;
+}
+
 // Enumerates every current insight/work slug from the checked-out content
 // directories, rather than relying on a "/insights/*"-style wildcard — so
 // the fallback always matches what's actually on the site right now.

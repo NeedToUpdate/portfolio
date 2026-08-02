@@ -26,6 +26,7 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 
 import {
+  addedContentDetailPath,
   classifyChange,
   discoverRoots,
   fullTextPathList,
@@ -105,6 +106,10 @@ async function computePaths() {
   const paths = new Set();
   for (const { file, status } of changed) {
     for (const p of classifyChange(file, status, ctx).paths) paths.add(p);
+    // New detail URLs need no CDN invalidation, but they are exactly what
+    // IndexNow needs to hear about.
+    const addedDetailPath = addedContentDetailPath(file, status);
+    if (addedDetailPath) paths.add(addedDetailPath);
   }
   return { paths: [...paths], reason: null };
 }
