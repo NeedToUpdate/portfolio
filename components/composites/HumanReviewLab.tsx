@@ -161,6 +161,9 @@ export default function HumanReviewLab({ description }: HumanReviewLabProps) {
     outcome = `However, there ${techDebt === 1 ? "is" : "are"} now ${techDebt} story ${techDebt === 1 ? "point" : "points"} of technical debt, and ${productionBugs}.`;
   }
 
+  // Easter egg: no business ask means every bar sits at zero.
+  const allZero = businessDays === 0 && buildDays === 0 && reviewDays === 0 && qaDays === 0;
+
   const escapedContext = escaped === 1
     ? reviewDays === 0
       ? "The bug was caused by a difference between the non-production and production environments that the QA team did not know about."
@@ -281,7 +284,9 @@ export default function HumanReviewLab({ description }: HumanReviewLabProps) {
             With the time above, your result:
           </p>
           <p className="mt-2 text-sm leading-relaxed text-ink sm:mt-3 sm:text-[1rem]">
-            The business asked for one feature that should take {days(businessDays)}. In {days(releaseDays)} total, AI wrote enough code to {scopePhrase}. {outcome}{escapedContext ? ` ${escapedContext}` : ""}
+            {allZero
+              ? "The business didn't ask you for anything. You now have time to scroll your phone, with no additional tech debt or production bugs."
+              : <>The business asked for one feature that should take {days(businessDays)}. In {days(releaseDays)} total, AI wrote enough code to {scopePhrase}. {outcome}{escapedContext ? ` ${escapedContext}` : ""}</>}
           </p>
         </div>
 
