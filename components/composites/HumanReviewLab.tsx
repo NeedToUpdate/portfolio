@@ -285,7 +285,7 @@ export default function HumanReviewLab({ description }: HumanReviewLabProps) {
           </p>
           <p className="mt-2 text-sm leading-relaxed text-ink sm:mt-3 sm:text-[1rem]">
             {allZero
-              ? "The business didn't ask you for anything. You now have time to scroll your phone, with no additional tech debt or production bugs."
+              ? "The business didn't ask you for anything. You now have time to scroll your phone, with no additional tech debt or production bugs to bother you this month."
               : <>The business asked for one feature that should take {days(businessDays)}. In {days(releaseDays)} total, AI wrote enough code to {scopePhrase}. {outcome}{escapedContext ? ` ${escapedContext}` : ""}</>}
           </p>
         </div>
