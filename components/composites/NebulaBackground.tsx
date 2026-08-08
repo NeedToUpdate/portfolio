@@ -49,7 +49,7 @@ const MOUSE_POS_RATE = 12; // 1/s
 
 export type NebulaCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 export type NebulaMiniShape = ProfileName | "random";
-export type NebulaMiniSize = "md" | "lg" | "xl";
+export type NebulaMiniSize = "md" | "lg" | "xl" | "phone-xl";
 export interface NebulaLayerVisibility {
   background?: boolean;
   distantStars?: boolean;
@@ -75,6 +75,13 @@ interface NebulaBackgroundProps {
   color?: MiniPaletteName | "random";
   /** Decorative mini footprint. Defaults to a larger medium. */
   size?: NebulaMiniSize;
+  /**
+   * Phone-only dark veil over the cloud's corner (mini only). For pages
+   * whose text column runs full-bleed on phones and so scrolls straight
+   * through the gas. Fades in with the canvas, so a device without
+   * WebGL never shows a veil with nothing under it.
+   */
+  scrim?: boolean;
   layers?: NebulaLayerVisibility;
   /**
    * Portrait (phone) scene only. "default" spreads the two bright clouds
@@ -102,6 +109,27 @@ const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number
   md: { mobile: 0.4, desktop: 0.19 },
   lg: { mobile: 0.44, desktop: 0.23 },
   xl: { mobile: 0.48, desktop: 0.28 },
+  // Phones only. An orion cloud packs most of its mass into the lobes
+  // around one core, so at a shared radius it reads far tighter than
+  // the helix on the case-study pages, whose warm gas fills a wide
+  // annulus. This widens the phone footprint to match; desktop stays at
+  // md, where the corner accent is small and clears the prose column.
+  "phone-xl": { mobile: 0.52, desktop: 0.19 },
+};
+
+// A soft black veil anchored over the mini cloud, so body copy stays
+// readable where it crosses the gas. Sized to fade out before the
+// opposite edges: the rest of the starfield keeps its full contrast.
+// Written out per corner because Tailwind only sees literal classes.
+const MINI_SCRIM: Record<NebulaCorner, string> = {
+  "top-left":
+    "bg-[radial-gradient(ellipse_88%_66%_at_8%_18%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
+  "top-right":
+    "bg-[radial-gradient(ellipse_88%_66%_at_92%_18%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
+  "bottom-left":
+    "bg-[radial-gradient(ellipse_88%_66%_at_8%_82%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
+  "bottom-right":
+    "bg-[radial-gradient(ellipse_88%_66%_at_92%_82%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
 };
 
 const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
@@ -125,10 +153,12 @@ export default function NebulaBackground({
   miniShape = "random",
   color = "profile",
   size = "md",
+  scrim = false,
   layers = {},
   heroClouds = "default",
 }: NebulaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef(layers);
   layersRef.current = layers;
 
@@ -864,7 +894,9 @@ export default function NebulaBackground({
       // within the reveal frame (Windows D3D11) otherwise snap in.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          if (!state.disposed) canvas.style.opacity = "1";
+          if (state.disposed) return;
+          canvas.style.opacity = "1";
+          if (scrimRef.current) scrimRef.current.style.opacity = "1";
         });
       });
     };
@@ -997,16 +1029,28 @@ export default function NebulaBackground({
   }, [variant, corner, miniShape, color, size, heroClouds]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden
-      // Starts invisible; start() fades it in once the shaders compile,
-      // so the DOM starfield covers the wait. h-lvh, not h-full: the
-      // largest-viewport unit ignores the mobile URL bar collapsing,
-      // so the sky doesn't shift and re-snap while scrolling.
-      className={variant === "demo"
-        ? "pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-1000"
-        : "pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden
+        // Starts invisible; start() fades it in once the shaders compile,
+        // so the DOM starfield covers the wait. h-lvh, not h-full: the
+        // largest-viewport unit ignores the mobile URL bar collapsing,
+        // so the sky doesn't shift and re-snap while scrolling.
+        className={variant === "demo"
+          ? "pointer-events-none absolute inset-0 h-full w-full opacity-0 transition-opacity duration-1000"
+          : "pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full opacity-0 transition-opacity duration-1000"}
+      />
+      {scrim && variant === "mini" ? (
+        // Above the nebula canvas at -z-10, below the page content.
+        // Same fixed box as the canvas, so the veil tracks the cloud
+        // instead of drifting as the URL bar collapses.
+        <div
+          ref={scrimRef}
+          aria-hidden
+          className={`pointer-events-none fixed inset-x-0 top-0 -z-[5] h-lvh w-full opacity-0 transition-opacity duration-1000 md:hidden ${MINI_SCRIM[corner]}`}
+        />
+      ) : null}
+    </>
   );
 }

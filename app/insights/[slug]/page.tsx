@@ -76,8 +76,18 @@ export default async function InsightPage({ params }: PageProps) {
 
   return (
     <PageShell narrow>
-      {/* Narrow centered article: the lower-left margin is open. */}
-      <NebulaBackground variant="mini" corner="bottom-left" miniShape="orion" color="aurora" />
+      {/* Narrow centered article: the lower-left margin is open. On phones
+          the column is full-bleed and scrolls through the gas, so the
+          cloud runs at the phone footprint of the case-study pages and
+          carries a scrim to keep the body copy readable. */}
+      <NebulaBackground
+        variant="mini"
+        corner="bottom-left"
+        miniShape="orion"
+        color="aurora"
+        size="phone-xl"
+        scrim
+      />
       <JsonLd data={articleSchema(insight)} />
       <JsonLd
         data={breadcrumbSchema([
