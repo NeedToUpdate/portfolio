@@ -92,7 +92,15 @@ export default async function CaseStudyPage({ params }: PageProps) {
 
   return (
     <PageShell>
-      <NebulaBackground variant="mini" corner="top-right" miniShape="helix" color="frost" />
+      {/* Phones run the case study full-bleed under the cloud, so the
+          corner carries a scrim to keep the body copy readable. */}
+      <NebulaBackground
+        variant="mini"
+        corner="top-right"
+        miniShape="helix"
+        color="frost"
+        scrim
+      />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", path: "/" },
