@@ -34,7 +34,7 @@ const INGRESS: DiagramNode[] = [
     id: "authentik",
     label: "Authentik (SSO)",
     explanation:
-      "Every request passes a forward-auth check here before it reaches an app. One login, OIDC or LDAP depending on what the app speaks, gates all eighteen-plus internal apps.",
+      "Every request passes a forward-auth check here before it reaches an app. One login, OIDC or LDAP depending on what the app speaks, gates every internal app.",
   },
   {
     id: "app",
