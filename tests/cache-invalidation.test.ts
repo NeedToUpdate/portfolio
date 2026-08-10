@@ -10,7 +10,11 @@ import {
   staticRoutePath,
   listSlugs,
 } from "@/scripts/cache-invalidation/map.mjs";
-import { reachableFrom, invertGraph } from "@/scripts/cache-invalidation/graph.mjs";
+import {
+  reachableFrom,
+  invertGraph,
+  scopeMdxComponents,
+} from "@/scripts/cache-invalidation/graph.mjs";
 
 /** A minimal context; code files are pre-mapped where a test needs them. */
 function makeContext(fileToPaths = new Map<string, Set<string>>()) {
@@ -310,6 +314,31 @@ describe("import graph reachability", () => {
     it("leaves an orphan file absent, meaning no purge", () => {
       expect(fileToPaths.has("lib/orphan.ts")).toBe(false);
     });
+  });
+});
+
+describe("MDX component scoping", () => {
+  it("maps a registered diagram only to insights that render it", () => {
+    const adjacency = {
+      "app/insights/[slug]/page.tsx": ["components/composites/MdxContent.tsx"],
+      "components/composites/MdxContent.tsx": ["components/composites/mdx-components.tsx"],
+      "components/composites/mdx-components.tsx": [
+        "components/composites/HomelabDiagram.tsx",
+      ],
+      "components/composites/HomelabDiagram.tsx": [],
+    };
+    const scoped = scopeMdxComponents(adjacency);
+    const paths = invertGraph(scoped.adjacency, [
+      {
+        file: "app/insights/[slug]/page.tsx",
+        paths: ["/insights/k3s-homelab", "/insights/ziggy"],
+      },
+      ...scoped.roots,
+    ]);
+
+    expect([...paths.get("components/composites/HomelabDiagram.tsx")!]).toEqual([
+      "/insights/k3s-homelab",
+    ]);
   });
 });
 
