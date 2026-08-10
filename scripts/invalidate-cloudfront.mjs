@@ -24,7 +24,7 @@ import {
   listSlugs,
   parseNameStatus,
 } from "./cache-invalidation/map.mjs";
-import { buildAdjacency, invertGraph } from "./cache-invalidation/graph.mjs";
+import { buildAdjacency, invertGraph, scopeMdxComponents } from "./cache-invalidation/graph.mjs";
 
 const STAGE = process.argv[2];
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -101,7 +101,11 @@ async function computeInvalidation() {
 
   // The import graph is only needed when source files changed.
   if (changed.some(({ file }) => /^(app|components|lib|styles)\//.test(file))) {
-    ctx.fileToPaths = invertGraph(await buildAdjacency(), discoverRoots(ctx));
+    const mdxScope = scopeMdxComponents(await buildAdjacency());
+    ctx.fileToPaths = invertGraph(mdxScope.adjacency, [
+      ...discoverRoots(ctx),
+      ...mdxScope.roots,
+    ]);
   }
 
   const paths = new Set();

@@ -11,6 +11,9 @@
 // synthetic adjacency; only buildAdjacency touches dependency-cruiser,
 // via a dynamic import so importing this module stays cheap.
 
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+
 /** Normalize to a POSIX, repo-relative path so keys match `git diff` output. */
 function normalizePath(filePath) {
   return filePath.replace(/\\/g, "/").replace(/^\.\//, "");
@@ -102,4 +105,62 @@ export function invertGraph(adjacency, roots) {
     }
   }
   return fileToPaths;
+}
+
+/**
+ * Scope components exposed through the shared MDX registry to the insight
+ * documents that actually render them. A normal import graph makes every
+ * registered widget look like a dependency of every dynamic insight page.
+ *
+ * Returns a cloned adjacency with those registry edges removed, plus precise
+ * roots for each <Component /> occurrence. Transitive component dependencies
+ * remain intact and are therefore scoped to the same route as the component.
+ */
+export function scopeMdxComponents(
+  adjacency,
+  {
+    registryFile = "components/composites/mdx-components.tsx",
+    contentDir = "content/insights",
+  } = {},
+) {
+  const scopedAdjacency = Object.fromEntries(
+    Object.entries(adjacency).map(([file, deps]) => [file, [...deps]]),
+  );
+  const registrySource = readFileSync(registryFile, "utf8");
+  const imports = new Map();
+
+  for (const match of registrySource.matchAll(
+    /import\s+([A-Z][A-Za-z0-9_]*)\s+from\s+["']([^"']+)["']/g,
+  )) {
+    const [, name, specifier] = match;
+    if (!specifier.startsWith(".")) continue;
+    const base = path.posix.normalize(path.posix.join(path.posix.dirname(registryFile), specifier));
+    const dependency = (scopedAdjacency[registryFile] ?? []).find(
+      (candidate) => candidate === base || candidate.replace(/\.[^.\/]+$/, "") === base,
+    );
+    if (dependency) imports.set(name, dependency);
+  }
+
+  const registered = new Set();
+  const objectBody = registrySource.match(/mdxComponents\s*:[^=]+?=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+  for (const name of imports.keys()) {
+    if (new RegExp(`(?:^|[,\\s])${name}(?:[,\\s]|$)`, "m").test(objectBody)) registered.add(name);
+  }
+
+  scopedAdjacency[registryFile] = (scopedAdjacency[registryFile] ?? []).filter(
+    (dependency) => ![...registered].some((name) => imports.get(name) === dependency),
+  );
+
+  const roots = [];
+  for (const filename of readdirSync(contentDir).filter((file) => /\.mdx$/.test(file))) {
+    const source = readFileSync(path.join(contentDir, filename), "utf8");
+    const slug = filename.replace(/\.mdx$/, "");
+    for (const name of registered) {
+      if (new RegExp(`<${name}(?:\\s|/|>)`).test(source)) {
+        roots.push({ file: imports.get(name), paths: [`/insights/${slug}`] });
+      }
+    }
+  }
+
+  return { adjacency: scopedAdjacency, roots };
 }

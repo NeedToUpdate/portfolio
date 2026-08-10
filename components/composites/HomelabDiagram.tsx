@@ -118,7 +118,7 @@ function NodeRow({
   );
 }
 
-/** Click any node in either path to see what it does. */
+/** Interactive node details for both request and deployment paths. */
 export default function HomelabDiagram() {
   const [active, setActive] = useState<DiagramNode>(INGRESS[1]);
 
