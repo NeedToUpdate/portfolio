@@ -12,7 +12,7 @@ I wanted to know how closely a homelab could follow the same operating patterns 
 
 I had two old laptops and an old server doing nothing—the same server I [3D-printed a case for](https://icandoathing.com/thing/SlhPxf/i-made-a-case-for-my-server). None of them alone could run everything I wanted: a media server, photo backup, document storage, a bridge into the home-automation setup, and a handful of scheduled jobs. The answer to both problems was the same: stop asking one machine to do everything. Those three machines became a control plane, two mini PCs joined underneath as a worker pool, and five nodes did together what none of them could do alone.
 
-What I ended up with runs an HA control plane, single sign-on across eighteen apps, and eBPF network policy enforcement, in my den, on hardware that was headed for a drawer. Most nights it serves a movie and runs a couple of cron jobs. That mismatch is the point: this is where I practice the same platform patterns I use at work, without a client's production traffic on the line if I get something wrong.
+What I ended up with runs an HA control plane, nearly ninety workloads with single sign-on in front of every app, and eBPF network policy enforcement, in my den, on hardware that was headed for a drawer. Most nights it serves a movie and runs a couple of cron jobs. That mismatch is the point: this is where I practice the same platform patterns I use at work, without a client's production traffic on the line if I get something wrong.
 
 ## What it runs
 
