@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-labelledby="title">
+  <title id="title">Five engineers at desks, a coffee pot, and a merge lane leading to main</title>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.3" fill="rgb(42 48 63)" />
+    </pattern>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="rgb(96 205 216)" stop-opacity="0.35" />
+      <stop offset="1" stop-color="rgb(96 205 216)" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="rgb(8 10 16)" />
+  <rect width="1200" height="630" fill="url(#dots)" opacity="0.7" />
+
+  <!-- Trust web between the desks -->
+  <g stroke="rgb(96 205 216)" stroke-linecap="round" fill="none">
+    <line x1="230" y1="330" x2="410" y2="330" stroke-width="3" stroke-opacity="0.55" />
+    <line x1="410" y1="330" x2="590" y2="330" stroke-width="4" stroke-opacity="0.7" />
+    <line x1="590" y1="330" x2="770" y2="330" stroke-width="2.5" stroke-opacity="0.45" />
+    <line x1="230" y1="330" x2="590" y2="330" stroke-width="1.5" stroke-opacity="0.25" />
+    <line x1="410" y1="330" x2="770" y2="330" stroke-width="2" stroke-opacity="0.35" />
+    <line x1="230" y1="330" x2="770" y2="330" stroke-width="1" stroke-opacity="0.18" />
+    <line x1="590" y1="330" x2="950" y2="330" stroke-width="1.5" stroke-opacity="0.25" />
+    <line x1="770" y1="330" x2="950" y2="330" stroke-width="3" stroke-opacity="0.55" />
+  </g>
+
+  <!-- Desks with busts behind them -->
+  <g id="desks" fill="rgb(21 25 36)" stroke="rgb(42 48 63)" stroke-width="2">
+    <g transform="translate(230 330)">
+      <path d="M0 -62 a26 26 0 0 1 26 26 v4 h-52 v-4 a26 26 0 0 1 26 -26z" fill="rgb(14 17 25)" stroke="rgb(235 237 243)" stroke-width="3.5" />
+      <circle cx="0" cy="-78" r="15" fill="rgb(14 17 25)" stroke="rgb(235 237 243)" stroke-width="3.5" />
+      <rect x="-80" y="-30" width="160" height="52" rx="10" />
+      <rect x="-24" y="-16" width="48" height="26" rx="4" fill="rgb(96 205 216)" fill-opacity="0.35" stroke="rgb(42 48 63)" />
+      <rect x="-80" y="40" width="160" height="8" rx="4" fill="rgb(42 48 63)" stroke="none" />
+      <rect x="-80" y="40" width="112" height="8" rx="4" fill="rgb(222 186 108)" stroke="none" />
+    </g>
+    <g transform="translate(410 330)">
+      <path d="M0 -62 a26 26 0 0 1 26 26 v4 h-52 v-4 a26 26 0 0 1 26 -26z" fill="rgb(14 17 25)" stroke="rgb(96 205 216)" stroke-width="3.5" />
+      <circle cx="0" cy="-78" r="15" fill="rgb(14 17 25)" stroke="rgb(96 205 216)" stroke-width="3.5" />
+      <rect x="-80" y="-30" width="160" height="52" rx="10" />
+      <rect x="-24" y="-16" width="48" height="26" rx="4" fill="rgb(96 205 216)" fill-opacity="0.35" stroke="rgb(42 48 63)" />
+      <rect x="-80" y="40" width="160" height="8" rx="4" fill="rgb(42 48 63)" stroke="none" />
+      <rect x="-80" y="40" width="64" height="8" rx="4" fill="rgb(173 128 235)" stroke="none" />
+    </g>
+    <g transform="translate(590 330)">
+      <path d="M0 -62 a26 26 0 0 1 26 26 v4 h-52 v-4 a26 26 0 0 1 26 -26z" fill="rgb(14 17 25)" stroke="rgb(235 237 243)" stroke-width="3.5" />
+      <circle cx="0" cy="-78" r="15" fill="rgb(14 17 25)" stroke="rgb(235 237 243)" stroke-width="3.5" />
+      <rect x="-80" y="-30" width="160" height="52" rx="10" />
+      <rect x="-24" y="-16" width="48" height="26" rx="4" fill="rgb(96 205 216)" fill-opacity="0.35" stroke="rgb(42 48 63)" />
+      <rect x="-80" y="40" width="160" height="8" rx="4" fill="rgb(42 48 63)" stroke="none" />
+      <rect x="-80" y="40" width="140" height="8" rx="4" fill="rgb(249 235 170)" stroke="none" />
+    </g>
+    <g transform="translate(770 330)">
+      <path d="M0 -62 a26 26 0 0 1 26 26 v4 h-52 v-4 a26 26 0 0 1 26 -26z" fill="rgb(14 17 25)" stroke="rgb(173 128 235)" stroke-width="3.5" />
+      <circle cx="0" cy="-78" r="15" fill="rgb(14 17 25)" stroke="rgb(173 128 235)" stroke-width="3.5" />
+      <rect x="-80" y="-30" width="160" height="52" rx="10" />
+      <rect x="-24" y="-16" width="48" height="26" rx="4" fill="rgb(14 17 25)" stroke="rgb(42 48 63)" />
+      <rect x="-80" y="40" width="160" height="8" rx="4" fill="rgb(42 48 63)" stroke="none" />
+      <rect x="-80" y="40" width="40" height="8" rx="4" fill="rgb(251 146 60)" stroke="none" />
+      <g transform="translate(34 -96)">
+        <rect x="-16" y="-14" width="32" height="26" rx="6" fill="rgb(14 17 25)" stroke="rgb(173 128 235)" stroke-width="2.5" />
+        <text x="0" y="6" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="20" font-weight="700" fill="rgb(173 128 235)">?</text>
+      </g>
+    </g>
+    <g transform="translate(950 330)">
+      <path d="M0 -62 a26 26 0 0 1 26 26 v4 h-52 v-4 a26 26 0 0 1 26 -26z" fill="rgb(14 17 25)" stroke="rgb(249 235 170)" stroke-width="3.5" />
+      <circle cx="0" cy="-78" r="15" fill="rgb(14 17 25)" stroke="rgb(249 235 170)" stroke-width="3.5" />
+      <rect x="-80" y="-30" width="160" height="52" rx="10" />
+      <rect x="-24" y="-16" width="48" height="26" rx="4" fill="rgb(14 17 25)" stroke="rgb(42 48 63)" />
+      <rect x="-80" y="40" width="160" height="8" rx="4" fill="rgb(42 48 63)" stroke="none" />
+    </g>
+  </g>
+
+  <!-- Coffee pot -->
+  <g transform="translate(90 120)">
+    <rect x="-40" y="-30" width="150" height="76" rx="12" fill="rgb(21 25 36)" stroke="rgb(42 48 63)" stroke-width="2" />
+    <path d="M-12 -12 h32 l6 44 h-44z" fill="none" stroke="rgb(150 157 173)" stroke-width="2.5" stroke-linejoin="round" />
+    <path d="M-14 8 h36 l4 22 h-44z" fill="rgb(249 235 170)" fill-opacity="0.85" />
+    <path d="M-4 -34 c0 -8 8 -8 8 -16" fill="none" stroke="rgb(150 157 173)" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7" />
+    <path d="M8 -34 c0 -8 8 -8 8 -16" fill="none" stroke="rgb(150 157 173)" stroke-width="2" stroke-linecap="round" stroke-opacity="0.45" />
+    <g fill="rgb(249 235 170)">
+      <circle cx="46" cy="0" r="5" />
+      <circle cx="62" cy="0" r="5" />
+      <circle cx="78" cy="0" r="5" />
+      <circle cx="94" cy="0" r="5" fill="none" stroke="rgb(150 157 173)" stroke-width="1.5" />
+    </g>
+    <text x="46" y="30" font-family="ui-monospace, Menlo, monospace" font-size="16" fill="rgb(150 157 173)">coffee</text>
+  </g>
+
+  <!-- Merge lane -->
+  <g transform="translate(1020 90)">
+    <rect x="0" y="0" width="150" height="470" rx="16" fill="rgb(8 10 16)" fill-opacity="0.9" stroke="rgb(42 48 63)" stroke-width="2" />
+    <text x="75" y="34" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="16" fill="rgb(150 157 173)">to main</text>
+    <g fill="rgb(21 25 36)" stroke="rgb(42 48 63)" stroke-width="2">
+      <rect x="14" y="60" width="122" height="46" rx="8" />
+      <rect x="14" y="150" width="122" height="46" rx="8" />
+      <rect x="14" y="240" width="122" height="46" rx="8" />
+    </g>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="14" fill="rgb(150 157 173)">
+      <text x="26" y="88">intake</text>
+      <text x="26" y="178">review</text>
+      <text x="26" y="268">board</text>
+    </g>
+    <g fill="rgb(249 235 170)">
+      <rect x="100" y="70" width="22" height="26" rx="4" />
+      <rect x="100" y="160" width="22" height="26" rx="4" fill="rgb(173 128 235)" />
+      <rect x="74" y="160" width="22" height="26" rx="4" fill="rgb(96 205 216)" fill-opacity="0.5" />
+    </g>
+    <g stroke="rgb(150 157 173)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M75 44 v8" />
+      <path d="M75 112 v30 M67 134 l8 8 l8 -8" />
+      <path d="M75 202 v30 M67 224 l8 8 l8 -8" />
+      <path d="M75 292 v90 M67 374 l8 8 l8 -8" />
+    </g>
+    <path d="M75 44 l-62 14 v330 h14" fill="none" stroke="rgb(222 186 108)" stroke-width="2" stroke-dasharray="6 6" stroke-opacity="0.6" />
+    <rect x="14" y="392" width="122" height="52" rx="10" fill="rgb(222 186 108)" fill-opacity="0.18" stroke="rgb(222 186 108)" stroke-width="2.5" />
+    <text x="28" y="425" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="rgb(222 186 108)">main</text>
+    <text x="122" y="425" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="18" font-weight="700" fill="rgb(222 186 108)">42 pt</text>
+  </g>
+
+  <!-- Change in transit -->
+  <g transform="translate(880 250)">
+    <rect x="0" y="0" width="30" height="28" rx="6" fill="rgb(14 17 25)" stroke="rgb(249 235 170)" stroke-width="2.5" />
+    <text x="15" y="20" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="16" font-weight="700" fill="rgb(235 237 243)">3</text>
+  </g>
+  <path d="M916 262 c40 -60 60 -100 104 -128" fill="none" stroke="rgb(249 235 170)" stroke-width="2" stroke-dasharray="4 6" stroke-opacity="0.5" />
+
+  <!-- Sprint bar -->
+  <rect x="60" y="560" width="900" height="6" rx="3" fill="rgb(42 48 63)" />
+  <rect x="60" y="560" width="560" height="6" rx="3" fill="rgb(222 186 108)" />
+  <text x="60" y="600" font-family="ui-monospace, Menlo, monospace" font-size="20" fill="rgb(235 237 243)">Day 6 · 14:00</text>
+  <text x="960" y="600" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="20" fill="rgb(150 157 173)">31 cups · 1 bug</text>
+</svg>
