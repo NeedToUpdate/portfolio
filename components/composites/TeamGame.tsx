@@ -105,7 +105,7 @@ const STATE_LABEL: Record<string, string> = {
  * runs on a fixed timestep inside the animation loop; React renders a
  * snapshot a few times a second.
  */
-export default function TeamGame() {
+export default function TeamGame({ description }: { description?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<Game>(createGame(7));
@@ -238,7 +238,7 @@ export default function TeamGame() {
   return (
     <InteractiveFigure
       prompt="grow the team"
-      accessibleDescription="A simulation of a five-person engineering team with generated names. The team starts at 1x speed. Leaving it alone unlocks flow at 2x. Chatting with people and helping whoever is stuck builds rapport toward friends-ish at 3x and friendly competition at 5x. Some stucks resolve themselves and give a bigger bonus for waiting; others never resolve without help, and sitting stuck too long drains a dev's morale, which slows them for a long while. A stuck ticket can also be moved: if another dev is the expert for that kind of problem it pays off, otherwise it changes nothing. Expertise is demonstrated, never granted: a strength is revealed after a dev twice solves problems in their own area, alone or via routed tickets, with a few shipped tickets behind them. Knowing all five reaches 7x, and a rally button then sets shared direction at 10x. Pushing the team or turning on the measurement dashboard makes the number look better while real progress stops. The sprint velocity stat reads as a question mark until the dashboard is turned on. While measuring, estimates balloon so velocity climbs at first, while the room talks less: camaraderie and morale drain, the speed levels slip back down, and customer happiness falls. Counters report features shipped, story points, cups of coffee, and a customer happiness bar that only climbs once the team ships steadily."
+      accessibleDescription={description ?? "A simulation of a five-person engineering team with generated names. The team starts at 1x speed. Leaving it alone unlocks flow at 2x. Chatting with people and helping whoever is stuck builds rapport toward friends-ish at 3x and friendly competition at 5x. Some stucks resolve themselves and give a bigger bonus for waiting; others never resolve without help, and sitting stuck too long drains a dev's morale, which slows them for a long while. A stuck ticket can also be moved: if another dev is the expert for that kind of problem it pays off, otherwise it changes nothing. Expertise is demonstrated, never granted: a strength is revealed after a dev twice solves problems in their own area, alone or via routed tickets, with a few shipped tickets behind them. Knowing all five reaches 7x, and a rally button then sets shared direction at 10x. Pushing the team or turning on the measurement dashboard makes the number look better while real progress stops. The sprint velocity stat reads as a question mark until the dashboard is turned on. While measuring, estimates balloon so velocity climbs at first, while the room talks less: camaraderie and morale drain, the speed levels slip back down, and customer happiness falls. Counters report features shipped, story points, cups of coffee, and a customer happiness bar that only climbs once the team ships steadily."}
     >
       {/* Defensive layout throughout: this block renders inside the article's
           .prose styles, so no ul/ol/li (prose adds markers and margins to
