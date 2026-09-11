@@ -9,6 +9,7 @@ import HomelabDiagram from "./HomelabDiagram";
 import ShapeMorphButtons from "./ShapeMorphButtons";
 import AIWorkflowTimeline from "./AIWorkflowTimeline";
 import HumanReviewLab from "./HumanReviewLab";
+import TeamGame from "./TeamGame";
 import TextLink from "@/components/ui/TextLink";
 
 function MdxLink({ href = "", children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -35,4 +36,5 @@ export const mdxComponents: MDXComponents = {
   ShapeMorphButtons,
   AIWorkflowTimeline,
   HumanReviewLab,
+  TeamGame,
 };
