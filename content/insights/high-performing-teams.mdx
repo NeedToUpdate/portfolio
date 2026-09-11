@@ -1,10 +1,10 @@
 ---
 title: "How I build high-performing engineering teams"
 seoTitle: "How I build high-performing engineering teams"
-deck: "Starting small, growing a team, and running a tight ship with a surprising lack of rules."
+deck: "I build high-performing engineering teams by giving people fewer rules to work around and more room to use what they know. Guardrails handle the constraints the system can enforce. Camaraderie and mentorship help people ask for help and learn from each other. I judge the work by user feedback, product success, and value to the company. Then I give the team room to get on with it."
 description: "How I build engineering teams through camaraderie, shared knowledge, and freedom within guardrails, starting with a small consulting team."
 previewImage: "/images/high-performing-teams.svg"
-date: "2026-09-02"
+date: "2026-09-12"
 tags: ["leadership", "engineering", "process"]
 related: ["/insights/human-review", "/work/sdlc-revamp"]
 ---
@@ -16,6 +16,8 @@ There are plenty of ways to get a team performing well. The path I choose is one
 There's a mix of hands-off management, culture building, and leaving enough exceptions in the process for people to get things done. Explaining how those work together takes a bit longer.
 
 ## The aircraft carrier problem
+
+*Rules and guardrails steer work in different ways. The overhead needs to make sense for the team.*
 
 Think of a US aircraft carrier. A nuclear-powered floating airbase, launching and recovering jets while moving through the ocean. Think of the precision and coordination it takes to keep that whole thing running, then remember that it is operated by thousands of teenagers.
 
@@ -37,13 +39,21 @@ Guardrails are another way to steer the outcome. A rule tells someone what they 
 
 The two serve different purposes, and you can use them together. Some decisions need a rule and someone's judgment. Others are clear enough that the system can enforce the constraint itself. A guardrail can replace a manual check or enforce a rule you've already agreed on. That gives you another way to control the process without prescribing every step someone takes through it.
 
-I've spent plenty of time [building release processes](/work/sdlc-revamp), and knowing exactly which build is going to production is a useful rule. So is reviewing the change and checking that it worked. But a ten-minute fix can also go through intake, estimation, architecture review, a change board, and then miss the monthly release window. Meanwhile, the bug is still there. [DORA's change-approval guidance](https://dora.dev/capabilities/streamlining-change-approval/) calls out the same problem with treating every change equally.
+Knowing exactly which build is going to production is a useful rule. So is reviewing the change and checking that it worked. But a ten-minute fix can also go through intake, estimation, architecture review, a change board, and then miss the monthly release window. Meanwhile, the bug is still there. [DORA's change-approval guidance](https://dora.dev/capabilities/streamlining-change-approval/) calls out the same problem with treating every change equally.
 
 There need to be intentional loopholes in that process. Someone who understands the change and its consequences should be able to find a shorter path through the bureaucracy. That's how one of my teams got seven releases out in two months in a company with a monthly release cycle.
+
+<Note>
+  I've written about the implementation side in my [release-process modernization
+  case study](/work/sdlc-revamp): building an artifact once, knowing exactly what's
+  in it, and promoting that same build through the environments.
+</Note>
 
 For that freedom to work, though, people need to care about what they're doing and about what happens after their part is finished. That's where the team itself comes in.
 
 ## Everyone needs to be friends-ish
+
+*People who are comfortable with each other can admit when they're stuck, ask questions, and learn together.*
 
 The secret is making sure everyone is friends-ish. The "-ish" matters, because otherwise this starts sounding like one of those companies that tells you everyone is family. People don't need to spend every weekend together. They need to know one another well enough to enjoy working together and ask for help without making a whole thing of it.
 
@@ -65,9 +75,13 @@ That conversation built camaraderie and technical skill at the same time. Someon
 
 The same relationship makes disagreement easier. QA nags dev, dev nags QA, nobody fights. Someone questions an implementation and we talk about it. Maybe there's a business rule they didn't know about. Maybe someone misunderstood the requirement. Maybe we wrote something dumb and should change it. No blame, no shame. We still need to fix the problem.
 
-Our [human review sessions](/insights/human-review) work much the same way. We set aside a few hours on a Friday, keep the conversation relaxed, and read the code like a book. We stop to question why something exists, look up an API, or clarify a business rule. Everyone gets comfortable examining the reasoning behind the code, including code they wrote or generated themselves. That matters when Claude can produce a convincing implementation before the team fully understands the problem.
+<Note>
+  Our [human review sessions](/insights/human-review) work much the same way. We set aside a few hours on a Friday, keep the conversation relaxed, and read the code like a book. We stop to question why something exists, look up an API, or clarify a business rule. Everyone gets comfortable examining the reasoning behind the code, including code they wrote or generated themselves. That matters when Claude can produce a convincing implementation before the team fully understands the problem.
+</Note>
 
 ## Give people room to use what they know
+
+*Give engineers room to make decisions, and judge the contribution by what improves for users and the company.*
 
 Once people are comfortable with each other, they can push each other too. A bit of friendly competition gives people a reason to try something better, show what they've figured out, or take on a problem they might have passed over before. Someone solves something difficult, the others learn from it, and now they have another technique to try on their own work. But if everyone has an individual point target, spending an afternoon helping a teammate can make their own performance look worse. You can't ask people to care about the team and then reward them for staying inside their own tickets. Mentoring someone, unblocking another team, or preventing unnecessary work all need to count, even when they don't add points to the person's total.
 
@@ -99,10 +113,16 @@ Let people join in groups the team can absorb. Give them time to learn the syste
 
 An engineer gets into the flow of the work and starts making progress. They enjoy working with the people around them, get motivated, and start challenging each other to do more. They learn new skills from those conversations. You figure out what they're exceptional at and put them on work that uses it. Then you motivate the team and lead the charge toward something everyone understands.
 
+Here is that progression as a small game. The team runs itself; your job is to pay attention. The speed levels are illustrations of how the conditions build on one another, not research findings.
+
+<TeamGame />
+
 That's how the performance builds. The same people get more capable, more comfortable asking for help, and more invested in seeing the whole thing succeed. A problem that used to leave one person stuck now turns into a conversation with someone who knows the answer. Someone finds a better approach, and the rest of the team can use it too. People spend more of their time doing useful work and less of it guessing or waiting. Their success depends on what that work does for the product and the company, so they have a reason to keep learning about both. They also have reasons to stay: people they enjoy working with, room to grow, and the ability to make decisions that matter.
 
 That output then needs to get through the process. An engineer who understands the system can find a shorter path, take the right shortcut, and deliver the value the customer needs. The guardrails still apply, and someone still owns the result. There just doesn't need to be a gate at every step.
 
 I think of it like a river. Give the process boundaries that guide where it goes, and let people work with the flow. Keep putting gates in its way and the work piles up behind them. You can have all the motivation and skill in the world, but it won't do much if nobody can get anything out the door.
 
-Unfortunately, there isn't some nice prompt you can give Claude to build your team, or a SaaS tool that does this part of management for you. Fewer rules leave more of the judgment with you and the team. You have to pay attention to what motivates people, what they're learning, where they're struggling, and whether the work is making a difference for users and the company. You keep course-correcting as the people and the work change. You guide and mold the team.
+Unfortunately, there isn't some nice prompt you can give Claude to build your team, or a SaaS tool that does this part of management for you. Fewer rules leave more of the judgment with you and the team. You have to pay attention to what motivates people, what they're learning, where they're struggling, and whether the work is making a difference for users and the company. You keep course-correcting as the people and the work change.
+
+You guide and mold the team.
