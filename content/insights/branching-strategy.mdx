@@ -3,7 +3,7 @@ title: "Your Git branching strategy is probably too complicated"
 seoTitle: "Git branching and releases with fewer rules"
 deck: "When several teams share a system, keep integration separate from deciding what ships. Ticket branches go into dev so people can test their work together. Selected work goes into a release, which produces a build with its own ID. QA tests that build, release management approves it, and app support promotes the same artifact to production. Automation keeps the tickets, approvals, and production baseline connected."
 description: "Simplify your Git release process: separate integration from release scope, promote tested artifacts, and automate the bookkeeping between teams."
-previewImage: "/images/sdlc-deployment-automation.svg"
+previewImage: "/images/branching-strategy.png"
 date: "2026-09-18"
 tags: ["engineering", "process", "architecture"]
 related: ["/work/sdlc-revamp", "/insights/high-performing-teams"]
@@ -115,6 +115,10 @@ There are still decisions for the team. Is the feature ready? Can these changes 
   The system can enforce the constraints we agree on, while people have room
   to use their judgment about the work.
 </Note>
+
+Here is the whole lifecycle as a working model. Add features, open releases, and drag tickets between trains. Build a release, promote the build through the environments, and watch what shipping does to the releases still in flight. Click a branch count to unfold the branches behind it.
+
+<ReleaseTrain description="An interactive release-train diagram. Add feature branches, open releases, and drag tickets into releases; every ticket keeps integrating in dev, and dragging between releases copies it. Abandoning a release returns its tickets to dev. Building a release produces a numbered artifact that promotes through QA, UAT, and PROD. A shipped release reconciles into main and its branches leave the graph, counted in an artifact store. An environments board shows which build DEV, QA, UAT, and PROD are running, with earlier builds greyed out and one click away from running again. Releases still in flight then need a retrofit before they can promote, and changing a built release voids its build. UAT holds only what ships next, so overwriting it knocks the other release back to QA-approved, and promoting into a busy QA cuts the other release's run short; merging avoids both: the combined release rebuilds and re-approves from QA, while the merged branch stays open with its own build, still independently releasable, ships automatically if its carrier reaches production first, and diverges again the moment it takes a new ticket. Branch lanes collapse to a ticket count and expand on click, and clicking any commit describes what it carries." />
 
 ## Where this works well
 
