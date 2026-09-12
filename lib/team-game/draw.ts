@@ -239,11 +239,13 @@ export function drawGame(
   ctx.fillStyle = rgba(palette.ink, 0.95);
   ctx.fillText(game.started ? `Day ${day(game)}` : "Day 1 · ready", 12, 18);
 
-  const label = `${speed(game)}x · ${game.push ? "rushing" : game.debt > 0 ? "recovering" : game.measure ? "measured" : LEVELS[game.level].name.toLowerCase()}`;
-  ctx.textAlign = "center";
-  ctx.fillStyle =
-    game.push || game.measure || game.debt > 0 ? rgba("251 146 60", 1) : rgba(palette.accent, 1);
-  ctx.fillText(label, w / 2, 18);
+  if (w >= 520) {
+    const label = `${speed(game)}x · ${game.push ? "rushing" : game.debt > 0 ? "recovering" : game.measure ? "measured" : LEVELS[game.level].name.toLowerCase()}`;
+    ctx.textAlign = "center";
+    ctx.fillStyle =
+      game.push || game.measure || game.debt > 0 ? rgba("251 146 60", 1) : rgba(palette.accent, 1);
+    ctx.fillText(label, w / 2, 18);
+  }
 
   ctx.textAlign = "right";
   ctx.fillStyle = rgba(palette.muted, 1);
