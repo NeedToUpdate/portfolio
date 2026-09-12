@@ -82,6 +82,7 @@ const tagShapes: Record<string, NebulaShapeKey> = {
   kubernetes: "stack",
   "platform-engineering": "stack",
   "home-automation": "cloud",
+  leadership: "profile",
 };
 
 /** Insight tags map to glyphs; anything unknown gets the article shape. */

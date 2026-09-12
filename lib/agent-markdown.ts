@@ -57,10 +57,11 @@ export function mdxToMarkdown(body: string): string {
           .join("\n"),
       )
       // Interactive figures expose their nonvisual description to the
-      // agent-facing Markdown in place of the browser-only controls.
-      .replace(/<HumanReviewLab([\s\S]*?)\/>/g, (_, attrs: string) => {
+      // agent-facing Markdown in place of the browser-only controls. Any
+      // self-closing component with a description prop qualifies.
+      .replace(/<[A-Z]\w*([^>]*?)\/>/g, (full, attrs: string) => {
         const description = attrs.match(/description="([^"]*)"/)?.[1];
-        return description ? `> Interactive figure: ${description}` : "";
+        return description ? `> Interactive figure: ${description}` : full;
       })
       // Remaining self-closing components are interactive demos.
       .replace(/^[ \t]*<[A-Z]\w*[^>]*\/>[ \t]*$/gm, "")
