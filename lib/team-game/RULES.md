@@ -41,7 +41,7 @@ While pushing, recovering, or measuring, nothing improves: no calm, no rapport, 
 
 ## Expertise
 
-Expertise is demonstrated, never granted. A strength reveals after two proofs plus three shipped tickets. Proofs: self-solving a stuck in their own area (45% of stucks land there), or solving a ticket routed to them. Chats and unblocks no longer reveal anything.
+Expertise is demonstrated, never granted. A strength reveals after two proofs plus three shipped tickets. Proofs: self-solving a stuck in their own area (45% of stucks land there), solving a ticket routed to them, or helping a teammate with a problem in their own area. Being helped through your own area counts half a proof. Chats and unblocks no longer reveal anything.
 
 ## Meters
 
