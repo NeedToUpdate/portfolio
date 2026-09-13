@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1080" width="1000" height="1080" role="img" aria-labelledby="spine-title">
+  <title id="spine-title">The software development lifecycle as a rotating cycle of teams around one shared core: every team works the same ticket, code, and build, with release, approvals, and rollback hanging off that spine</title>
+  <defs>
+    <style>
+      text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    </style>
+    <pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="1.1" fill="#2a303f"/>
+    </pattern>
+  </defs>
+
+  <rect width="1000" height="1080" fill="#070a10"/>
+  <rect width="1000" height="1080" fill="url(#dots)" opacity="0.35"/>
+
+  <!-- ============ the rotating lifecycle: four arcs, clockwise ============ -->
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#4aa8ff" stroke-width="12" opacity="0.12">
+      <path d="M 575.4 142.2 A 395 395 0 0 1 887.9 454.6"/>
+      <path d="M 887.9 605.4 A 395 395 0 0 1 575.4 917.8"/>
+      <path d="M 424.6 917.8 A 395 395 0 0 1 112.1 605.4"/>
+      <path d="M 112.1 454.6 A 395 395 0 0 1 424.6 142.2"/>
+    </g>
+    <g stroke="#4aa8ff" stroke-width="3.5">
+      <path d="M 575.4 142.2 A 395 395 0 0 1 887.9 454.6"/>
+      <path d="M 887.9 605.4 A 395 395 0 0 1 575.4 917.8"/>
+      <path d="M 424.6 917.8 A 395 395 0 0 1 112.1 605.4"/>
+      <path d="M 112.1 454.6 A 395 395 0 0 1 424.6 142.2"/>
+    </g>
+    <g stroke="#4aa8ff" stroke-width="3.5" stroke-linejoin="round">
+      <path d="M 878.8 444.5 L 888 455 L 892.6 441.9"/>
+      <path d="M 585.9 908.6 L 575.4 917.8 L 588.5 922.4"/>
+      <path d="M 121.3 615.9 L 112.1 605.4 L 107.5 618.5"/>
+      <path d="M 414.1 151.4 L 424.6 142.2 L 411.5 137.6"/>
+    </g>
+  </g>
+
+  <!-- ============ spokes: each team acts on the core, never on another team ============ -->
+  <g stroke="#4aa8ff" stroke-width="2" opacity="0.55" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Product works the ticket -->
+    <path d="M 500 199 V 268"/>
+    <path d="M 493 257 L 500 268 L 507 257"/>
+    <!-- Development works the code -->
+    <path d="M 829.8 549.4 L 707.9 585.7"/>
+    <path d="M 717.4 575.6 L 707.9 585.7 L 721.4 589.0"/>
+    <!-- QA tests the build against the code -->
+    <path d="M 470 864 L 362.1 644.9"/>
+    <path d="M 373.7 652.6 L 362.1 644.9 L 361.1 658.8"/>
+    <path d="M 530 864 L 637.9 644.9"/>
+    <path d="M 626.3 652.6 L 637.9 644.9 L 638.9 658.8"/>
+    <!-- DevOps releases and approves through the build and ticket -->
+    <path d="M 162.3 493.4 L 247.9 438.7"/>
+    <path d="M 241.6 451.1 L 247.9 438.7 L 234.0 439.3"/>
+    <path d="M 154.8 576.4 L 217.8 635.0"/>
+    <path d="M 204.2 631.9 L 217.8 635.0 L 213.8 621.7"/>
+  </g>
+
+  <!-- ============ satellites hang off the spine, visible to everyone ============ -->
+  <g fill="none" stroke="#2fe39b" stroke-width="2" opacity="0.8" stroke-linecap="round">
+    <path d="M 319.8 399.6 L 459.7 337.8"/>
+    <path d="M 295.8 451.4 L 327.5 557.8"/>
+    <path d="M 280.8 642.8 L 304.3 625.8"/>
+    <path d="M 352.3 642.2 L 379.4 735.5"/>
+    <path d="M 280.2 688.1 L 359.8 748.9" stroke-dasharray="3 6" opacity="0.5"/>
+  </g>
+  <g>
+    <circle cx="285" cy="415" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
+    <text x="285" y="421" text-anchor="middle" fill="#2fe39b" font-size="17">Release</text>
+    <circle cx="250" cy="665" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
+    <text x="250" y="671" text-anchor="middle" fill="#2fe39b" font-size="14">Approvals</text>
+    <circle cx="390" cy="772" r="38" fill="rgba(47,227,155,0.06)" stroke="#2fe39b" stroke-width="2" opacity="0.85"/>
+    <text x="390" y="778" text-anchor="middle" fill="#2fe39b" font-size="14" opacity="0.9">Rollback</text>
+  </g>
+
+  <!-- ============ the spine: ticket, code, build, permanently wired ============ -->
+  <polygon points="500,320 660,600 340,600" fill="rgba(222,186,108,0.07)" stroke="none"/>
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#deba6c" stroke-width="9" opacity="0.16">
+      <path d="M 523.8 361.7 L 636.2 558.3"/>
+      <path d="M 476.2 361.7 L 363.8 558.3"/>
+      <path d="M 388 600 L 612 600"/>
+    </g>
+    <g stroke="#deba6c" stroke-width="3">
+      <path d="M 523.8 361.7 L 636.2 558.3"/>
+      <path d="M 476.2 361.7 L 363.8 558.3"/>
+      <path d="M 388 600 L 612 600"/>
+    </g>
+  </g>
+  <g>
+    <circle cx="500" cy="320" r="50" fill="#deba6c" opacity="0.12"/>
+    <circle cx="500" cy="320" r="44" fill="#070a10" stroke="#deba6c" stroke-width="3"/>
+    <text x="500" y="327" text-anchor="middle" fill="#deba6c" font-size="21" font-weight="600">Ticket</text>
+    <circle cx="660" cy="600" r="50" fill="#deba6c" opacity="0.12"/>
+    <circle cx="660" cy="600" r="44" fill="#070a10" stroke="#deba6c" stroke-width="3"/>
+    <text x="660" y="607" text-anchor="middle" fill="#deba6c" font-size="21" font-weight="600">Code</text>
+    <circle cx="340" cy="600" r="50" fill="#deba6c" opacity="0.12"/>
+    <circle cx="340" cy="600" r="44" fill="#070a10" stroke="#deba6c" stroke-width="3"/>
+    <text x="340" y="607" text-anchor="middle" fill="#deba6c" font-size="21" font-weight="600">Build</text>
+  </g>
+
+  <!-- ============ the teams ============ -->
+  <g>
+    <circle cx="500" cy="135" r="68" fill="#4aa8ff" opacity="0.10"/>
+    <circle cx="500" cy="135" r="62" fill="#0a0e16" stroke="#4aa8ff" stroke-width="3"/>
+    <text x="500" y="142" text-anchor="middle" fill="#ebedf3" font-size="20">Product</text>
+
+    <circle cx="895" cy="530" r="68" fill="#4aa8ff" opacity="0.10"/>
+    <circle cx="895" cy="530" r="62" fill="#0a0e16" stroke="#4aa8ff" stroke-width="3"/>
+    <text x="895" y="537" text-anchor="middle" fill="#ebedf3" font-size="16.5">Development</text>
+
+    <circle cx="500" cy="925" r="68" fill="#4aa8ff" opacity="0.10"/>
+    <circle cx="500" cy="925" r="62" fill="#0a0e16" stroke="#4aa8ff" stroke-width="3"/>
+    <text x="500" y="932" text-anchor="middle" fill="#ebedf3" font-size="22">QA</text>
+
+    <circle cx="105" cy="530" r="68" fill="#4aa8ff" opacity="0.10"/>
+    <circle cx="105" cy="530" r="62" fill="#0a0e16" stroke="#4aa8ff" stroke-width="3"/>
+    <text x="105" y="537" text-anchor="middle" fill="#ebedf3" font-size="19">DevOps</text>
+  </g>
+
+  <text x="500" y="1046" text-anchor="middle" fill="#969dad" font-size="20" letter-spacing="3">EVERY TEAM WORKS THE SAME TICKET, CODE, AND BUILD</text>
+</svg>
