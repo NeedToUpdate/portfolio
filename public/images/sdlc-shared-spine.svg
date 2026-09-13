@@ -50,6 +50,9 @@
     <path d="M 241.6 451.1 L 247.9 438.7 L 234.0 439.3"/>
     <path d="M 154.8 576.4 L 217.8 635.0"/>
     <path d="M 204.2 631.9 L 217.8 635.0 L 213.8 621.7"/>
+    <!-- DevOps also executes the rollback: redeploy the retained build -->
+    <path d="M 140 585 C 200 700, 280 760, 349 770" />
+    <path d="M 336.1 775.2 L 349 770 L 338.1 761.4"/>
   </g>
 
   <!-- ============ satellites hang off the spine, visible to everyone ============ -->
