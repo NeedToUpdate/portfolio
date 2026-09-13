@@ -21,9 +21,9 @@ The approach I use builds on [Skullcandy's workflow](https://redgreenrepeat.com/
   src="/images/branching-strategy-flow.svg"
   width={1280}
   height={760}
-  alt="Feature branches fork from main and merge into dev, which auto-deploys to the DEV environment and goes no further. Selected feature branches also merge into release/REL-123, which the pipeline builds once into artifact 18427. App support promotes that same artifact through QA, UAT, and PROD. After release, the shipped source reconciles into main's tip, and a retrofit pull request updates release/REL-124, still in flight."
+  alt="Feature branches fork from main and merge into dev, which auto-deploys to the DEV environment and goes no further. Selected feature branches also merge into release/REL-123, which the pipeline builds once into artifact 18427. DevOps promotes that same artifact through QA, UAT, and PROD. After release, the shipped source reconciles into main's tip, and a retrofit pull request updates release/REL-124, still in flight."
   side="none"
-  caption="The whole flow. Developers integrate in dev and assemble releases; the pipeline builds once; app support promotes that same build."
+  caption="The whole flow. Developers integrate in dev and assemble releases; the pipeline builds once; DevOps promotes that same build."
 />
 
 ## Dev is where the work meets
