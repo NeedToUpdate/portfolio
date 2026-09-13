@@ -17,6 +17,15 @@ None of that is particularly unusual. A feature can work perfectly and still nee
 
 The approach I use builds on [Skullcandy's workflow](https://redgreenrepeat.com/2021/01/22/why-i-migrated-the-team-from-gitflow-to-skullcandy/) and separates those decisions. Developers need somewhere to combine their work. The business needs to decide what goes live. QA needs to know what to test, and app support needs to know what to deploy. Giving each of those a clear place in the process makes the whole thing easier to operate.
 
+<FloatImage
+  src="/images/branching-strategy-flow.svg"
+  width={1280}
+  height={760}
+  alt="Feature branches fork from main and merge into dev, which auto-deploys to the DEV environment and goes no further. Selected feature branches also merge into release/REL-123, which the pipeline builds once into artifact 18427. App support promotes that same artifact through QA, UAT, and PROD. After release, the shipped source reconciles into main's tip, and a retrofit pull request updates release/REL-124, still in flight."
+  side="none"
+  caption="The whole flow. Developers integrate in dev and assemble releases; the pipeline builds once; app support promotes that same build."
+/>
+
 ## Dev is where the work meets
 
 *Integration tells you whether upcoming changes work together. Release selection decides which of those changes should ship.*
