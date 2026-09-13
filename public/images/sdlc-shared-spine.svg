@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1080" width="1000" height="1080" role="img" aria-labelledby="spine-title">
-  <title id="spine-title">The software development lifecycle as a rotating cycle of teams around one shared core: every team works the same ticket, code, and build, with release, approvals, and rollback hanging off that spine</title>
+  <title id="spine-title">The software development lifecycle as a rotating cycle of teams around one shared core: every team works the same ticket, code, and build, with release, approvals, rollback, and test results hanging off that spine</title>
   <defs>
     <style>
       text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -42,11 +42,9 @@
     <!-- Development works the code -->
     <path d="M 829.8 549.4 L 707.9 585.7"/>
     <path d="M 717.4 575.6 L 707.9 585.7 L 721.4 589.0"/>
-    <!-- QA tests the build against the code -->
-    <path d="M 470 864 L 362.1 644.9"/>
-    <path d="M 373.7 652.6 L 362.1 644.9 L 361.1 658.8"/>
-    <path d="M 530 864 L 637.9 644.9"/>
-    <path d="M 626.3 652.6 L 637.9 644.9 L 638.9 658.8"/>
+    <!-- QA works through test results, which attach to the build -->
+    <path d="M 500 857 V 779"/>
+    <path d="M 493 790 L 500 779 L 507 790"/>
     <!-- DevOps releases and approves through the build and ticket -->
     <path d="M 162.3 493.4 L 247.9 438.7"/>
     <path d="M 241.6 451.1 L 247.9 438.7 L 234.0 439.3"/>
@@ -61,6 +59,8 @@
     <path d="M 280.8 642.8 L 304.3 625.8"/>
     <path d="M 352.3 642.2 L 379.4 735.5"/>
     <path d="M 280.2 688.1 L 359.8 748.9" stroke-dasharray="3 6" opacity="0.5"/>
+    <path d="M 470.9 710.5 L 375.2 629.7"/>
+    <path d="M 529.1 710.5 L 624.8 629.7"/>
   </g>
   <g>
     <circle cx="285" cy="415" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
@@ -69,6 +69,8 @@
     <text x="250" y="671" text-anchor="middle" fill="#2fe39b" font-size="14">Approvals</text>
     <circle cx="390" cy="772" r="38" fill="rgba(47,227,155,0.06)" stroke="#2fe39b" stroke-width="2" opacity="0.85"/>
     <text x="390" y="778" text-anchor="middle" fill="#2fe39b" font-size="14" opacity="0.9">Rollback</text>
+    <circle cx="500" cy="735" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
+    <text x="500" y="741" text-anchor="middle" fill="#2fe39b" font-size="15.5">Tests</text>
   </g>
 
   <!-- ============ the spine: ticket, code, build, permanently wired ============ -->
