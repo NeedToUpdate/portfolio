@@ -676,9 +676,19 @@ function tickDev(game: Game, dev: Dev, dt: number, mult: number): void {
         goTo(game, dev, { kind: "desk", dev: dev.id });
         dev.state = "working";
         if (helped && helped.state === "stuck") {
+          const domain = helped.stuckDomain;
           resume(game, helped);
           say(game, helped, pickFrom(game, HELPED_TALK), 1.5);
-          if (attended(game)) game.rapport = Math.min(1, game.rapport + T.peerHelpRapport);
+          if (attended(game)) {
+            game.rapport = Math.min(1, game.rapport + T.peerHelpRapport);
+            // Helping is teaching: explaining your own area counts as a
+            // proof, and being walked through your own area counts as half.
+            if (domain === dev.strength) noteDemonstration(game, dev);
+            if (domain === helped.strength) {
+              helped.demos += 0.5;
+              checkReveal(game, helped);
+            }
+          }
           addEvent(game, `${dev.name} walked over to ${helped.name}'s desk. No ticket was filed.`, "good");
         }
       }
