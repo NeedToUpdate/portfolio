@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1080" width="1000" height="1080" role="img" aria-labelledby="spine-title">
-  <title id="spine-title">The software development lifecycle as a rotating cycle of teams around one shared core: every team works the same ticket, code, and build, with release, approvals, rollback, and test results hanging off that spine</title>
+  <title id="spine-title">The software development lifecycle as a rotating cycle of teams around one shared core: every team works the same ticket, code, and build, with design, release, approvals, rollback, and test results hanging off that spine</title>
   <defs>
     <style>
       text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -39,12 +39,20 @@
     <!-- Product works the ticket -->
     <path d="M 500 199 V 268"/>
     <path d="M 493 257 L 500 268 L 507 257"/>
+    <!-- Design sits between product intent and engineering: both spoke into it -->
+    <path d="M 546.7 184.4 L 697.8 344.0"/>
+    <path d="M 684.5 340.1 L 697.8 344.0 L 694.7 330.5"/>
+    <path d="M 845.0 483.9 L 760.3 405.8"/>
+    <path d="M 773.8 408.8 L 760.3 405.8 L 764.4 419.0"/>
     <!-- Development works the code -->
     <path d="M 829.8 549.4 L 707.9 585.7"/>
     <path d="M 717.4 575.6 L 707.9 585.7 L 721.4 589.0"/>
     <!-- QA works through test results, which attach to the build -->
     <path d="M 500 857 V 779"/>
     <path d="M 493 790 L 500 779 L 507 790"/>
+    <!-- Product signs off too: UAT acceptance is a business approval -->
+    <path d="M 471.0 196.5 L 268.8 625.2"/>
+    <path d="M 267.6 611.3 L 268.8 625.2 L 280.2 617.3"/>
     <!-- DevOps releases and approves through the build and ticket -->
     <path d="M 162.3 493.4 L 247.9 438.7"/>
     <path d="M 241.6 451.1 L 247.9 438.7 L 234.0 439.3"/>
@@ -64,6 +72,8 @@
     <path d="M 280.2 688.1 L 359.8 748.9" stroke-dasharray="3 6" opacity="0.5"/>
     <path d="M 470.9 710.5 L 375.2 629.7"/>
     <path d="M 529.1 710.5 L 624.8 629.7"/>
+    <path d="M 691.1 366.9 L 544.7 331.0"/>
+    <path d="M 717.0 412.4 L 673.3 556.0"/>
   </g>
   <g>
     <circle cx="285" cy="415" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
@@ -74,6 +84,8 @@
     <text x="390" y="778" text-anchor="middle" fill="#2fe39b" font-size="14" opacity="0.9">Rollback</text>
     <circle cx="500" cy="735" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
     <text x="500" y="741" text-anchor="middle" fill="#2fe39b" font-size="15.5">Tests</text>
+    <circle cx="728" cy="376" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
+    <text x="728" y="382" text-anchor="middle" fill="#2fe39b" font-size="15.5">Design</text>
   </g>
 
   <!-- ============ the spine: ticket, code, build, permanently wired ============ -->
