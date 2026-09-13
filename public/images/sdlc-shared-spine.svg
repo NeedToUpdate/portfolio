@@ -56,21 +56,21 @@
     <path d="M 500 857 V 779"/>
     <path d="M 493 790 L 500 779 L 507 790"/>
     <!-- DevOps assembles the release from the build -->
-    <path d="M 147.9 582.8 L 190.5 635.2"/>
-    <path d="M 187.1 621.6 L 190.5 635.2 L 177.9 629.1"/>
+    <path d="M 158.0 572.6 L 193.0 600.7"/>
+    <path d="M 186.8 588.1 L 193.0 600.7 L 179.4 597.4"/>
     <!-- DevOps also executes the rollback: redeploy the retained build -->
-    <path d="M 145 588 C 150 705, 210 768, 279 765"/>
-    <path d="M 266.1 759.6 L 279 765 L 266.6 771.5"/>
+    <path d="M 141.7 587.2 L 248.0 752.9"/>
+    <path d="M 246.1 739.0 L 248.0 752.9 L 236.2 745.4"/>
   </g>
 
   <!-- ============ satellites hang off the spine, visible to everyone ============ -->
   <g fill="none" stroke="#2fe39b" stroke-width="2" opacity="0.8" stroke-linecap="round">
     <path d="M 308.9 366.9 L 455.3 331.0"/>
     <path d="M 283.0 412.4 L 326.7 556.0"/>
-    <path d="M 265.7 413.5 L 228.3 636.5" stroke-dasharray="3 6" opacity="0.5"/>
-    <path d="M 254.2 653.8 L 301.0 624.4"/>
-    <path d="M 337.3 645.9 L 332.2 732.1"/>
-    <path d="M 250.4 699.2 L 301.6 744.8" stroke-dasharray="3 6" opacity="0.5"/>
+    <path d="M 266.1 413.5 L 237.9 594.5" stroke-dasharray="3 6" opacity="0.5"/>
+    <path d="M 268.4 621.2 L 295.9 613.1"/>
+    <path d="M 325.5 643.6 L 287.0 758.9"/>
+    <path d="M 241.7 668.7 L 265.3 758.3" stroke-dasharray="3 6" opacity="0.5"/>
     <path d="M 470.9 710.5 L 375.2 629.7"/>
     <path d="M 529.1 710.5 L 624.8 629.7"/>
     <path d="M 691.1 366.9 L 544.7 331.0"/>
@@ -79,10 +79,10 @@
   <g>
     <circle cx="272" cy="376" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
     <text x="272" y="382" text-anchor="middle" fill="#2fe39b" font-size="14">Approvals</text>
-    <circle cx="222" cy="674" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
-    <text x="222" y="680" text-anchor="middle" fill="#2fe39b" font-size="15.5">Release</text>
-    <circle cx="330" cy="770" r="38" fill="rgba(47,227,155,0.06)" stroke="#2fe39b" stroke-width="2" opacity="0.85"/>
-    <text x="330" y="776" text-anchor="middle" fill="#2fe39b" font-size="14" opacity="0.9">Rollback</text>
+    <circle cx="232" cy="632" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
+    <text x="232" y="638" text-anchor="middle" fill="#2fe39b" font-size="15.5">Release</text>
+    <circle cx="275" cy="795" r="38" fill="rgba(47,227,155,0.06)" stroke="#2fe39b" stroke-width="2" opacity="0.85"/>
+    <text x="275" y="801" text-anchor="middle" fill="#2fe39b" font-size="14" opacity="0.9">Rollback</text>
     <circle cx="500" cy="735" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
     <text x="500" y="741" text-anchor="middle" fill="#2fe39b" font-size="15.5">Tests</text>
     <circle cx="728" cy="376" r="38" fill="rgba(47,227,155,0.08)" stroke="#2fe39b" stroke-width="2.4"/>
