@@ -37,6 +37,8 @@ export default function FloatImage({
         alt={alt}
         width={width}
         height={height}
+        // The optimizer rejects SVG by default; vector diagrams ship as-is.
+        unoptimized={src.endsWith(".svg")}
         sizes={floating ? "(max-width: 768px) 100vw, 20rem" : "(max-width: 768px) 100vw, 48rem"}
         className="h-auto w-full rounded-lg border border-line/60"
       />

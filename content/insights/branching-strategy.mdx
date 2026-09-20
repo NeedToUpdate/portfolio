@@ -4,7 +4,7 @@ seoTitle: "Git branching and releases with fewer rules"
 deck: "When several teams share a system, keep integration separate from deciding what ships. Ticket branches go into dev so people can test their work together. Selected work goes into a release, which produces a build with its own ID. QA tests that build, release management approves it, and app support promotes the same artifact to production. Automation keeps the tickets, approvals, and production baseline connected."
 description: "Simplify your Git release process: separate integration from release scope, promote tested artifacts, and automate the bookkeeping between teams."
 previewImage: "/images/branching-strategy.png"
-date: "2026-09-18"
+date: "2026-09-25"
 tags: ["engineering", "process", "architecture"]
 related: ["/work/sdlc-revamp", "/insights/high-performing-teams"]
 ---
@@ -16,6 +16,15 @@ None of that is particularly unusual. A feature can work perfectly and still nee
 [GitFlow has procedures for release branches and hotfixes](https://nvie.com/posts/a-successful-git-branching-model/). It can handle overlapping work, and you can use it with a build-once pipeline. But when the next release starts with everything in `develop`, changing what should ship can mean undoing work that was fine to integrate. The branch has started making a business decision for you.
 
 The approach I use builds on [Skullcandy's workflow](https://redgreenrepeat.com/2021/01/22/why-i-migrated-the-team-from-gitflow-to-skullcandy/) and separates those decisions. Developers need somewhere to combine their work. The business needs to decide what goes live. QA needs to know what to test, and app support needs to know what to deploy. Giving each of those a clear place in the process makes the whole thing easier to operate.
+
+<FloatImage
+  src="/images/branching-strategy-flow.svg"
+  width={1280}
+  height={760}
+  alt="Feature branches fork from main and merge into dev, which auto-deploys to the DEV environment and goes no further. Selected feature branches also merge into release/REL-123, which the pipeline builds once into artifact 18427. DevOps promotes that same artifact through QA, UAT, and PROD. After release, the shipped source reconciles into main's tip, and a retrofit pull request updates release/REL-124, still in flight."
+  side="none"
+  caption="The whole flow. Developers integrate in dev and assemble releases; the pipeline builds once; DevOps promotes that same build."
+/>
 
 ## Dev is where the work meets
 
@@ -31,7 +40,7 @@ That leaves the branches with fairly straightforward jobs:
 | --- | --- | --- |
 | `feat/$ticket` | Work tied to a particular ticket | Develop and review the change |
 | `dev` | Upcoming work from the teams | Find problems between changes early |
-| `release/*` | Work deliberately selected for a release | Build and validate that combination |
+| `release/$release_ticket` | Work deliberately selected for a release, linked to its release ticket | Build and validate that combination |
 | `main` | Source corresponding to the successful production baseline | Start new work and update releases still in flight |
 
 For an independently releasable ticket, start the feature branch from `main`. Merge it into `dev` for integration, but keep the feature branch available for release selection. If you branch from a `dev` that already contains five other features, those features come along in the history. Calling the new branch a ticket doesn't make it independent.
@@ -50,7 +59,7 @@ There is still work involved if someone changes their mind after the release has
 
 Two teams releasing the same application at the same time also need to talk. Put their selected work together and test it as a combined release. Two individually approved builds don't magically become one approved application because the release calendar has them in the same slot.
 
-I also prefer release names that tell people something about the work. `release/billing-refunds-and-login-fix` gives a conversation somewhere to start. If your organization uses release tickets, include the release ticket number, like `release/REL-123-billing-refunds-and-login-fix`. If your team uses semantic versioning, you can put the version in the branch name too, like `release/REL-123-2.4.0`. Keep the actual ticket list with the release, and keep the timing in a calendar people can read. A branch name is a poor place to maintain a schedule that keeps changing.
+Use `release/$release_ticket` to connect the release branch to its release ticket, like `release/REL-123`. That gives the selected work, build, and approvals a release record to connect to. I also prefer names that tell people something about the work, so you can add a description: `release/REL-123-billing-refunds-and-login-fix`. If your team uses semantic versioning, you can include that too, like `release/REL-123-2.4.0`. Keep the actual ticket list with the release, and keep the timing in a calendar people can read. A branch name is a poor place to maintain a schedule that keeps changing.
 
 ## The build is the handoff
 
@@ -72,17 +81,28 @@ The developers still own the quality of what they handed over. If the build is w
 
 ## A commit doesn't tell you what was built
 
-We settled on the build pipeline's run ID for that handoff. The commit still matters, because it identifies the source. But the build also has dependencies, tooling, pipeline settings, and build-time configuration. I want to know which run put all of those together.
+Use the build pipeline's run ID as the release identifier. Put it in the Docker image tag, like `myapp:18427`, or use it as the artifact version. Now the thing being deployed points directly to the run that produced it. That build record connects the commit hash, the time of the build, the pipeline, and the inputs used during that run. The commit identifies the source; the build ID connects that source to the conditions that produced the artifact.
 
-Build the same commit next week and something outside that commit may have changed. Maybe a dependency resolved differently, a base-image tag moved, or somebody updated the build environment. You can pin those inputs and make builds reproducible, and you should understand them either way. But if the tested artifact already exists, rebuilding it gives you another thing to prove.
+Build that same commit seven months later and you can get a different artifact. A dependency's dependency may have changed, a base-image tag may point somewhere else, or the build-time configuration may be different. Some inputs may only have existed in the build environment at the time. None of that requires a change to your application code. The commit hash alone won't distinguish those two builds. Separate build IDs will.
 
-The build ID should lead to the retained artifact and a record of its inputs. Store the source revision, pipeline version, resolved dependencies, relevant configuration, and the artifact's checksum. The ID gives people a handle; the records behind it give that handle meaning. [Build provenance](https://slsa.dev/spec/v1.2/provenance) describes that relationship between the build, its inputs, and its output.
+Keep those inputs recorded against the build: the source revision, pipeline version, resolved dependencies, and relevant build-time configuration. Retain the artifact and its checksum or image digest, and never overwrite its build-ID tag with a later build. That keeps the link intact from what QA tested to how it was produced and what eventually reached production. [Build provenance](https://slsa.dev/spec/v1.2/provenance) describes that relationship between the build, its inputs, and its output.
 
 Keep the artifact available for the release and rollback period too. A link to a deleted build is not much of a handoff. In Azure Pipelines, for example, [deleting a pipeline run also deletes its associated pipeline artifacts](https://learn.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts?view=azure-devops).
 
 Once that build exists, promote it. Don't compile it again for QA, again for UAT, and again for production. Environment-specific values can come from deployment configuration, with their own record of what changed. If a value gets compiled into the application, changing it changes the artifact, so that needs to be accounted for in the build and testing approach.
 
 Now when someone asks whether production received what QA tested, there is something concrete to check. Compare the artifact identity. Nobody needs to argue that the code was basically the same.
+
+Connecting ticket numbers, branches, and releases to the build ID gives the whole company something to work from. Product can follow a requirement through design, development, testing, and into production. QA knows which build it tested, release management knows what was approved, and operations knows what went live and what it can roll back to. When something needs to change, that history feeds back into the next product decision. Each department has its own responsibilities, but they're all working with the same connected record. That's how the branching and release strategy becomes part of an enterprise-wide product delivery process.
+
+<FloatImage
+  src="/images/sdlc-shared-spine.svg"
+  alt="Product, Development, QA, and DevOps form a lifecycle around a connected ticket, code, and build. Design, approvals, test results, release, and rollback records attach to that shared core, keeping business intent connected to implementation and delivery."
+  width={1000}
+  height={1080}
+  side="none"
+  caption="Every team works from the same connected ticket, code, and build. Delivery feeds back into product decisions; rollback refers to a previously retained build."
+/>
 
 ## Production changes while you're working
 
@@ -102,7 +122,7 @@ If two releases are ready together, coordinate that final promotion so one can't
 
 A process can have a very clean diagram and still need everyone to remember twenty rules. That's where I start looking for automation.
 
-The ticket number in `feat/$ticket` can link the branch and PR to the work item. When a release branch appears, automation can open the release PR and collect the tickets selected for it. The build record can carry that list forward. Release management gets a useful account of what's shipping without someone spending Friday afternoon reading commit messages.
+The ticket number in `feat/$ticket` can link the branch and PR to the work item. The release ticket number in `release/$release_ticket` provides the same connection for the release. When that branch appears, automation can open the release PR, link it to the release ticket, and collect the work items selected for it. The build record can carry those links forward. Release management gets a useful account of what's shipping without someone spending Friday afternoon reading commit messages.
 
 Approvals belong to a specific build. If QA approved `18427` and somebody adds another ticket, that approval still describes `18427`. The new build needs its own validation. Moving the branch forward must never quietly move the approval with it.
 
@@ -118,7 +138,7 @@ There are still decisions for the team. Is the feature ready? Can these changes 
 
 Here is the whole lifecycle as a working model. Add features, open releases, and drag tickets between trains. Build a release, promote the build through the environments, and watch what shipping does to the releases still in flight. Click a branch count to unfold the branches behind it.
 
-<ReleaseTrain description="An interactive release-train diagram. Add feature branches, open releases, and drag tickets into releases; every ticket keeps integrating in dev, and dragging between releases copies it. Abandoning a release returns its tickets to dev. Building a release produces a numbered artifact that promotes through QA, UAT, and PROD. A shipped release reconciles into main and its branches leave the graph, counted in an artifact store. An environments board shows which build DEV, QA, UAT, and PROD are running, with earlier builds greyed out and one click away from running again. Releases still in flight then need a retrofit before they can promote, and changing a built release voids its build. UAT holds only what ships next, so overwriting it knocks the other release back to QA-approved, and promoting into a busy QA cuts the other release's run short; merging avoids both: the combined release rebuilds and re-approves from QA, while the merged branch stays open with its own build, still independently releasable, ships automatically if its carrier reaches production first, and diverges again the moment it takes a new ticket. Branch lanes collapse to a ticket count and expand on click, and clicking any commit describes what it carries." />
+<ReleaseTrain description="An interactive release-train diagram. Add feature branches, open releases, and drag tickets into releases; every ticket keeps integrating in dev, shown there dimmed once selected, and dragging between releases copies it. Dev can also be reset: deleted and recut from the latest production baseline, with the open branches merging back in. Abandoning a release returns its tickets to dev. Building a release produces a numbered artifact that promotes through QA, UAT, and PROD. A shipped release reconciles into main and its branches leave the graph, counted in an artifact store. An environments board shows which build DEV, QA, UAT, and PROD are running, with earlier builds greyed out and one click away from running again. Releases still in flight then need a retrofit before they can promote, and changing a built release voids its build. UAT holds only what ships next, so overwriting it knocks the other release back to QA-approved, and promoting into a busy QA cuts the other release's run short; merging avoids both: the combined release rebuilds and re-approves from QA, while the merged branch stays open with its own build, still independently releasable, ships automatically if its carrier reaches production first, and diverges again the moment it takes a new ticket. Branch lanes collapse to a ticket count and expand on click, and clicking any commit describes what it carries." />
 
 ## Where this works well
 

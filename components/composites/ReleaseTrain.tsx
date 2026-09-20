@@ -77,6 +77,8 @@ interface State {
   prevEnv: (number | null)[];
   /** Which shipped build PROD currently runs. Rollback moves it backward. */
   prodIndex: number;
+  /** Index into shipped that dev was last recut from; -1 means the original baseline. */
+  devBase: number;
   devExpanded: boolean;
   nextTicket: number;
   nextRelease: number;
@@ -98,6 +100,7 @@ function initialState(): State {
     prevEnv: [null, null],
     retained: [],
     prodIndex: -1,
+    devBase: -1,
     devExpanded: false,
     nextTicket: 4313,
     nextRelease: 123,
@@ -455,6 +458,17 @@ export default function ReleaseTrain({ description }: { description?: string }) 
       s.log = addLog(s.log, `release/${release.name} abandoned. The branch is gone; its features keep integrating in dev.`, "bad");
     });
 
+  const resetDev = () =>
+    update((s) => {
+      if (s.devBase >= s.shipped.length - 1) return;
+      s.devBase = s.shipped.length - 1;
+      s.log = addLog(
+        s.log,
+        "dev deleted and recut from the production baseline. The open branches merged back in; the old history stayed behind.",
+        "good",
+      );
+    });
+
   const toggle = (target: "dev" | number) =>
     update((s) => {
       if (target === "dev") s.devExpanded = !s.devExpanded;
@@ -492,7 +506,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
       prompt="release some builds"
       accessibleDescription={
         description ??
-        "An interactive release-train diagram. Add feature branches, open releases, and drag tickets into releases; every ticket keeps integrating in dev, and dragging between releases copies it. Abandoning a release returns its tickets to dev. Building a release produces a numbered artifact that promotes through QA, UAT, and PROD. A shipped release reconciles into main and its branches leave the graph, counted in a ledger. Releases still in flight then need a retrofit before they can promote, and changing a built release voids its build. UAT holds only what ships next, so overwriting it knocks the other release back to QA-approved, and promoting into a busy QA cuts the other release's run short; merging avoids both: the combined release rebuilds and re-approves from QA, while the merged branch stays open with its own build, still independently releasable, ships automatically if its carrier reaches production first, and diverges again the moment it takes a new ticket. Branch lanes collapse to a ticket count and expand on click, and clicking any commit describes what it carries."
+        "An interactive release-train diagram. Add feature branches, open releases, and drag tickets into releases; every ticket keeps integrating in dev, shown there dimmed once selected, and dragging between releases copies it. Dev can also be reset: deleted and recut from the latest production baseline, with the open branches merging back in. Abandoning a release returns its tickets to dev. Building a release produces a numbered artifact that promotes through QA, UAT, and PROD. A shipped release reconciles into main and its branches leave the graph, counted in a ledger. Releases still in flight then need a retrofit before they can promote, and changing a built release voids its build. UAT holds only what ships next, so overwriting it knocks the other release back to QA-approved, and promoting into a busy QA cuts the other release's run short; merging avoids both: the combined release rebuilds and re-approves from QA, while the merged branch stays open with its own build, still independently releasable, ships automatically if its carrier reaches production first, and diverges again the moment it takes a new ticket. Branch lanes collapse to a ticket count and expand on click, and clicking any commit describes what it carries."
       }
     >
       <div className="not-prose flex min-w-0 flex-col gap-4">
@@ -526,23 +540,32 @@ export default function ReleaseTrain({ description }: { description?: string }) 
             )}
 
             {/* main flows into dev, so integration always includes what
-                production already runs. */}
+                production already runs. A recut dev forks from the latest
+                reconciled baseline instead of the original one. */}
             <GlowPath
-              d={`M 252 ${mainY} C 282 ${mainY - 24}, 284 ${rows[0].y + 26}, 320 ${rows[0].y}`}
+              d={(() => {
+                const fx = state.devBase === -1 ? 252 : MAIN_X1 - 50 - (state.shipped.length - 1 - state.devBase) * 40;
+                return `M ${fx} ${mainY} C ${fx + 30} ${mainY - 24}, ${fx + 32} ${rows[0].y + 26}, ${fx + 68} ${rows[0].y}`;
+              })()}
               color={BLUE}
               width={1.8}
               opacity={0.8}
             />
             <Commit
-              x={322}
+              x={state.devBase === -1 ? 322 : MAIN_X1 - 50 - (state.shipped.length - 1 - state.devBase) * 40 + 70}
               y={rows[0].y}
               color={VIOLET}
               r={5}
-              label="main merged into dev. Integration always includes what production already runs, so upcoming work is tested against reality."
+              label={
+                state.devBase === -1
+                  ? "main merged into dev. Integration always includes what production already runs, so upcoming work is tested against reality."
+                  : `dev was recut from the baseline ${state.shipped[state.devBase].name} left behind. Fresh history, same branches.`
+              }
               onInspect={onInspect}
-              active={inspect?.startsWith("main merged into dev") ?? false}
+              active={(inspect?.startsWith("main merged into dev") || inspect?.startsWith("dev was recut")) ?? false}
             />
             {state.shipped.map((sh, i) => {
+              if (i <= state.devBase) return null;
               const sx = MAIN_X1 - 50 - (state.shipped.length - 1 - i) * 40;
               const label = `main merged into dev after ${sh.name} shipped. Integration keeps testing on top of what is live.`;
               return (
@@ -882,10 +905,32 @@ export default function ReleaseTrain({ description }: { description?: string }) 
           Drag a ticket into a release, or tap it and tap the destination.
         </p>
         <div role="list" aria-label="Releases and their tickets" className="grid min-w-0 grid-cols-1 gap-1.5 sm:grid-cols-2">
-          <Bucket title="dev only" note="integrating, in no release yet">
+          <Bucket title="dev" note="every ticket integrates here">
             {unassigned.map((f) => (
               <Ticket key={f.id} id={f.id} carrying={carrying === f.id} onPick={() => pickOrMove(f.id)} onGrab={grab} onRelease={release_} />
             ))}
+            {state.features
+              .filter((f) => f.releases.length > 0)
+              .map((f) => (
+                <span
+                  key={f.id}
+                  title={`feat/${f.id} · selected into ${f.releases.map((id) => `REL-${id}`).join(", ")}`}
+                  className="inline-flex animate-fade-in items-center whitespace-nowrap rounded border border-line/50 px-1.5 py-0.5 font-mono text-[10px] text-muted/60"
+                >
+                  {f.id}
+                </span>
+              ))}
+            <span className="mt-1 flex w-full flex-wrap gap-1.5">
+              <Button
+                variant="outline"
+                onClick={resetDev}
+                disabled={state.devBase >= state.shipped.length - 1}
+                title="Delete dev and branch it fresh from main. The open feature branches merge back in."
+                className="whitespace-nowrap !px-2.5 !py-1 !text-xs"
+              >
+                Reset dev
+              </Button>
+            </span>
           </Bucket>
           {state.releases.map((release) => {
             const tickets = state.features.filter((f) => f.releases.includes(release.id));
