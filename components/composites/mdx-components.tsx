@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import FloatImage from "./FloatImage";
 import Note from "./Note";
+import Card from "./Card";
 import RequestPathExplorer from "./RequestPathExplorer";
 import StarfieldDemo from "./StarfieldDemo";
 import MinWidthDemo from "./MinWidthDemo";
@@ -29,6 +30,7 @@ export const mdxComponents: MDXComponents = {
   a: MdxLink,
   FloatImage,
   Note,
+  Card,
   RequestPathExplorer,
   StarfieldDemo,
   MinWidthDemo,

@@ -152,6 +152,28 @@ An onshore/offshore split makes the handoff especially useful. The developer who
 
 I wouldn't add all of these branches to a team that already ships small changes safely from a single trunk. And if you're maintaining several supported product versions, you'll still have version-specific work to account for. The value here comes from letting work move at different speeds while keeping the release handoff clear.
 
+## The whole strategy
+
+<Card>
+
+Four branches:
+
+- `main` is the production baseline
+- `dev` is where upcoming work integrates
+- `feat/$ticket` carries one ticket
+- `release/$release_ticket` carries one release
+
+Four rules:
+
+1. Always branch from `main`.
+2. `dev` never merges into `main`.
+3. Every branch and build is tied to an ID, a ticket or a build number.
+4. After a release ships, reconcile `main` and retrofit the releases still in flight.
+
+</Card>
+
+Notice there are no `hotfix/`, `refactor/`, or `fix/` branches for getting something out quickly. A `feat/` branch is already the fastest path available: branch from `main`, merge into a release, build, validate, ship. The simplest one-line fix and a complex multi-team project use the same process at their own speeds.
+
 What I like about it is how little the release process needs to know about the developers' day-to-day branching. They can combine work, try things in `dev`, and prepare different releases. The important questions stay answerable: which tickets are in this build, who approved it, what went to production, and which releases now need the update.
 
 That's what I mean by simple. A few rules the system can enforce, enough room for the teams to work, and a build ID that tells everyone what we're talking about.
