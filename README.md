@@ -30,7 +30,7 @@ Turbopack occasionally holds on to old state. Two cases seen so far: a newly add
 - **ISR cache in S3.** `lib/isr-cache-handler.js` stores the cache under `_cache/` in the assets bucket.
 - **Basic auth on dev.** `proxy.ts` enforces it when `BASIC_AUTH_USERNAME` and `BASIC_AUTH_PASSWORD` are set. Prod sets neither.
 - **Markdown for agents.** Every page has a markdown twin under `/md` (`lib/agent-markdown.ts`), served when a request accepts `text/markdown`. `proxy.ts` rewrites at the origin; a CloudFront function does the same at the edge, and a test keeps its pattern in step with the registry.
-- **Targeted cache invalidation.** After a deploy, `scripts/invalidate-cloudfront.mjs` maps the changed files to the URLs they affect through the import graph, and the prod deploy pings IndexNow with the same list.
+- **Targeted cache invalidation.** After a deploy, `scripts/invalidate-cloudfront.mjs` maps the changed files to the URLs they affect through the import graph, and the prod deploy pings IndexNow with the same list. Every PR previews the list first: a "Cache invalidation preview" check writes it to the run summary and to a PR comment.
 
 ## Content
 

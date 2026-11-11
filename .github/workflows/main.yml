@@ -30,3 +30,55 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # Shows what the deploy after this merge will invalidate in CloudFront:
+  # in the run summary, and in one PR comment that each push updates.
+  cache-preview:
+    name: Cache invalidation preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # A PR into main deploys to prod; anything else, to dev.
+      STAGE: ${{ github.base_ref == 'main' && 'prod' || 'dev' }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_TITLE: ${{ github.event.pull_request.title }}
+      REPORT: ${{ runner.temp }}/invalidation.md
+    steps:
+      # Full history and tags: the diff starts at the cf-invalidated-<stage> tag.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Preview CloudFront invalidation
+        run: node scripts/invalidate-cloudfront.mjs "$STAGE" --dry-run
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          INVALIDATION_REPORT_FILE: ${{ runner.temp }}/invalidation.md
+
+      # One comment per PR, found by its marker and edited in place.
+      - name: Comment on the PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f "$REPORT" ] || exit 0
+          marker='<!-- cache-invalidation-preview -->'
+          body="$marker"$'\n'"$(cat "$REPORT")"
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -f body="$body" > /dev/null
+          else
+            gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -f body="$body" > /dev/null
+          fi
