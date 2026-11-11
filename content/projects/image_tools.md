@@ -1,9 +1,9 @@
 ---
 nebulaShape: db
 title: "AI Image Toolkit"
-description: "Resize, compress, and use AI."
+description: "A desktop tool that removes image backgrounds with AI."
 thumbnail: "/images/image_tools.webp"
 techs: ["html", "python", "pytorch"]
 url: "/legacy/image-tools"
-priority: 3
+order: 14
 ---

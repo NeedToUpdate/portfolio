@@ -21,8 +21,8 @@ import {
   classifyChange,
   discoverRoots,
   fullPathList,
-  listSlugs,
   parseNameStatus,
+  slugsFromDisk,
 } from "./cache-invalidation/map.mjs";
 import { buildAdjacency, invertGraph, scopeMdxComponents } from "./cache-invalidation/graph.mjs";
 
@@ -54,12 +54,7 @@ function tagExists(tag) {
 }
 
 function makeContext() {
-  return {
-    insightSlugs: listSlugs("content/insights"),
-    workSlugs: listSlugs("content/work"),
-    legacySlugs: listSlugs("content/legacy"),
-    fileToPaths: new Map(),
-  };
+  return { slugs: slugsFromDisk(), fileToPaths: new Map() };
 }
 
 async function computeInvalidation() {

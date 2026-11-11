@@ -7,33 +7,31 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 
+import {
+  AGENT_ONLY_DOCS,
+  ARTICLE_COLLECTIONS,
+  FIXED_PAGES,
+  mdTwin,
+} from "../../lib/collections.mjs";
+import { HASHED_IMAGE_RE } from "../../lib/fingerprint.mjs";
+
 export const SKIP_MARKER = "[skip-invalidate]";
 
 // Every text route the site currently serves, excluding anything under
 // /images/* or /_next/image* — those are handled separately (and often
 // need nothing at all, see HASHED_IMAGE_RE below).
+// The fixed pages and their twins come from lib/collections.mjs.
+const FIXED_MD_PATHS = [...FIXED_PAGES.map(mdTwin), ...AGENT_ONLY_DOCS].sort();
+
 export const TEXT_FIXED_PATHS = [
-  "/",
-  "/about",
-  "/contact",
-  "/insights",
-  "/legacy",
-  "/projects",
-  "/work",
+  ...[...FIXED_PAGES].sort(),
   "/robots.txt",
   "/sitemap.xml",
   "/opengraph-image",
   "/llms.txt",
   // Agent surface: fixed markdown-mirror documents and the well-known
   // discovery files (see lib/agent-markdown.ts and app/.well-known/).
-  "/md",
-  "/md/about",
-  "/md/capabilities",
-  "/md/contact",
-  "/md/insights",
-  "/md/legacy",
-  "/md/projects",
-  "/md/work",
+  ...FIXED_MD_PATHS,
   "/.well-known/api-catalog",
   "/.well-known/agent-skills/index.json",
   "/.well-known/agent-skills/using-this-site/SKILL.md",
@@ -48,7 +46,7 @@ export const IMAGE_WILDCARD_PATHS = ["/images/*", "/_next/image*"];
 // by scripts/build-image-assets.mjs (see lib/images.ts). The hashed
 // file is the only one ever linked to, so a new hash is a brand new
 // URL — nothing to invalidate. This matches that naming scheme.
-export const HASHED_IMAGE_RE = /\.[0-9a-f]{8}(\.og)?\.[a-z0-9]+$/i;
+export { HASHED_IMAGE_RE };
 
 // Hand-versioned static assets (favicon-v2.ico, apple-touch-icon-v2.png,
 // ...): editing one bumps the suffix and produces a new filename/URL on
@@ -119,11 +117,38 @@ export function listSlugs(dir) {
  */
 export function addedContentDetailPath(file, status) {
   if (status !== "A") return null;
-  const match = file.match(/^content\/(insights|work|legacy)\/([^/]+)\.mdx?$/);
-  return match ? `/${match[1]}/${match[2]}` : null;
+  const match = matchCollectionFile(file);
+  return match ? `${match.collection.route}/${match.slug}` : null;
 }
 
-// Enumerates every current insight/work slug from the checked-out content
+/** The collection and slug of a content file with its own detail page. */
+function matchCollectionFile(file) {
+  for (const collection of ARTICLE_COLLECTIONS) {
+    const prefix = `content/${collection.key}/`;
+    if (!file.startsWith(prefix)) continue;
+    const m = file.slice(prefix.length).match(/^([^/]+)\.mdx?$/);
+    if (m) return { collection, slug: m[1] };
+  }
+  return null;
+}
+
+/** Slugs on disk for every collection, keyed by collection. */
+export function slugsFromDisk(contentDir = "content") {
+  return Object.fromEntries(
+    ARTICLE_COLLECTIONS.map((c) => [c.key, listSlugs(`${contentDir}/${c.key}`)]),
+  );
+}
+
+function slugsOf(ctx, key) {
+  return ctx.slugs?.[key] ?? [];
+}
+
+/** Each listed page followed by its markdown twin. */
+function withTwins(paths) {
+  return paths.flatMap((p) => [p, mdTwin(p)]);
+}
+
+// Enumerates every current collection slug from the checked-out content
 // directories, rather than relying on a "/insights/*"-style wildcard — so
 // the fallback always matches what's actually on the site right now.
 export function fullPathList(ctx) {
@@ -135,9 +160,9 @@ export function fullPathList(ctx) {
 export function fullTextPathList(ctx) {
   return [
     ...TEXT_FIXED_PATHS,
-    ...ctx.insightSlugs.flatMap((s) => [`/insights/${s}`, `/md/insights/${s}`]),
-    ...ctx.workSlugs.flatMap((s) => [`/work/${s}`, `/md/work/${s}`]),
-    ...(ctx.legacySlugs ?? []).flatMap((s) => [`/legacy/${s}`, `/md/legacy/${s}`]),
+    ...ARTICLE_COLLECTIONS.flatMap((c) =>
+      withTwins(slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`)),
+    ),
   ];
 }
 
@@ -145,17 +170,10 @@ export function fullTextPathList(ctx) {
 // plus the agent-only /md/capabilities document (lib/agent-markdown.ts).
 export function mdMirrorPathList(ctx) {
   return [
-    "/md",
-    "/md/about",
-    "/md/capabilities",
-    "/md/contact",
-    "/md/insights",
-    "/md/legacy",
-    "/md/projects",
-    "/md/work",
-    ...ctx.insightSlugs.map((s) => `/md/insights/${s}`),
-    ...ctx.workSlugs.map((s) => `/md/work/${s}`),
-    ...(ctx.legacySlugs ?? []).map((s) => `/md/legacy/${s}`),
+    ...FIXED_MD_PATHS,
+    ...ARTICLE_COLLECTIONS.flatMap((c) =>
+      slugsOf(ctx, c.key).map((s) => mdTwin(`${c.route}/${s}`)),
+    ),
   ];
 }
 
@@ -204,6 +222,11 @@ export function parseNameStatus(output) {
  *
  * @returns {{ file: string, paths: string[] }[]}
  */
+/** The collection whose dynamic detail page this file is, if any. */
+function detailPageCollection(file, appDir) {
+  return ARTICLE_COLLECTIONS.find((c) => file === `${appDir}${c.route}/[slug]/page.tsx`);
+}
+
 export function discoverRoots(ctx, appDir = "app") {
   const roots = [];
   const walk = (dir) => {
@@ -224,32 +247,14 @@ export function discoverRoots(ctx, appDir = "app") {
         roots.push({ file, paths: mdMirrorPathList(ctx) });
       } else if (file === `${appDir}/opengraph-image.tsx`) {
         roots.push({ file, paths: ["/opengraph-image"] });
-      } else if (file === `${appDir}/insights/[slug]/page.tsx`) {
+      } else if (detailPageCollection(file, appDir)) {
+        const c = detailPageCollection(file, appDir);
         roots.push({
           file,
           paths: [
-            ...ctx.insightSlugs.map((s) => `/insights/${s}`),
-            "/insights",
-            "/",
-            "/sitemap.xml",
-          ],
-        });
-      } else if (file === `${appDir}/legacy/[slug]/page.tsx`) {
-        roots.push({
-          file,
-          paths: [
-            ...(ctx.legacySlugs ?? []).map((s) => `/legacy/${s}`),
-            "/legacy",
-            "/sitemap.xml",
-          ],
-        });
-      } else if (file === `${appDir}/work/[slug]/page.tsx`) {
-        roots.push({
-          file,
-          paths: [
-            ...ctx.workSlugs.map((s) => `/work/${s}`),
-            "/work",
-            "/",
+            ...slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`),
+            c.route,
+            ...c.listedOn,
             "/sitemap.xml",
           ],
         });
@@ -284,52 +289,21 @@ export function discoverRoots(ctx, appDir = "app") {
  * cache entries.
  */
 export function classifyChange(file, status, ctx) {
-  let m;
 
   // Content rules carry each page's markdown twin (/md/...) alongside it,
-  // and /llms.txt wherever the changed collection is listed there.
-  if ((m = file.match(/^content\/insights\/([^/]+)\.mdx?$/))) {
+  // and /llms.txt wherever the changed collection is listed there. Which
+  // other pages list a collection comes from lib/collections.mjs.
+  const entry = matchCollectionFile(file);
+  if (entry) {
+    const { collection: c, slug } = entry;
     return {
-      bucket: "insight",
-      slug: m[1],
+      bucket: c.key === "insights" ? "insight" : c.key,
+      slug,
       // A brand-new slug was never cached, so its own paths need nothing.
       paths: [
-        ...(status === "A" ? [] : [`/insights/${m[1]}`, `/md/insights/${m[1]}`]),
-        "/insights",
-        "/md/insights",
-        "/",
-        "/md",
-        "/sitemap.xml",
-        "/llms.txt",
-      ],
-    };
-  }
-  if ((m = file.match(/^content\/work\/([^/]+)\.mdx?$/))) {
-    return {
-      bucket: "work",
-      slug: m[1],
-      paths: [
-        ...(status === "A" ? [] : [`/work/${m[1]}`, `/md/work/${m[1]}`]),
-        "/work",
-        "/md/work",
-        "/",
-        "/md",
-        "/md/capabilities",
-        "/sitemap.xml",
-        "/llms.txt",
-      ],
-    };
-  }
-  // Legacy articles sit behind the /legacy index (itself reached only
-  // through the projects-page easter egg), with twins and llms.txt entries.
-  if ((m = file.match(/^content\/legacy\/([^/]+)\.mdx?$/))) {
-    return {
-      bucket: "legacy",
-      slug: m[1],
-      paths: [
-        ...(status === "A" ? [] : [`/legacy/${m[1]}`, `/md/legacy/${m[1]}`]),
-        "/legacy",
-        "/md/legacy",
+        ...(status === "A" ? [] : withTwins([`${c.route}/${slug}`])),
+        ...withTwins([c.route, ...c.listedOn]),
+        ...c.agentDocs,
         "/sitemap.xml",
         "/llms.txt",
       ],

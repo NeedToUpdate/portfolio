@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ogTwinName } from "./fingerprint.mjs";
 import { site } from "./site";
 import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
 
@@ -11,8 +12,7 @@ import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
  * just resolves the name (`src` here is already fingerprinted).
  */
 export function ogImagePath(src: string): string {
-  const ext = src.slice(src.lastIndexOf("."));
-  return `${src.slice(0, -ext.length)}.og.jpg`;
+  return ogTwinName(src);
 }
 
 export function pageMetadata({

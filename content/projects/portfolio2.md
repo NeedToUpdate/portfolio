@@ -5,7 +5,7 @@ description: "Portfolio 2.0. Next.js on Lambda with ISR, an MDX blog with intera
 thumbnail: "/images/portfolio_site.webp"
 techs: ["nextjs", "aws", "serverless"]
 url: "https://github.com/NeedToUpdate/portfolio"
-priority: 10
+order: 1
 era: "post-ai"
 insightSlug: "how-this-site-works"
 ---

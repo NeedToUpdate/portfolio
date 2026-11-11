@@ -11,6 +11,7 @@ import {
   getSkillDomains,
   getWorkIntro,
 } from "./content";
+import { ARTICLE_COLLECTIONS, type ArticleCollection } from "./collections.mjs";
 import { site, socialChannels } from "./site";
 import type { AgentGuide, CaseStudy, InsightMeta } from "./types";
 
@@ -431,6 +432,13 @@ Based in ${site.location}.
   return { title: "Contact", markdown };
 }
 
+/** The markdown twin of each collection's detail page. */
+const detailPages: Record<ArticleCollection["key"], (slug: string) => AgentPage | undefined> = {
+  work: caseStudyPage,
+  insights: insightPage,
+  legacy: legacyPage,
+};
+
 /**
  * Render the markdown twin of a page. `path` is the canonical page
  * path ("/", "/work/payment-rebuild"). Returns undefined for paths
@@ -456,14 +464,11 @@ export function renderAgentMarkdown(path: string): AgentPage | undefined {
       return capabilitiesPage();
   }
 
-  const caseStudy = path.match(/^\/work\/([^/]+)$/);
-  if (caseStudy) return caseStudyPage(caseStudy[1]);
-
-  const insight = path.match(/^\/insights\/([^/]+)$/);
-  if (insight) return insightPage(insight[1]);
-
-  const legacy = path.match(/^\/legacy\/([^/]+)$/);
-  if (legacy) return legacyPage(legacy[1]);
+  for (const c of ARTICLE_COLLECTIONS) {
+    const prefix = `${c.route}/`;
+    const slug = path.startsWith(prefix) ? path.slice(prefix.length) : "";
+    if (slug && !slug.includes("/")) return detailPages[c.key](slug);
+  }
 
   return undefined;
 }

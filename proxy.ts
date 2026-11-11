@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { agentPagePatternSource, mdTwin } from "@/lib/collections.mjs";
 
 /**
  * Origin proxy: basic auth for the dev environment, plus the
@@ -7,14 +8,14 @@ import { NextResponse } from "next/server";
  */
 
 /**
- * Pages that have a markdown twin under /md. Keep in sync with the
- * MarkdownNegotiationFunction in serverless-resources/cloudfront.yml,
- * which applies the same rewrite at the CloudFront edge so each
- * variant caches under its own URL and the Accept header never has
- * to join the cache key.
+ * Pages that have a markdown twin under /md, from the registry in
+ * lib/collections.mjs. The MarkdownNegotiationFunction in
+ * serverless-resources/cloudfront.yml applies the same rewrite at the
+ * CloudFront edge, so each variant caches under its own URL and the
+ * Accept header never joins the cache key; tests/collections.test.ts
+ * holds its literal copy of this pattern to the registry.
  */
-const AGENT_PAGE_PATTERN =
-  /^\/(?:(?:work|insights|legacy)\/[^/]+|work|insights|legacy|projects|about|contact)?$/;
+const AGENT_PAGE_PATTERN = new RegExp(agentPagePatternSource());
 
 /**
  * Discovery headers for AI agents (RFC 8288). Every page response
@@ -23,7 +24,7 @@ const AGENT_PAGE_PATTERN =
  * surface without guessing well-known paths.
  */
 function discoveryLinkHeader(pathname: string): string {
-  const mdPath = pathname === "/" ? "/md" : `/md${pathname}`;
+  const mdPath = mdTwin(pathname);
   return [
     '</.well-known/api-catalog>; rel="api-catalog"',
     '</llms.txt>; rel="describedby"; type="text/plain"',
@@ -75,7 +76,7 @@ export default function proxy(request: NextRequest) {
   let response: NextResponse;
   if (isAgentPage && wantsMarkdown) {
     const url = request.nextUrl.clone();
-    url.pathname = pathname === "/" ? "/md" : `/md${pathname}`;
+    url.pathname = mdTwin(pathname);
     response = NextResponse.rewrite(url);
   } else {
     response = NextResponse.next();

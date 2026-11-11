@@ -14,6 +14,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
+import { ARTICLE_COLLECTIONS } from "../../lib/collections.mjs";
+
 /** Normalize to a POSIX, repo-relative path so keys match `git diff` output. */
 function normalizePath(filePath) {
   return filePath.replace(/\\/g, "/").replace(/^\.\//, "");
@@ -120,10 +122,9 @@ export function scopeMdxComponents(
   adjacency,
   {
     registryFile = "components/composites/mdx-components.tsx",
-    contentDir = "content/insights",
-    // Other MDX collections rendered through the same registry, as
-    // [directory, route prefix] pairs.
-    extraContentDirs = [["content/legacy", "/legacy"]],
+    // Every collection's MDX files, as [directory, route prefix] pairs.
+    // Markdown-only collections (work) hold no .mdx and add no roots.
+    contentDirs = ARTICLE_COLLECTIONS.map((c) => [`content/${c.key}`, c.route]),
   } = {},
 ) {
   const scopedAdjacency = Object.fromEntries(
@@ -155,7 +156,7 @@ export function scopeMdxComponents(
   );
 
   const roots = [];
-  for (const [dir, prefix] of [[contentDir, "/insights"], ...extraContentDirs]) {
+  for (const [dir, prefix] of contentDirs) {
     if (!existsSync(dir)) continue;
     for (const filename of readdirSync(dir).filter((file) => /\.mdx$/.test(file))) {
       const source = readFileSync(path.join(dir, filename), "utf8");
