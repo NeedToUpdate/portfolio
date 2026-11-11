@@ -80,6 +80,15 @@ describe("markdown twins of MDX components", () => {
     expect(md).not.toMatch(/<[A-Z]/);
   });
 
+  it("lists a project's slides as named links", () => {
+    const md = mdxToMarkdown(
+      '<ProjectLink\n  mode="offline"\n  title="Old site"\n  image="/images/a.webp"\n  slides={[\n    ["/images/a.webp", "Landing page", "Site"],\n    ["/images/b.webp", "Game"],\n  ]}\n/>',
+    );
+    expect(md).toBe(
+      "> Old site is no longer online.\n>\n> Screenshots: [Landing page](https://artnikitin.dev/images/a.webp), [Game](https://artnikitin.dev/images/b.webp).",
+    );
+  });
+
   it("replaces a described demo with its description and drops the rest", () => {
     expect(mdxToMarkdown('<TeamGame description="Five devs work tickets." />')).toBe(
       "> Interactive figure: Five devs work tickets.",

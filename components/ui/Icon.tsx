@@ -15,7 +15,8 @@ export type IconName =
   | "check"
   | "share"
   | "sparkle"
-  | "trash";
+  | "trash"
+  | "chevron";
 
 interface IconProps {
   name: IconName;
@@ -98,6 +99,8 @@ const icons: Record<IconName, ReactNode> = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
+  // Points right; rotate it for the other directions.
+  chevron: <path d="m9 18 6-6-6-6" />,
   share: (
     <>
       <circle cx="18" cy="5" r="3" />

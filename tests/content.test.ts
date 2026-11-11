@@ -142,7 +142,8 @@ describe("legacy articles", () => {
   it("references only media and legacy pages that exist", () => {
     for (const { slug } of articles) {
       const body = getLegacyArticle(slug)!.body;
-      for (const [, src] of body.matchAll(/src="(\/images\/[^"]+)"/g)) {
+      // Any quoted image path: src, a ProjectLink image, or its slides.
+      for (const [, src] of body.matchAll(/"(\/images\/[^"]+)"/g)) {
         expect([slug, src, fs.existsSync(publicFile(src!))]).toEqual([slug, src, true]);
       }
       for (const [, target] of body.matchAll(/\]\(\/legacy\/([a-z0-9-]+)\)/g)) {
