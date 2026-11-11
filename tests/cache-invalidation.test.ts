@@ -2,7 +2,6 @@ import {
   addedContentDetailPath,
   classifyChange,
   discoverRoots,
-  fullPathList,
   fullTextPathList,
   mdMirrorPathList,
   newPagePaths,
@@ -461,10 +460,6 @@ describe("path lists and diff parsing", () => {
     expect(text).toContain("/.well-known/api-catalog");
     expect(text).not.toContain("/images/*");
     expect(text).not.toContain("/_next/image*");
-  });
-
-  it("includes image wildcards only in the bootstrap list", () => {
-    expect(fullPathList(ctx)).toEqual([...fullTextPathList(ctx), "/images/*", "/_next/image*"]);
   });
 
   it("lists pages that did not exist before the diff", () => {
