@@ -115,6 +115,13 @@ describe("content classification", () => {
     ]);
   });
 
+
+  it("maps index-page copy to its page and markdown twin", () => {
+    expect(classifyChange("content/pages/insights.md", "M", ctx).paths).toEqual([
+      "/insights",
+      "/md/insights",
+    ]);
+  });
   it("maps projects, career, skills, and home content to their pages and twins", () => {
     expect(classifyChange("content/projects/ziggy.md", "M", ctx).paths).toEqual([
       "/projects",

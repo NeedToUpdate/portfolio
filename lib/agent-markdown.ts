@@ -7,6 +7,7 @@ import {
   getInsights,
   getLegacyArticle,
   getLegacyArticles,
+  getPageCopy,
   getProjects,
   getSkillDomains,
   getWorkIntro,
@@ -337,7 +338,7 @@ function insightsIndexPage(): AgentPage {
   const insights = getInsights();
   const markdown = `# Insights — ${site.name}
 
-Write-ups on systems, decisions, and delivery.
+${getPageCopy("insights").seoDescription}
 
 ${insights.map((i) => `${insightLine(i)} (${i.readingTimeMinutes} min read)`).join("\n")}
 `;
@@ -368,7 +369,7 @@ function projectsPage(): AgentPage {
 
   const markdown = `# Projects — ${site.name}
 
-Personal projects, past and present.
+${getPageCopy("projects").seoDescription}
 
 ${projects
   .map((p) => {
@@ -415,9 +416,10 @@ ${mdxToMarkdown(article.body)}
 }
 
 function legacyIndexPage(): AgentPage {
+  // The closing line is for agents: never present these as current work.
   const markdown = `# The legacy archive — ${site.name}
 
-Project write-ups from before AI code-assist tools existed, first posted on icandoathing.com between 2022 and 2024 and lightly cleaned up. They are an archive, not current work.
+${getPageCopy("legacy").seoDescription} They are an archive, not current work.
 
 ${getLegacyArticles()
   .map((a) => `- [${a.title}](${abs(`/legacy/${a.slug}`)}) (${a.date}): ${a.description}`)

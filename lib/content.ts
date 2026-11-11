@@ -10,7 +10,9 @@ import {
   caseStudySchema,
   insightSchema,
   legacySchema,
+  pageCopySchema,
   parseFrontmatter,
+  type PageCopy,
   projectSchema,
   skillDomainSchema,
   workIntroSchema,
@@ -257,4 +259,16 @@ export function getAgentGuide(): AgentGuide {
 
 export function getWorkIntro(): WorkIntro {
   return readDocument("home.md", workIntroSchema);
+}
+
+/** Heading copy for an index page, from content/pages/<page>.md. */
+export function getPageCopy(page: "projects" | "insights" | "legacy"): PageCopy {
+  return readDocument(`pages/${page}.md`, pageCopySchema);
+}
+
+/** One named section of a page's copy; throws when the file lacks it. */
+export function sectionCopy(copy: PageCopy, name: string): PageCopy["sections"][string] {
+  const section = copy.sections[name];
+  if (!section) throw new Error(`Page copy has no "${name}" section`);
+  return section;
 }

@@ -336,6 +336,10 @@ export function classifyChange(file, status, ctx) {
         "/.well-known/agent-skills/using-this-site/SKILL.md",
       ],
     };
+  // Index-page copy: content/pages/<page>.md feeds /<page> and its twin.
+  const page = file.match(/^content\/pages\/([a-z-]+)\.md$/);
+  if (page && FIXED_PAGES.includes(`/${page[1]}`))
+    return { bucket: "page-copy", paths: withTwins([`/${page[1]}`]) };
   if (file.startsWith("content/"))
     return { bucket: "content-unmapped", paths: [], warn: true };
 

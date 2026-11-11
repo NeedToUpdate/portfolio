@@ -131,6 +131,28 @@ export const workIntroSchema = z.strictObject({
   capabilities: z.array(z.strictObject({ term: text, description: text })).default([]),
 });
 
+const sectionCopy = z.strictObject({
+  eyebrow: text.optional(),
+  title: text,
+  description: text,
+  /** Link or button label, where the section ends in one. */
+  cta: text.optional(),
+});
+
+/** Heading copy for an index page. Source: content/pages/<page>.md */
+export const pageCopySchema = z.strictObject({
+  /** The <title> and social-card title. */
+  seoTitle: text,
+  /** Meta description; the markdown twin opens with it too. */
+  seoDescription: text,
+  eyebrow: text,
+  title: text,
+  description: text,
+  sections: z.record(z.string(), sectionCopy).default({}),
+});
+
+export type PageCopy = z.output<typeof pageCopySchema>;
+
 /** Parses one file's frontmatter, naming the file and field on failure. */
 export function parseFrontmatter<T extends z.ZodType>(
   schema: T,

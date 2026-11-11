@@ -8,7 +8,7 @@ import DividedList from "@/components/composites/DividedList";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import JsonLd from "@/components/ui/JsonLd";
-import { getLegacyArticles } from "@/lib/content";
+import { getLegacyArticles, getPageCopy } from "@/lib/content";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 import { formatDate } from "@/lib/format";
 
@@ -19,10 +19,11 @@ import { formatDate } from "@/lib/format";
  * breadcrumb.
  */
 
+const copy = getPageCopy("legacy");
+
 export const metadata: Metadata = pageMetadata({
-  title: "The legacy archive",
-  description:
-    "Project write-ups from before AI code-assist tools existed, first posted on icandoathing.com between 2022 and 2024 and lightly cleaned up.",
+  title: copy.seoTitle,
+  description: copy.seoDescription,
   path: "/legacy",
 });
 
@@ -50,9 +51,9 @@ export default function LegacyIndexPage() {
       />
 
       <SectionHeading
-        eyebrow="You found the archive"
-        title="Write-ups from before AI"
-        description="I wrote these between 2022 and 2024 and posted them on icandoathing.com. No AI code-assist tools existed when I built most of these projects. The best we had was IntelliSense. The articles are lightly cleaned up and otherwise left as they were."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         asPageTitle
       />
 

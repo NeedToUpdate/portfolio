@@ -9,19 +9,21 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import ArrowLink from "@/components/ui/ArrowLink";
 import JsonLd from "@/components/ui/JsonLd";
-import { getInsights } from "@/lib/content";
+import { getInsights, getPageCopy, sectionCopy } from "@/lib/content";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
 import { mailtoUrl } from "@/lib/site";
 
+const copy = getPageCopy("insights");
+
 export const metadata: Metadata = pageMetadata({
-  title: "Architecture, AI & engineering write-ups",
-  description:
-    "Write-ups on architecture, AI, and engineering decisions from real projects: RAG agents, Kubernetes platforms, AI safety, and AI-assisted delivery.",
+  title: copy.seoTitle,
+  description: copy.seoDescription,
   path: "/insights",
 });
 
 export default function InsightsPage() {
   const insights = getInsights();
+  const about = sectionCopy(copy, "about");
 
   return (
     <PageShell>
@@ -42,9 +44,9 @@ export default function InsightsPage() {
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Insights" }]} />
 
       <SectionHeading
-        eyebrow="Insights"
-        title="Write-ups from production"
-        description="Architecture, AI, and engineering decisions, written from real projects. Some write-ups include working models."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         asPageTitle
       />
       <DividedList borderTop className="mt-10">
@@ -55,13 +57,10 @@ export default function InsightsPage() {
 
       <section aria-labelledby="insights-about" className="mt-16 border-t border-line/60 pt-10">
         <Heading size="sub" id="insights-about">
-          What you&rsquo;ll find here
+          {about.title}
         </Heading>
         <Text variant="muted" className="mt-4 max-w-prose">
-          These write-ups come from three places. Some explain how I built a
-          project. Some break down a decision from client work. Some are ideas I
-          gave a client that changed how their business runs. Every one comes
-          from a real system.
+          {about.description}
         </Text>
         <div className="mt-6">
           <ArrowLink
@@ -69,7 +68,7 @@ export default function InsightsPage() {
               subject: "A problem I'd like your take on",
               body: "Hi Art,\n\nI read your write-ups. I'm working through ",
             })}
-            label="Email me about your business"
+            label={about.cta ?? "Email me"}
             nebulaShape="email"
           />
         </div>
