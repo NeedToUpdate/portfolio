@@ -45,7 +45,8 @@ jobs:
       STAGE: ${{ github.base_ref == 'main' && 'prod' || 'dev' }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_TITLE: ${{ github.event.pull_request.title }}
-      REPORT: ${{ runner.temp }}/invalidation.md
+    # The report path lives in each step's env: the runner context (and
+    # so runner.temp) is not available at the job level.
     steps:
       # Full history and tags: the diff starts at the cf-invalidated-<stage> tag.
       - uses: actions/checkout@v7
@@ -71,6 +72,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
+          REPORT: ${{ runner.temp }}/invalidation.md
         run: |
           [ -f "$REPORT" ] || exit 0
           marker='<!-- cache-invalidation-preview -->'
