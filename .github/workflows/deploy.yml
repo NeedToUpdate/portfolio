@@ -41,8 +41,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test
-        run: npm test
+      # Pull requests run the full suite (main.yml); the deploy runs only
+      # the smoke tests here and the end-to-end check after it goes out.
+      - name: Smoke tests
+        run: npm run test:smoke
 
       - name: Build
         run: npm run build
@@ -70,6 +72,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           GITHUB_TOKEN: ${{ github.token }}
+
+      # Loads the live site through CloudFront. Runs before IndexNow, so
+      # a broken deploy is never announced.
+      - name: End-to-end check
+        run: npm run e2e -- ${{ inputs.host }}
+        env:
+          BASIC_AUTH_USERNAME: ${{ inputs.stage == 'dev' && secrets.DEV_BASIC_AUTH_USERNAME || '' }}
+          BASIC_AUTH_PASSWORD: ${{ inputs.stage == 'dev' && secrets.DEV_BASIC_AUTH_PASSWORD || '' }}
 
       # Best-effort ping to IndexNow (Bing et al.) with the pages that
       # changed this deploy. Keyed off its own git tag, so it pushes a tag

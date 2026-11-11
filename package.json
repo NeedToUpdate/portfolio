@@ -8,6 +8,8 @@
     "build": "npm run images && next build",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:smoke": "jest tests/smoke.test.ts",
+    "e2e": "node scripts/e2e.mjs",
     "start": "next start -p 4400",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
