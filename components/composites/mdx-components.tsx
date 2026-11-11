@@ -12,6 +12,10 @@ import AIWorkflowTimeline from "./AIWorkflowTimeline";
 import HumanReviewLab from "./HumanReviewLab";
 import TeamGame from "./TeamGame";
 import ReleaseTrain from "./ReleaseTrain";
+import LegacyVideo from "./LegacyVideo";
+import MediaRow from "./MediaRow";
+import ProjectLink from "./ProjectLink";
+import NowWithAI from "./NowWithAI";
 import TextLink from "@/components/ui/TextLink";
 
 function MdxLink({ href = "", children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -41,4 +45,8 @@ export const mdxComponents: MDXComponents = {
   HumanReviewLab,
   TeamGame,
   ReleaseTrain,
+  LegacyVideo,
+  MediaRow,
+  ProjectLink,
+  NowWithAI,
 };

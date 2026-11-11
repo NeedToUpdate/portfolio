@@ -1,9 +1,13 @@
+import fs from "fs";
+import path from "path";
 import {
   getCareerEntries,
   getCaseStudies,
   getCaseStudy,
   getInsight,
   getInsights,
+  getLegacyArticle,
+  getLegacyArticles,
   getProjects,
   getProjectsByEra,
   getRelatedContent,
@@ -103,6 +107,49 @@ describe("content loaders", () => {
     const linked = getProjects().filter((p) => p.insightSlug);
     expect(linked.length).toBeGreaterThan(0);
     expect(linked.every((p) => insightSlugs.has(p.insightSlug!))).toBe(true);
+  });
+});
+
+describe("legacy articles", () => {
+  const articles = getLegacyArticles();
+  const slugs = new Set(articles.map((a) => a.slug));
+  const publicFile = (p: string) => path.join(process.cwd(), "public", p.replace(/^\//, ""));
+
+  it("loads every legacy article with an original url and a screenshot on disk", () => {
+    expect(articles.length).toBeGreaterThan(0);
+    for (const article of articles) {
+      expect(article.originalUrl).toMatch(/^https:\/\/icandoathing\.com/);
+      expect(fs.existsSync(publicFile(article.screenshot))).toBe(true);
+    }
+  });
+
+  it("has exactly one write-up of the site, which the origin card links to", () => {
+    expect(articles.filter((a) => a.kind === "site").map((a) => a.slug)).toEqual(["icandoathing"]);
+  });
+
+  it("resolves every project link into the legacy collection", () => {
+    const linked = getProjects().flatMap((p) => [
+      ...(p.legacySlug ? [p.legacySlug] : []),
+      ...(p.url.startsWith("/legacy/") ? [p.url.slice("/legacy/".length)] : []),
+    ]);
+    expect(linked.length).toBeGreaterThan(0);
+    expect(linked.filter((slug) => !slugs.has(slug))).toEqual([]);
+  });
+
+  it("references only media and legacy pages that exist", () => {
+    for (const { slug } of articles) {
+      const body = getLegacyArticle(slug)!.body;
+      for (const [, src] of body.matchAll(/src="(\/images\/[^"]+)"/g)) {
+        expect([slug, src, fs.existsSync(publicFile(src))]).toEqual([slug, src, true]);
+      }
+      for (const [, target] of body.matchAll(/\]\(\/legacy\/([a-z0-9-]+)\)/g)) {
+        expect([slug, target, slugs.has(target)]).toEqual([slug, target, true]);
+      }
+    }
+  });
+
+  it("no longer sends project cards to icandoathing.com posts", () => {
+    expect(getProjects().filter((p) => p.url.includes("icandoathing.com/thing"))).toEqual([]);
   });
 });
 

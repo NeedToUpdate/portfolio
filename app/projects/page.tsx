@@ -4,6 +4,7 @@ import NebulaBackground from "@/components/composites/NebulaBackground";
 import SectionHeading from "@/components/composites/SectionHeading";
 import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import ProjectCard from "@/components/composites/ProjectCard";
+import PreAiDoor from "@/components/composites/PreAiDoor";
 import JsonLd from "@/components/ui/JsonLd";
 import { getProjectsByEra } from "@/lib/content";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
@@ -58,7 +59,11 @@ export default function ProjectsPage() {
 
       <section aria-labelledby="projects-archive">
         <SectionHeading
-          eyebrow="The pre-AI archive"
+          eyebrow={
+            <span>
+              The <PreAiDoor /> archive
+            </span>
+          }
           title="Things I built by hand"
           description="Everything below predates AI-assisted development. A CPU on breadboards, a neural network library from scratch, games, robots, and tools. They stay here because they show how I learn: pick something hard, build it, ship it."
           id="projects-archive"

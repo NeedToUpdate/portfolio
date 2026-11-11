@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "./site";
-import { CaseStudy, InsightMeta } from "./types";
+import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
 
 /**
  * previewImage/diagram fields point at webp or svg source files —
@@ -171,6 +171,30 @@ export function caseStudySchema(caseStudy: CaseStudy) {
     },
     mainEntityOfPage: `${site.url}/work/${caseStudy.slug}`,
     keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs].join(", "),
+  };
+}
+
+/** A legacy article keeps its original publication date. */
+export function legacyArticleSchema(article: LegacyArticleMeta) {
+  const published = new Date(article.date).toISOString();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    name: article.title,
+    headline: article.title,
+    description: article.description,
+    datePublished: published,
+    dateModified: published,
+    inLanguage: "en-CA",
+    image: new URL(ogImagePath(article.screenshot), site.url).toString(),
+    author: {
+      "@type": "Person",
+      "@id": `${site.url}/#person`,
+      name: site.name,
+      url: site.url,
+    },
+    mainEntityOfPage: `${site.url}/legacy/${article.slug}`,
+    keywords: article.tags.join(", "),
   };
 }
 

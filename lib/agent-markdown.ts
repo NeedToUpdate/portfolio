@@ -5,6 +5,8 @@ import {
   getCaseStudy,
   getInsight,
   getInsights,
+  getLegacyArticle,
+  getLegacyArticles,
   getProjects,
   getSkillDomains,
   getWorkIntro,
@@ -56,6 +58,50 @@ export function mdxToMarkdown(body: string): string {
           .map((line) => `> ${line.trim()}`.trimEnd())
           .join("\n"),
       )
+      // A media row is an image with its text: image first, text after.
+      .replace(
+        /<MediaRow([\s\S]*?)\n>([\s\S]*?)<\/MediaRow>/g,
+        (_, attrs: string, inner: string) => {
+          const src = attrs.match(/src="([^"]*)"/)?.[1];
+          const alt = attrs.match(/alt="([^"]*)"/)?.[1] ?? "";
+          return `${src ? `![${alt}](${abs(src)})\n\n` : ""}${inner.trim()}`;
+        },
+      )
+      // The "now with AI" panel becomes a headed section: image, text, link.
+      .replace(
+        /<NowWithAI([\s\S]*?)\n>([\s\S]*?)<\/NowWithAI>/g,
+        (_, attrs: string, inner: string) => {
+          const get = (name: string) => attrs.match(new RegExp(`${name}="([^"]*)"`))?.[1];
+          const image = get("image");
+          const href = get("href");
+          return [
+            `## ${get("title") ?? "Update"} (now with AI)`,
+            image ? `![${get("imageAlt") ?? ""}](${abs(image)})` : "",
+            inner.trim(),
+            href ? `[${get("cta") ?? "Read the write-up"}](${href.startsWith("/") ? abs(href) : href})` : "",
+          ]
+            .filter(Boolean)
+            .join("\n\n");
+        },
+      )
+      // A project link card becomes a plain link, or a status line when offline.
+      .replace(/<ProjectLink([\s\S]*?)\/>/g, (_, attrs: string) => {
+        const href = attrs.match(/href="([^"]*)"/)?.[1];
+        const title = attrs.match(/title="([^"]*)"/)?.[1] ?? "Project";
+        const note = attrs.match(/note="([^"]*)"/)?.[1];
+        const tail = note ? ` ${note}` : "";
+        if (!href || /mode="offline"/.test(attrs)) return `> ${title} is no longer online.${tail}`;
+        return `> Try it: [${title}](${href.startsWith("/") ? abs(href) : href}).${tail}`;
+      })
+      // Clips in legacy articles become a labelled link to the file.
+      .replace(/<LegacyVideo([\s\S]*?)\/>/g, (_, attrs: string) => {
+        const src = attrs.match(/src="([^"]*)"/)?.[1];
+        const label = attrs.match(/label="([^"]*)"/)?.[1] ?? "Video";
+        const caption = attrs.match(/caption="([^"]*)"/)?.[1];
+        if (!src) return "";
+        const link = `[Video: ${label}](${abs(src)})`;
+        return caption ? `${link}\n\n*${caption}*` : link;
+      })
       // Interactive figures expose their nonvisual description to the
       // agent-facing Markdown in place of the browser-only controls. Any
       // self-closing component with a description prop qualifies.
@@ -279,12 +325,58 @@ Personal projects, past and present.
 ${projects
   .map((p) => {
     const stack = p.techs.length ? ` (${p.techs.join(", ")})` : "";
-    return `- [${p.title}](${p.url}): ${p.description}${stack}`;
+    // Internal write-ups (insights, legacy articles) get absolute URLs.
+    const link = p.url.startsWith("/") ? abs(p.url) : p.url;
+    const writeup = p.legacySlug ? ` Write-up: ${abs(`/legacy/${p.legacySlug}`)}` : "";
+    return `- [${p.title}](${link}): ${p.description}${stack}${writeup}`;
   })
   .join("\n")}
 `;
 
   return { title: "Projects", markdown };
+}
+
+/**
+ * A legacy article: a post ported from icandoathing.com, or the
+ * write-up of that site. Says so up front, so an agent does not
+ * present a 2022 hobby post as current work.
+ */
+function legacyPage(slug: string): AgentPage | undefined {
+  const article = getLegacyArticle(slug);
+  if (!article) return undefined;
+
+  const origin =
+    article.kind === "site"
+      ? `Legacy project: a write-up of ${article.originalUrl}, the site Art's legacy articles were first posted on.`
+      : `Legacy article: a lightly cleaned-up rewrite of a post first published on icandoathing.com. About the site: ${abs("/legacy/icandoathing")}`;
+
+  const markdown = `# ${article.title}
+
+${article.deck ? `*${article.deck}*\n\n` : ""}> ${article.description}
+
+- **${article.kind === "site" ? "Written" : "First published"}:** ${article.date}
+- **Original:** ${article.originalUrl}
+- **Tags:** ${article.tags.join(", ")}
+
+> ${origin}
+
+${mdxToMarkdown(article.body)}
+`;
+
+  return { title: article.title, markdown };
+}
+
+function legacyIndexPage(): AgentPage {
+  const markdown = `# The legacy archive — ${site.name}
+
+Project write-ups from before AI code-assist tools existed, first posted on icandoathing.com between 2022 and 2024 and lightly cleaned up. They are an archive, not current work.
+
+${getLegacyArticles()
+  .map((a) => `- [${a.title}](${abs(`/legacy/${a.slug}`)}) (${a.date}): ${a.description}`)
+  .join("\n")}
+`;
+
+  return { title: "The legacy archive", markdown };
 }
 
 function aboutPage(): AgentPage {
@@ -354,6 +446,8 @@ export function renderAgentMarkdown(path: string): AgentPage | undefined {
       return insightsIndexPage();
     case "/projects":
       return projectsPage();
+    case "/legacy":
+      return legacyIndexPage();
     case "/about":
       return aboutPage();
     case "/contact":
@@ -367,6 +461,9 @@ export function renderAgentMarkdown(path: string): AgentPage | undefined {
 
   const insight = path.match(/^\/insights\/([^/]+)$/);
   if (insight) return insightPage(insight[1]);
+
+  const legacy = path.match(/^\/legacy\/([^/]+)$/);
+  if (legacy) return legacyPage(legacy[1]);
 
   return undefined;
 }

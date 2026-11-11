@@ -173,14 +173,16 @@ textarea {
   color: rgb(var(--c-ink));
 }
 
-.prose a {
+/* Components that draw their own link (cards, buttons, image links)
+   add .unstyled-link to skip the accent colour and underline. */
+.prose a:not(.unstyled-link) {
   color: rgb(var(--c-accent));
   text-decoration: underline;
   text-decoration-color: rgb(var(--c-accent) / 0.4);
   text-underline-offset: 3px;
 }
 
-.prose a:hover {
+.prose a:not(.unstyled-link):hover {
   text-decoration-color: rgb(var(--c-accent));
 }
 

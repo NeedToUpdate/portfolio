@@ -1,0 +1,100 @@
+---
+title: "I made a motivation tool for kids in a small class"
+description: "A Minecraft-themed classroom reward system: Angular frontend, Node backend, and socket.io to keep the big screen and a phone admin panel in sync."
+deck: "This is a small website used as a motivational tool to help kids pay attention and learn. It's a Minecraft-themed reward system that allows students to get items, fight, and collect diamonds. The frontend is Angular while the backend is Node. It uses socket.io to communicate between simultaneous sessions."
+date: "2022-03-21"
+originalUrl: "https://icandoathing.com/thing/TV8vmq/i-made-a-motivation-tool-for-kids-in-a-s"
+screenshot: "/images/legacy/classroom-game/original.webp"
+tags: ["education", "angular", "minecraft", "kids", "node", "socket.io"]
+---
+
+<MediaRow
+  src="/images/legacy/classroom-game/01.webp"
+  width={1200}
+  height={588}
+  alt="Four player cards for Teacher, Bob, Jack and Alice over a Minecraft landscape, each with health, hunger and inventory slots"
+  side="left"
+>
+
+While I was a teacher in an after-school tutoring center, I had a small class of kids who really liked Minecraft. I decided to spend a week making a small tool to help them learn. Usually they liked getting stickers, but after a month of classes, they'd had enough. On their breaks they only talked about Minecraft, and that gave me an idea.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/classroom-game/02.webp"
+  width={606}
+  height={924}
+  alt="Alice's card: hearts for health, drumsticks for hunger, and an open chest holding bread, a pumpkin and boots"
+  side="right"
+  size="third"
+>
+
+A student can log in, and have their own personal inventory of items. If they do a good job or answer questions, I can give them more items, or take items away if they're misbehaving.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/classroom-game/03.webp"
+  width={375}
+  height={1200}
+  alt="The phone admin panel: a column of buttons to heal, feed, revive, shield, set on fire, damage, and give or remove items"
+  side="left"
+  size="third"
+  wrap
+>
+
+The site uses socket.io to allow anyone accessing the site to see updates in real time. Essentially this let me have their stats open on the big screen, and have the site open on my phone to use as an admin panel. (Which is hidden behind penta-clicking the site title.)
+
+This admin panel allows me to give health to students, give items, armor and weapons, or set them on fire. I can also speed up the day-night cycle, which drains their hunger. (It created a sense of urgency if needed, to get kids to focus and finish the work before class ended.)
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/classroom-game/04.webp"
+  width={560}
+  height={848}
+  alt="Bob's card with a diamond sword selected and a menu of the players he can hit"
+  side="right"
+  size="third"
+>
+
+The students could then use weapons and hit each other if they wanted. (Lots of fun.) I added a shielding option in the admin panel, allowing me to shield a student, but it never was needed.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/classroom-game/05.webp"
+  width={1148}
+  height={922}
+  alt="The Teacher card in full armor next to Bob's card, which is engulfed in flames"
+  side="left"
+>
+
+Obviously the flint and steel weapon sets the others on fire.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/classroom-game/06.webp"
+  width={1200}
+  height={728}
+  alt="A yellow prize wheel with items and monsters on its segments, next to Bob's card"
+  side="right"
+  wrap
+>
+
+They could also exchange emeralds (which is what I gave out for answering questions) to spin the wheel. The wheel could give them really rare items, or land on a monster which does damage.
+
+The site was only used for two classes of 4-5 kids, so the scope never needed to be expanded. So it has flaws. For example, you can't use this for 2 classes at the same time, and you can't have more than one student with the same name. These are very easily fixed issues though, using a channel system with socket.io: just create a class login system that logs into a specific class channel.
+
+If you want to check it out, go to the site. Log in with 'Teacher', 'Kevin' and 'Jason'. Then you need to penta-click the 'Classroom Game' text in the top right. That activates the secret admin menu. You can open the site on another device and open the secret menu, which allows you to control the logged in students on the first device.
+
+</MediaRow>
+
+<ProjectLink
+  mode="external"
+  href="https://classroom-game.artnikitin.dev"
+  title="Classroom Game"
+  note="Log in as 'Teacher', 'Kevin' and 'Jason'."
+  image="/images/legacy/classroom-game/01.webp"
+/>

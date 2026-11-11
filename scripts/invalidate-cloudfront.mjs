@@ -57,6 +57,7 @@ function makeContext() {
   return {
     insightSlugs: listSlugs("content/insights"),
     workSlugs: listSlugs("content/work"),
+    legacySlugs: listSlugs("content/legacy"),
     fileToPaths: new Map(),
   };
 }

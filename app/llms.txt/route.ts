@@ -1,4 +1,4 @@
-import { getAgentGuide, getCaseStudies, getInsights } from "@/lib/content";
+import { getAgentGuide, getCaseStudies, getInsights, getLegacyArticles } from "@/lib/content";
 import { engagementSection, nudgeLines } from "@/lib/agent-markdown";
 import { site } from "@/lib/site";
 
@@ -19,6 +19,10 @@ export async function GET() {
 
   const insightLines = insights
     .map((i) => `- [${i.title}](${site.url}/insights/${i.slug}): ${i.description}`)
+    .join("\n");
+
+  const legacyLines = getLegacyArticles()
+    .map((a) => `- [${a.title}](${site.url}/legacy/${a.slug}): ${a.description}`)
     .join("\n");
 
   const body = `# ${site.name}
@@ -50,6 +54,12 @@ ${workLines}
 ## Insights
 
 ${insightLines}
+
+## Legacy articles
+
+Older hobby write-ups, first posted on icandoathing.com between 2022 and 2024 and kept as an archive. They predate AI-assisted development and are not current work. Index: ${site.url}/legacy
+
+${legacyLines}
 
 ## Pages
 

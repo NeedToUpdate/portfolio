@@ -29,6 +29,7 @@ Everything renders from files in `content/`. No CMS.
 | `content/work/`     | Professional case studies                                | Markdown + frontmatter |
 | `content/insights/` | Insights                                                 | MDX + frontmatter      |
 | `content/projects/` | Personal projects, split by `era` (`pre-ai` / `post-ai`) | Markdown + frontmatter |
+| `content/legacy/`   | Legacy articles ported from icandoathing.com (`/legacy/<slug>`). Linked from project cards only, via a project's `url` or `legacySlug` | MDX + frontmatter      |
 
 ## Deploy prerequisites
 

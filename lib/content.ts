@@ -10,6 +10,8 @@ import {
   Engagement,
   Insight,
   InsightMeta,
+  LegacyArticle,
+  LegacyArticleMeta,
   Project,
   RelatedContent,
   SkillDomain,
@@ -155,6 +157,7 @@ export function getProjects(): Project[] {
       era: (entry.data.era as Project["era"]) ?? "pre-ai",
       nebulaShape: entry.data.nebulaShape as string | undefined,
       insightSlug: entry.data.insightSlug as string | undefined,
+      legacySlug: entry.data.legacySlug as string | undefined,
     }))
     .sort((a, b) => b.priority - a.priority);
 }
@@ -271,6 +274,33 @@ export function getInsight(slug: string): Insight | undefined {
     ...toInsightMeta(entry),
     body: entry.content,
   };
+}
+
+function toLegacyMeta(entry: ContentEntry): LegacyArticleMeta {
+  return {
+    slug: entry.slug,
+    title: requireString(entry, "title"),
+    description: requireString(entry, "description"),
+    deck: typeof entry.data.deck === "string" ? entry.data.deck : undefined,
+    date: requireString(entry, "date"),
+    originalUrl: requireString(entry, "originalUrl"),
+    screenshot: fingerprintedPath(requireString(entry, "screenshot")),
+    tags: (entry.data.tags as string[]) ?? [],
+    kind: entry.data.kind === "site" ? "site" : "post",
+  };
+}
+
+/** Legacy articles, newest original first. */
+export function getLegacyArticles(): LegacyArticleMeta[] {
+  return readCollection("legacy")
+    .map(toLegacyMeta)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getLegacyArticle(slug: string): LegacyArticle | undefined {
+  const entry = readCollection("legacy").find((e) => e.slug === slug);
+  if (!entry) return undefined;
+  return { ...toLegacyMeta(entry), body: entry.content };
 }
 
 export function getCareerEntries(): CareerEntry[] {

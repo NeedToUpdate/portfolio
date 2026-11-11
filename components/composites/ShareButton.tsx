@@ -11,7 +11,7 @@ interface ShareButtonProps {
   /** Canonical path, e.g. "/insights/ziggy". The share id is appended to it. */
   path: string;
   /** Which collection this is, recorded on the share event. */
-  contentType: "insight" | "case-study";
+  contentType: "insight" | "case-study" | "legacy";
   className?: string;
 }
 

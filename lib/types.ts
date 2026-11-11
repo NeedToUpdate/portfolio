@@ -63,6 +63,38 @@ export interface Project {
   nebulaShape?: string;
   /** Slug of an insight write-up about this project, if one exists. */
   insightSlug?: string;
+  /** Slug of a legacy article about this project, if one exists. Used
+   *  when the project also keeps an external url of its own. */
+  legacySlug?: string;
+}
+
+/**
+ * A legacy article: a post ported from icandoathing.com, or the
+ * write-up of that site itself. Source: content/legacy/*.mdx.
+ * Reached from project cards only; never listed on the home page.
+ */
+export interface LegacyArticleMeta {
+  slug: string;
+  title: string;
+  /** Short summary for meta tags. */
+  description: string;
+  /** The original post's own summary line, shown under the title. */
+  deck?: string;
+  /** When the original was first published (YYYY-MM-DD). */
+  date: string;
+  /** Where the original lived. */
+  originalUrl: string;
+  /** Screenshot of the original page: the origin card thumbnail and the
+   *  social preview. Fingerprinted by the loader, like previewImage. */
+  screenshot: string;
+  tags: string[];
+  /** "post" is a rewrite of an icandoathing.com post; "site" is the
+   *  write-up of icandoathing.com itself. */
+  kind: "post" | "site";
+}
+
+export interface LegacyArticle extends LegacyArticleMeta {
+  body: string;
 }
 
 /** Insight metadata. Source: content/insights/*.mdx frontmatter */

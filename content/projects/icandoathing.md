@@ -6,6 +6,7 @@ brightImage: true,
 techs: ["django", "vuejs", "sass"]
 url: "https://icandoathing.com"
 priority: 9
+legacySlug: "icandoathing"
 ---
 
 # The main content
