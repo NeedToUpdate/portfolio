@@ -34,6 +34,8 @@ export default function InsightsPage() {
         miniShape="helix"
         color="aurora"
         size="lg"
+        // Dims the cloud on phones, where the list runs through the gas.
+        scrim
       />
       <JsonLd
         data={breadcrumbSchema([
