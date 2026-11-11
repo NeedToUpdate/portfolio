@@ -35,6 +35,8 @@ export default function ContactPage() {
         corner="bottom-right"
         miniShape="crab"
         color="solar"
+        // Dimmed on phones like every other inner page.
+        scrim
       />
       <JsonLd
         data={breadcrumbSchema([

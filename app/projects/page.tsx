@@ -27,7 +27,15 @@ export default function ProjectsPage() {
     <PageShell>
       {/* The heading block is left-aligned; the upper-right is open
           before the card grid begins. */}
-      <NebulaBackground variant="mini" corner="top-right" miniShape="crab" color="frost" />
+      {/* The scrim dims the cloud on phones, where the cards run
+          through the gas. */}
+      <NebulaBackground
+        variant="mini"
+        corner="top-right"
+        miniShape="crab"
+        color="frost"
+        scrim
+      />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", path: "/" },
