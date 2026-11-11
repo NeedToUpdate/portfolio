@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { imageSize } from "@/lib/image-size";
 import Link from "next/link";
 import { ReactNode } from "react";
 import Heading from "@/components/ui/Heading";
@@ -23,12 +24,12 @@ interface NowWithAIProps {
  * article around it, with the site's flair colours behind it, so a
  * reader sees at a glance that this part was written later.
  *
- * <NowWithAI title="Update 6" image="/images/..." width={2114} height={1360}
+ * <NowWithAI title="Update 6" image="/images/..."
  *            imageAlt="..." href="/insights/k3s-homelab" cta="Read the write-up">
  *   text
  * </NowWithAI>
  */
-export default function NowWithAI({
+export default async function NowWithAI({
   title,
   children,
   image,
@@ -38,6 +39,7 @@ export default function NowWithAI({
   href,
   cta = "Read the write-up",
 }: NowWithAIProps) {
+  const size = image ? (width && height ? { width, height } : await imageSize(image)) : undefined;
   return (
     <section className="relative my-10 overflow-hidden rounded-2xl border border-accent/30 bg-surface shadow-[0_18px_55px_rgba(0,0,0,0.25)]">
       {/* Flair wash: plasma from the top-left, nebula from the right. */}
@@ -63,7 +65,7 @@ export default function NowWithAI({
           {title}
         </Heading>
 
-        {image && width && height && (
+        {image && size && (
           <a
             href={image}
             target="_blank"
@@ -74,8 +76,8 @@ export default function NowWithAI({
             <Image
               src={image}
               alt={imageAlt}
-              width={width}
-              height={height}
+              width={size.width}
+              height={size.height}
               sizes="(max-width: 768px) 100vw, 40rem"
               className="h-auto w-full rounded-lg border border-line/60"
             />

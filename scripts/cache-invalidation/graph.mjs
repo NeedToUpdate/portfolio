@@ -146,7 +146,10 @@ export function scopeMdxComponents(
   }
 
   const registered = new Set();
-  const objectBody = registrySource.match(/mdxComponents\s*:[^=]+?=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+  // `mdxComponents = { ... } satisfies MDXComponents;` (or with a type
+  // annotation): the object literal between the braces.
+  const objectBody =
+    registrySource.match(/mdxComponents\s*(?::[^=]+?)?=\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
   for (const name of imports.keys()) {
     if (new RegExp(`(?:^|[,\\s])${name}(?:[,\\s]|$)`, "m").test(objectBody)) registered.add(name);
   }

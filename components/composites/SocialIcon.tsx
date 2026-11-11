@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 
 type SocialIconName = "email" | "github" | "linkedin";
 
@@ -20,18 +21,10 @@ const paths: Record<SocialIconName, string> = {
 
 export default function SocialIcon({ name, className = "" }: SocialIconProps) {
   const [hovering, setHovering] = useState(false);
-  // Default to static until hydration confirms that motion is welcome.
-  const [reducedMotion, setReducedMotion] = useState(true);
+  // Static until hydration confirms that motion is welcome.
+  const reducedMotion = useReducedMotion();
   const gradientId = `${name}-social-gradient`;
   const animatedGradientId = `${name}-social-gradient-animated`;
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncPreference = () => setReducedMotion(media.matches);
-    syncPreference();
-    media.addEventListener("change", syncPreference);
-    return () => media.removeEventListener("change", syncPreference);
-  }, []);
 
   return (
     <svg

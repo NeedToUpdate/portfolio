@@ -17,10 +17,8 @@ None of that is particularly unusual. A feature can work perfectly and still nee
 
 The approach I use builds on [Skullcandy's workflow](https://redgreenrepeat.com/2021/01/22/why-i-migrated-the-team-from-gitflow-to-skullcandy/) and separates those decisions. Developers need somewhere to combine their work. The business needs to decide what goes live. QA needs to know what to test, and app support needs to know what to deploy. Giving each of those a clear place in the process makes the whole thing easier to operate.
 
-<FloatImage
+<MediaRow
   src="/images/branching-strategy-flow.svg"
-  width={1280}
-  height={760}
   alt="Feature branches fork from main and merge into dev, which auto-deploys to the DEV environment and goes no further. Selected feature branches also merge into release/REL-123, which the pipeline builds once into artifact 18427. DevOps promotes that same artifact through QA, UAT, and PROD. After release, the shipped source reconciles into main's tip, and a retrofit pull request updates release/REL-124, still in flight."
   side="none"
   caption="The whole flow. Developers integrate in dev and assemble releases; the pipeline builds once; DevOps promotes that same build."
@@ -95,11 +93,9 @@ Now when someone asks whether production received what QA tested, there is somet
 
 Connecting ticket numbers, branches, and releases to the build ID gives the whole company something to work from. Product can follow a requirement through design, development, testing, and into production. QA knows which build it tested, release management knows what was approved, and operations knows what went live and what it can roll back to. When something needs to change, that history feeds back into the next product decision. Each department has its own responsibilities, but they're all working with the same connected record. That's how the branching and release strategy becomes part of an enterprise-wide product delivery process.
 
-<FloatImage
+<MediaRow
   src="/images/sdlc-shared-spine.svg"
   alt="Product, Development, QA, and DevOps form a lifecycle around a connected ticket, code, and build. Design, approvals, test results, release, and rollback records attach to that shared core, keeping business intent connected to implementation and delivery."
-  width={1000}
-  height={1080}
   side="none"
   caption="Every team works from the same connected ticket, code, and build. Delivery feeds back into product decisions; rollback refers to a previously retained build."
 />
