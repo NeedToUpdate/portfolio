@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+import { isExternal, newTabProps } from "@/lib/links";
 
 type TextLinkVariant = "accent" | "quiet";
 
@@ -30,7 +31,7 @@ export default function TextLink({
   nebulaShape,
 }: TextLinkProps) {
   const classes = `${variantClasses[variant]} ${className}`;
-  const external = href.startsWith("http") || href.startsWith("mailto:");
+  const external = isExternal(href);
 
   if (external) {
     return (
@@ -38,7 +39,7 @@ export default function TextLink({
         href={href}
         className={classes}
         data-nebula-shape={nebulaShape}
-        {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        {...newTabProps(href)}
       >
         {children}
       </a>

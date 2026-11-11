@@ -227,6 +227,8 @@ function detailPageCollection(file, appDir) {
   return ARTICLE_COLLECTIONS.find((c) => file === `${appDir}${c.route}/[slug]/page.tsx`);
 }
 
+const ROOT_CONVENTION_FILES = ["layout.tsx", "not-found.tsx", "error.tsx", "global-error.tsx"];
+
 export function discoverRoots(ctx, appDir = "app") {
   const roots = [];
   const walk = (dir) => {
@@ -239,7 +241,9 @@ export function discoverRoots(ctx, appDir = "app") {
       const file = full.replace(/\\/g, "/");
       if (!/\.(tsx?|jsx?)$/.test(entry.name)) continue;
 
-      if (file === `${appDir}/layout.tsx` || file === `${appDir}/not-found.tsx`) {
+      // Root convention files: every page's HTML references their chunks,
+      // so editing one changes every text route.
+      if (ROOT_CONVENTION_FILES.some((name) => file === `${appDir}/${name}`)) {
         roots.push({ file, paths: fullTextPathList(ctx) });
       } else if (file === `${appDir}/sitemap.ts`) {
         roots.push({ file, paths: ["/sitemap.xml"] });
