@@ -190,6 +190,26 @@ describe("release-train model", () => {
     expect(s.retained.map((b) => b.id)).toContain(18428);
   });
 
+  it("ships a chain of riders together: A into B, B into C, then C", () => {
+    let s = run(
+      initialState(),
+      { type: "addRelease" },
+      { type: "addRelease" },
+      { type: "addFeature" },
+      { type: "select", feature: 4312, release: 123 },
+      { type: "select", feature: 4313, release: 124 },
+      { type: "merge", source: 124, dest: 123 },
+      { type: "merge", source: 123, dest: 122 },
+    );
+    expect(ticketsIn(s, 122).map((f) => f.id)).toEqual([4311, 4312, 4313]);
+
+    s = run(s, { type: "build", release: 122 }, { type: "promote", release: 122 }, { type: "promote", release: 122 }, { type: "promote", release: 122 });
+    // Before the fix, REL-124 survived riding a release that no longer existed.
+    expect(s.releases).toEqual([]);
+    expect(s.features).toEqual([]);
+    expect(s.shipped[0]!.tickets).toEqual([4311, 4312, 4313]);
+  });
+
   it("lets a rider diverge by taking a new ticket", () => {
     let s = run(
       initialState(),

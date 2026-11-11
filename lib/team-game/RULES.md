@@ -13,7 +13,7 @@ Cumulative levels. The current level sets the whole team's speed. At least 8 s a
 | Level | Speed | Unlocked by |
 | --- | --- | --- |
 | A slow start | 1x | — |
-| In the flow | 2x | 12 s of calm: no pushing, no measuring, nobody stuck |
+| In the flow | 2x | 12 s of calm: no pushing or recovering from a push, no measuring. A stuck dev does not break the calm. |
 | Friends-ish | 3x | rapport 0.4 |
 | Friendly competition | 5x | rapport 0.7 |
 | Right people, right work | 7x | all five strengths revealed |
@@ -34,7 +34,7 @@ Waiting is the judgment call. Stuck past 10 s, morale drains fast; it recovers a
 - **Click a stuck dev**: unblock. Under 1.5 s teaches nothing; later gives rapport.
 - **Move ticket** (on a stuck dev): hands the ticket off. If another dev is the expert for that area, it pays: rapport for both, and one proof toward that expert's reveal. Otherwise it does nothing an unblock would not.
 - **Push the team** (toggle): current speed × 1.1 while on, × 0.8 for twice as long after.
-- **Measure the team** (toggle): no instant slowdown. The velocity stat fills in, and estimates inflate the longer the dashboard stays up (2× at first, and they keep growing), so velocity climbs and climbs. Meanwhile the room talks less: rapport and morale drain, morale cannot recover, and rapport-built levels slip back down one at a time. Fewer real features ship, so customer happiness falls the whole time.
+- **Measure the team** (toggle): no instant slowdown. The velocity stat fills in, and estimates inflate the longer the dashboard stays up (2× at first, and they keep growing), so velocity climbs for as long as tickets ship. Left alone, a measured team gets stuck for good one dev at a time; once nothing ships, velocity falls back to 0. Meanwhile the room talks less: rapport and morale drain, morale cannot recover, and rapport-built levels slip back down one at a time. Fewer real features ship, so customer happiness falls the whole time.
 - **Rally the team**: appears at 7x. Sets 10x.
 
 While pushing, recovering, or measuring, nothing improves: no calm, no rapport, no reveals.
