@@ -7,6 +7,10 @@
 // (non-shallow) git checkout with tags. --dry-run computes and prints
 // everything but never calls AWS or moves the tag.
 //
+// On a pull request, the Tests workflow runs a dry run against the merge
+// commit as a preview. PR_NUMBER and PR_TITLE name the PR, and
+// INVALIDATION_REPORT_FILE collects the report for the PR comment.
+//
 // Mapping logic lives in scripts/cache-invalidation/: map.mjs holds the
 // content/asset rules and route topology, graph.mjs resolves changed
 // source files to the routes that render them via the import graph.
@@ -34,6 +38,9 @@ if (STAGE !== "dev" && STAGE !== "prod") {
 }
 
 const TAG = `cf-invalidated-${STAGE}`;
+const PR_NUMBER = process.env.PR_NUMBER;
+const PR_TITLE = process.env.PR_TITLE;
+const PREVIEW = DRY_RUN && Boolean(PR_NUMBER);
 const STACK_NAME = `portfolio-${STAGE}`;
 
 function git(args) {
@@ -117,6 +124,11 @@ async function computeInvalidation() {
 }
 
 async function findSkipMarker(shas) {
+  // A preview's own PR is not merged yet, so the API can't find it from
+  // a commit. Its title is checked directly.
+  if (PREVIEW && PR_TITLE?.includes(SKIP_MARKER)) {
+    return { prNumber: PR_NUMBER, prTitle: PR_TITLE };
+  }
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPOSITORY;
   if (!token || !repo || shas.length === 0) return null;
@@ -172,14 +184,22 @@ function moveTag() {
 function report(lines) {
   const text = lines.join("\n") + "\n";
   process.stdout.write(text);
-  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
-  if (summaryFile) appendFileSync(summaryFile, text);
+  for (const file of [process.env.GITHUB_STEP_SUMMARY, process.env.INVALIDATION_REPORT_FILE]) {
+    if (file) appendFileSync(file, text);
+  }
 }
 
 async function main() {
   const { paths, matches, warnings, commitRange } = await computeInvalidation();
 
-  const lines = [`## CloudFront invalidation — ${STAGE}${DRY_RUN ? " (dry run)" : ""}`, ""];
+  const lines = PREVIEW
+    ? [
+        `## CloudFront invalidation preview: ${STAGE}`,
+        "",
+        `What the ${STAGE} deploy will invalidate once this PR merges: the diff from \`${TAG}\` to this PR's merge commit. It updates on every push.`,
+        "",
+      ]
+    : [`## CloudFront invalidation — ${STAGE}${DRY_RUN ? " (dry run)" : ""}`, ""];
 
   if (matches.length > 0) {
     lines.push("**Matched files:**");
@@ -218,7 +238,7 @@ async function main() {
   }
 
   if (DRY_RUN) {
-    lines.push("Dry run — not calling AWS, not moving the tag.");
+    lines.push(PREVIEW ? "Preview only. Nothing is invalidated until the deploy runs." : "Dry run — not calling AWS, not moving the tag.");
     report(lines);
     return;
   }
