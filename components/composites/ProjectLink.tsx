@@ -17,6 +17,11 @@ interface ProjectLinkProps {
   note?: string;
   /** Thumbnail, a path under /public. */
   image: string;
+  /** The detail to centre in the thumbnail, as a CSS position ("70% 25%").
+   *  A whole screenshot is unreadable at 64px; frame one part of it. */
+  focus?: string;
+  /** How far to zoom in on the focus point; 1 shows the whole image. */
+  zoom?: number;
   /** Overrides the button text, e.g. "View the code". */
   label?: string;
 }
@@ -36,6 +41,8 @@ export default function ProjectLink({
   note,
   image,
   label,
+  focus = "50% 50%",
+  zoom = 1,
 }: ProjectLinkProps) {
   const offline = mode === "offline" || !href;
   const external = mode === "external";
@@ -48,10 +55,14 @@ export default function ProjectLink({
           src={image}
           alt=""
           fill
-          // Asks for far more pixels than the 64px circle shows: a whole
-          // screenshot squeezed this small turns to mush at its true size,
-          // and stays crisp when the browser scales a larger one down.
-          sizes="256px"
+          // Asks for far more pixels than the 64px circle shows, scaled
+          // by the zoom: the framed detail stays crisp at any density.
+          sizes={`${Math.round(256 * zoom)}px`}
+          style={{
+            objectPosition: focus,
+            transform: zoom === 1 ? undefined : `scale(${zoom})`,
+            transformOrigin: focus,
+          }}
           className={`object-cover ${offline ? "opacity-40 grayscale" : ""}`}
         />
       </span>

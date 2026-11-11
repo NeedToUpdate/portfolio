@@ -40,6 +40,14 @@ const nextConfig = {
   },
 
   async headers() {
+    // 'unsafe-inline' stays, for scripts and styles, on purpose. A nonce
+    // must be unique per response, and Next only stamps nonces into
+    // dynamically rendered pages; these pages are statically generated
+    // and cached at CloudFront, so a nonce would mean rendering every
+    // request at the Lambda. Hashes don't fit either: the inline RSC
+    // payload scripts differ per page and per build. inlineCss puts each
+    // page's stylesheet in a <style> tag, which style-src must allow.
+    // Revisit if the site ever renders dynamically.
     const scriptSources = ["'self'", "'unsafe-inline'"];
 
     // React's development tooling uses eval to reconstruct cross-environment
