@@ -28,10 +28,9 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function LegacyIndexPage() {
-  const all = getLegacyArticles();
-  // The write-up of the site leads; the posts follow, most recently
-  // built project first.
-  const articles = [...all.filter((a) => a.kind === "site"), ...all.filter((a) => a.kind !== "site")];
+  // Most recently built project first. The write-up of the site sorts
+  // with the rest, by the month the site was built.
+  const articles = getLegacyArticles();
 
   return (
     <PageShell>
