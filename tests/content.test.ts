@@ -126,6 +126,18 @@ describe("legacy articles", () => {
     }
   });
 
+  it("dates every project by a real month, no later than its write-up", () => {
+    for (const article of articles) {
+      expect([article.slug, article.built]).toEqual([article.slug, expect.stringMatching(/^\d{4}-(0[1-9]|1[0-2])$/)]);
+      expect([article.slug, article.built <= article.date.slice(0, 7)]).toEqual([article.slug, true]);
+    }
+  });
+
+  it("lists the most recently built project first", () => {
+    const built = articles.map((a) => a.built);
+    expect(built).toEqual([...built].sort().reverse());
+  });
+
   it("has exactly one write-up of the site, which the origin card links to", () => {
     expect(articles.filter((a) => a.kind === "site").map((a) => a.slug)).toEqual(["icandoathing"]);
   });

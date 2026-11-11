@@ -21,7 +21,7 @@ interface NebulaBackgroundProps {
    * transparent canvas, tucked into a corner over the DOM starfield.
    */
   variant?: NebulaVariant;
-  /** Where the mini cloud sits (mini only). */
+  /** Where the mini cloud sits: a corner or a side edge (mini only). */
   corner?: NebulaCorner;
   /** Structural profile for the mini cloud. Defaults to random. */
   miniShape?: NebulaMiniShape;
@@ -30,7 +30,7 @@ interface NebulaBackgroundProps {
   /** Decorative mini footprint. Defaults to a larger medium. */
   size?: NebulaMiniSize;
   /**
-   * Phone-only dark veil over the cloud's corner (mini only). For pages
+   * Phone-only dark veil over the cloud (mini only). For pages
    * whose text column runs full-bleed on phones and so scrolls straight
    * through the gas. Fades in with the canvas, so a device without
    * WebGL never shows a veil with nothing under it.
@@ -49,12 +49,14 @@ interface NebulaBackgroundProps {
 // readable where it crosses the gas. Sized to fade out before the
 // opposite edges: the rest of the starfield keeps its full contrast.
 // The gradient is the .nebula-scrim utility in styles/globals.css; each
-// corner only moves its anchor. Literal classes so Tailwind sees them.
+// position only moves its anchor. Literal classes so Tailwind sees them.
 const MINI_SCRIM: Record<NebulaCorner, string> = {
   "top-left": "nebula-scrim [--scrim-at:8%_18%]",
   "top-right": "nebula-scrim [--scrim-at:92%_18%]",
   "bottom-left": "nebula-scrim [--scrim-at:8%_82%]",
   "bottom-right": "nebula-scrim [--scrim-at:92%_82%]",
+  "mid-left": "nebula-scrim [--scrim-at:8%_50%]",
+  "mid-right": "nebula-scrim [--scrim-at:92%_50%]",
 };
 
 /**

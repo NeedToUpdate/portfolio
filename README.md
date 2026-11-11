@@ -58,16 +58,18 @@ Preview images (`previewImage`, `diagram`, `screenshot`) are served under a cont
 
 `/legacy` lists the old icandoathing.com write-ups. Nothing in the navigation links to it. The way in is an easter egg: on `/projects`, the word "pre-AI" in the archive heading is a link (`components/composites/PreAiDoor.tsx`). It looks like plain text until a hover lingers. Legacy articles are also reachable from their project cards and the sitemap.
 
+A legacy article carries two dates. `built` (`YYYY-MM`) is the month the project was made: the archive shows it and sorts by it. `date` is the day the post first went up on icandoathing.com: the origin card and the structured data use it. Without `built`, the post's month stands in.
+
 ## MDX components
 
 Insights and legacy articles can use these without importing them (`components/composites/mdx-components.tsx`). Every component must also declare its markdown form in `lib/agent-markdown.ts`; the type and a test enforce it. A test compiles every MDX file and fails on any component name the registry doesn't know.
 
 | Component | Use |
 | --------- | --- |
-| `MediaRow` | An image. With children, the text sits beside it (`side`, `size`, `wrap` to float long text around it). Without children, a standalone figure: `side="none"` for full width, `left`/`right` to float it. Width and height are read from the file. |
+| `MediaRow` | An image. With children, the text sits beside it (`side`, `size`, `wrap` to float long text around it). Without children, a standalone figure: `side="none"` for full width, `left`/`right` to float it. Width and height are read from the file. A click enlarges the image over the page (`ImageLightbox`). |
 | `VideoFigure` | A clip the reader starts. Give it the `.webm`; an `.mp4` fallback and a `.poster.webp` frame must sit beside it under the same name. |
 | `ProjectLink` | The "go and use it" bar: `mode` external, internal, or offline. `focus` and `zoom` frame a detail of the screenshot in the 64px thumbnail. Offline with `slides`, the bar's button opens it into a slideshow, each screenshot named in a corner tag: `[src, name]` or `[src, name, group]`. |
-| `NowWithAI` | A highlighted update panel with an optional image and a link to the newer write-up. |
+| `NowWithAI` | An update section whose heading carries a "Now with AI" tag, with an optional image and a link to the newer write-up. |
 | `Note`, `Card` | An aside, and a boxed block. |
 | `ReleaseTrain`, `TeamGame`, `HumanReviewLab`, and the other demos | Interactive figures. Give each a `description`: it stands in for the figure in the markdown twin. |
 

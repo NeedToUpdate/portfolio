@@ -9,6 +9,12 @@ export function formatDate(iso: string): string {
   });
 }
 
+/** Formats a month ("2019-05", or any ISO date in it) as "May 2019". */
+export function formatMonth(iso: string): string {
+  const date = new Date(`${iso.slice(0, 7)}-01T00:00:00Z`);
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "long", timeZone: "UTC" });
+}
+
 /**
  * Splits markdown at the first line matching a heading exactly, so a
  * page can slot an element between sections (e.g. the architecture

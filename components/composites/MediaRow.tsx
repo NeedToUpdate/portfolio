@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ReactNode } from "react";
 import { imageSize } from "@/lib/image-size";
+import ImageLightbox from "./ImageLightbox";
 
 interface MediaRowProps {
   src: string;
@@ -32,13 +33,14 @@ interface MediaRowProps {
  * An image in an MDX article, with or without its own text.
  *
  * With children, the text sits in a column beside the image, or with
- * `wrap` flows around it; it stacks image-over-text on phones, and the
- * image opens full size in a new tab:
+ * `wrap` flows around it; it stacks image-over-text on phones:
  *   <MediaRow src="..." alt="..." side="right">text</MediaRow>
  *
  * Without children it is a standalone figure: full width with
  * side="none", or floated left/right so the paragraphs after it wrap:
  *   <MediaRow src="..." alt="..." side="none" caption="..." />
+ *
+ * Either way, a click enlarges the image over the page (ImageLightbox).
  */
 export default function MediaRow({
   src,
@@ -68,15 +70,17 @@ export default function MediaRow({
     const resolvedWidth = widthClass ?? (floating ? "md:w-64" : "");
     return (
       <figure className={`my-4 w-full ${resolvedWidth} ${floatClass}`}>
-        <Image
-          src={src}
-          alt={alt}
-          width={intrinsic.width}
-          height={intrinsic.height}
-          unoptimized={unoptimized}
-          sizes={floating ? "(max-width: 768px) 100vw, 20rem" : "(max-width: 768px) 100vw, 48rem"}
-          className="h-auto w-full rounded-lg border border-line/60"
-        />
+        <ImageLightbox src={src} alt={alt} width={intrinsic.width} height={intrinsic.height}>
+          <Image
+            src={src}
+            alt={alt}
+            width={intrinsic.width}
+            height={intrinsic.height}
+            unoptimized={unoptimized}
+            sizes={floating ? "(max-width: 768px) 100vw, 20rem" : "(max-width: 768px) 100vw, 48rem"}
+            className="h-auto w-full rounded-lg border border-line/60"
+          />
+        </ImageLightbox>
         {caption && <figcaption>{caption}</figcaption>}
       </figure>
     );
@@ -85,13 +89,7 @@ export default function MediaRow({
   const placement = side === "right" ? "right" : "left";
   const figure = (className: string) => (
     <figure className={className}>
-      <a
-        href={src}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Open full image: ${alt}`}
-        className="unstyled-link relative block"
-      >
+      <ImageLightbox src={src} alt={alt} width={intrinsic.width} height={intrinsic.height}>
         <Image
           src={src}
           alt={alt}
@@ -110,7 +108,7 @@ export default function MediaRow({
             Click to enlarge
           </span>
         )}
-      </a>
+      </ImageLightbox>
       {caption && <figcaption>{caption}</figcaption>}
     </figure>
   );

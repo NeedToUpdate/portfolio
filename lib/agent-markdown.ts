@@ -411,6 +411,7 @@ function legacyPage(slug: string): AgentPage | undefined {
 
 ${article.deck ? `*${article.deck}*\n\n` : ""}> ${article.description}
 
+- **Built:** ${article.built}
 - **${article.kind === "site" ? "Written" : "First published"}:** ${article.date}
 - **Original:** ${article.originalUrl}
 - **Tags:** ${article.tags.join(", ")}
@@ -430,7 +431,7 @@ function legacyIndexPage(): AgentPage {
 ${getPageCopy("legacy").seoDescription} They are an archive, not current work.
 
 ${getLegacyArticles()
-  .map((a) => `- [${a.title}](${abs(`/legacy/${a.slug}`)}) (${a.date}): ${a.description}`)
+  .map((a) => `- [${a.title}](${abs(`/legacy/${a.slug}`)}) (built ${a.built}): ${a.description}`)
   .join("\n")}
 `;
 

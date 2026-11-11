@@ -9,7 +9,7 @@ import ShareButton from "@/components/composites/ShareButton";
 import TextLink from "@/components/ui/TextLink";
 import { getLegacyArticle, getLegacyArticles } from "@/lib/content";
 import { articleMetadata, legacySeo } from "@/lib/seo";
-import { formatDate } from "@/lib/format";
+import { formatMonth } from "@/lib/format";
 
 /**
  * A legacy article: a post ported from icandoathing.com, or the
@@ -50,10 +50,9 @@ export default async function LegacyArticlePage({ params }: PageProps) {
       nebula={
         <NebulaBackground
           variant="mini"
-          corner="bottom-left"
-          miniShape="orion"
-          color="frost"
-          size="phone-xl"
+          corner="mid-left"
+          miniShape="helix"
+          color="rose"
           scrim
         />
       }
@@ -68,9 +67,11 @@ export default async function LegacyArticlePage({ params }: PageProps) {
           </p>
         }
         meta={
+          // The project's date, not the post's: most of these were built
+          // long before they were written up. The origin card below
+          // carries the post date.
           <span>
-            {isSite ? "Written " : "First posted on icandoathing.com, "}
-            <time dateTime={article.date}>{formatDate(article.date)}</time>
+            Built <time dateTime={article.built}>{formatMonth(article.built)}</time>
           </span>
         }
         after={<LegacyOriginCard article={article} />}

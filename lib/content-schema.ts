@@ -17,6 +17,10 @@ const text = z.string().trim().min(1);
 const DATE_MESSAGE = "expected a quoted \"YYYY-MM-DD\" date";
 const isoDate = z.string({ error: DATE_MESSAGE }).regex(/^\d{4}-\d{2}-\d{2}$/, DATE_MESSAGE);
 
+/** A month with no day, for dates only known roughly. */
+const MONTH_MESSAGE = "expected a quoted \"YYYY-MM\" month";
+const yearMonth = z.string({ error: MONTH_MESSAGE }).regex(/^\d{4}-(0[1-9]|1[0-2])$/, MONTH_MESSAGE);
+
 const textList = z.array(text).default([]);
 
 /** A glyph the nebula can draw. An unknown key draws nothing. */
@@ -78,6 +82,8 @@ export const legacySchema = z.strictObject({
   description: text,
   deck: text.optional(),
   date: isoDate,
+  // When the project was built, which is often years before the post.
+  built: yearMonth.optional(),
   originalUrl: z.url(),
   screenshot: imagePath,
   tags: textList,

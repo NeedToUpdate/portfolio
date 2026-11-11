@@ -11,6 +11,8 @@
 # next.js
 /.next/
 /out/
+# SWC's plugin cache; the compiler recreates it on demand.
+/.swc/
 
 # production
 /build
