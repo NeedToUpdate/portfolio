@@ -279,8 +279,15 @@ function promote(s: State, releaseId: number): void {
     return;
   }
   // Live. Reconcile main, archive the branches, retrofit the rest.
-  // Riders merged into this release reach production with it.
-  const riders = s.releases.filter((r) => r.riding === releaseId);
+  // Riders merged into this release reach production with it, and so do
+  // their own riders: merge A into B, then B into C, and shipping C
+  // ships all three.
+  const riders: Release[] = [];
+  for (let carriers = [releaseId]; carriers.length > 0; ) {
+    const next = s.releases.filter((r) => r.riding !== null && carriers.includes(r.riding) && !riders.includes(r));
+    riders.push(...next);
+    carriers = next.map((r) => r.id);
+  }
   const gone = [releaseId, ...riders.map((r) => r.id)];
   const tickets = s.features.filter((f) => f.releases.includes(releaseId));
   for (const f of s.features) f.releases = f.releases.filter((id) => !gone.includes(id));
