@@ -58,8 +58,8 @@ const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number
 };
 
 const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
-// The pool "random" draws from. Rose and sepia stay out of it: they
-// belong to the legacy pages.
+// The pool "random" draws from. Rose and amethyst stay out of it:
+// they belong to the legacy pages.
 const MINI_COLORS: Exclude<MiniPaletteName, "profile">[] = ["aurora", "solar", "frost"];
 
 export const jitter = () => (Math.random() - 0.5) * 0.06;

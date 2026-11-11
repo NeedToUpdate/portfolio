@@ -34,14 +34,14 @@ export default function LegacyIndexPage() {
 
   return (
     <PageShell>
-      {/* Sepia on the right edge: a colour and a position no other page
-          uses. The scrim dims it on phones, where the list runs
-          through the gas. */}
+      {/* Violet arcs on the right edge: a colour and a position no
+          other page uses. The scrim dims it on phones, where the list
+          runs through the gas. */}
       <NebulaBackground
         variant="mini"
         corner="mid-right"
-        miniShape="crab"
-        color="sepia"
+        miniShape="orion"
+        color="amethyst"
         size="lg"
         scrim
       />
