@@ -42,7 +42,7 @@ const CORTICES: { id: CortexId; label: string }[] = [
 /** Pick a sample message and watch the prefrontal lobe route it. */
 export default function BrainRouterDemo() {
   const [index, setIndex] = useState(0);
-  const message = MESSAGES[index];
+  const message = MESSAGES[index]!;
 
   return (
     <InteractiveFigure prompt="pick a message" caption="Every message passes through one router before it reaches a specialized cortex.">

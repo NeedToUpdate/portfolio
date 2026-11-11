@@ -6,7 +6,7 @@
  * only mounts it.
  */
 import { generateParticles, type CloudSpec, type ParticleBuffers } from "./particles";
-import { NebulaRenderer, type NebulaLayerVisibility } from "./renderer";
+import { NebulaRenderer, type NebulaLayerVisibility, type NebulaSeed } from "./renderer";
 import { buildClouds, type NebulaSceneOptions } from "./scene";
 import { attachPointerInput, createMotion, stepMotion } from "./motion";
 import { attachShapeHover, createShapeTargeter } from "./hover";
@@ -183,7 +183,7 @@ export function mountNebula(
       return;
     }
 
-    const seed = [Math.random(), Math.random(), Math.random(), Math.random()];
+    const seed: NebulaSeed = [Math.random(), Math.random(), Math.random(), Math.random()];
 
     // Particle buffers, prebuilt by the worker in the common case. The
     // sync path covers a worker that failed to spawn or crashed.

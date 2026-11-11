@@ -26,7 +26,7 @@ describe("content loaders", () => {
   });
 
   it("finds a case study by slug", () => {
-    const first = getCaseStudies()[0];
+    const first = getCaseStudies()[0]!;
     expect(getCaseStudy(first.slug)?.title).toBe(first.title);
   });
 
@@ -65,7 +65,7 @@ describe("content loaders", () => {
   it("loads insights with computed reading time", () => {
     const insights = getInsights();
     expect(insights.length).toBeGreaterThan(0);
-    expect(insights[0].readingTimeMinutes).toBeGreaterThanOrEqual(1);
+    expect(insights[0]!.readingTimeMinutes).toBeGreaterThanOrEqual(1);
   });
 
   it("loads a full insight body by slug", () => {
@@ -143,10 +143,10 @@ describe("legacy articles", () => {
     for (const { slug } of articles) {
       const body = getLegacyArticle(slug)!.body;
       for (const [, src] of body.matchAll(/src="(\/images\/[^"]+)"/g)) {
-        expect([slug, src, fs.existsSync(publicFile(src))]).toEqual([slug, src, true]);
+        expect([slug, src, fs.existsSync(publicFile(src!))]).toEqual([slug, src, true]);
       }
       for (const [, target] of body.matchAll(/\]\(\/legacy\/([a-z0-9-]+)\)/g)) {
-        expect([slug, target, slugs.has(target)]).toEqual([slug, target, true]);
+        expect([slug, target, slugs.has(target!)]).toEqual([slug, target, true]);
       }
     }
   });
@@ -161,7 +161,7 @@ describe("structured identity", () => {
     const personId = personSchema()["@id"];
     expect(personId).toBe("https://artnikitin.dev/#person");
     expect(websiteSchema().author["@id"]).toBe(personId);
-    expect(articleSchema(insightSeo(getInsights()[0])).author["@id"]).toBe(personId);
-    expect(articleSchema(caseStudySeo(getCaseStudies()[0])).author["@id"]).toBe(personId);
+    expect(articleSchema(insightSeo(getInsights()[0]!)).author["@id"]).toBe(personId);
+    expect(articleSchema(caseStudySeo(getCaseStudies()[0]!)).author["@id"]).toBe(personId);
   });
 });

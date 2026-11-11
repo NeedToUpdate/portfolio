@@ -44,7 +44,8 @@ describe("MDX content", () => {
     const missing: string[] = [];
     for (const file of Object.keys(report)) {
       const source = fs.readFileSync(file, "utf8");
-      for (const [, src] of source.matchAll(/<VideoFigure[\s\S]*?src="([^"]+)"/g)) {
+      for (const match of source.matchAll(/<VideoFigure[\s\S]*?src="([^"]+)"/g)) {
+        const src = match[1]!;
         const { mp4, poster } = videoCompanions(src);
         for (const asset of [src, mp4, poster]) {
           if (!fs.existsSync(path.join("public", asset))) missing.push(`${file}: ${asset}`);

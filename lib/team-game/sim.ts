@@ -128,7 +128,7 @@ const BURST_TALK = ["watch this", "half the lines", "check this out", "one sec"]
 const EXPLAIN_TALK = ["because…", "look here", "so basically", "old migration thing"];
 
 function pickFrom(game: Game, pool: readonly string[]): string {
-  return pool[pick(game.rng, pool.length)];
+  return pool[pick(game.rng, pool.length)]!;
 }
 
 /** What a stuck ticket looks like from the outside. */
@@ -256,12 +256,12 @@ export function createGame(seed: number): Game {
   // Shuffle strengths so the specialties land on different people per seed.
   for (let i = strengths.length - 1; i > 0; i -= 1) {
     const j = pick(rng, i + 1);
-    [strengths[i], strengths[j]] = [strengths[j], strengths[i]];
+    [strengths[i], strengths[j]] = [strengths[j]!, strengths[i]!];
   }
   const devs: Dev[] = Array.from({ length: 5 }, (_, id) => ({
     id,
-    name: pool.splice(pick(rng, pool.length), 1)[0],
-    strength: strengths[id],
+    name: pool.splice(pick(rng, pool.length), 1)[0]!,
+    strength: strengths[id]!,
     revealed: false,
     demos: 0,
     shippedCount: 0,
@@ -320,7 +320,7 @@ export function createGame(seed: number): Game {
 }
 
 function ticketValue(rng: () => number): number {
-  return [1, 2, 3, 5][pick(rng, 4)];
+  return [1, 2, 3, 5][pick(rng, 4)]!;
 }
 
 function addEvent(game: Game, text: string, kind: GameEvent["kind"] = "info"): void {
@@ -392,7 +392,7 @@ function chat(game: Game, dev: Dev): void {
   game.lastTouch = game.time;
   dev.state = "chatting";
   dev.until = game.time + T.chatSecs;
-  say(game, dev, SMALL_TALK[pick(game.rng, SMALL_TALK.length)], T.chatSecs);
+  say(game, dev, pickFrom(game, SMALL_TALK), T.chatSecs);
   if (trapped(game)) return; // Nobody opens up while the dashboard is watching.
   game.rapport = Math.min(1, game.rapport + T.chatRapport);
 }
@@ -490,7 +490,7 @@ export function revealedCount(game: Game): number {
  *  no factor at all; its cost arrives through rapport, morale, and the
  *  level sliding back down. */
 export function speed(game: Game): number {
-  const base = LEVELS[game.level].mult;
+  const base = LEVELS[game.level]!.mult;
   let factor = 1;
   if (game.push) factor = T.pushSpeed;
   else if (game.debt > 0) factor = T.debtSpeed;
@@ -551,7 +551,7 @@ export function step(game: Game, dt: number): void {
   game.happiness = Math.max(T.happinessFloor, game.happiness - T.happinessDecayPerSec * dt);
   // The velocity reading only exists while someone is measuring.
   const window = T.daySecs * T.velocityWindowDays;
-  while (game.recentShips.length > 0 && game.recentShips[0].time < game.time - window) {
+  while (game.recentShips.length > 0 && game.recentShips[0]!.time < game.time - window) {
     game.recentShips.shift();
   }
   if (game.measure) {
@@ -572,8 +572,8 @@ function beginStuck(game: Game, dev: Dev): void {
   let domain: Domain;
   const unproven = game.devs.filter((d) => !d.revealed).map((d) => d.strength);
   if (game.rng() < T.ownStuckBias) domain = dev.strength;
-  else if (unproven.length > 0 && game.rng() < 0.75) domain = unproven[pick(game.rng, unproven.length)];
-  else domain = DOMAINS[pick(game.rng, DOMAINS.length)];
+  else if (unproven.length > 0 && game.rng() < 0.75) domain = unproven[pick(game.rng, unproven.length)]!;
+  else domain = DOMAINS[pick(game.rng, DOMAINS.length)]!;
   const own = domain === dev.strength;
   dev.state = "stuck";
   dev.stuckAt = game.time;
@@ -742,15 +742,15 @@ function tickLadder(game: Game, dt: number): void {
   // ladder comes back down, one level at a time. Falling works even while
   // the dashboard is up; only climbing is frozen.
   const holds = [0, 0, T.rapportForFriends, T.rapportForCompetition, T.rapportForCompetition, T.rapportForCompetition];
-  if (game.level >= 2 && game.rapport < holds[game.level] - 0.02) {
+  if (game.level >= 2 && game.rapport < holds[game.level]! - 0.02) {
     if (game.level === 5) game.rallied = false;
     game.level -= 1;
     game.levelAt = game.time;
     addEvent(
       game,
       game.measure
-        ? `People talk less under the dashboard. Back to ${LEVELS[game.level].mult}x.`
-        : `The room drifted apart. Back to ${LEVELS[game.level].mult}x.`,
+        ? `People talk less under the dashboard. Back to ${LEVELS[game.level]!.mult}x.`
+        : `The room drifted apart. Back to ${LEVELS[game.level]!.mult}x.`,
       "bad",
     );
     return;
@@ -762,7 +762,7 @@ function tickLadder(game: Game, dt: number): void {
   } else if (game.level === 1 && game.rapport >= T.rapportForFriends) {
     levelUp(game, "The waterslide conversation happened. They are friends-ish now. 3x.");
   } else if (game.level === 2 && game.rapport >= T.rapportForCompetition) {
-    const dev = game.devs[pick(game.rng, 5)];
+    const dev = game.devs[pick(game.rng, 5)]!;
     levelUp(game, `${dev.name} rewrote it in half the lines, then showed everyone how. 5x.`);
   } else if (game.level === 3 && revealedCount(game) === 5) {
     levelUp(game, "You know what each person is exceptional at, and the work shows it. 7x.");
@@ -791,7 +791,7 @@ function tickAmbience(game: Game): void {
     game.nextPeerChat = game.time + T.peerChatEverySecs * (0.7 + game.rng() * 0.6);
     const pair = game.devs.filter((d) => d.state === "working");
     if (pair.length >= 2) {
-      const a = pair[pick(game.rng, pair.length)];
+      const a = pair[pick(game.rng, pair.length)]!;
       say(game, a, pickFrom(game, SMALL_TALK), T.peerChatSecs);
       if (attended(game)) game.rapport = Math.min(1, game.rapport + 0.01);
     }

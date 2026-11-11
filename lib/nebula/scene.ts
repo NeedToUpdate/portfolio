@@ -89,10 +89,10 @@ export function buildClouds({
   const [miniX, miniY] = MINI_CORNERS[corner];
   const pickedMiniShape =
     miniShape === "random"
-      ? MINI_PROFILES[Math.floor(Math.random() * MINI_PROFILES.length)]
+      ? MINI_PROFILES[Math.floor(Math.random() * MINI_PROFILES.length)]!
       : miniShape;
   const pickedMiniColor =
-    color === "random" ? MINI_COLORS[Math.floor(Math.random() * MINI_COLORS.length)] : color;
+    color === "random" ? MINI_COLORS[Math.floor(Math.random() * MINI_COLORS.length)]! : color;
   return isDemo
     ? [{ x: 0.5, y: 0.5, radius: 0.34, profile: "helix", count: 15000 }]
     : isMini

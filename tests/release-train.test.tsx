@@ -186,7 +186,7 @@ describe("release-train model", () => {
     s = run(s, { type: "build", release: 122 }, { type: "promote", release: 122 }, { type: "promote", release: 122 }, { type: "promote", release: 122 });
     expect(s.releases).toEqual([]);
     expect(s.features).toEqual([]);
-    expect(s.shipped[0].tickets).toEqual([4311, 4312]);
+    expect(s.shipped[0]!.tickets).toEqual([4311, 4312]);
     expect(s.retained.map((b) => b.id)).toContain(18428);
   });
 
@@ -276,8 +276,8 @@ describe("release-train model", () => {
       // Mostly real ids, sometimes one that does not exist.
       const known = [...state.releases.map((rel) => rel.id), 999];
       const features = state.features;
-      const r = () => known[pick(rng, known.length)];
-      const f = () => (features.length ? features[pick(rng, features.length)].id : 1);
+      const r = () => known[pick(rng, known.length)]!;
+      const f = () => (features.length ? features[pick(rng, features.length)]!.id : 1);
       const options: Command[] = [
         { type: "addFeature" },
         { type: "addRelease" },
@@ -293,7 +293,7 @@ describe("release-train model", () => {
         { type: "resetDev" },
         { type: "toggle", target: rng() < 0.5 ? "dev" : r() },
       ];
-      state = reduce(state, options[pick(rng, options.length)]);
+      state = reduce(state, options[pick(rng, options.length)]!);
 
       const broken = violations(state);
       if (broken.length > 0) throw new Error(`step ${i}: ${broken.join("; ")}`);
@@ -311,8 +311,9 @@ describe("release-train layout", () => {
       ["release", TOP_PAD + 12 + LANE_GAP],
     ]);
     // REL-122 is expanded with one ticket under it.
-    expect(rows[1].subs.map((sub) => [sub.feature.id, sub.y])).toEqual([[4311, rows[1].y + SUB_GAP]]);
-    expect(mainY).toBe(rows[1].y + LANE_GAP + SUB_GAP + 14);
+    const releaseRow = rows[1]!;
+    expect(releaseRow.subs.map((sub) => [sub.feature.id, sub.y])).toEqual([[4311, releaseRow.y + SUB_GAP]]);
+    expect(mainY).toBe(releaseRow.y + LANE_GAP + SUB_GAP + 14);
     expect(height).toBe(Math.max(mainY + BOTTOM_PAD, TOP_PAD + 4 * (ENV_H + ENV_GAP) + 44));
   });
 
@@ -320,11 +321,11 @@ describe("release-train layout", () => {
     const base = layoutRows(initialState());
     const expanded = layoutRows(reduce(initialState(), { type: "toggle", target: "dev" }));
     expect(expanded.rows[0].subs.map((sub) => sub.feature.id)).toEqual([4312]);
-    expect(expanded.rows[1].y).toBe(base.rows[1].y + SUB_GAP);
+    expect(expanded.rows[1]!.y).toBe(base.rows[1]!.y + SUB_GAP);
     expect(expanded.mainY).toBe(base.mainY + SUB_GAP);
 
     const collapsed = layoutRows(reduce(initialState(), { type: "toggle", target: 122 }));
-    expect(collapsed.rows[1].subs).toEqual([]);
+    expect(collapsed.rows[1]!.subs).toEqual([]);
     expect(collapsed.mainY).toBe(base.mainY - SUB_GAP);
   });
 
@@ -384,7 +385,7 @@ describe("ReleaseTrain", () => {
     expect(within(buckets).getByRole("button", { name: "4312" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(within(buckets).getByRole("button", { name: /^REL-122/ }));
 
-    const rel = within(buckets).getAllByRole("listitem")[1];
+    const rel = within(buckets).getAllByRole("listitem")[1]!;
     expect(within(rel).getByRole("button", { name: "4312" })).toBeInTheDocument();
     expect(screen.getByText("feat/4312 selected into REL-122. It keeps integrating in dev too.")).toBeInTheDocument();
   });

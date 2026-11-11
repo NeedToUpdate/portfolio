@@ -1066,7 +1066,7 @@ export function sampleShapeTargets(shapeKey: string, poolSize: number): ShapePoo
       const at = stratified
         ? Math.min(pool.length - 1, Math.floor(((p + Math.random()) / n) * pool.length))
         : Math.floor(Math.random() * pool.length);
-      const i = pool[at];
+      const i = pool[at]!;
       out[p * 2] = ((i % size) / size) * 2 - 1;
       out[p * 2 + 1] = (Math.floor(i / size) / size) * 2 - 1;
     }
