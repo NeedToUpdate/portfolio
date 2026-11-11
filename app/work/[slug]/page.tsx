@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PageShell from "@/components/composites/PageShell";
+import ArticleLayout from "@/components/composites/ArticleLayout";
 import NebulaBackground from "@/components/composites/NebulaBackground";
-import Breadcrumbs from "@/components/composites/Breadcrumbs";
 import Markdown from "@/components/composites/Markdown";
 import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
@@ -16,10 +15,9 @@ import ButtonLink from "@/components/ui/ButtonLink";
 import Exhibit from "@/components/ui/Exhibit";
 import { categoryIcon } from "@/components/ui/Icon";
 import { categoryShape } from "@/lib/nebula/shapes";
-import JsonLd from "@/components/ui/JsonLd";
 import { buildRecommendations, getCaseStudies, getCaseStudy, getRelatedContent } from "@/lib/content";
 import { splitAtHeading } from "@/lib/format";
-import { breadcrumbSchema, caseStudySchema, ogImagePath } from "@/lib/seo";
+import { articleMetadata, caseStudySeo } from "@/lib/seo";
 import { mailtoUrl } from "@/lib/site";
 
 interface PageProps {
@@ -33,29 +31,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const caseStudy = getCaseStudy(slug);
-  if (!caseStudy) return {};
-  const description = caseStudy.seoDescription ?? caseStudy.impact;
-  return {
-    title: caseStudy.title,
-    description,
-    keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs],
-    alternates: { canonical: `/work/${slug}` },
-    openGraph: {
-      title: caseStudy.title,
-      description,
-      url: `/work/${slug}`,
-      type: "article",
-      publishedTime: new Date(caseStudy.date).toISOString(),
-      images: caseStudy.diagram ? [ogImagePath(caseStudy.diagram)] : undefined,
-      locale: "en_CA",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: caseStudy.title,
-      description,
-      images: caseStudy.diagram ? [ogImagePath(caseStudy.diagram)] : undefined,
-    },
-  };
+  return caseStudy ? articleMetadata(caseStudySeo(caseStudy)) : {};
 }
 
 export default async function CaseStudyPage({ params }: PageProps) {
@@ -91,31 +67,24 @@ export default async function CaseStudyPage({ params }: PageProps) {
   );
 
   return (
-    <PageShell>
-      {/* Phones run the case study full-bleed under the cloud, so the
-          corner carries a scrim to keep the body copy readable. */}
-      <NebulaBackground
-        variant="mini"
-        corner="top-right"
-        miniShape="helix"
-        color="frost"
-        scrim
-      />
-      <JsonLd
-        data={breadcrumbSchema([
-          { name: "Home", path: "/" },
-          { name: "Work", path: "/work" },
-          { name: caseStudy.title, path: `/work/${slug}` },
-        ])}
-      />
-      <JsonLd data={caseStudySchema(caseStudy)} />
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Work", href: "/work" },
-          { label: caseStudy.title },
-        ]}
-      />
+    <ArticleLayout
+      seo={caseStudySeo(caseStudy)}
+      trail={[
+        { label: "Home", href: "/" },
+        { label: "Work", href: "/work" },
+      ]}
+      nebula={
+        // Phones run the case study full-bleed under the cloud, so the
+        // corner carries a scrim to keep the body copy readable.
+        <NebulaBackground
+          variant="mini"
+          corner="top-right"
+          miniShape="helix"
+          color="frost"
+          scrim
+        />
+      }
+    >
 
       <header className="max-w-prose">
         <Eyebrow
@@ -215,6 +184,6 @@ export default async function CaseStudyPage({ params }: PageProps) {
         }
         recommendations={recommendations}
       />
-    </PageShell>
+    </ArticleLayout>
   );
 }

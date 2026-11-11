@@ -14,7 +14,7 @@ import {
   getSkillDomains,
   getWorkIntro,
 } from "@/lib/content";
-import { articleSchema, caseStudySchema, personSchema, websiteSchema } from "@/lib/seo";
+import { articleSchema, caseStudySeo, insightSeo, personSchema, websiteSchema } from "@/lib/seo";
 
 describe("content loaders", () => {
   it("loads case studies sorted by priority", () => {
@@ -158,7 +158,7 @@ describe("structured identity", () => {
     const personId = personSchema()["@id"];
     expect(personId).toBe("https://artnikitin.dev/#person");
     expect(websiteSchema().author["@id"]).toBe(personId);
-    expect(articleSchema(getInsights()[0]).author["@id"]).toBe(personId);
-    expect(caseStudySchema(getCaseStudies()[0]).author["@id"]).toBe(personId);
+    expect(articleSchema(insightSeo(getInsights()[0])).author["@id"]).toBe(personId);
+    expect(articleSchema(caseStudySeo(getCaseStudies()[0])).author["@id"]).toBe(personId);
   });
 });
