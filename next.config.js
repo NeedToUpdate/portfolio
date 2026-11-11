@@ -16,14 +16,7 @@ const nextConfig = {
   // Self-contained server build, deployed to Lambda behind CloudFront.
   output: "standalone",
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "fra1.digitaloceanspaces.com" },
-      {
-        protocol: "https",
-        hostname: "icandoathing.fra1.cdn.digitaloceanspaces.com",
-      },
-      { protocol: "https", hostname: "media.licdn.com" },
-    ],
+    // Every image is local; no remote hosts are allowed.
     // Optimized variants are generated once by the Lambda and cached at the
     // CloudFront edge by their source URL, width, quality, and output format.
     minimumCacheTTL: 31536000,

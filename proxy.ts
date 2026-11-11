@@ -99,5 +99,5 @@ export const config = {
   // Public assets are also fetched internally by Next's image optimizer.
   // Keeping /images behind this gate would turn that internal fetch into a
   // 401 response without an image Content-Type.
-  matcher: "/((?!_next/static|_next/image|images/|favicon.ico|site.webmanifest).*)",
+  matcher: "/((?!_next/static|_next/image|images/|favicon.ico).*)",
 };
