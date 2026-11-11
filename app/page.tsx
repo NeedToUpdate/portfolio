@@ -458,7 +458,7 @@ export default function HomePage() {
                       <Eyebrow className="mb-3">About</Eyebrow>
                       <Text variant="muted">
                         I work where systems, teams, and messy production
-                        constraints meet. I'm always ready to take on the next
+                        constraints meet. I&apos;m always ready to take on the next
                         challenge.
                       </Text>
                       <div className="mt-4">

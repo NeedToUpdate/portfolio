@@ -93,7 +93,6 @@ export function computeLayout(w: number, h: number): Layout {
   } else {
     deskW = Math.max(50, Math.min(70, Math.floor((areaW - 2 * 14) / 3)));
     const rows = [3, 2];
-    let index = 0;
     rows.forEach((count, r) => {
       const gap = Math.min(30, (areaW - count * deskW) / Math.max(1, count - 1));
       const rowW = count * deskW + (count - 1) * gap;
@@ -101,7 +100,6 @@ export function computeLayout(w: number, h: number): Layout {
       const y = r === 0 ? Math.round(h * 0.42) : Math.round(h * 0.78);
       for (let i = 0; i < count; i += 1) {
         desks.push({ x: startX + i * (deskW + gap), y });
-        index += 1;
       }
     });
   }

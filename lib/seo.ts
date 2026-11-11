@@ -52,9 +52,9 @@ export function pageMetadata({
  * <script type="application/ld+json">.
  */
 
-export function personSchema() {
+/** The Person entity, without @context, for nesting inside other schemas. */
+function personEntity() {
   return {
-    "@context": "https://schema.org",
     "@type": "Person",
     "@id": `${site.url}/#person`,
     name: site.name,
@@ -82,6 +82,10 @@ export function personSchema() {
   };
 }
 
+export function personSchema() {
+  return { "@context": "https://schema.org", ...personEntity() };
+}
+
 /**
  * Google's documented markup for an "about the person" page: the
  * Person wrapped as the main entity of a ProfilePage. This is what
@@ -89,11 +93,10 @@ export function personSchema() {
  * visible badge.
  */
 export function profilePageSchema() {
-  const { ["@context"]: _context, ...person } = personSchema();
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    mainEntity: person,
+    mainEntity: personEntity(),
   };
 }
 

@@ -19,7 +19,7 @@
  * crossings brighten naturally.
  */
 
-import type { ProfileName, ProfilePalette, RGB } from "./palettes";
+import type { ProfileName, ProfilePalette } from "./palettes";
 import { profilePalettes } from "./palettes";
 import {
   arcShell,
@@ -428,7 +428,6 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   // out. Every band is anchored to ringR so they scale together.
   const ringR = 0.3;
   const tilt = rng() * Math.PI * 2;
-  const mask = cavityMask([{ x: 0, y: 0, r: 0.44, depth: 0.85 }]);
 
   const dust: RawParticle[] = [];
   const emission: RawParticle[] = [];
