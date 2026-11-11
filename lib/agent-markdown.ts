@@ -47,7 +47,10 @@ type Props = (name: string) => string | undefined;
  * The Record type requires an entry for every registered component, so
  * a new one can't silently vanish from the markdown twin.
  */
-type MarkdownForm = ((props: Props, inner: string) => string) | "interactive" | "unwrap";
+type MarkdownForm =
+  | ((props: Props, inner: string, attrs: string) => string)
+  | "interactive"
+  | "unwrap";
 
 /** Site-relative links become absolute; others pass through. */
 function link(href: string): string {
@@ -97,13 +100,18 @@ export const markdownForms: Record<MdxComponentName, MarkdownForm> = {
       .join("\n\n");
   },
   // A project link card becomes a plain link, or a status line when offline.
-  ProjectLink: (props) => {
+  ProjectLink: (props, _inner, attrs) => {
     const href = props("href");
     const title = props("title") ?? "Project";
     const note = props("note");
     const tail = note ? ` ${note}` : "";
-    if (!href || props("mode") === "offline") return `> ${title} is no longer online.${tail}`;
-    return `> Try it: [${title}](${link(href)}).${tail}`;
+    // slides={[["/images/a.webp", "Name", "Group"], ...]}: list them as links.
+    const slides = [...attrs.matchAll(/\[\s*"(\/[^"]+)",\s*"([^"]+)"/g)].map(
+      ([, src, label]) => `[${label}](${link(src!)})`,
+    );
+    const shots = slides.length > 0 ? `\n>\n> Screenshots: ${slides.join(", ")}.` : "";
+    if (!href || props("mode") === "offline") return `> ${title} is no longer online.${tail}${shots}`;
+    return `> Try it: [${title}](${link(href)}).${tail}${shots}`;
   },
   RequestPathExplorer: "interactive",
   StarfieldDemo: "interactive",
@@ -131,7 +139,7 @@ function render(form: MarkdownForm, attrs: string, inner: string): string {
     const description = props("description");
     return description ? `> Interactive figure: ${description}` : "";
   }
-  return form(props, inner);
+  return form(props, inner, attrs);
 }
 
 /**

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
+import OfflineShowcase from "@/components/composites/OfflineShowcase";
+import type { Slide } from "@/components/composites/ProjectSlideshow";
 
 interface ProjectLinkProps {
   /**
@@ -24,6 +26,10 @@ interface ProjectLinkProps {
   zoom?: number;
   /** Overrides the button text, e.g. "View the code". */
   label?: string;
+  /** Offline only: screenshots the bar opens to show, one at a time,
+   *  each named in a corner tag. [src, name] or [src, name, group].
+   *  `label` then names the button that opens them. */
+  slides?: Slide[];
 }
 
 /**
@@ -43,12 +49,13 @@ export default function ProjectLink({
   label,
   focus = "50% 50%",
   zoom = 1,
+  slides,
 }: ProjectLinkProps) {
   const offline = mode === "offline" || !href;
   const external = mode === "external";
   const action = label ?? (offline ? "Offline" : external ? "Try it out" : "Open it here");
 
-  const content: ReactNode = (
+  const info: ReactNode = (
     <>
       <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-line/60 bg-raised sm:h-16 sm:w-16 sm:rounded-full">
         <Image
@@ -76,6 +83,17 @@ export default function ProjectLink({
         </span>
         {note && <span className="mt-0.5 block text-sm leading-snug text-muted">{note}</span>}
       </span>
+    </>
+  );
+
+  // An offline project with screenshots: the bar opens to show them.
+  if (offline && slides && slides.length > 0) {
+    return <OfflineShowcase info={info} slides={slides} title={title} label={label} />;
+  }
+
+  const content: ReactNode = (
+    <>
+      {info}
       <span
         className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold ${
           offline

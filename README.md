@@ -66,7 +66,7 @@ Insights and legacy articles can use these without importing them (`components/c
 | --------- | --- |
 | `MediaRow` | An image. With children, the text sits beside it (`side`, `size`, `wrap` to float long text around it). Without children, a standalone figure: `side="none"` for full width, `left`/`right` to float it. Width and height are read from the file. |
 | `VideoFigure` | A clip the reader starts. Give it the `.webm`; an `.mp4` fallback and a `.poster.webp` frame must sit beside it under the same name. |
-| `ProjectLink` | The "go and use it" bar: `mode` external, internal, or offline. `focus` and `zoom` frame a detail of the screenshot in the 64px thumbnail. |
+| `ProjectLink` | The "go and use it" bar: `mode` external, internal, or offline. `focus` and `zoom` frame a detail of the screenshot in the 64px thumbnail. Offline with `slides`, the bar's button opens it into a slideshow, each screenshot named in a corner tag: `[src, name]` or `[src, name, group]`. |
 | `NowWithAI` | A highlighted update panel with an optional image and a link to the newer write-up. |
 | `Note`, `Card` | An aside, and a boxed block. |
 | `ReleaseTrain`, `TeamGame`, `HumanReviewLab`, and the other demos | Interactive figures. Give each a `description`: it stands in for the figure in the markdown twin. |
