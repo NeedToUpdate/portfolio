@@ -1,3 +1,8 @@
+/**
+ * @jest-environment node
+ */
+// Node rather than jsdom: nothing here renders, and image-size (loaded
+// through MediaRow) needs TextDecoder, which jsdom lacks.
 import fs from "fs";
 import path from "path";
 import { execFileSync } from "child_process";
