@@ -35,6 +35,7 @@ import {
   type State,
 } from "@/lib/release-train/model";
 import InteractiveFigure from "./InteractiveFigure";
+import Icon from "@/components/ui/Icon";
 
 /**
  * The release train, playable. Add features, open releases, drag tickets
@@ -55,6 +56,8 @@ import InteractiveFigure from "./InteractiveFigure";
 const BLUE = "#4aa8ff";
 const VIOLET = "#ad80eb";
 const GREEN = "#2fe39b";
+/** Fill behind nodes and empty slots: the graph's own dark ground. */
+const BG = "#070a10";
 const INK = "#ebedf3";
 const MUTED = "#969dad";
 const LINE = "#2a303f";
@@ -107,7 +110,7 @@ function Commit({
       {/* Oversized invisible hit area, so small dots are easy to tap. */}
       <circle cx={x} cy={y} r={14} fill="transparent" />
       <circle cx={x} cy={y} r={r + 5} fill={color} opacity={active ? 0.4 : 0.16} style={{ transition: "opacity 250ms" }} />
-      <circle cx={x} cy={y} r={r} fill="#070a10" stroke={color} strokeWidth={active ? 3 : 2} />
+      <circle cx={x} cy={y} r={r} fill={BG} stroke={color} strokeWidth={active ? 3 : 2} />
     </g>
   );
 }
@@ -316,7 +319,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                     aria-label={`${label}, ${count} tickets. ${expanded ? "Collapse" : "Expand"} branches.`}
                     style={{ cursor: "pointer" }}
                   >
-                    <circle cx={LANE_START_X} cy={0} r={15} fill="#070a10" stroke={laneColor} strokeWidth={2} />
+                    <circle cx={LANE_START_X} cy={0} r={15} fill={BG} stroke={laneColor} strokeWidth={2} />
                     <text x={LANE_START_X} y={4.5} textAnchor="middle" fill={laneColor} fontSize={13} fontWeight={700} fontFamily={MONO}>
                       {count}
                     </text>
@@ -365,7 +368,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                             aria-label={`Build ${release.build}`}
                             style={{ cursor: "pointer" }}
                           >
-                            <rect x={BUILD_X} y={-14} rx={6} width={BUILD_W} height={28} fill="#070a10" stroke={GREEN} strokeWidth={2} />
+                            <rect x={BUILD_X} y={-14} rx={6} width={BUILD_W} height={28} fill={BG} stroke={GREEN} strokeWidth={2} />
                             <text x={BUILD_X + BUILD_W / 2} y={5} textAnchor="middle" fill={GREEN} fontSize={13} fontWeight={700} fontFamily={MONO}>
                               {release.build}
                             </text>
@@ -492,7 +495,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                       rx={5}
                       width={ENV_W}
                       height={ENV_H}
-                      fill={occupant ? (env === "DEV" ? "rgba(173,128,235,0.12)" : "rgba(47,227,155,0.12)") : "#070a10"}
+                      fill={occupant ? (env === "DEV" ? "rgba(173,128,235,0.12)" : "rgba(47,227,155,0.12)") : BG}
                       stroke={color}
                       strokeWidth={occupant ? 2 : 1.2}
                       opacity={occupant ? 1 : 0.55}
@@ -755,12 +758,7 @@ function Bucket({
             aria-label={`Abandon ${title}`}
             className="shrink-0 rounded p-1 text-muted transition-colors hover:text-orange-400"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M3 6h18" />
-              <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-              <path d="M10 11v6M14 11v6" />
-            </svg>
+            <Icon name="trash" size={14} strokeWidth={2} />
           </button>
         ) : null}
       </span>

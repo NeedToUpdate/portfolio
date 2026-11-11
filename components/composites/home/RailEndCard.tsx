@@ -13,7 +13,7 @@ export default function RailEndCard({ href, title, nebulaShape }: RailEndCardPro
   return (
     <Link
       href={href}
-      className={`${railCard} items-start justify-center !bg-[#0d0a08]/40`}
+      className={`${railCard} items-start justify-center !bg-glass/40`}
     >
       <Heading size="item">{title}</Heading>
       <span

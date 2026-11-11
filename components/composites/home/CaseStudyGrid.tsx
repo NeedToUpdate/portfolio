@@ -37,7 +37,7 @@ export default function CaseStudyGrid({ caseStudies, caseStudyCta }: CaseStudyGr
           <Link
             key={caseStudy.slug}
             href={`/work/${caseStudy.slug}`}
-            className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0d0a08]/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
+            className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-glass/60 shadow-2xl shadow-black/30 ring-1 ring-white/5"
           >
             <div className="flex flex-1 flex-col p-6">
               <CaseStudyCategory category={caseStudy.category} />

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { imageSize } from "@/lib/image-size";
+import Icon from "@/components/ui/Icon";
 import Link from "next/link";
 import { ReactNode } from "react";
 import Heading from "@/components/ui/Heading";
@@ -50,10 +51,7 @@ export default async function NowWithAI({
       <div className="relative p-5 sm:p-7">
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent-ink">
-            <svg aria-hidden viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-              <path d="M12 2l1.9 5.6a3 3 0 0 0 1.9 1.9L21.4 11.4 15.8 13.3a3 3 0 0 0-1.9 1.9L12 20.8l-1.9-5.6a3 3 0 0 0-1.9-1.9L2.6 11.4l5.6-1.9a3 3 0 0 0 1.9-1.9z" />
-              <path d="M19 15l.7 2.1a1.5 1.5 0 0 0 .9.9l2.1.7-2.1.7a1.5 1.5 0 0 0-.9.9L19 22.4l-.7-2.1a1.5 1.5 0 0 0-.9-.9l-2.1-.7 2.1-.7a1.5 1.5 0 0 0 .9-.9z" />
-            </svg>
+            <Icon name="sparkle" size={13} />
             Now with AI
           </span>
           <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-accent/40 to-transparent" />

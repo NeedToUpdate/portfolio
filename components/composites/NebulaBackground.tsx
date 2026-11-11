@@ -48,16 +48,13 @@ interface NebulaBackgroundProps {
 // A soft black veil anchored over the mini cloud, so body copy stays
 // readable where it crosses the gas. Sized to fade out before the
 // opposite edges: the rest of the starfield keeps its full contrast.
-// Written out per corner because Tailwind only sees literal classes.
+// The gradient is the .nebula-scrim utility in styles/globals.css; each
+// corner only moves its anchor. Literal classes so Tailwind sees them.
 const MINI_SCRIM: Record<NebulaCorner, string> = {
-  "top-left":
-    "bg-[radial-gradient(ellipse_88%_66%_at_8%_18%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
-  "top-right":
-    "bg-[radial-gradient(ellipse_88%_66%_at_92%_18%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
-  "bottom-left":
-    "bg-[radial-gradient(ellipse_88%_66%_at_8%_82%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
-  "bottom-right":
-    "bg-[radial-gradient(ellipse_88%_66%_at_92%_82%,rgba(8,10,16,0.62),rgba(8,10,16,0.5)_30%,rgba(8,10,16,0.26)_60%,rgba(8,10,16,0)_100%)]",
+  "top-left": "nebula-scrim [--scrim-at:8%_18%]",
+  "top-right": "nebula-scrim [--scrim-at:92%_18%]",
+  "bottom-left": "nebula-scrim [--scrim-at:8%_82%]",
+  "bottom-right": "nebula-scrim [--scrim-at:92%_82%]",
 };
 
 /**
