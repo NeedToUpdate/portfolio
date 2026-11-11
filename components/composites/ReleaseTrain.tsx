@@ -212,7 +212,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
               label={
                 state.devBase === -1
                   ? "main merged into dev. Integration always includes what production already runs, so upcoming work is tested against reality."
-                  : `dev was recut from the baseline ${state.shipped[state.devBase].name} left behind. Fresh history, same branches.`
+                  : `dev was recut from the baseline ${state.shipped[state.devBase]!.name} left behind. Fresh history, same branches.`
               }
               onInspect={onInspect}
               active={(inspect?.startsWith("main merged into dev") || inspect?.startsWith("dev was recut")) ?? false}
@@ -441,7 +441,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                     ? "dev"
                     : env === "PROD"
                       ? state.prodIndex >= 0
-                        ? String(state.shipped[state.prodIndex].build)
+                        ? String(state.shipped[state.prodIndex]!.build)
                         : null
                       : state.envBuilds[i - 1] !== null
                         ? String(state.envBuilds[i - 1])
@@ -449,11 +449,12 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                 const greys: { id: number; act: () => void; hint: string }[] = [];
                 if (env === "PROD") {
                   for (const j of [state.prodIndex - 1, state.prodIndex + 1]) {
-                    if (j >= 0 && j < state.shipped.length) {
+                    const neighbour = state.shipped[j];
+                    if (neighbour) {
                       greys.push({
-                        id: state.shipped[j].build,
+                        id: neighbour.build,
                         act: () => dispatch({ type: "setProd", index: j }),
-                        hint: j < state.prodIndex ? `Roll PROD back to build ${state.shipped[j].build}` : `Move PROD forward to build ${state.shipped[j].build}`,
+                        hint: j < state.prodIndex ? `Roll PROD back to build ${neighbour.build}` : `Move PROD forward to build ${neighbour.build}`,
                       });
                     }
                   }

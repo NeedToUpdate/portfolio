@@ -42,12 +42,12 @@ const REQUESTS: Record<RequestKind, PathSpec> = {
   },
 };
 
-const NODES: { id: string; label: string }[] = [
+const NODES = [
   { id: "browser", label: "Browser" },
   { id: "cloudfront", label: "CloudFront" },
   { id: "lambda", label: "Lambda (pages + API)" },
   { id: "s3", label: "S3 (static)" },
-];
+] as const satisfies readonly { id: string; label: string }[];
 
 /** Click a request type and watch which origin serves it. */
 export default function RequestPathExplorer() {

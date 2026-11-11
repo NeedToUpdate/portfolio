@@ -30,7 +30,7 @@ function makeShareId(length = 10): string {
   crypto.getRandomValues(bytes);
   let id = "";
   for (let i = 0; i < length; i += 1) {
-    id += ID_ALPHABET[bytes[i] % ID_ALPHABET.length];
+    id += ID_ALPHABET[bytes[i]! % ID_ALPHABET.length];
   }
   return id;
 }

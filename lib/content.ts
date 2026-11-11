@@ -192,10 +192,10 @@ export function buildRecommendations<T>(options: {
   const index = ordered.findIndex((item) => slugOf(item) === currentSlug);
   if (index === -1 || count <= 1) return [];
 
-  const selfHref = toRelated(ordered[index]).href;
+  const selfHref = toRelated(ordered[index]!).href;
   // The tour: next entry first, wrapping once, current entry excluded.
   const tour = Array.from({ length: count - 1 }, (_, offset) =>
-    toRelated(ordered[(index + offset + 1) % count])
+    toRelated(ordered[(index + offset + 1) % count]!)
   );
 
   // Curated links lead; the sequential next (tour[0]) follows as a loop-free

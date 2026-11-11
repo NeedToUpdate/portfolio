@@ -31,12 +31,12 @@ export interface LaneRow {
   subs: { feature: Feature; y: number }[];
 }
 
-export function layoutRows(state: State): { rows: LaneRow[]; mainY: number; height: number } {
-  const rows: LaneRow[] = [];
+/** The dev lane always comes first, so callers can read rows[0] directly. */
+export function layoutRows(state: State): { rows: [LaneRow, ...LaneRow[]]; mainY: number; height: number } {
   let y = TOP_PAD + 12;
 
   const devSubs = state.devExpanded ? state.features.filter((f) => f.releases.length === 0) : [];
-  rows.push({ kind: "dev", y, subs: devSubs.map((feature, i) => ({ feature, y: y + SUB_GAP * (i + 1) })) });
+  const rows: [LaneRow, ...LaneRow[]] = [{ kind: "dev", y, subs: devSubs.map((feature, i) => ({ feature, y: y + SUB_GAP * (i + 1) })) }];
   y += LANE_GAP + devSubs.length * SUB_GAP;
 
   for (const release of state.releases) {

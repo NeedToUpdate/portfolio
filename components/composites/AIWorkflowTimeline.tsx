@@ -75,7 +75,7 @@ const STAGES: Stage[] = [
 /** The human-led preparation path from a rough idea to reviewed software. */
 export default function AIWorkflowTimeline() {
   const [index, setIndex] = useState(0);
-  const stage = STAGES[index];
+  const stage = STAGES[index]!;
 
   return (
     <InteractiveFigure

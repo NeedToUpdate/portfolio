@@ -270,7 +270,8 @@ function promote(s: State, releaseId: number): void {
   }
   if (release.env - 1 < 2) {
     const slot = release.env - 1;
-    if (s.envBuilds[slot] !== null && s.envBuilds[slot] !== release.build) s.prevEnv[slot] = s.envBuilds[slot];
+    const current = s.envBuilds[slot] ?? null;
+    if (current !== null && current !== release.build) s.prevEnv[slot] = current;
     s.envBuilds[slot] = release.build;
   }
   if (release.env < ENVS.length) {
@@ -319,20 +320,21 @@ function retrofit(s: State, releaseId: number): void {
 function setProd(s: State, index: number): void {
   if (index < 0 || index >= s.shipped.length || index === s.prodIndex) return;
   const back = index < s.prodIndex;
+  const target = s.shipped[index]!;
   s.prodIndex = index;
   s.log = addLog(
     s.log,
     back
-      ? `PROD rolled back to build ${s.shipped[index].build}. The deployment record shows what actually runs; reconcile the baseline to match.`
-      : `PROD moved forward to build ${s.shipped[index].build}.`,
+      ? `PROD rolled back to build ${target.build}. The deployment record shows what actually runs; reconcile the baseline to match.`
+      : `PROD moved forward to build ${target.build}.`,
     back ? "bad" : "good",
   );
 }
 
 function redeploy(s: State, slot: number): void {
   const previous = s.prevEnv[slot];
-  if (previous === null) return;
-  s.prevEnv[slot] = s.envBuilds[slot];
+  if (previous === null || previous === undefined) return;
+  s.prevEnv[slot] = s.envBuilds[slot] ?? null;
   s.envBuilds[slot] = previous;
   s.log = addLog(s.log, `${ENVS[slot]} redeployed build ${previous} from the store. The retained artifact made that a click, not a rebuild.`);
 }

@@ -33,7 +33,7 @@ function makeStars(width: number, height: number): Star[] {
     depth: Math.random(),
     twinklePhase: Math.random() * Math.PI * 2,
     twinkleSpeed: 0.3 + Math.random() * 0.7,
-    color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+    color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]!,
   }));
 }
 

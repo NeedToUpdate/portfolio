@@ -49,7 +49,7 @@ export default function HomePage() {
   const [latestInsight, ...moreInsights] = allInsights;
   const insights = moreInsights.slice(0, 3);
   // The rail leads with the freshest read, then the rest.
-  const railInsights = [latestInsight, ...insights].filter(Boolean);
+  const railInsights = [latestInsight, ...insights].filter((insight) => insight !== undefined);
   const insightCount = allInsights.length;
   const caseCount = getCaseStudies().length;
 

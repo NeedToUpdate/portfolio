@@ -32,8 +32,16 @@ export interface NebulaLayerVisibility {
   foregroundStars?: boolean;
 }
 
-type Uniforms = Record<string, WebGLUniformLocation | null>;
-type Attributes = Record<string, number>;
+type Uniforms<K extends string> = Record<K, WebGLUniformLocation | null>;
+type SkyUniforms = Uniforms<"res" | "time" | "mouse" | "mouseActive">;
+type ParticleUniforms = Uniforms<"res" | "time" | "mouse" | "mouseVel" | "mouseActive" | "shapeMix">;
+type DenseUniforms = Uniforms<"res" | "mouse" | "mouseActive">;
+type ParticleAttributes = Record<"aPos" | "aData" | "aCloud" | "aColor" | "aMotion" | "aTarget" | "aAngle", number>;
+type DenseAttributes = Record<"aStar" | "aTint", number>;
+type BufferName = "position" | "data" | "cloud" | "color" | "motion" | "angle" | "target" | "denseStar" | "denseTint";
+
+/** Four random floats that vary the procedural sky per boot. */
+export type NebulaSeed = [number, number, number, number];
 
 export class NebulaRenderer {
   readonly gl: WebGLRenderingContext;
@@ -48,16 +56,18 @@ export class NebulaRenderer {
   private denseProgram!: WebGLProgram;
   private activePrograms: WebGLProgram[] = [];
 
-  private bgU: Uniforms = {};
-  private pU: Uniforms = {};
-  private gU: Uniforms = {};
-  private fgU: Uniforms = {};
-  private dU: Uniforms = {};
-  private pAttr: Attributes = {};
-  private gAttr: Attributes = {};
-  private dAttr: Attributes = {};
+  // Filled in upload(), which always runs before anything reads them.
+  // Empty until then; the mini variant never fills bgU or fgU.
+  private bgU = {} as SkyUniforms;
+  private pU = {} as ParticleUniforms;
+  private gU = {} as ParticleUniforms;
+  private fgU = {} as SkyUniforms;
+  private dU = {} as DenseUniforms;
+  private pAttr = {} as ParticleAttributes;
+  private gAttr = {} as ParticleAttributes;
+  private dAttr = {} as DenseAttributes;
   private quadBuffer: WebGLBuffer | null = null;
-  private buffers: Record<string, WebGLBuffer | null> = {};
+  private buffers = {} as Record<BufferName, WebGLBuffer | null>;
 
   particleSeeds: Float32Array = new Float32Array(0);
   particleRoles: Uint8Array = new Uint8Array(0);
@@ -104,7 +114,7 @@ export class NebulaRenderer {
    * Uploads the particle buffers and every program's fixed uniforms and
    * attribute locations. Runs once per boot, after finish().
    */
-  upload(particleData: ParticleBuffers, clouds: CloudSpec[], seed: number[]): void {
+  upload(particleData: ParticleBuffers, clouds: CloudSpec[], seed: NebulaSeed): void {
     const gl = this.gl;
     const {
       bgProgram,
@@ -122,7 +132,7 @@ export class NebulaRenderer {
     const particleCount = this.particleCount;
     this.particleSeeds = new Float32Array(particleCount);
     for (let i = 0; i < particleCount; i++) {
-      this.particleSeeds[i] = particleData.data[i * 3 + 1];
+      this.particleSeeds[i] = particleData.data[i * 3 + 1]!;
     }
 
     const makeBuffer = (data: Float32Array): WebGLBuffer | null => {
@@ -139,6 +149,9 @@ export class NebulaRenderer {
       motion: makeBuffer(particleData.motion),
       angle: makeBuffer(particleData.angle),
       target: makeBuffer(new Float32Array(particleCount * 2)),
+      // Created below, once the dense star geometry exists.
+      denseStar: null,
+      denseTint: null,
     };
 
     this.quadBuffer = gl.createBuffer();
@@ -150,9 +163,11 @@ export class NebulaRenderer {
       // profiles: A follows the lowest cloud, B the upper one. The
       // portrait scene has no third cloud; the cool accent falls
       // back to the first (the teal web).
-      const palA = profilePalettes[clouds[0].profile].bg;
-      const palB = profilePalettes[(clouds[1] ?? clouds[0]).profile].bg;
-      const palC = profilePalettes[(clouds[2] ?? clouds[0]).profile].bg;
+      // The full-page scene always has at least one cloud.
+      const firstCloud = clouds[0]!;
+      const palA = profilePalettes[firstCloud.profile].bg;
+      const palB = profilePalettes[(clouds[1] ?? firstCloud).profile].bg;
+      const palC = profilePalettes[(clouds[2] ?? firstCloud).profile].bg;
       gl.useProgram(bgProgram);
       this.bgU = {
         res: gl.getUniformLocation(bgProgram, "uRes"),
@@ -174,8 +189,8 @@ export class NebulaRenderer {
       for (let i = 0; i < 2; i++) {
         gl.uniform4f(
           gl.getUniformLocation(bgProgram, `uHii${i}`),
-          hiiSpots[i][0] + jitter(),
-          hiiSpots[i][1] + jitter(),
+          hiiSpots[i]![0] + jitter(),
+          hiiSpots[i]![1] + jitter(),
           0.55 + Math.random() * 0.35,
           0.5 + Math.random() * 0.4
         );
@@ -306,8 +321,8 @@ export class NebulaRenderer {
 
   private applyParticleState(
     program: WebGLProgram,
-    u: Uniforms,
-    attrs: Attributes,
+    u: ParticleUniforms,
+    attrs: ParticleAttributes,
     time: number,
     state: NebulaMotion
   ): void {

@@ -56,11 +56,12 @@ interface Snapshot {
 
 function snapshot(game: Game): Snapshot {
   const trapped = game.push || game.debt > 0 || game.measure;
+  const level = LEVELS[game.level]!;
   return {
     started: game.started,
     speed: speed(game),
-    levelName: LEVELS[game.level].name,
-    hint: trapped ? "Nothing improves while you stand over them." : LEVELS[game.level].hint,
+    levelName: level.name,
+    hint: trapped ? "Nothing improves while you stand over them." : level.hint,
     progress: levelProgress(game),
     trapped,
     push: game.push,

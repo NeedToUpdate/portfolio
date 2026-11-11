@@ -103,7 +103,7 @@ export function createShapeTargeter(): (
     let starRank = 0;
     for (let i = 0; i < particleCount; i++) {
       // Shell/filament particles trace the outline; body gas fills it.
-      const onEdge = particleRoles[i] >= 1 && edge.length > 0;
+      const onEdge = particleRoles[i]! >= 1 && edge.length > 0;
       const pool = onEdge ? edge : interior;
       const pairs = pool.length / 2;
       let idx: number;
@@ -111,10 +111,10 @@ export function createShapeTargeter(): (
         idx = Math.min(pairs - 1, Math.floor(((starRank + 0.5) / starTotal) * pairs));
         starRank++;
       } else {
-        idx = Math.min(pairs - 1, Math.floor(particleSeeds[i] * pairs));
+        idx = Math.min(pairs - 1, Math.floor(particleSeeds[i]! * pairs));
       }
-      targets[i * 2] = pool[idx * 2];
-      targets[i * 2 + 1] = pool[idx * 2 + 1];
+      targets[i * 2] = pool[idx * 2]!;
+      targets[i * 2 + 1] = pool[idx * 2 + 1]!;
     }
     return targets;
   };
