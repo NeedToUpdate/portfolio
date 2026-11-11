@@ -1,8 +1,9 @@
 ---
 title: "Classroom Game"
-description: "A tool for a fun classroom."
+description: "A Minecraft-themed reward system for a classroom."
 thumbnail: "/images/classroomgame.webp"
 techs: ["angular", "typescript", "mongodb"]
-url: "https://www.icandoathing.com/thing/TV8vmq"
-priority: 7
+url: "/legacy/classroom-game"
+order: 8
+nebulaShape: profile
 ---

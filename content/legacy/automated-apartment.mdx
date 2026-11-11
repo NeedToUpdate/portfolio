@@ -1,0 +1,218 @@
+---
+title: "Automating an apartment with ESP32s and a rules language"
+description: "ESP32 devices for the AC, a window, lights and sensors, run by a Python server, a Vue control panel, and a small rules language I called Autocommands."
+deck: "I wanted to try my hand at some electronics, and my disdain for finding the AC remote, or going upstairs to close a window, motivated me to automate a few things in my apartment."
+date: "2022-04-15"
+built: "2021-02"
+originalUrl: "https://icandoathing.com/thing/pG7w9I/i-automated-my-apartment"
+screenshot: "/images/legacy/automated-apartment/original.webp"
+tags: ["automation", "arduino", "vuejs", "esp32", "IoT"]
+---
+
+I used to live in a very humid, hot area. My loft apartment at the time had a laundry room, and when the washer and dryer ran, the room got extremely humid. So I would have to open the window. The second issue was that I had an AC unit with a remote. When I left home, I constantly forgot to turn it off, which would require me to come back, take off my shoes, find the remote, and then leave again. So I had an idea that would kill two birds with one stone. Automation!
+
+<MediaRow
+  src="/images/legacy/automated-apartment/02.webp"
+  alt="A breadboard with an ESP32, jumper wires, a motor driver and a stepper motor on a green cutting mat"
+  side="left"
+>
+
+I had never really soldered before this, or remembered anything about circuits from school, so I had to do a lot of learning. I found some chips called the ESP32. It's a small microcontroller that has Bluetooth and WiFi functionality. This gave me a great idea. Give it access to the internet!
+
+This is a picture of me experimenting with the chip, trying to make it control a stepper motor.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/03.webp"
+  alt="A small white box with an IR LED, sitting on the corner of a desk with a USB cable plugged in"
+  side="right"
+  size="third"
+  wrap
+>
+
+The AC remote was fairly simple. There are great IR remote libraries out there that have the exact configuration I needed. So I soldered together the ESP32 and an IR LED, and put it into a little box. This would sit pointed at the AC, and when a command is received, it sends the exact signal a remote sends, and turns my AC on, off, higher, lower, swing, etc.
+
+I decided to forgo a battery, as even a big battery would last about a week or so before needing a recharge. For something I want to set and forget about, a simple phone charger was the best choice.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/04.webp"
+  alt="A barred window with a belt running along the sill to a small motor box"
+  side="left"
+  wrap
+>
+
+For the window, the issue was that this was a rental, and I was not allowed to drill into the walls or make any permanent changes. (The bars are there because this is a fairly tall apartment, and all windows low to the ground need bars, for pets and children.) So the approach I went with was a belt and zip ties. This made it fully removable and flexible. (Which came in handy in the future when I moved.) The ESP board would receive a command, and would turn the belt, pulling the window open or closed. There were two magnet sensors, one on each side of the window, to tell if it's open or closed.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/05.webp"
+  alt="A phone screenshot of the first control page: one card for the AC unit and one for the laundry window, each with status and command buttons"
+  side="right"
+  size="third"
+  wrap
+>
+
+For the actual control, I created a small Python script that used asyncio to run a small web server. If an authenticated request was received, the web server would send a command to the ESP32s, which were connected on the same network at various addresses. The server would regularly scan the 192.168.1.x IP range for any device that answers a specific request. Then it would save those addresses and keep them in memory.
+
+For the frontend I decided to learn Vue.js. I already had experience with Angular, so I decided to try something new. When you log in and authenticate with the server, the server sends you back all the devices it has, along with the 'valid' commands (a list stored in the device itself). It's all very flexible, and allowed me to add any kind of device in the future without ever needing to change the backend code.
+
+This was the first proof of concept page. No styling, just quick rough components to make it work. And it does!
+
+</MediaRow>
+
+## Update 1
+
+<MediaRow
+  src="/images/legacy/automated-apartment/06.webp"
+  alt="A small white sensor box with a short cable, next to a pair of scissors on a cutting mat"
+  side="left"
+>
+
+Next I wanted to add some more devices. One idea I had was a temperature/humidity/brightness sensor with a magnet sensor attached, so I could add it to my main living room window. When I open the window, it turns off my AC if it was on. This window was really big and heavy, so attaching a motor wasn't feasible, but a sensor was good enough for what I wanted.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/07.webp"
+  alt="A redesigned device card titled 'Sensor - Big Window', showing closed status with temperature, humidity and brightness readings"
+  side="right"
+  size="third"
+>
+
+A newer and nicer design for the devices.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/08.webp"
+  alt="A laptop screen showing the Autocommands page, with saved rules and a list of completed ones"
+  side="left"
+  wrap
+>
+
+Next I added what I call Autocommands. Essentially I made a small language parser. The way I made it is very flexible and very powerful. It parses device data, and values given to it. If you say `if 1:status is on then 2:ac:off`, it will check when the status of device ID #1 is on, then send the command `ac:off` to device ID #2. You can combine expressions and use brackets, so things like "if it's past 7pm and it's not a Sunday and neither of the two windows are open then turn on the AC to 23c" are entirely possible.
+
+</MediaRow>
+
+## Update 2
+
+<MediaRow
+  src="/images/legacy/automated-apartment/09.webp"
+  alt="Two small push buttons, one black and one blue, each on its own little board"
+  side="right"
+>
+
+Next I built 2 little buttons. That's all they are. They can be on or off, and you can toggle them with a push. By themselves they aren't useful, but combined with my Autocommands from earlier, they let me create large macro commands with a simple push.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/10.webp"
+  alt="One of the buttons mounted on the wall just above a light switch"
+  side="left"
+  size="third"
+>
+
+Adding a button to the light switch at my front door? Now I can turn off my lights and AC, and close my window, with just one gesture.
+
+</MediaRow>
+
+## Update 3
+
+<MediaRow
+  src="/images/legacy/automated-apartment/11.webp"
+  alt="Two AC controller boards side by side: an older one tangled in wires, and a newer, much tidier one"
+  side="right"
+  wrap
+>
+
+I moved into a new apartment, which had two AC units. I decided to make a new device. Can you guess which of the two was my first attempt at electronics 1 year ago, and which one is the new one?
+
+I essentially scrapped the old design and made a much simpler version. The new device also includes an IR sensor, which lets it receive commands from a remote. One issue I was having was that when you turn off the AC with the remote like usual, the server doesn't know this, and treats other Autocommands as if the AC was still on. Now if you use a remote, the device updates the status accordingly.
+
+This also allowed me to record and replay remote commands, because the new AC unit I had was not included in the IR library.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/12.webp"
+  alt="A reel of RGB LED strip lit up in rainbow colours, held in a hand and wired to a small ESP32 board"
+  side="left"
+  size="third"
+>
+
+Next I bought some lights. They were very cheap, as they're just a series of LEDs. The controller is an ESP32.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/13.webp"
+  alt="A bedroom headboard backlit by the LED strip in a rainbow gradient"
+  side="right"
+>
+
+This lets me have any colour of light in the bedroom, and it also means that I don't even have to turn on the main light at night. The light switch is annoyingly far from the bed, and it is very frustrating to have to stand up to turn off the lights. I can turn off the lights with my app, or with some buttons that I added to the ESP32.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/automated-apartment/14.webp"
+  alt="Three push buttons in black, white and blue, soldered to a small board"
+  side="left"
+>
+
+The blue button switches back to the previously used colour, the white button switches to a very bright white light, and black turns it off. It's also added to the Autocommands, so I can turn off the lights automatically at 9:30 on weekdays.
+
+</MediaRow>
+
+## Update 4
+
+<VideoFigure
+  src="/images/legacy/automated-apartment/15.webm"
+  label="The LED strip behind the headboard glowing a warm, flickering orange: the fireplace animation"
+  loop
+  caption="The fireplace animation running behind the headboard."
+/>
+
+RGB is a little over-hyped. Most colours just cause headaches, or are uncomfortable to use, which is why I never fully understood the appeal of those Philips Hue light bulbs. You're only going to use the basic white, maybe yellow. But you know what's cool about having 100 RGB LEDs? The animations! I also made a few others: an aquarium with ocean colours, a Christmas one to have on during Christmas time for fun, and my favourite, a fireplace animation. It really does feel like you're sitting near a fire, and it's the perfect lighting when you go to bed. No blue lights, just calm warm lighting. This pattern turns on automatically, and can be turned off with the button on the side, the app, or the button near my front door. Very handy.
+
+## Update 5
+
+<MediaRow
+  src="/images/legacy/automated-apartment/16.webp"
+  alt="A small touchscreen showing a floor plan of the apartment with icons for the lights, AC units and doors"
+  side="right"
+>
+
+Time to put it all together. I created an editable map, which let me map out the apartment and add all the connected devices. You can see my two small AC units, the bedroom lights, living room lights, and 2 balcony doors.
+
+The server now runs on a Raspberry Pi, connected to a small 8 inch touchscreen. This way I have access to any device at a glance.
+
+</MediaRow>
+
+<VideoFigure
+  src="/images/legacy/automated-apartment/17.webm"
+  label="A phone screen recording of the HomeAutomaton control app"
+  widthClass="md:w-64 md:mx-auto"
+  caption="A screen recording from my phone: the apartment map, then the admin panel creating a guest user for 30 minutes."
+/>
+
+I also created an admin panel, which lets me create a temporary guest user that gets deleted after a set number of minutes.
+
+<NowWithAI
+  title="Update 6"
+  image="/images/legacy/automated-apartment/18.webp"
+  imageAlt="The current HomeAutomaton web app: a device management page with cards for the den bookshelf lights, the den light switch and an LED matrix"
+  href="/insights/k3s-homelab"
+  cta="Read the k3s homelab write-up"
+>
+
+The system is still running, and it has grown up. This is the control panel today: 11 devices across 5 types.
+
+It now runs on my Kubernetes cluster, next to everything else in the apartment. All of its logs go to my Grafana Loki stack. And it is now exposed as an MCP server, so an AI assistant can control the same devices the buttons do.
+
+</NowWithAI>

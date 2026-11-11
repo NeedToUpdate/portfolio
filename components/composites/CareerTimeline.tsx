@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useRef, useState } from "react";
 import Button from "@/components/ui/Button";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -14,7 +15,13 @@ interface CareerTimelineProps {
 
 const STAGGER_MS = 90;
 
-function staggerStyle(index: number, total: number, split: boolean): CSSProperties {
+/**
+ * The split and merge ripple down the timeline one entry at a time. The
+ * global reduced-motion rule zeroes transition durations but not delays,
+ * so without this the entries would still pop in one by one.
+ */
+function staggerStyle(index: number, total: number, split: boolean, reducedMotion: boolean): CSSProperties {
+  if (reducedMotion) return {};
   const step = split ? index : total - index - 1;
   return { transitionDelay: `${step * STAGGER_MS}ms` };
 }
@@ -45,6 +52,7 @@ function EntryCard({ view, period }: { view: StreamView; period: string }) {
  */
 export default function CareerTimeline({ entries }: CareerTimelineProps) {
   const [split, setSplit] = useState(false);
+  const reducedMotion = useReducedMotion();
   // Hover splitting only applies where hover exists; the button covers touch.
   const canHover = useRef<boolean | null>(null);
 
@@ -109,14 +117,14 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
               className={`relative transition-all duration-500 ease-out ${
                 split ? "-translate-x-5 opacity-0" : "translate-x-0 opacity-100"
               }`}
-              style={staggerStyle(index, entries.length, split)}
+              style={staggerStyle(index, entries.length, split, reducedMotion)}
             >
               <span
                 aria-hidden
                 className={`absolute -left-[1.72rem] top-1.5 h-2 w-2 rounded-full bg-accent transition-all duration-500 ease-out ${
                   split ? "scale-50 opacity-0" : "scale-100 opacity-100"
                 }`}
-                style={staggerStyle(index, entries.length, split)}
+                style={staggerStyle(index, entries.length, split, reducedMotion)}
               />
               <EntryCard view={entry.merged} period={entry.period} />
             </li>
@@ -146,7 +154,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                 className={`grid gap-6 transition-all duration-500 ease-out sm:grid-cols-2 ${
                   split ? "translate-x-0 opacity-100" : "-translate-x-5 opacity-0"
                 }`}
-                style={staggerStyle(index, entries.length, split)}
+                style={staggerStyle(index, entries.length, split, reducedMotion)}
               >
                 {/* Stacked on phones, the two streams look like one list;
                     color-coded rails and dotted labels make the split
@@ -158,7 +166,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                     split && entry.tech ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
                   }`}
                   aria-hidden={!entry.tech}
-                  style={staggerStyle(index, entries.length, split)}
+                  style={staggerStyle(index, entries.length, split, reducedMotion)}
                 >
                   {entry.tech && (
                     <>
@@ -182,7 +190,7 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
                         className={`absolute -left-[0.28rem] top-1.5 hidden h-2 w-2 rounded-full bg-nebula transition-all duration-500 ease-out sm:block ${
                           split ? "scale-100 opacity-100" : "scale-50 opacity-0"
                         }`}
-                        style={staggerStyle(index, entries.length, split)}
+                        style={staggerStyle(index, entries.length, split, reducedMotion)}
                       />
                       <Eyebrow className="mb-2 sm:hidden">
                         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-nebula" />

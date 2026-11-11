@@ -56,11 +56,12 @@ interface Snapshot {
 
 function snapshot(game: Game): Snapshot {
   const trapped = game.push || game.debt > 0 || game.measure;
+  const level = LEVELS[game.level]!;
   return {
     started: game.started,
     speed: speed(game),
-    levelName: LEVELS[game.level].name,
-    hint: trapped ? "Nothing improves while you stand over them." : LEVELS[game.level].hint,
+    levelName: level.name,
+    hint: trapped ? "Nothing improves while you stand over them." : level.hint,
     progress: levelProgress(game),
     trapped,
     push: game.push,
@@ -108,11 +109,13 @@ const STATE_LABEL: Record<string, string> = {
 export default function TeamGame({ description }: { description?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const gameRef = useRef<Game>(createGame(7));
+  // Created once; the ref is how the loop and the controls reach it.
+  const [initialGame] = useState(() => createGame(7));
+  const gameRef = useRef<Game>(initialGame);
   const layoutRef = useRef<Layout | null>(null);
   const sizeRef = useRef({ w: 0, h: 0 });
 
-  const [view, setView] = useState<Snapshot>(() => snapshot(gameRef.current));
+  const [view, setView] = useState<Snapshot>(() => snapshot(initialGame));
 
   const dispatch = useCallback((command: Command) => {
     applyCommand(gameRef.current, command);

@@ -1,10 +1,10 @@
 ---
-nebulaShape: book
+nebulaShape: article
 title: "whatstheword.io"
 description: "An ESL SaaS game site."
 thumbnail: "/images/whatstheword.webp"
 brightImage: true
 techs: ["react", "django", "tailwind"]
-url: "https://whatstheword.io"
-priority: 10
+url: "/legacy/whatstheword"
+order: 2
 ---

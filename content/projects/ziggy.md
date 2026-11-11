@@ -5,6 +5,6 @@ description: "A home AI assistant with a brain-inspired architecture: routed rea
 thumbnail: "/images/ziggy_diagram.webp"
 techs: ["python", "fastapi", "neo4j"]
 url: "/insights/ziggy"
-priority: 9
+order: 4
 era: "post-ai"
 ---

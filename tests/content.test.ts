@@ -1,16 +1,21 @@
+import fs from "fs";
+import path from "path";
 import {
   getCareerEntries,
   getCaseStudies,
   getCaseStudy,
   getInsight,
   getInsights,
+  getLegacyArticle,
+  getLegacyArticles,
   getProjects,
   getProjectsByEra,
   getRelatedContent,
   getSkillDomains,
   getWorkIntro,
 } from "@/lib/content";
-import { articleSchema, caseStudySchema, personSchema, websiteSchema } from "@/lib/seo";
+import { HASHED_IMAGE_RE } from "@/lib/fingerprint.mjs";
+import { articleSchema, caseStudySeo, insightSeo, personSchema, websiteSchema } from "@/lib/seo";
 
 describe("content loaders", () => {
   it("loads case studies sorted by priority", () => {
@@ -21,7 +26,7 @@ describe("content loaders", () => {
   });
 
   it("finds a case study by slug", () => {
-    const first = getCaseStudies()[0];
+    const first = getCaseStudies()[0]!;
     expect(getCaseStudy(first.slug)?.title).toBe(first.title);
   });
 
@@ -60,7 +65,7 @@ describe("content loaders", () => {
   it("loads insights with computed reading time", () => {
     const insights = getInsights();
     expect(insights.length).toBeGreaterThan(0);
-    expect(insights[0].readingTimeMinutes).toBeGreaterThanOrEqual(1);
+    expect(insights[0]!.readingTimeMinutes).toBeGreaterThanOrEqual(1);
   });
 
   it("loads a full insight body by slug", () => {
@@ -106,12 +111,70 @@ describe("content loaders", () => {
   });
 });
 
+describe("legacy articles", () => {
+  const articles = getLegacyArticles();
+  const slugs = new Set(articles.map((a) => a.slug));
+  const publicFile = (p: string) => path.join(process.cwd(), "public", p.replace(/^\//, ""));
+
+  it("loads every legacy article with an original url and a fingerprinted screenshot", () => {
+    // Fingerprinting reads the source file, so loading proves it exists;
+    // the hashed copy itself is build output (npm run images).
+    expect(articles.length).toBeGreaterThan(0);
+    for (const article of articles) {
+      expect(article.originalUrl).toMatch(/^https:\/\/icandoathing\.com/);
+      expect(article.screenshot).toMatch(HASHED_IMAGE_RE);
+    }
+  });
+
+  it("dates every project by a real month, no later than its write-up", () => {
+    for (const article of articles) {
+      expect([article.slug, article.built]).toEqual([article.slug, expect.stringMatching(/^\d{4}-(0[1-9]|1[0-2])$/)]);
+      expect([article.slug, article.built <= article.date.slice(0, 7)]).toEqual([article.slug, true]);
+    }
+  });
+
+  it("lists the most recently built project first", () => {
+    const built = articles.map((a) => a.built);
+    expect(built).toEqual([...built].sort().reverse());
+  });
+
+  it("has exactly one write-up of the site, which the origin card links to", () => {
+    expect(articles.filter((a) => a.kind === "site").map((a) => a.slug)).toEqual(["icandoathing"]);
+  });
+
+  it("resolves every project link into the legacy collection", () => {
+    const linked = getProjects().flatMap((p) => [
+      ...(p.legacySlug ? [p.legacySlug] : []),
+      ...(p.url.startsWith("/legacy/") ? [p.url.slice("/legacy/".length)] : []),
+    ]);
+    expect(linked.length).toBeGreaterThan(0);
+    expect(linked.filter((slug) => !slugs.has(slug))).toEqual([]);
+  });
+
+  it("references only media and legacy pages that exist", () => {
+    for (const { slug } of articles) {
+      const body = getLegacyArticle(slug)!.body;
+      // Any quoted image path: src, a ProjectLink image, or its slides.
+      for (const [, src] of body.matchAll(/"(\/images\/[^"]+)"/g)) {
+        expect([slug, src, fs.existsSync(publicFile(src!))]).toEqual([slug, src, true]);
+      }
+      for (const [, target] of body.matchAll(/\]\(\/legacy\/([a-z0-9-]+)\)/g)) {
+        expect([slug, target, slugs.has(target!)]).toEqual([slug, target, true]);
+      }
+    }
+  });
+
+  it("no longer sends project cards to icandoathing.com posts", () => {
+    expect(getProjects().filter((p) => p.url.includes("icandoathing.com/thing"))).toEqual([]);
+  });
+});
+
 describe("structured identity", () => {
   it("reuses one stable Person id across page schemas", () => {
     const personId = personSchema()["@id"];
     expect(personId).toBe("https://artnikitin.dev/#person");
     expect(websiteSchema().author["@id"]).toBe(personId);
-    expect(articleSchema(getInsights()[0]).author["@id"]).toBe(personId);
-    expect(caseStudySchema(getCaseStudies()[0]).author["@id"]).toBe(personId);
+    expect(articleSchema(insightSeo(getInsights()[0]!)).author["@id"]).toBe(personId);
+    expect(articleSchema(caseStudySeo(getCaseStudies()[0]!)).author["@id"]).toBe(personId);
   });
 });

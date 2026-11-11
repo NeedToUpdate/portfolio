@@ -33,7 +33,7 @@ function makeStars(width: number, height: number): Star[] {
     depth: Math.random(),
     twinklePhase: Math.random() * Math.PI * 2,
     twinkleSpeed: 0.3 + Math.random() * 0.7,
-    color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)],
+    color: STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]!,
   }));
 }
 
@@ -125,8 +125,11 @@ export default function StarField() {
 
     const onVisibility = () => {
       running = document.visibilityState === "visible" && !reducedMotion;
+      // A mount in a background tab leaves its first frame pending, and
+      // hidden tabs never fire it. Cancel it before scheduling, or the
+      // tab turning visible starts a second loop that doubles the drift.
+      cancelAnimationFrame(frame);
       if (running) frame = requestAnimationFrame(loop);
-      else cancelAnimationFrame(frame);
     };
 
     resize();

@@ -1,0 +1,65 @@
+---
+title: "An 8-bit CPU on breadboards"
+description: "An 8-bit breadboard computer built after Nand2Tetris and Ben Eater's guide, extended with XOR, XNOR and double the RAM, shown computing Fibonacci numbers."
+deck: "How does electricity turn into ones and zeros that then become something as complex as this website? I've always been fascinated with the topic, so I decided to try my hand at making an 8-bit breadboard computer."
+date: "2022-04-15"
+built: "2021-09"
+originalUrl: "https://icandoathing.com/thing/OPJQJ6/i-made-an-8-bit-cpu-on-breadboards"
+screenshot: "/images/legacy/breadboard-cpu/original.webp"
+tags: ["8-bit", "computing", "breadboard", "electronics"]
+---
+
+<MediaRow
+  src="/images/legacy/breadboard-cpu/01.webp"
+  alt="A single breadboard holding the clock module: a timer chip, a potentiometer, a push button and a few LEDs"
+  side="left"
+  wrap
+>
+
+Not too long ago, I successfully completed the [Nand2Tetris course](https://www.nand2tetris.org/). It was extremely interesting, and I wanted to actually create a computer like the one in the course. The Hack computer in the course has a 16-bit CPU, which is a little bit too many wires for my liking. 8-bit seemed like a perfect size project. I followed [Ben Eater's guide](https://eater.net/8bit/), but I made adjustments and changes as I saw fit. Especially since I could buy most of the parts where I live much cheaper than the kit, and some parts weren't available, while some others looked better than what Ben used.
+
+The image here is the simple clock module that I started with.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/breadboard-cpu/02.webp"
+  alt="Several breadboards joined together with logic chips, rows of red and blue LEDs, and yellow jumper wires"
+  side="right"
+>
+
+Ben's computer could do 2 things mathematically: add and subtract. I added the ability to XOR and XNOR on top of it, using techniques I learned from Nand2Tetris. I also doubled the RAM from a measly 16 bytes to a whopping 32 bytes!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/breadboard-cpu/03.webp"
+  alt="The finished computer: a full grid of breadboards dense with labelled wiring, a seven-segment display and an LED matrix"
+  side="left"
+  wrap
+>
+
+Here is the final build. It has 20 instructions it can do. Do nothing, load register A from RAM 1 or RAM 2, load register B from RAM 1 or RAM 2, store the value in register A to RAM 1 or RAM 2, add, sub, xor, xnor, move A to B, move B to A, jump, jump carry, jump zero, load a number to A or B, and halt. Ben Eater explains the jumps, loads, registers, and others much better than I can. You can check the videos out in the link above.
+
+</MediaRow>
+
+<VideoFigure
+  src="/images/legacy/breadboard-cpu/04.webm"
+  label="The breadboard computer running: LEDs flicker across the boards while the display counts up through the Fibonacci numbers"
+  caption="The computer running the Fibonacci program. The red display shows each number as it is calculated: 1, 13, 233."
+/>
+
+Here it is mesmerizingly calculating the Fibonacci numbers. In essence it's performing the following code:
+
+```
+a = 0
+b = 1
+temp = 0
+while a + b < 256:
+    print(a)
+    temp = a
+    a = a + b
+    b = temp
+```
+
+You can see in the bottom left there is an 8 by 8 LED pixel matrix. This will later on become a display. I can use the second RAM to store image data, which can then be shown on the display. But that is for another day. For now the computer is done. I will post an update when I get around to adding the feature.

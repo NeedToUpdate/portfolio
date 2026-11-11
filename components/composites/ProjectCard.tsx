@@ -4,6 +4,7 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import TagList from "./TagList";
 import { Project } from "@/lib/types";
+import { isOffsite } from "@/lib/links";
 
 interface ProjectCardProps {
   project: Project;
@@ -15,8 +16,13 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   // the destination — some point at the write-up itself and get
   // internal client-side routing rather than a new tab, same rule
   // TextLink uses.
-  const hasWriteup = Boolean(project.insightSlug);
-  const external = project.url.startsWith("http");
+  const writeupHref = project.insightSlug
+    ? `/insights/${project.insightSlug}`
+    : project.legacySlug
+      ? `/legacy/${project.legacySlug}`
+      : undefined;
+  const hasWriteup = Boolean(writeupHref);
+  const external = isOffsite(project.url);
   const isGithub = project.url.includes("github.com");
 
   const content = (
@@ -58,8 +64,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       {/* The card's main click target. The repo link below is a
           second, small, deliberate target, kept out of this anchor
           since anchors cannot nest. */}
-      {hasWriteup ? (
-        <Link href={`/insights/${project.insightSlug}`} className="group flex flex-1 flex-col">
+      {writeupHref ? (
+        <Link href={writeupHref} className="group flex flex-1 flex-col">
           {content}
         </Link>
       ) : external ? (

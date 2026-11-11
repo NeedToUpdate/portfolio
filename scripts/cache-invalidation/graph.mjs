@@ -11,8 +11,10 @@
 // synthetic adjacency; only buildAdjacency touches dependency-cruiser,
 // via a dynamic import so importing this module stays cheap.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+
+import { ARTICLE_COLLECTIONS } from "../../lib/collections.mjs";
 
 /** Normalize to a POSIX, repo-relative path so keys match `git diff` output. */
 function normalizePath(filePath) {
@@ -120,7 +122,9 @@ export function scopeMdxComponents(
   adjacency,
   {
     registryFile = "components/composites/mdx-components.tsx",
-    contentDir = "content/insights",
+    // Every collection's MDX files, as [directory, route prefix] pairs.
+    // Markdown-only collections (work) hold no .mdx and add no roots.
+    contentDirs = ARTICLE_COLLECTIONS.map((c) => [`content/${c.key}`, c.route]),
   } = {},
 ) {
   const scopedAdjacency = Object.fromEntries(
@@ -142,7 +146,10 @@ export function scopeMdxComponents(
   }
 
   const registered = new Set();
-  const objectBody = registrySource.match(/mdxComponents\s*:[^=]+?=\s*\{([\s\S]*?)\n\};/)?.[1] ?? "";
+  // `mdxComponents = { ... } satisfies MDXComponents;` (or with a type
+  // annotation): the object literal between the braces.
+  const objectBody =
+    registrySource.match(/mdxComponents\s*(?::[^=]+?)?=\s*\{([\s\S]*?)\n\}/)?.[1] ?? "";
   for (const name of imports.keys()) {
     if (new RegExp(`(?:^|[,\\s])${name}(?:[,\\s]|$)`, "m").test(objectBody)) registered.add(name);
   }
@@ -152,12 +159,15 @@ export function scopeMdxComponents(
   );
 
   const roots = [];
-  for (const filename of readdirSync(contentDir).filter((file) => /\.mdx$/.test(file))) {
-    const source = readFileSync(path.join(contentDir, filename), "utf8");
-    const slug = filename.replace(/\.mdx$/, "");
-    for (const name of registered) {
-      if (new RegExp(`<${name}(?:\\s|/|>)`).test(source)) {
-        roots.push({ file: imports.get(name), paths: [`/insights/${slug}`] });
+  for (const [dir, prefix] of contentDirs) {
+    if (!existsSync(dir)) continue;
+    for (const filename of readdirSync(dir).filter((file) => /\.mdx$/.test(file))) {
+      const source = readFileSync(path.join(dir, filename), "utf8");
+      const slug = filename.replace(/\.mdx$/, "");
+      for (const name of registered) {
+        if (new RegExp(`<${name}(?:\\s|/|>)`).test(source)) {
+          roots.push({ file: imports.get(name), paths: [`${prefix}/${slug}`] });
+        }
       }
     }
   }

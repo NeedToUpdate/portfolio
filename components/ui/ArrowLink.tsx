@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isExternal, newTabProps } from "@/lib/links";
 
 interface ArrowLinkProps {
   href: string;
@@ -24,14 +25,14 @@ export default function ArrowLink({ href, label, nebulaShape }: ArrowLinkProps) 
 
   // mailto/external links get a plain anchor; Next's Link is for
   // in-app routes and doesn't handle the mailto protocol.
-  const external = href.startsWith("http") || href.startsWith("mailto:");
+  const external = isExternal(href);
   if (external) {
     return (
       <a
         href={href}
         data-nebula-shape={nebulaShape}
         className={className}
-        {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        {...newTabProps(href)}
       >
         {inner}
       </a>

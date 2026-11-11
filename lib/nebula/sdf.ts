@@ -18,7 +18,7 @@ export function chamferDistance(mask: Uint8Array, width: number, height: number)
   const INF = 1e9;
   const dist = new Float32Array(width * height);
   for (let i = 0; i < mask.length; i++) {
-    dist[i] = mask[i] > 0 ? 0 : INF;
+    dist[i] = mask[i]! > 0 ? 0 : INF;
   }
 
   // Forward pass: top-left to bottom-right.
@@ -26,12 +26,12 @@ export function chamferDistance(mask: Uint8Array, width: number, height: number)
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       if (dist[i] === 0) continue;
-      let d = dist[i];
-      if (x > 0) d = Math.min(d, dist[i - 1] + CHAMFER_STRAIGHT);
+      let d = dist[i]!;
+      if (x > 0) d = Math.min(d, dist[i - 1]! + CHAMFER_STRAIGHT);
       if (y > 0) {
-        d = Math.min(d, dist[i - width] + CHAMFER_STRAIGHT);
-        if (x > 0) d = Math.min(d, dist[i - width - 1] + CHAMFER_DIAGONAL);
-        if (x < width - 1) d = Math.min(d, dist[i - width + 1] + CHAMFER_DIAGONAL);
+        d = Math.min(d, dist[i - width]! + CHAMFER_STRAIGHT);
+        if (x > 0) d = Math.min(d, dist[i - width - 1]! + CHAMFER_DIAGONAL);
+        if (x < width - 1) d = Math.min(d, dist[i - width + 1]! + CHAMFER_DIAGONAL);
       }
       dist[i] = d;
     }
@@ -42,12 +42,12 @@ export function chamferDistance(mask: Uint8Array, width: number, height: number)
     for (let x = width - 1; x >= 0; x--) {
       const i = y * width + x;
       if (dist[i] === 0) continue;
-      let d = dist[i];
-      if (x < width - 1) d = Math.min(d, dist[i + 1] + CHAMFER_STRAIGHT);
+      let d = dist[i]!;
+      if (x < width - 1) d = Math.min(d, dist[i + 1]! + CHAMFER_STRAIGHT);
       if (y < height - 1) {
-        d = Math.min(d, dist[i + width] + CHAMFER_STRAIGHT);
-        if (x < width - 1) d = Math.min(d, dist[i + width + 1] + CHAMFER_DIAGONAL);
-        if (x > 0) d = Math.min(d, dist[i + width - 1] + CHAMFER_DIAGONAL);
+        d = Math.min(d, dist[i + width]! + CHAMFER_STRAIGHT);
+        if (x < width - 1) d = Math.min(d, dist[i + width + 1]! + CHAMFER_DIAGONAL);
+        if (x > 0) d = Math.min(d, dist[i + width - 1]! + CHAMFER_DIAGONAL);
       }
       dist[i] = d;
     }
@@ -67,7 +67,7 @@ export function distancesToBytes(
   const maxDist = (Math.min(width, height) / 2.2) * CHAMFER_STRAIGHT;
   const out = new Uint8Array(dist.length);
   for (let i = 0; i < dist.length; i++) {
-    out[i] = Math.min(255, Math.round((dist[i] / maxDist) * 255));
+    out[i] = Math.min(255, Math.round((dist[i]! / maxDist) * 255));
   }
   return out;
 }
@@ -107,7 +107,7 @@ export function rasterizePathToMask(pathData: string, size: number): Uint8Array 
   const pixels = ctx.getImageData(0, 0, size, size).data;
   const mask = new Uint8Array(size * size);
   for (let i = 0; i < mask.length; i++) {
-    mask[i] = pixels[i * 4 + 3] > 127 ? 1 : 0;
+    mask[i] = pixels[i * 4 + 3]! > 127 ? 1 : 0;
   }
   return mask;
 }

@@ -11,6 +11,8 @@
 # next.js
 /.next/
 /out/
+# SWC's plugin cache; the compiler recreates it on demand.
+/.swc/
 
 # production
 /build
@@ -42,3 +44,7 @@ next-env.d.ts
 .vscode/
 writing/
 scratchpad/
+# Content-hashed image twins and their .og.jpg cards. Build output of
+# scripts/build-image-assets.mjs (npm run images), which runs before
+# both `next dev` and `next build`.
+/public/images/**/*.[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*

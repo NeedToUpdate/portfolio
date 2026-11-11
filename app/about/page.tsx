@@ -36,6 +36,8 @@ export default function AboutPage() {
         corner="bottom-left"
         miniShape="orion"
         color="aurora"
+        // Dims the cloud on phones, where the text runs through the gas.
+        scrim
       />
       <JsonLd data={profilePageSchema()} />
       <JsonLd

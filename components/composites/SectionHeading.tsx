@@ -1,10 +1,11 @@
+import { ReactNode } from "react";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 
 interface SectionHeadingProps {
   /** Small label above the title, e.g. "Case studies". */
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
   description?: string;
   id?: string;

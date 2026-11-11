@@ -10,7 +10,7 @@ related: ["/insights/ziggy", "/work/sdlc-revamp", "/work/integration-platform"]
 
 I wanted to know how closely a homelab could follow the same operating patterns as a large enterprise platform: GitOps, agentic development, observability, identity, and reliability. I also wanted to actually learn Kubernetes, not just read about it.
 
-I had two old laptops and an old server doing nothing—the same server I [3D-printed a case for](https://icandoathing.com/thing/SlhPxf/i-made-a-case-for-my-server). None of them alone could run everything I wanted: a media server, photo backup, document storage, a bridge into the home-automation setup, and a handful of scheduled jobs. The answer to both problems was the same: stop asking one machine to do everything. Those three machines became a control plane, two mini PCs joined underneath as a worker pool, and five nodes did together what none of them could do alone.
+I had two old laptops and an old server doing nothing—the same server I [3D-printed a case for](/legacy/server-case). None of them alone could run everything I wanted: a media server, photo backup, document storage, a bridge into the home-automation setup, and a handful of scheduled jobs. The answer to both problems was the same: stop asking one machine to do everything. Those three machines became a control plane, two mini PCs joined underneath as a worker pool, and five nodes did together what none of them could do alone.
 
 What I ended up with runs an HA control plane, nearly ninety workloads with single sign-on in front of every app, and eBPF network policy enforcement, in my den, on hardware that was headed for a drawer. Most nights it serves a movie and runs a couple of cron jobs. That mismatch is the point: this is where I practice the same platform patterns I use at work, without a client's production traffic on the line if I get something wrong.
 
@@ -18,10 +18,8 @@ What I ended up with runs an HA control plane, nearly ninety workloads with sing
 
 Five nodes. Two old laptops and the old server form the control plane, voting on quorum so the cluster survives any one of them dying, and they double as ingress. Two mini PCs run underneath as a worker pool, carrying the actual application load. GitOps owns every workload through Argo CD's app-of-apps pattern, synced from four sibling repos by namespace: `tools` for a homepage dashboard, `automation` for Airflow and the bridge into [Ziggy](/insights/ziggy), `media` for Jellyfin and the usual `*arr` stack, `personal` for Immich and Paperless-ngx.
 
-<FloatImage
+<MediaRow
   src="/images/k3s_homelab.webp"
-  width={1585}
-  height={1624}
   alt="The my.home dashboard, showing live cluster metrics, storage, and every app running across the five nodes"
   side="none"
   caption="my.home: disk, CPU, and every app on the cluster, at a glance."

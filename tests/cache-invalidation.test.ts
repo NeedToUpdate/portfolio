@@ -2,9 +2,9 @@ import {
   addedContentDetailPath,
   classifyChange,
   discoverRoots,
-  fullPathList,
   fullTextPathList,
   mdMirrorPathList,
+  newPagePaths,
   optimizerVariantPaths,
   parseNameStatus,
   staticRoutePath,
@@ -19,8 +19,10 @@ import {
 /** A minimal context; code files are pre-mapped where a test needs them. */
 function makeContext(fileToPaths = new Map<string, Set<string>>()) {
   return {
-    insightSlugs: ["ziggy", "groundnet"],
-    workSlugs: ["payment_rebuild", "tableau"],
+    slugs: {
+      insights: ["ziggy", "groundnet"],
+      work: ["payment_rebuild", "tableau"],
+    } as Record<string, string[]>,
     fileToPaths,
   };
 }
@@ -64,6 +66,37 @@ describe("content classification", () => {
     );
     expect(addedContentDetailPath("content/work/existing.md", "M")).toBeNull();
     expect(addedContentDetailPath("content/projects/new.md", "A")).toBeNull();
+    expect(addedContentDetailPath("content/legacy/server-case.mdx", "A")).toBe(
+      "/legacy/server-case",
+    );
+  });
+
+  it("maps a legacy article to its page, its twin, the sitemap, and llms.txt", () => {
+    const edited = classifyChange("content/legacy/server-case.mdx", "M", ctx);
+    expect(edited.bucket).toBe("legacy");
+    expect(edited.paths).toEqual([
+      "/legacy/server-case",
+      "/md/legacy/server-case",
+      "/legacy",
+      "/md/legacy",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
+    expect(classifyChange("content/legacy/brand-new.mdx", "A", ctx).paths).toEqual([
+      "/legacy",
+      "/md/legacy",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
+  });
+
+  it("includes legacy pages in a full text refresh when the context lists them", () => {
+    const paths = fullTextPathList({ ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } });
+    expect(paths).toContain("/legacy/server-case");
+    expect(paths).toContain("/md/legacy/server-case");
+    expect(mdMirrorPathList({ ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } })).toContain(
+      "/md/legacy/server-case",
+    );
   });
 
   it("maps an edited case study to its slug, the indexes, their twins, and llms.txt", () => {
@@ -82,6 +115,13 @@ describe("content classification", () => {
     ]);
   });
 
+
+  it("maps index-page copy to its page and markdown twin", () => {
+    expect(classifyChange("content/pages/insights.md", "M", ctx).paths).toEqual([
+      "/insights",
+      "/md/insights",
+    ]);
+  });
   it("maps projects, career, skills, and home content to their pages and twins", () => {
     expect(classifyChange("content/projects/ziggy.md", "M", ctx).paths).toEqual([
       "/projects",
@@ -153,6 +193,20 @@ describe("image and asset classification", () => {
 
   it("invalidates a plain public asset at its own path", () => {
     expect(classifyChange("public/favicon.ico", "M", ctx).paths).toEqual(["/favicon.ico"]);
+  });
+
+  it("invalidates nothing for a new image", () => {
+    expect(classifyChange("public/images/legacy/new/01.webp", "A", ctx)).toEqual({
+      bucket: "image-added",
+      paths: [],
+    });
+  });
+
+  it("purges a deleted image without its optimizer wildcards", () => {
+    expect(classifyChange("public/images/old.webp", "D", ctx)).toEqual({
+      bucket: "image-deleted",
+      paths: ["/images/old.webp"],
+    });
   });
 
   it("scopes optimizer variants to the encoded source path", () => {
@@ -408,8 +462,40 @@ describe("path lists and diff parsing", () => {
     expect(text).not.toContain("/_next/image*");
   });
 
-  it("includes image wildcards only in the bootstrap list", () => {
-    expect(fullPathList(ctx)).toEqual([...fullTextPathList(ctx), "/images/*", "/_next/image*"]);
+  it("lists pages that did not exist before the diff", () => {
+    const withLegacy = { ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } };
+    expect(
+      newPagePaths(
+        [
+          { file: "content/insights/fresh.mdx", status: "A" },
+          { file: "app/legacy/page.tsx", status: "A" },
+          { file: "app/legacy/[slug]/page.tsx", status: "A" },
+          { file: "content/insights/ziggy.mdx", status: "M" },
+        ],
+        withLegacy,
+      ).sort(),
+    ).toEqual(
+      [
+        "/insights/fresh",
+        "/md/insights/fresh",
+        "/legacy",
+        "/md/legacy",
+        "/legacy/server-case",
+        "/md/legacy/server-case",
+      ].sort(),
+    );
+  });
+
+  it("keeps a URL that a deleted route used to serve", () => {
+    expect(
+      newPagePaths(
+        [
+          { file: "app/about/page.tsx", status: "D" },
+          { file: "app/about/page.jsx", status: "A" },
+        ],
+        ctx,
+      ),
+    ).toEqual([]);
   });
 
   it("expands renames into a delete plus an add", () => {

@@ -1,6 +1,6 @@
 import TextLink from "@/components/ui/TextLink";
 
-interface Crumb {
+export interface Crumb {
   label: string;
   /** Omit for the current page. */
   href?: string;

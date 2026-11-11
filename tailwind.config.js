@@ -20,6 +20,7 @@ module.exports = {
         base: "rgb(var(--c-base) / <alpha-value>)",
         surface: "rgb(var(--c-surface) / <alpha-value>)",
         raised: "rgb(var(--c-raised) / <alpha-value>)",
+        glass: "rgb(var(--c-glass) / <alpha-value>)",
         line: "rgb(var(--c-line) / <alpha-value>)",
         ink: "rgb(var(--c-ink) / <alpha-value>)",
         muted: "rgb(var(--c-muted) / <alpha-value>)",

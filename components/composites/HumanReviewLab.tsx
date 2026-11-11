@@ -20,14 +20,14 @@ function Fader({ label, value, min, max, showAvailable = false, onChange }: Fade
   return (
     <div className="grid min-w-0 grid-cols-[6.5rem_minmax(0,1fr)_3.5rem] items-center gap-2 sm:flex sm:flex-1 sm:flex-col sm:gap-3">
       <output htmlFor={id} className="col-start-3 row-start-1 text-right font-mono text-xs font-semibold text-ink sm:col-auto sm:row-auto sm:text-center sm:text-sm">
-        {value} days
+        {days(value)}
       </output>
       <div className="relative col-start-2 row-start-1 flex h-11 w-full items-center justify-center sm:col-auto sm:row-auto sm:h-36 sm:w-10" style={progressStyle}>
         <div className="absolute h-1 w-full rounded-full bg-raised sm:h-full sm:w-1" />
         <div className="absolute left-0 h-1 w-[var(--fader-progress)] rounded-full bg-accent/70 sm:bottom-0 sm:left-auto sm:h-[var(--fader-progress)] sm:w-1" />
         <input
           id={id}
-          aria-label={`${label}, ${value} days`}
+          aria-label={`${label}, ${days(value)}`}
           type="range"
           min={min}
           max={max}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { buttonClasses, ButtonVariant, ButtonShape } from "./Button";
+import { isExternal, newTabProps } from "@/lib/links";
 
 interface ButtonLinkProps {
   href: string;
@@ -30,7 +31,7 @@ export default function ButtonLink({
     shape,
     `inline-flex items-center justify-center gap-2 ${className}`,
   );
-  const external = href.startsWith("http") || href.startsWith("mailto:");
+  const external = isExternal(href);
 
   if (external) {
     return (
@@ -38,7 +39,7 @@ export default function ButtonLink({
         href={href}
         className={classes}
         data-nebula-shape={nebulaShape}
-        {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        {...newTabProps(href)}
       >
         {children}
       </a>

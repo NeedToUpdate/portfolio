@@ -1,0 +1,55 @@
+---
+title: "A web app that creates and saves invoices"
+description: "A Next.js invoice generator built for a client: fill in a form, save it locally or to an encrypted cloud record, and get a PDF from any device."
+deck: "You can load or save from any device to quickly make a PDF invoice."
+date: "2023-01-11"
+built: "2023-01"
+originalUrl: "https://icandoathing.com/thing/6wPmzG/i-made-a-web-app-that-creates-and-saves"
+screenshot: "/images/legacy/invoice-app/original.webp"
+tags: ["react", "pdfkit", "nextjs", "mongodb"]
+---
+
+<MediaRow
+  src="/images/legacy/invoice-app/01.webp"
+  alt="The empty Create Your Invoice form, with fields for names, addresses, invoice number, date and line items"
+  side="left"
+>
+
+A client of mine wanted an easier way to create a simple invoice form, and wanted to be able to do it from many devices. A web app is the perfect way, as it can be accessed from any device with a modern browser.
+
+The form allows you to write your info, your client's info, and add a logo.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/invoice-app/02.webp"
+  alt="The form filled in with a logo and two line items, showing that it is saved to the browser and to the cloud"
+  side="right"
+  size="third"
+>
+
+You can then save the info to localStorage, so next time you open the site it will autofill for you. Or you can save it to the cloud (a dockerized MongoDB instance), so you can access it from anywhere with the same name and password.
+
+The info in the backend is encrypted using your password, and your password is never stored in plaintext. I followed security best practices here, so your info is safe.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/invoice-app/03.webp"
+  alt="The generated PDF invoice, with the logo, both addresses, two line items and a total of $200.00"
+  side="left"
+>
+
+The web app uses pdfkit in the backend to create the PDF. The whole tech stack is Next.js + Tailwind CSS + MongoDB. Component testing and integration testing are done with Cypress. It's all in a Docker container, so deploying is just a simple `docker-compose up`. When I wrote this, it was deployed on one of my VPS machines.
+
+</MediaRow>
+
+<ProjectLink
+  mode="external"
+  href="https://invoice.artnikitin.dev"
+  title="Invoice Manager"
+  note="Fill in the form and download a PDF invoice."
+  image="/images/legacy/invoice-app/01.webp"
+  focus="38% 22%"
+  zoom={2.5}
+/>

@@ -55,7 +55,8 @@ export interface Project {
   thumbnail?: string;
   techs: string[];
   url: string;
-  priority: number;
+  /** Position on the projects page; lower comes first. Unique. */
+  order: number;
   brightImage?: boolean;
   /** Whether the project was built before or with AI in the toolchain. */
   era: ProjectEra;
@@ -63,6 +64,43 @@ export interface Project {
   nebulaShape?: string;
   /** Slug of an insight write-up about this project, if one exists. */
   insightSlug?: string;
+  /** Slug of a legacy article about this project, if one exists. Used
+   *  when the project also keeps an external url of its own. */
+  legacySlug?: string;
+}
+
+/**
+ * A legacy article: a post ported from icandoathing.com, or the
+ * write-up of that site itself. Source: content/legacy/*.mdx.
+ * Reached from project cards only; never listed on the home page.
+ */
+export interface LegacyArticleMeta {
+  slug: string;
+  title: string;
+  /** Short summary for meta tags. */
+  description: string;
+  /** The original post's own summary line, shown under the title. */
+  deck?: string;
+  /** When the original was first published (YYYY-MM-DD). For the site
+   *  write-up, when it was written. */
+  date: string;
+  /** The month the project was built (YYYY-MM): the date the archive
+   *  shows and sorts by. Most projects predate their post by months or
+   *  years. Falls back to the post's month when the file sets none. */
+  built: string;
+  /** Where the original lived. */
+  originalUrl: string;
+  /** Screenshot of the original page: the origin card thumbnail and the
+   *  social preview. Fingerprinted by the loader, like previewImage. */
+  screenshot: string;
+  tags: string[];
+  /** "post" is a rewrite of an icandoathing.com post; "site" is the
+   *  write-up of icandoathing.com itself. */
+  kind: "post" | "site";
+}
+
+export interface LegacyArticle extends LegacyArticleMeta {
+  body: string;
 }
 
 /** Insight metadata. Source: content/insights/*.mdx frontmatter */

@@ -93,7 +93,6 @@ export function computeLayout(w: number, h: number): Layout {
   } else {
     deskW = Math.max(50, Math.min(70, Math.floor((areaW - 2 * 14) / 3)));
     const rows = [3, 2];
-    let index = 0;
     rows.forEach((count, r) => {
       const gap = Math.min(30, (areaW - count * deskW) / Math.max(1, count - 1));
       const rowW = count * deskW + (count - 1) * gap;
@@ -101,7 +100,6 @@ export function computeLayout(w: number, h: number): Layout {
       const y = r === 0 ? Math.round(h * 0.42) : Math.round(h * 0.78);
       for (let i = 0; i < count; i += 1) {
         desks.push({ x: startX + i * (deskW + gap), y });
-        index += 1;
       }
     });
   }
@@ -112,7 +110,7 @@ function seatPoint(layout: Layout, place: Dev["at"], self: number): Point {
   if (place.kind === "pot") {
     return { x: layout.pot.x + layout.pot.w / 2, y: layout.pot.y + layout.pot.h + 16 };
   }
-  const desk = layout.desks[place.dev];
+  const desk = layout.desks[place.dev]!;
   // The owner sits behind the desk; a visitor stands beside it.
   if (place.dev === self) return { x: desk.x, y: desk.y - DESK_H / 2 - 12 };
   return { x: desk.x + layout.deskW / 2 + 12, y: desk.y - DESK_H / 2 - 12 };
@@ -133,7 +131,7 @@ function devPoint(layout: Layout, dev: Dev): Point {
 /** Which dev a canvas click lands on, or null. */
 export function hitDev(layout: Layout, x: number, y: number): number | null {
   for (let i = 0; i < layout.desks.length; i += 1) {
-    const desk = layout.desks[i];
+    const desk = layout.desks[i]!;
     if (
       x >= desk.x - layout.deskW / 2 - 8 &&
       x <= desk.x + layout.deskW / 2 + 8 &&
@@ -240,7 +238,7 @@ export function drawGame(
   ctx.fillText(game.started ? `Day ${day(game)}` : "Day 1 · ready", 12, 18);
 
   if (w >= 520) {
-    const label = `${speed(game)}x · ${game.push ? "rushing" : game.debt > 0 ? "recovering" : game.measure ? "measured" : LEVELS[game.level].name.toLowerCase()}`;
+    const label = `${speed(game)}x · ${game.push ? "rushing" : game.debt > 0 ? "recovering" : game.measure ? "measured" : LEVELS[game.level]!.name.toLowerCase()}`;
     ctx.textAlign = "center";
     ctx.fillStyle =
       game.push || game.measure || game.debt > 0 ? rgba("251 146 60", 1) : rgba(palette.accent, 1);
@@ -279,7 +277,7 @@ export function drawGame(
 
   // Desks.
   for (const dev of game.devs) {
-    const desk = layout.desks[dev.id];
+    const desk = layout.desks[dev.id]!;
     const dw = layout.deskW;
     const rx = desk.x - dw / 2;
     const ry = desk.y - DESK_H / 2;

@@ -7,46 +7,41 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 
+import {
+  AGENT_ONLY_DOCS,
+  ARTICLE_COLLECTIONS,
+  FIXED_PAGES,
+  mdTwin,
+} from "../../lib/collections.mjs";
+import { HASHED_IMAGE_RE } from "../../lib/fingerprint.mjs";
+
 export const SKIP_MARKER = "[skip-invalidate]";
 
 // Every text route the site currently serves, excluding anything under
 // /images/* or /_next/image* — those are handled separately (and often
 // need nothing at all, see HASHED_IMAGE_RE below).
+// The fixed pages and their twins come from lib/collections.mjs.
+const FIXED_MD_PATHS = [...FIXED_PAGES.map(mdTwin), ...AGENT_ONLY_DOCS].sort();
+
 export const TEXT_FIXED_PATHS = [
-  "/",
-  "/about",
-  "/contact",
-  "/insights",
-  "/projects",
-  "/work",
+  ...[...FIXED_PAGES].sort(),
   "/robots.txt",
   "/sitemap.xml",
   "/opengraph-image",
   "/llms.txt",
   // Agent surface: fixed markdown-mirror documents and the well-known
   // discovery files (see lib/agent-markdown.ts and app/.well-known/).
-  "/md",
-  "/md/about",
-  "/md/capabilities",
-  "/md/contact",
-  "/md/insights",
-  "/md/projects",
-  "/md/work",
+  ...FIXED_MD_PATHS,
   "/.well-known/api-catalog",
   "/.well-known/agent-skills/index.json",
   "/.well-known/agent-skills/using-this-site/SKILL.md",
 ];
 
-// Only used by the bootstrap (no tag yet) and diff-failure fallbacks,
-// where nothing is known about what changed. A mapped image change
-// invalidates its own variants instead — see optimizerVariantPaths().
-export const IMAGE_WILDCARD_PATHS = ["/images/*", "/_next/image*"];
-
 // previewImage/diagram source files get copied to a sha256-hashed twin
 // by scripts/build-image-assets.mjs (see lib/images.ts). The hashed
 // file is the only one ever linked to, so a new hash is a brand new
 // URL — nothing to invalidate. This matches that naming scheme.
-export const HASHED_IMAGE_RE = /\.[0-9a-f]{8}(\.og)?\.[a-z0-9]+$/i;
+export { HASHED_IMAGE_RE };
 
 // Hand-versioned static assets (favicon-v2.ico, apple-touch-icon-v2.png,
 // ...): editing one bumps the suffix and produces a new filename/URL on
@@ -117,24 +112,76 @@ export function listSlugs(dir) {
  */
 export function addedContentDetailPath(file, status) {
   if (status !== "A") return null;
-  const match = file.match(/^content\/(insights|work)\/([^/]+)\.mdx?$/);
-  return match ? `/${match[1]}/${match[2]}` : null;
+  const match = matchCollectionFile(file);
+  return match ? `${match.collection.route}/${match.slug}` : null;
 }
 
-// Enumerates every current insight/work slug from the checked-out content
-// directories, rather than relying on a "/insights/*"-style wildcard — so
-// the fallback always matches what's actually on the site right now.
-export function fullPathList(ctx) {
-  return [...fullTextPathList(ctx), ...IMAGE_WILDCARD_PATHS];
+/**
+ * Pages that did not exist before this diff: new content detail pages, new
+ * static routes, and every slug under a new collection route. Nothing was
+ * cached at these URLs, so a changed shared component that reaches them
+ * through the import graph must not put them in the invalidation. A path
+ * a deleted file used to serve (a route replaced by a new file at the same
+ * URL) was cached, so it stays.
+ */
+export function newPagePaths(changed, ctx) {
+  const added = new Set();
+  const servedBefore = new Set();
+  for (const { file, status } of changed) {
+    if (status === "D") {
+      withTwins(classifyChange(file, status, ctx).paths).forEach((p) => servedBefore.add(p));
+      continue;
+    }
+    if (status !== "A") continue;
+    const detail = addedContentDetailPath(file, status);
+    if (detail) withTwins([detail]).forEach((p) => added.add(p));
+    if (!isPageFile(file)) continue;
+    const served = staticRoutePath(file);
+    if (served !== null) withTwins([served]).forEach((p) => added.add(p));
+    const dynamic = file.match(/^app\/(.+)\/\[slug\]\/page\.(tsx?|jsx?)$/);
+    const c = dynamic && ARTICLE_COLLECTIONS.find((c) => c.route === `/${dynamic[1]}`);
+    if (c) withTwins(slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`)).forEach((p) => added.add(p));
+  }
+  return [...added].filter((p) => !servedBefore.has(p));
 }
 
-// Same as above but without the image wildcards — this is what a
-// "global" text-only change (layout, broad config, ...) touches.
+/** The collection and slug of a content file with its own detail page. */
+function matchCollectionFile(file) {
+  for (const collection of ARTICLE_COLLECTIONS) {
+    const prefix = `content/${collection.key}/`;
+    if (!file.startsWith(prefix)) continue;
+    const m = file.slice(prefix.length).match(/^([^/]+)\.mdx?$/);
+    if (m) return { collection, slug: m[1] };
+  }
+  return null;
+}
+
+/** Slugs on disk for every collection, keyed by collection. */
+export function slugsFromDisk(contentDir = "content") {
+  return Object.fromEntries(
+    ARTICLE_COLLECTIONS.map((c) => [c.key, listSlugs(`${contentDir}/${c.key}`)]),
+  );
+}
+
+function slugsOf(ctx, key) {
+  return ctx.slugs?.[key] ?? [];
+}
+
+/** Each listed page followed by its markdown twin. */
+function withTwins(paths) {
+  return paths.flatMap((p) => [p, mdTwin(p)]);
+}
+
+// Every text route, with each collection slug enumerated from the
+// checked-out content directories rather than an "/insights/*"-style
+// wildcard. This is what a "global" change (layout, broad config, ...)
+// touches. Images are never in it.
 export function fullTextPathList(ctx) {
   return [
     ...TEXT_FIXED_PATHS,
-    ...ctx.insightSlugs.flatMap((s) => [`/insights/${s}`, `/md/insights/${s}`]),
-    ...ctx.workSlugs.flatMap((s) => [`/work/${s}`, `/md/work/${s}`]),
+    ...ARTICLE_COLLECTIONS.flatMap((c) =>
+      withTwins(slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`)),
+    ),
   ];
 }
 
@@ -142,15 +189,10 @@ export function fullTextPathList(ctx) {
 // plus the agent-only /md/capabilities document (lib/agent-markdown.ts).
 export function mdMirrorPathList(ctx) {
   return [
-    "/md",
-    "/md/about",
-    "/md/capabilities",
-    "/md/contact",
-    "/md/insights",
-    "/md/projects",
-    "/md/work",
-    ...ctx.insightSlugs.map((s) => `/md/insights/${s}`),
-    ...ctx.workSlugs.map((s) => `/md/work/${s}`),
+    ...FIXED_MD_PATHS,
+    ...ARTICLE_COLLECTIONS.flatMap((c) =>
+      slugsOf(ctx, c.key).map((s) => mdTwin(`${c.route}/${s}`)),
+    ),
   ];
 }
 
@@ -199,6 +241,13 @@ export function parseNameStatus(output) {
  *
  * @returns {{ file: string, paths: string[] }[]}
  */
+/** The collection whose dynamic detail page this file is, if any. */
+function detailPageCollection(file, appDir) {
+  return ARTICLE_COLLECTIONS.find((c) => file === `${appDir}${c.route}/[slug]/page.tsx`);
+}
+
+const ROOT_CONVENTION_FILES = ["layout.tsx", "not-found.tsx", "error.tsx", "global-error.tsx"];
+
 export function discoverRoots(ctx, appDir = "app") {
   const roots = [];
   const walk = (dir) => {
@@ -211,7 +260,9 @@ export function discoverRoots(ctx, appDir = "app") {
       const file = full.replace(/\\/g, "/");
       if (!/\.(tsx?|jsx?)$/.test(entry.name)) continue;
 
-      if (file === `${appDir}/layout.tsx` || file === `${appDir}/not-found.tsx`) {
+      // Root convention files: every page's HTML references their chunks,
+      // so editing one changes every text route.
+      if (ROOT_CONVENTION_FILES.some((name) => file === `${appDir}/${name}`)) {
         roots.push({ file, paths: fullTextPathList(ctx) });
       } else if (file === `${appDir}/sitemap.ts`) {
         roots.push({ file, paths: ["/sitemap.xml"] });
@@ -219,23 +270,14 @@ export function discoverRoots(ctx, appDir = "app") {
         roots.push({ file, paths: mdMirrorPathList(ctx) });
       } else if (file === `${appDir}/opengraph-image.tsx`) {
         roots.push({ file, paths: ["/opengraph-image"] });
-      } else if (file === `${appDir}/insights/[slug]/page.tsx`) {
+      } else if (detailPageCollection(file, appDir)) {
+        const c = detailPageCollection(file, appDir);
         roots.push({
           file,
           paths: [
-            ...ctx.insightSlugs.map((s) => `/insights/${s}`),
-            "/insights",
-            "/",
-            "/sitemap.xml",
-          ],
-        });
-      } else if (file === `${appDir}/work/[slug]/page.tsx`) {
-        roots.push({
-          file,
-          paths: [
-            ...ctx.workSlugs.map((s) => `/work/${s}`),
-            "/work",
-            "/",
+            ...slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`),
+            c.route,
+            ...c.listedOn,
             "/sitemap.xml",
           ],
         });
@@ -270,37 +312,21 @@ export function discoverRoots(ctx, appDir = "app") {
  * cache entries.
  */
 export function classifyChange(file, status, ctx) {
-  let m;
 
   // Content rules carry each page's markdown twin (/md/...) alongside it,
-  // and /llms.txt wherever the changed collection is listed there.
-  if ((m = file.match(/^content\/insights\/([^/]+)\.mdx?$/))) {
+  // and /llms.txt wherever the changed collection is listed there. Which
+  // other pages list a collection comes from lib/collections.mjs.
+  const entry = matchCollectionFile(file);
+  if (entry) {
+    const { collection: c, slug } = entry;
     return {
-      bucket: "insight",
-      slug: m[1],
+      bucket: c.key === "insights" ? "insight" : c.key,
+      slug,
       // A brand-new slug was never cached, so its own paths need nothing.
       paths: [
-        ...(status === "A" ? [] : [`/insights/${m[1]}`, `/md/insights/${m[1]}`]),
-        "/insights",
-        "/md/insights",
-        "/",
-        "/md",
-        "/sitemap.xml",
-        "/llms.txt",
-      ],
-    };
-  }
-  if ((m = file.match(/^content\/work\/([^/]+)\.mdx?$/))) {
-    return {
-      bucket: "work",
-      slug: m[1],
-      paths: [
-        ...(status === "A" ? [] : [`/work/${m[1]}`, `/md/work/${m[1]}`]),
-        "/work",
-        "/md/work",
-        "/",
-        "/md",
-        "/md/capabilities",
+        ...(status === "A" ? [] : withTwins([`${c.route}/${slug}`])),
+        ...withTwins([c.route, ...c.listedOn]),
+        ...c.agentDocs,
         "/sitemap.xml",
         "/llms.txt",
       ],
@@ -329,6 +355,10 @@ export function classifyChange(file, status, ctx) {
         "/.well-known/agent-skills/using-this-site/SKILL.md",
       ],
     };
+  // Index-page copy: content/pages/<page>.md feeds /<page> and its twin.
+  const page = file.match(/^content\/pages\/([a-z-]+)\.md$/);
+  if (page && FIXED_PAGES.includes(`/${page[1]}`))
+    return { bucket: "page-copy", paths: withTwins([`/${page[1]}`]) };
   if (file.startsWith("content/"))
     return { bucket: "content-unmapped", paths: [], warn: true };
 
@@ -338,6 +368,14 @@ export function classifyChange(file, status, ctx) {
       return { bucket: "image-hashed", paths: [] }; // self-busting twin
     }
     const urlPath = `/${file.slice("public/".length)}`;
+    // A new image has never been served, so nothing is cached under its
+    // URL. A deleted one is no longer linked, so its optimizer variants
+    // are never requested again; only the file itself needs purging.
+    // Only an image edited in place needs its variant wildcards, which
+    // keeps a deploy that adds many images under CloudFront's limit on
+    // in-flight wildcard invalidations.
+    if (status === "A") return { bucket: "image-added", paths: [] };
+    if (status === "D") return { bucket: "image-deleted", paths: [urlPath] };
     return {
       bucket: "image-direct",
       paths: [urlPath, ...optimizerVariantPaths(urlPath)],

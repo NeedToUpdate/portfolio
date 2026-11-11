@@ -14,6 +14,7 @@
   --c-base: 8 10 16; /* page background, deep space */
   --c-surface: 14 17 25; /* panels and code blocks */
   --c-raised: 21 25 36; /* hover states */
+  --c-glass: 13 10 8; /* warm-black fill under glass cards */
   --c-line: 42 48 63; /* hairline borders and dividers */
   --c-ink: 235 237 243; /* primary text, starlight */
   --c-muted: 150 157 173; /* secondary text */
@@ -119,6 +120,19 @@ textarea {
 
 /* ---------- Flair utilities ---------- */
 
+/* Reading scrim over a corner nebula on phones: a veil of the page
+   background that fades out before the opposite edges. Set
+   --scrim-at to the corner the cloud sits in. */
+.nebula-scrim {
+  background-image: radial-gradient(
+    ellipse 88% 66% at var(--scrim-at, 50% 50%),
+    rgb(var(--c-base) / 0.62),
+    rgb(var(--c-base) / 0.5) 30%,
+    rgb(var(--c-base) / 0.26) 60%,
+    rgb(var(--c-base) / 0) 100%
+  );
+}
+
 /* Icon glow: a soft accent shadow that answers hover. */
 .icon-glow {
   filter: drop-shadow(0 0 2px rgb(var(--c-accent) / 0));
@@ -173,14 +187,16 @@ textarea {
   color: rgb(var(--c-ink));
 }
 
-.prose a {
+/* Components that draw their own link (cards, buttons, image links)
+   add .unstyled-link to skip the accent colour and underline. */
+.prose a:not(.unstyled-link) {
   color: rgb(var(--c-accent));
   text-decoration: underline;
   text-decoration-color: rgb(var(--c-accent) / 0.4);
   text-underline-offset: 3px;
 }
 
-.prose a:hover {
+.prose a:not(.unstyled-link):hover {
   text-decoration-color: rgb(var(--c-accent));
 }
 

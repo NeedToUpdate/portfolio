@@ -1,10 +1,11 @@
 ---
 nebulaShape: nodes
 title: "Neural Network Library"
-description: "An ML library with lots of features built from scratch."
+description: "A machine learning library built from scratch."
 thumbnail: "/images/nn.webp"
 brightImage: true
 techs: ["javascript"]
-url: "https://www.icandoathing.com/thing/QRkgsb"
-priority: 4
+url: "https://needtoupdate.github.io/neuralnetworktests/"
+order: 11
+legacySlug: "neural-network-library"
 ---

@@ -1,26 +1,37 @@
 import type { MetadataRoute } from "next";
-import { getCaseStudies, getInsights } from "@/lib/content";
+import { getCaseStudies, getInsights, getLegacyArticles } from "@/lib/content";
+import { ARTICLE_COLLECTIONS, STANDALONE_PAGES } from "@/lib/collections.mjs";
 import { site } from "@/lib/site";
 
+/** Every collection's entries with the date each one carries. */
+const entriesOf = {
+  work: getCaseStudies,
+  insights: getInsights,
+  legacy: getLegacyArticles,
+} satisfies Record<(typeof ARTICLE_COLLECTIONS)[number]["key"], () => { slug: string; date: string }[]>;
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/work", "/insights", "/projects", "/about", "/contact"].map((path) => ({
+  const home = { url: site.url, changeFrequency: "monthly" as const, priority: 1 };
+
+  const standalone = STANDALONE_PAGES.map((path) => ({
     url: `${site.url}${path}`,
     changeFrequency: "monthly" as const,
-    priority: path === "" ? 1 : 0.7,
+    priority: 0.7,
   }));
 
-  const workRoutes = getCaseStudies().map(({ slug }) => ({
-    url: `${site.url}/work/${slug}`,
-    changeFrequency: "yearly" as const,
-    priority: 0.8,
-  }));
+  const collections = ARTICLE_COLLECTIONS.flatMap((c) => [
+    {
+      url: `${site.url}${c.route}`,
+      changeFrequency: c.indexChangeFrequency,
+      priority: c.indexPriority,
+    },
+    ...entriesOf[c.key]().map(({ slug, date }) => ({
+      url: `${site.url}${c.route}/${slug}`,
+      lastModified: date,
+      changeFrequency: "yearly" as const,
+      priority: c.detailPriority,
+    })),
+  ]);
 
-  const insightRoutes = getInsights().map(({ slug, date }) => ({
-    url: `${site.url}/insights/${slug}`,
-    lastModified: date,
-    changeFrequency: "yearly" as const,
-    priority: 0.8,
-  }));
-
-  return [...staticRoutes, ...workRoutes, ...insightRoutes];
+  return [home, ...standalone, ...collections];
 }

@@ -1,6 +1,7 @@
 import SocialIcon from "@/components/composites/SocialIcon";
 import Text from "@/components/ui/Text";
 import { site, socialChannels } from "@/lib/site";
+import { newTabProps } from "@/lib/links";
 
 export default function Footer() {
   return (
@@ -18,9 +19,7 @@ export default function Footer() {
                 aria-label={channel.label}
                 data-nebula-shape={channel.shape}
                 className="block rounded-full"
-                {...(channel.href.startsWith("http")
-                  ? { target: "_blank", rel: "noopener noreferrer" }
-                  : {})}
+                {...newTabProps(channel.href)}
               >
                 <SocialIcon name={channel.key} />
               </a>

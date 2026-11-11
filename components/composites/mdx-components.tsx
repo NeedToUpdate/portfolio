@@ -1,5 +1,4 @@
 import type { MDXComponents } from "mdx/types";
-import FloatImage from "./FloatImage";
 import Note from "./Note";
 import Card from "./Card";
 import RequestPathExplorer from "./RequestPathExplorer";
@@ -12,6 +11,10 @@ import AIWorkflowTimeline from "./AIWorkflowTimeline";
 import HumanReviewLab from "./HumanReviewLab";
 import TeamGame from "./TeamGame";
 import ReleaseTrain from "./ReleaseTrain";
+import VideoFigure from "./VideoFigure";
+import MediaRow from "./MediaRow";
+import ProjectLink from "./ProjectLink";
+import NowWithAI from "./NowWithAI";
 import TextLink from "@/components/ui/TextLink";
 
 function MdxLink({ href = "", children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -23,12 +26,12 @@ function MdxLink({ href = "", children }: React.AnchorHTMLAttributes<HTMLAnchorE
 }
 
 /**
- * Components available inside every MDX insight without imports.
- * Add a component here and every insight can use it immediately.
+ * Components available inside every MDX article without imports.
+ * Add a component here and every article can use it immediately; the
+ * type below then requires its markdown form in lib/agent-markdown.ts.
  */
-export const mdxComponents: MDXComponents = {
+export const mdxComponents = {
   a: MdxLink,
-  FloatImage,
   Note,
   Card,
   RequestPathExplorer,
@@ -41,4 +44,11 @@ export const mdxComponents: MDXComponents = {
   HumanReviewLab,
   TeamGame,
   ReleaseTrain,
-};
+  VideoFigure,
+  MediaRow,
+  ProjectLink,
+  NowWithAI,
+} satisfies MDXComponents;
+
+/** Every component an MDX article can use by name. */
+export type MdxComponentName = Exclude<keyof typeof mdxComponents, "a">;

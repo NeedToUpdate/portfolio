@@ -1,0 +1,66 @@
+---
+title: "icandoathing.com: the site I built to learn Vue and Django"
+description: "A project-sharing social site I built by hand in 2022 with a Vue frontend and a Django REST backend, before AI code-assist tools existed."
+deck: "A social site for posting the things you make. I built it by hand to learn two frameworks, before AI code-assist tools existed."
+date: "2026-11-10"
+built: "2021-12"
+originalUrl: "https://icandoathing.com"
+screenshot: "/images/legacy/icandoathing/original.webp"
+tags: ["django", "vuejs", "sass", "postgresql"]
+kind: "site"
+---
+
+Every post on icandoathing.com starts with "I". I made a CPU. I automated my apartment. I found the impostors. That was the idea: one place to show a thing you made, and how you made it.
+
+I built it to learn Vue and Django. I had used Vue once, for [my apartment control panel](/legacy/automated-apartment), and I had never shipped a Django app. I wanted a project big enough to raise real problems: accounts, uploads, feeds, search, moderation, deployment. A social site has all of them.
+
+The first commit landed on December 15, 2021. By the end of April 2022 the repository had 315 commits and the site was live. No AI code-assist tools existed yet. The best we had was IntelliSense. I worked from the documentation, a Figma file, and a TODO list.
+
+<MediaRow
+  src="/images/legacy/icandoathing/home.webp"
+  alt="The icandoathing.com home page: a gallery of project posts with status badges and coloured tags, beside a sidebar of popular and latest posts"
+  side="none"
+  caption="The home page in gallery view."
+/>
+
+## What the site does
+
+A post is a project, and a project has a state: planning, in progress, stalled, or completed. The home page shows every post as a gallery or a list. Visitors sort by popular, most liked, most viewed, or latest, and filter by status.
+
+Posts are built from sections. A section is one image, video, or YouTube link, plus a block of Markdown. The page lays them out as a walkthrough: picture, explanation, next picture.
+
+<MediaRow
+  src="/images/legacy/icandoathing/post.webp"
+  alt="A post page on icandoathing.com, with the title, tags and summary above the first sections of the write-up"
+  side="none"
+  caption="A post page. Each grey block is one section."
+/>
+
+Projects keep going after the first write-up, so posts take updates. An update adds new sections and moves the post back to the top of the latest feed. The apartment post has five.
+
+Profiles carry a bio, social links, like and follower counts, and a showcase of the author's favourite projects. Tags, search, likes, and follows tie the rest together.
+
+<MediaRow
+  src="/images/legacy/icandoathing/profile.webp"
+  alt="A profile page with an avatar, bio, follower and like counts, a four-project showcase, and the author's posts in list view"
+  side="none"
+  caption="A profile, with the showcase above the post list."
+/>
+
+## How it is built
+
+The frontend is a Vue single-page app. It started on Vue 2 and moved to Vue 3 along the way, with Vue Router, Vuex, and axios. The styling is hand-written SCSS. There is no component library. I built the buttons, modals, notifications, and upload control myself.
+
+The backend is Django with Django REST Framework on PostgreSQL. It handles token authentication, email activation, invite codes, and bans by user and by IP address. Uploaded images go to object storage, where the server converts them to WebP and makes thumbnails.
+
+Post IDs are six characters, so URLs stay short: `/thing/pG7w9I`. The slug after the ID is the first 40 characters of the title. That is why some of the old URLs stop mid-word.
+
+## Where it ran
+
+The site moved often. It started on Heroku. The frontend then moved to Vercel, and the backend went into Docker on a DigitalOcean droplet. The backend now lives on a Webdock VPS, with the media on S3.
+
+## What it gave me
+
+I finished with working knowledge of both frameworks. Weeks later I started [whatstheword.io](/legacy/whatstheword) on a Django backend.
+
+The site also became my project log. I was able to use it as both a portfolio and a bit of a blog. But the site has not aged the way you would expect of a modern 2026 website, in design or in responsiveness, so it was time to decommission it. All the posts have been migrated here.
