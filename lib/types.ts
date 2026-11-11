@@ -81,8 +81,13 @@ export interface LegacyArticleMeta {
   description: string;
   /** The original post's own summary line, shown under the title. */
   deck?: string;
-  /** When the original was first published (YYYY-MM-DD). */
+  /** When the original was first published (YYYY-MM-DD). For the site
+   *  write-up, when it was written. */
   date: string;
+  /** The month the project was built (YYYY-MM): the date the archive
+   *  shows and sorts by. Most projects predate their post by months or
+   *  years. Falls back to the post's month when the file sets none. */
+  built: string;
   /** Where the original lived. */
   originalUrl: string;
   /** Screenshot of the original page: the origin card thumbnail and the

@@ -225,14 +225,19 @@ export function getInsight(slug: string): Insight | undefined {
 }
 
 function toLegacyMeta({ slug, data }: ContentEntry<z.output<typeof legacySchema>>): LegacyArticleMeta {
-  return { ...data, slug, screenshot: fingerprintedPath(data.screenshot) };
+  return {
+    ...data,
+    slug,
+    built: data.built ?? data.date.slice(0, 7),
+    screenshot: fingerprintedPath(data.screenshot),
+  };
 }
 
-/** Legacy articles, newest original first. */
+/** Legacy articles, most recently built project first. */
 export function getLegacyArticles(): LegacyArticleMeta[] {
   return readCollection(collection("legacy").key, legacySchema)
     .map(toLegacyMeta)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => b.built.localeCompare(a.built) || b.date.localeCompare(a.date));
 }
 
 export function getLegacyArticle(slug: string): LegacyArticle | undefined {

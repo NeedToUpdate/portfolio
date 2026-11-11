@@ -197,6 +197,51 @@ export const FROST: ProfilePalette = {
   bg: { core: hex("#A8D8F7"), mid: hex("#4D77A9"), fil: hex("#A78BFA") },
 };
 
+/**
+ * Rose variant: magenta and pink gas over plum, with pale blush cores.
+ * Reserved for legacy articles.
+ */
+export const ROSE: ProfilePalette = {
+  volume: [hex("#2E1226"), hex("#3A1430"), hex("#26142E"), hex("#1E1422")],
+  shell: [hex("#B03A78"), hex("#D85C98"), hex("#7E3A9C")],
+  shellBright: [hex("#FFC2DE"), hex("#FF96C4")],
+  body: [hex("#4A1C40"), hex("#7A2A5E"), hex("#B0407E"), hex("#DC6CA0"), hex("#F4A6C4")],
+  bodyBright: [hex("#FFE0EC"), hex("#FFC2DE"), hex("#FFB0A8")],
+  inner: [hex("#C84C8C"), hex("#9A54B8"), hex("#F08CB4")],
+  innerBright: [hex("#FFE0EC"), hex("#F4B8E0")],
+  wisp: [hex("#A83C74"), hex("#C86A9A"), hex("#7C4A9C"), hex("#6A2850")],
+  filament: [hex("#6E1E4C"), hex("#A8346E"), hex("#DC5C94"), hex("#F6A0C4")],
+  filamentBright: [hex("#FFE0EC"), hex("#FFB8D8")],
+  dust: [hex("#1A0A16"), hex("#221022"), hex("#160E1C")],
+  cavity: [hex("#180C1A"), hex("#221426"), hex("#1C1024")],
+  glow: [hex("#FF8CC0"), hex("#E0508C"), hex("#B070E0"), hex("#FFD6E8")],
+  star: [hex("#FFF2F8"), hex("#FFD8EA"), hex("#E8D4FF")],
+  bg: { core: hex("#FF8CC0"), mid: hex("#7A2A5E"), fil: hex("#B070E0") },
+};
+
+/**
+ * Sepia variant: the tones of an old photograph. Umber and tan gas,
+ * parchment cores, a little faded olive. Reserved for the legacy
+ * archive index.
+ */
+export const SEPIA: ProfilePalette = {
+  volume: [hex("#2A2016"), hex("#33281A"), hex("#241E18"), hex("#1E1A16")],
+  shell: [hex("#8A6A42"), hex("#B08C5A"), hex("#6E6A48")],
+  shellBright: [hex("#F0DCB0"), hex("#D8BC88")],
+  body: [hex("#3E3020"), hex("#5E4A30"), hex("#86694A"), hex("#B09068"), hex("#D6BC92")],
+  bodyBright: [hex("#F6ECD2"), hex("#E8D6AE"), hex("#F0E0C0")],
+  inner: [hex("#9A7A50"), hex("#7C7A54"), hex("#C4A678")],
+  innerBright: [hex("#F6ECD2"), hex("#E0CCA0")],
+  wisp: [hex("#7E6240"), hex("#A08660"), hex("#66644A"), hex("#5A4630")],
+  filament: [hex("#4E3A24"), hex("#7E6038"), hex("#AE8C58"), hex("#D8BE90")],
+  filamentBright: [hex("#F6ECD2"), hex("#E6D2A6")],
+  dust: [hex("#14100A"), hex("#1A140E"), hex("#181410")],
+  cavity: [hex("#16120E"), hex("#1E1A14"), hex("#1A1812")],
+  glow: [hex("#D8B880"), hex("#B89460"), hex("#F2E4C2"), hex("#8C8A5C")],
+  star: [hex("#FFF8E8"), hex("#F4E6C8"), hex("#E8E0D0")],
+  bg: { core: hex("#D8B880"), mid: hex("#5E4A30"), fil: hex("#8C8A5C") },
+};
+
 export const profilePalettes = { orion: ORION, helix: HELIX, crab: CRAB } as const;
 
 export const miniPalettes = {
@@ -204,6 +249,8 @@ export const miniPalettes = {
   aurora: AURORA,
   solar: SOLAR,
   frost: FROST,
+  rose: ROSE,
+  sepia: SEPIA,
 } as const;
 
 export type ProfileName = keyof typeof profilePalettes;

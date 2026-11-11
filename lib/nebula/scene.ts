@@ -7,7 +7,14 @@ import type { CloudSpec } from "./particles";
 import { miniPalettes, type MiniPaletteName, type ProfileName } from "./palettes";
 
 export type NebulaVariant = "full" | "mini" | "demo";
-export type NebulaCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+/** A corner, or the middle of a side edge. */
+export type NebulaCorner =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | "mid-left"
+  | "mid-right";
 export type NebulaMiniShape = ProfileName | "random";
 export type NebulaMiniSize = "md" | "lg" | "xl" | "phone-xl";
 
@@ -26,6 +33,10 @@ const MINI_CORNERS: Record<NebulaCorner, [number, number]> = {
   "top-right": [0.84, 0.76],
   "bottom-left": [0.16, 0.24],
   "bottom-right": [0.84, 0.24],
+  // Side anchors: half-height, a touch closer to the edge than the
+  // corners, since a side cloud has no second edge to lean on.
+  "mid-left": [0.14, 0.5],
+  "mid-right": [0.86, 0.5],
 };
 
 // Mobile radii run ~70-90vmin: at phone sizes a 30vmin corner cloud
@@ -47,6 +58,8 @@ const MINI_SIZE_RADIUS: Record<NebulaMiniSize, { mobile: number; desktop: number
 };
 
 const MINI_PROFILES: ProfileName[] = ["orion", "helix", "crab"];
+// The pool "random" draws from. Rose and sepia stay out of it: they
+// belong to the legacy pages.
 const MINI_COLORS: Exclude<MiniPaletteName, "profile">[] = ["aurora", "solar", "frost"];
 
 export const jitter = () => (Math.random() - 0.5) * 0.06;

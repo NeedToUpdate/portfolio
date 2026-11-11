@@ -3,6 +3,7 @@ title: "icandoathing.com: the site I built to learn Vue and Django"
 description: "A project-sharing social site I built by hand in 2022 with a Vue frontend and a Django REST backend, before AI code-assist tools existed."
 deck: "A social site for posting the things you make. I built it by hand to learn two frameworks, before AI code-assist tools existed."
 date: "2026-11-10"
+built: "2021-12"
 originalUrl: "https://icandoathing.com"
 screenshot: "/images/legacy/icandoathing/original.webp"
 tags: ["django", "vuejs", "sass", "postgresql"]
@@ -58,12 +59,8 @@ Post IDs are six characters, so URLs stay short: `/thing/pG7w9I`. The slug after
 
 The site moved often. It started on Heroku. The frontend then moved to Vercel, and the backend went into Docker on a DigitalOcean droplet. The backend now lives on a Webdock VPS, with the media on S3.
 
-## What I would change
-
-The code works, and it reads like someone learning. Most endpoints validate request fields one at a time where a serializer would do the work. The feed runs far more queries than it needs. There are no tests. Deploys ran from a copy script. Today the same site would ship from a pipeline, the way [this portfolio does](/insights/how-this-site-works).
-
 ## What it gave me
 
 I finished with working knowledge of both frameworks. Weeks later I started [whatstheword.io](/legacy/whatstheword) on a Django backend.
 
-The site also became my project log. I wrote eleven posts there between 2022 and 2024. They now live here, lightly cleaned up, in [the legacy archive](/legacy).
+The site also became my project log. I was able to use it as both a portfolio and a bit of a blog. But the site has not aged the way you would expect of a modern 2026 website, in design or in responsiveness, so it was time to decommission it. All the posts have been migrated here.

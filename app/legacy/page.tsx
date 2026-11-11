@@ -10,7 +10,7 @@ import Text from "@/components/ui/Text";
 import JsonLd from "@/components/ui/JsonLd";
 import { getLegacyArticles, getPageCopy } from "@/lib/content";
 import { pageMetadata, breadcrumbSchema } from "@/lib/seo";
-import { formatDate } from "@/lib/format";
+import { formatMonth } from "@/lib/format";
 
 /**
  * The legacy archive index. Nothing in the navigation points here:
@@ -29,12 +29,23 @@ export const metadata: Metadata = pageMetadata({
 
 export default function LegacyIndexPage() {
   const all = getLegacyArticles();
-  // The write-up of the site leads; the posts follow, newest first.
+  // The write-up of the site leads; the posts follow, most recently
+  // built project first.
   const articles = [...all.filter((a) => a.kind === "site"), ...all.filter((a) => a.kind !== "site")];
 
   return (
     <PageShell>
-      <NebulaBackground variant="mini" corner="bottom-right" miniShape="orion" color="frost" size="lg" />
+      {/* Sepia on the right edge: a colour and a position no other page
+          uses. The scrim dims it on phones, where the list runs
+          through the gas. */}
+      <NebulaBackground
+        variant="mini"
+        corner="mid-right"
+        miniShape="crab"
+        color="sepia"
+        size="lg"
+        scrim
+      />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", path: "/" },
@@ -62,11 +73,7 @@ export default function LegacyIndexPage() {
           <Link key={article.slug} href={`/legacy/${article.slug}`} className="group block py-6">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-6">
               <span className="shrink-0 text-sm tabular-nums text-muted sm:w-32">
-                {article.kind === "site" ? (
-                  "The site itself"
-                ) : (
-                  <time dateTime={article.date}>{formatDate(article.date)}</time>
-                )}
+                <time dateTime={article.built}>{formatMonth(article.built)}</time>
               </span>
               <div className="min-w-0">
                 <Heading size="item" className="transition-colors group-hover:text-accent">

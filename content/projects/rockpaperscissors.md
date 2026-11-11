@@ -4,7 +4,8 @@ description: "A battle royale that plays itself."
 thumbnail: "/images/rockpaperscissors.webp"
 brightImage: true
 techs: ["javascript", "html"]
-url: "/legacy/rock-paper-scissors"
+url: "https://rps-battle.artnikitin.dev/"
 order: 12
 nebulaShape: spark
+legacySlug: "rock-paper-scissors"
 ---
