@@ -28,7 +28,15 @@ export default function WorkPage() {
   return (
     <PageShell>
       {/* The intro is capped at prose width, leaving the upper-right open. */}
-      <NebulaBackground variant="mini" corner="top-right" miniShape="orion" color="solar" />
+      {/* The scrim dims the cloud on phones, where the list runs
+          through the gas. */}
+      <NebulaBackground
+        variant="mini"
+        corner="top-right"
+        miniShape="orion"
+        color="solar"
+        scrim
+      />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", path: "/" },
