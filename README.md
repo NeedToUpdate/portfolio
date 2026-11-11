@@ -86,7 +86,9 @@ Insights and legacy articles can use these without importing them (`components/c
 One-time setup per environment:
 
 1. An ACM certificate in `us-east-1` for the domain.
-2. GitHub Actions secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `PROD_CERTIFICATE_ARN`, `DEV_CERTIFICATE_ARN`, `DEV_BASIC_AUTH_USERNAME`, `DEV_BASIC_AUTH_PASSWORD`, `DEV_POSTHOG_PROJECT_TOKEN`, `PROD_POSTHOG_PROJECT_TOKEN`.
+2. GitHub Actions secrets: `SERVERLESS_ACCESS_KEY`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `PROD_CERTIFICATE_ARN`, `DEV_CERTIFICATE_ARN`, `DEV_BASIC_AUTH_USERNAME`, `DEV_BASIC_AUTH_PASSWORD`, `DEV_POSTHOG_PROJECT_TOKEN`, `PROD_POSTHOG_PROJECT_TOKEN`.
 3. After the first deploy, point a DNS CNAME at the CloudFront domain from the stack outputs.
 
-For local deploys, put the same variables in a `.env` file at the repo root (see `.env.example`).
+Deploys run on Serverless Framework v4, which refuses to run until it is signed in. CI signs in with `SERVERLESS_ACCESS_KEY`, created on the Access Keys page of the Serverless dashboard. The free tier covers this site.
+
+For local deploys, put the same variables in a `.env` file at the repo root (see `.env.example`), or run `npx serverless login` once in place of the access key.
