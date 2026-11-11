@@ -11,9 +11,10 @@ const SITE_WRITEUP = "/legacy/icandoathing";
 
 /**
  * The card on every legacy page that says where the article came
- * from, and when it was first posted. The article's own date line shows
- * when the project was built, so the post date lives here. The
- * thumbnail is a screenshot of the original page.
+ * from. On a ported post it also says when the post first went up: the
+ * article's own date line shows when the project was built, so the
+ * post date lives here. The site write-up was never a post and carries
+ * no date. The thumbnail is a screenshot of the original page.
  */
 export default function LegacyOriginCard({ article }: LegacyOriginCardProps) {
   const isSite = article.kind === "site";
@@ -29,7 +30,6 @@ export default function LegacyOriginCard({ article }: LegacyOriginCardProps) {
           external
         >
           This is a write-up of icandoathing.com, the site my legacy articles were first posted on.
-          I wrote it on {posted}.
         </TaperCard>
       ) : (
         <TaperCard
