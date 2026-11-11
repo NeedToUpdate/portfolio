@@ -125,8 +125,11 @@ export default function StarField() {
 
     const onVisibility = () => {
       running = document.visibilityState === "visible" && !reducedMotion;
+      // A mount in a background tab leaves its first frame pending, and
+      // hidden tabs never fire it. Cancel it before scheduling, or the
+      // tab turning visible starts a second loop that doubles the drift.
+      cancelAnimationFrame(frame);
       if (running) frame = requestAnimationFrame(loop);
-      else cancelAnimationFrame(frame);
     };
 
     resize();
