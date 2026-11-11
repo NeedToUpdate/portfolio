@@ -1,6 +1,6 @@
 # Team game rules
 
-One continuous game. The reader mostly watches. Numbers live in `T` and `LEVELS` in `sim.ts`. No tests: nothing here is shared with other articles.
+One continuous game. The reader mostly watches. Numbers live in `T` and `LEVELS` in `sim.ts`. `tests/team-game.test.tsx` guards two ladder targets: an idle team caps at 2x, and a pushed or measured team stays at 1x.
 
 ## The team
 

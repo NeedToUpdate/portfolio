@@ -2,6 +2,38 @@
 
 import { useCallback, useMemo, useState, type DragEvent, type ReactNode } from "react";
 import Button from "@/components/ui/Button";
+import {
+  BUILD_W,
+  BUILD_X,
+  ENV_GAP,
+  ENV_H,
+  ENV_W,
+  ENV_X,
+  GRAPH_W,
+  LANE_START_X,
+  MAIN_X0,
+  MAIN_X1,
+  TOP_PAD,
+  ZONE_X,
+  devForkX,
+  featurePath,
+  forkX,
+  layoutRows,
+  shippedX,
+  subMergeX,
+} from "@/lib/release-train/layout";
+import {
+  ENVS,
+  MAX_FEATURES,
+  MAX_RELEASES,
+  initialState,
+  mergeTarget,
+  reduce,
+  stageHolder,
+  ticketsIn,
+  type Command,
+  type State,
+} from "@/lib/release-train/model";
 import InteractiveFigure from "./InteractiveFigure";
 
 /**
@@ -12,6 +44,8 @@ import InteractiveFigure from "./InteractiveFigure";
  * every commit can be clicked to see what it carries.
  *
  * Discrete state, so this is React + SVG rather than a canvas loop. The
+ * model lives in lib/release-train: model.ts owns the state and its
+ * transitions, layout.ts the graph geometry. This file renders. The
  * palette matches the article's preview image: blue features, violet dev,
  * emerald release path. Rows sit in translated groups with a transform
  * transition, so the graph glides instead of jumping when lanes expand,
@@ -26,153 +60,6 @@ const MUTED = "#969dad";
 const LINE = "#2a303f";
 const MONO = "var(--font-mono, monospace)";
 const GLIDE = { transition: "transform 450ms cubic-bezier(0.22, 1, 0.36, 1)" } as const;
-
-const ENVS = ["QA", "UAT", "PROD"] as const;
-const MAX_FEATURES = 8;
-const MAX_RELEASES = 3;
-
-interface Feature {
-  id: number;
-  /** Releases this ticket is selected into. It always integrates in dev;
-   *  selection copies the branch into a release, it never moves it. */
-  releases: number[];
-}
-
-interface Release {
-  id: number;
-  name: string;
-  /** Build ID once the pipeline has run; null while assembling. */
-  build: number | null;
-  /** Environments the build has passed, 0..3. */
-  env: number;
-  /** The baseline moved under this release; promote is blocked until rebased. */
-  needsRetrofit: boolean;
-  /** Carrier release this one has merged into and now rides, or null. */
-  riding: number | null;
-  expanded: boolean;
-}
-
-interface Shipped {
-  name: string;
-  build: number;
-  tickets: number[];
-}
-
-interface Log {
-  text: string;
-  kind: "info" | "good" | "bad";
-}
-
-interface State {
-  features: Feature[];
-  releases: Release[];
-  shipped: Shipped[];
-  /** Branches removed from the graph after their release went live. */
-  archived: number;
-  /** The build QA and UAT currently run. PROD follows prodIndex below. */
-  envBuilds: (number | null)[];
-  /** Builds that were superseded before shipping. Still in the store. */
-  retained: { id: number; name: string; tickets: number[] }[];
-  /** The build QA and UAT ran before the current one, for redeploys. */
-  prevEnv: (number | null)[];
-  /** Which shipped build PROD currently runs. Rollback moves it backward. */
-  prodIndex: number;
-  /** Index into shipped that dev was last recut from; -1 means the original baseline. */
-  devBase: number;
-  devExpanded: boolean;
-  nextTicket: number;
-  nextRelease: number;
-  nextBuild: number;
-  log: Log[];
-}
-
-function addLog(log: Log[], text: string, kind: Log["kind"] = "info"): Log[] {
-  return [...log, { text, kind }].slice(-4);
-}
-
-function initialState(): State {
-  return {
-    features: [{ id: 4311, releases: [122] }, { id: 4312, releases: [] }],
-    releases: [{ id: 122, name: "REL-122", build: null, env: 0, needsRetrofit: false, riding: null, expanded: true }],
-    shipped: [],
-    archived: 0,
-    envBuilds: [null, null],
-    prevEnv: [null, null],
-    retained: [],
-    prodIndex: -1,
-    devBase: -1,
-    devExpanded: false,
-    nextTicket: 4313,
-    nextRelease: 123,
-    nextBuild: 18427,
-    log: [{ text: "feat/4311 is selected into REL-122. feat/4312 is only integrating in dev.", kind: "info" }],
-  };
-}
-
-/** A build's approvals describe that build. Change the branch, lose the
- *  build from the release, but never from the artifact store. */
-function voidBuild(s: State, release: Release): void {
-  if (release.build === null) return;
-  s.log = addLog(
-    s.log,
-    `${release.name} changed after build ${release.build}. The approvals stay with ${release.build}; the new combination needs its own build.`,
-    "bad",
-  );
-  s.retained.push({ id: release.build, name: release.name, tickets: s.features.filter((f) => f.releases.includes(release.id)).map((f) => f.id) });
-  release.build = null;
-  release.env = 0;
-}
-
-// ---------------------------------------------------------------- layout
-
-const GRAPH_W = 920;
-/** The handoff divider: branches live left of it, environments right of it. */
-const ZONE_X = 712;
-const ENV_X = 726;
-const ENV_W = 150;
-const ENV_H = 28;
-const ENV_GAP = 15;
-const BUILD_W = 78;
-const BUILD_X = 598;
-const LANE_GAP = 52;
-const SUB_GAP = 32;
-const TOP_PAD = 34;
-const BOTTOM_PAD = 52;
-const LANE_START_X = 300;
-const MAIN_X0 = 18;
-const MAIN_X1 = 692;
-
-interface LaneRow {
-  kind: "dev" | "release";
-  release?: Release;
-  y: number;
-  /** Features drawn as sub-lanes under this lane, with absolute y positions. */
-  subs: { feature: Feature; y: number }[];
-}
-
-function layoutRows(state: State): { rows: LaneRow[]; mainY: number; height: number } {
-  const rows: LaneRow[] = [];
-  let y = TOP_PAD + 12;
-
-  const devSubs = state.devExpanded ? state.features.filter((f) => f.releases.length === 0) : [];
-  rows.push({ kind: "dev", y, subs: devSubs.map((feature, i) => ({ feature, y: y + SUB_GAP * (i + 1) })) });
-  y += LANE_GAP + devSubs.length * SUB_GAP;
-
-  for (const release of state.releases) {
-    const subs = release.expanded ? state.features.filter((f) => f.releases.includes(release.id)) : [];
-    rows.push({ kind: "release", release, y, subs: subs.map((feature, i) => ({ feature, y: y + SUB_GAP * (i + 1) })) });
-    y += LANE_GAP + subs.length * SUB_GAP;
-  }
-
-  const mainY = y + 14;
-  const height = Math.max(mainY + BOTTOM_PAD, TOP_PAD + 4 * (ENV_H + ENV_GAP) + 44);
-  return { rows, mainY, height };
-}
-
-/** Stagger fork points along main so parallel branches read separately. */
-function forkX(featureId: number): number {
-  return 46 + ((featureId * 37) % 7) * 28;
-}
 
 // ---------------------------------------------------------------- svg bits
 
@@ -225,18 +112,6 @@ function Commit({
   );
 }
 
-/** A rounded curve from main up into a horizontal sub-lane, then into its target lane. */
-function featurePath(fx: number, mainY: number, subY: number, laneY: number, mergeX: number): string {
-  const kneeX = fx + 48;
-  const runEnd = mergeX - 54;
-  return [
-    `M ${fx} ${mainY}`,
-    `C ${fx + 10} ${subY + 26}, ${fx + 16} ${subY}, ${kneeX} ${subY}`,
-    `L ${runEnd} ${subY}`,
-    `C ${runEnd + 30} ${subY}, ${mergeX - 24} ${laneY}, ${mergeX} ${laneY}`,
-  ].join(" ");
-}
-
 // ---------------------------------------------------------------- component
 
 export default function ReleaseTrain({ description }: { description?: string }) {
@@ -246,237 +121,12 @@ export default function ReleaseTrain({ description }: { description?: string }) 
   /** The commit or chip the reader clicked, shown in the detail panel. */
   const [inspect, setInspect] = useState<string | null>(null);
 
-  const update = useCallback((fn: (draft: State) => void) => {
-    setState((prev) => {
-      const draft: State = JSON.parse(JSON.stringify(prev));
-      fn(draft);
-      return draft;
-    });
-  }, []);
-
-  const addFeature = () =>
-    update((s) => {
-      if (s.features.length >= MAX_FEATURES) return;
-      const id = s.nextTicket;
-      s.nextTicket += 1;
-      s.features.push({ id, releases: [] });
-      s.log = addLog(s.log, `feat/${id} branched from main and merged into dev for integration.`);
-    });
-
-  const addRelease = () =>
-    update((s) => {
-      if (s.releases.length >= MAX_RELEASES) return;
-      const id = s.nextRelease;
-      s.nextRelease += 1;
-      s.releases.push({ id, name: `REL-${id}`, build: null, env: 0, needsRetrofit: false, riding: null, expanded: true });
-      s.log = addLog(s.log, `release/REL-${id} opened from the production baseline.`);
-    });
-
+  const dispatch = useCallback((command: Command) => setState((prev) => reduce(prev, command)), []);
   const addTo = useCallback(
-    (featureId: number, releaseId: number) =>
-      update((s) => {
-        const feature = s.features.find((f) => f.id === featureId);
-        const to = s.releases.find((r) => r.id === releaseId);
-        if (!feature || !to || feature.releases.includes(releaseId)) return;
-        if (to.riding !== null) {
-          const carrier = s.releases.find((r) => r.id === to.riding);
-          to.riding = null;
-          s.log = addLog(s.log, `${to.name} diverged from ${carrier ? carrier.name : "its carrier"}. It rides alone again.`);
-        }
-        voidBuild(s, to);
-        const alsoIn = feature.releases.length > 0;
-        feature.releases.push(releaseId);
-        s.log = addLog(
-          s.log,
-          alsoIn
-            ? `feat/${feature.id} also selected into ${to.name}. The same branch travels with both releases.`
-            : `feat/${feature.id} selected into ${to.name}. It keeps integrating in dev too.`,
-          "good",
-        );
-      }),
-    [update],
+    (featureId: number, releaseId: number) => dispatch({ type: "select", feature: featureId, release: releaseId }),
+    [dispatch],
   );
-
-  const build = (releaseId: number) =>
-    update((s) => {
-      const release = s.releases.find((r) => r.id === releaseId);
-      if (!release || release.build !== null || release.needsRetrofit) return;
-      const tickets = s.features.filter((f) => f.releases.includes(releaseId));
-      if (tickets.length === 0) return;
-      release.build = s.nextBuild;
-      s.nextBuild += 1;
-      release.env = 0;
-      s.log = addLog(
-        s.log,
-        `Build ${release.build} created from ${release.name} with ${tickets.map((t) => t.id).join(", ")}. The handoff is the ID, not the branch.`,
-        "good",
-      );
-    });
-
-  const promote = (releaseId: number) =>
-    update((s) => {
-      const release = s.releases.find((r) => r.id === releaseId);
-      if (!release || release.build === null || release.needsRetrofit) return;
-      // UAT is a hard slot: one release at a time. QA can be taken over,
-      // but doing so cuts the current occupant's run short.
-      const other = (stage: number) =>
-        s.releases.find((r) => r.id !== releaseId && r.riding !== releaseId && r.build !== null && r.env === stage);
-      let tookOver = false;
-      if (release.env === 0) {
-        const occupant = other(1);
-        if (occupant) {
-          occupant.env = 0;
-          tookOver = true;
-          s.log = addLog(
-            s.log,
-            `Build ${release.build} took over QA. ${occupant.name}'s run there was cut short; build ${occupant.build} needs QA again.`,
-            "bad",
-          );
-        }
-      }
-      if (release.env === 1) {
-        const occupant = other(2);
-        if (occupant) {
-          occupant.env = 1;
-          tookOver = true;
-          s.log = addLog(
-            s.log,
-            `Build ${release.build} took over UAT. ${occupant.name} falls back; build ${occupant.build} needs UAT again. UAT holds only what ships next.`,
-            "bad",
-          );
-        }
-      }
-      release.env += 1;
-      if (!tookOver && release.env === 2 && s.envBuilds[1] !== null && s.envBuilds[1] !== release.build) {
-        s.log = addLog(s.log, `Build ${release.build} replaced ${s.envBuilds[1]} in UAT.`);
-      }
-      if (release.env - 1 < 2) {
-        const slot = release.env - 1;
-        if (s.envBuilds[slot] !== null && s.envBuilds[slot] !== release.build) s.prevEnv[slot] = s.envBuilds[slot];
-        s.envBuilds[slot] = release.build;
-      }
-      if (release.env < ENVS.length) {
-        s.log = addLog(s.log, `${ENVS[release.env - 1]} approved build ${release.build}. The same artifact moves on.`, "good");
-        return;
-      }
-      // Live. Reconcile main, archive the branches, retrofit the rest.
-      // Riders merged into this release reach production with it.
-      const riders = s.releases.filter((r) => r.riding === releaseId);
-      const gone = [releaseId, ...riders.map((r) => r.id)];
-      const tickets = s.features.filter((f) => f.releases.includes(releaseId));
-      for (const f of s.features) f.releases = f.releases.filter((id) => !gone.includes(id));
-      const archived = s.features.filter((f) => f.releases.length === 0 && tickets.includes(f));
-      s.features = s.features.filter((f) => !archived.includes(f));
-      for (const rider of riders) {
-        if (rider.build !== null) s.retained.push({ id: rider.build, name: rider.name, tickets: [] });
-      }
-      s.releases = s.releases.filter((r) => !gone.includes(r.id));
-      s.shipped.push({ name: release.name, build: release.build, tickets: tickets.map((t) => t.id) });
-      s.prodIndex = s.shipped.length - 1;
-      s.archived += archived.length + gone.length;
-      if (riders.length > 0) {
-        s.log = addLog(s.log, `${riders.map((r) => r.name).join(", ")} rode ${release.name} to production and ${riders.length === 1 ? "is" : "are"} archived.`, "good");
-      }
-      s.log = addLog(
-        s.log,
-        `Build ${release.build} is live. Source reconciled into main; ${release.name} and ${tickets.length} ticket ${
-          tickets.length === 1 ? "branch" : "branches"
-        } archived.`,
-        "good",
-      );
-      for (const other of s.releases) other.needsRetrofit = true;
-      if (s.releases.length > 0) {
-        s.log = addLog(s.log, `Retrofit PRs opened: main into ${s.releases.map((r) => r.name).join(", ")}.`, "bad");
-      }
-    });
-
-  const retrofit = (releaseId: number) =>
-    update((s) => {
-      const release = s.releases.find((r) => r.id === releaseId);
-      if (!release || !release.needsRetrofit) return;
-      release.needsRetrofit = false;
-      voidBuild(s, release);
-      s.log = addLog(s.log, `${release.name} now carries the new production baseline.`, "good");
-    });
-
-  const setProd = (index: number) =>
-    update((s) => {
-      if (index < 0 || index >= s.shipped.length || index === s.prodIndex) return;
-      const back = index < s.prodIndex;
-      s.prodIndex = index;
-      s.log = addLog(
-        s.log,
-        back
-          ? `PROD rolled back to build ${s.shipped[index].build}. The deployment record shows what actually runs; reconcile the baseline to match.`
-          : `PROD moved forward to build ${s.shipped[index].build}.`,
-        back ? "bad" : "good",
-      );
-    });
-
-  const redeploy = (slot: number) =>
-    update((s) => {
-      const previous = s.prevEnv[slot];
-      if (previous === null) return;
-      s.prevEnv[slot] = s.envBuilds[slot];
-      s.envBuilds[slot] = previous;
-      s.log = addLog(s.log, `${ENVS[slot]} redeployed build ${previous} from the store. The retained artifact made that a click, not a rebuild.`);
-    });
-
-  const mergeInto = (sourceId: number, destId: number) =>
-    update((s) => {
-      const source = s.releases.find((r) => r.id === sourceId);
-      const dest = s.releases.find((r) => r.id === destId);
-      if (!source || !dest || source.id === dest.id) return;
-      // A git merge: the destination now carries the source's work, so its
-      // build and approvals are gone. The source branch is untouched and
-      // stays open, its own build still valid, releasable on its own later.
-      voidBuild(s, dest);
-      for (const f of s.features) {
-        if (f.releases.includes(sourceId) && !f.releases.includes(destId)) {
-          f.releases.push(destId);
-        }
-      }
-      source.riding = destId;
-      s.log = addLog(s.log, `release/${source.name} merged into ${dest.name}. ${dest.name} carries both, and ${source.name} rides with it.`, "good");
-    });
-
-  const abandon = (releaseId: number) =>
-    update((s) => {
-      const release = s.releases.find((r) => r.id === releaseId);
-      if (!release) return;
-      if (release.build !== null) {
-        s.retained.push({ id: release.build, name: release.name, tickets: s.features.filter((f) => f.releases.includes(releaseId)).map((f) => f.id) });
-      }
-      for (const f of s.features) f.releases = f.releases.filter((id) => id !== releaseId);
-      for (const r of s.releases) {
-        if (r.riding === releaseId) {
-          r.riding = null;
-          s.log = addLog(s.log, `${r.name} rides alone again.`);
-        }
-      }
-      s.releases = s.releases.filter((r) => r.id !== releaseId);
-      s.log = addLog(s.log, `release/${release.name} abandoned. The branch is gone; its features keep integrating in dev.`, "bad");
-    });
-
-  const resetDev = () =>
-    update((s) => {
-      if (s.devBase >= s.shipped.length - 1) return;
-      s.devBase = s.shipped.length - 1;
-      s.log = addLog(
-        s.log,
-        "dev deleted and recut from the production baseline. The open branches merged back in; the old history stayed behind.",
-        "good",
-      );
-    });
-
-  const toggle = (target: "dev" | number) =>
-    update((s) => {
-      if (target === "dev") s.devExpanded = !s.devExpanded;
-      else {
-        const release = s.releases.find((r) => r.id === target);
-        if (release) release.expanded = !release.expanded;
-      }
-    });
+  const toggle = (target: "dev" | number) => dispatch({ type: "toggle", target });
 
   const drop = (releaseId: number) => (event: DragEvent) => {
     event.preventDefault();
@@ -511,10 +161,10 @@ export default function ReleaseTrain({ description }: { description?: string }) 
     >
       <div className="not-prose flex min-w-0 flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={addFeature} disabled={state.features.length >= MAX_FEATURES} className="whitespace-nowrap">
+          <Button onClick={() => dispatch({ type: "addFeature" })} disabled={state.features.length >= MAX_FEATURES} className="whitespace-nowrap">
             New feature
           </Button>
-          <Button variant="outline" onClick={addRelease} disabled={state.releases.length >= MAX_RELEASES} className="whitespace-nowrap">
+          <Button variant="outline" onClick={() => dispatch({ type: "addRelease" })} disabled={state.releases.length >= MAX_RELEASES} className="whitespace-nowrap">
             New release
           </Button>
           <span className="ml-auto shrink-0 font-mono text-xs text-muted">
@@ -544,7 +194,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                 reconciled baseline instead of the original one. */}
             <GlowPath
               d={(() => {
-                const fx = state.devBase === -1 ? 252 : MAIN_X1 - 50 - (state.shipped.length - 1 - state.devBase) * 40;
+                const fx = devForkX(state);
                 return `M ${fx} ${mainY} C ${fx + 30} ${mainY - 24}, ${fx + 32} ${rows[0].y + 26}, ${fx + 68} ${rows[0].y}`;
               })()}
               color={BLUE}
@@ -552,7 +202,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
               opacity={0.8}
             />
             <Commit
-              x={state.devBase === -1 ? 322 : MAIN_X1 - 50 - (state.shipped.length - 1 - state.devBase) * 40 + 70}
+              x={devForkX(state) + 70}
               y={rows[0].y}
               color={VIOLET}
               r={5}
@@ -566,7 +216,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
             />
             {state.shipped.map((sh, i) => {
               if (i <= state.devBase) return null;
-              const sx = MAIN_X1 - 50 - (state.shipped.length - 1 - i) * 40;
+              const sx = shippedX(state.shipped.length, i);
               const label = `main merged into dev after ${sh.name} shipped. Integration keeps testing on top of what is live.`;
               return (
                 <g key={`dev-sync-${sh.build}`} className="animate-fade-in">
@@ -586,7 +236,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
             {rows.map((row) =>
               row.subs.map(({ feature, y }) => (
                 <g key={`sub-${feature.id}-${row.kind === "dev" ? "dev" : row.release!.id}`} className="animate-fade-in">
-                  <GlowPath d={featurePath(forkX(feature.id), mainY, y, row.y, LANE_START_X + 48 + (y % 3) * 8)} color={BLUE} width={1.7} opacity={0.9} />
+                  <GlowPath d={featurePath(forkX(feature.id), mainY, y, row.y, subMergeX(y))} color={BLUE} width={1.7} opacity={0.9} />
                   <Commit
                     x={forkX(feature.id)}
                     y={mainY}
@@ -602,7 +252,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                       x={(() => {
                         // The straight run of the branch: knee to the merge curve.
                         const fx = forkX(feature.id);
-                        const runEnd = LANE_START_X + 48 + (y % 3) * 8 - 54;
+                        const runEnd = subMergeX(y) - 54;
                         return fx + 48 + (runEnd - (fx + 48)) * t;
                       })()}
                       y={y}
@@ -627,7 +277,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
               const laneColor = row.kind === "dev" ? VIOLET : GREEN;
               const release = row.release;
               const laneEndX = row.kind === "dev" ? ZONE_X - 16 : BUILD_X - 16;
-              const count = row.kind === "dev" ? unassigned.length : state.features.filter((f) => f.releases.includes(release!.id)).length;
+              const count = row.kind === "dev" ? unassigned.length : ticketsIn(state, release!.id).length;
               const expanded = row.kind === "dev" ? state.devExpanded : release!.expanded;
               const label = row.kind === "dev" ? "dev" : `release/${release!.name}`;
 
@@ -699,8 +349,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                           <g
                             onClick={() =>
                               onInspect(
-                                `Build ${release.build}: tickets ${state.features
-                                  .filter((f) => f.releases.includes(release.id))
+                                `Build ${release.build}: tickets ${ticketsIn(state, release.id)
                                   .map((f) => f.id)
                                   .join(", ")}. Approvals attach to this ID, and the same artifact is promoted through every environment.`,
                               )
@@ -708,7 +357,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
-                                onInspect(`Build ${release.build}: tickets ${state.features.filter((f) => f.releases.includes(release.id)).map((f) => f.id).join(", ")}. Approvals attach to this ID, and the same artifact is promoted through every environment.`);
+                                onInspect(`Build ${release.build}: tickets ${ticketsIn(state, release.id).map((f) => f.id).join(", ")}. Approvals attach to this ID, and the same artifact is promoted through every environment.`);
                               }
                             }}
                             tabIndex={0}
@@ -750,7 +399,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
               {state.shipped.map((s, i) => (
                 <Commit
                   key={s.build}
-                  x={MAIN_X1 - 50 - (state.shipped.length - 1 - i) * 40}
+                  x={shippedX(state.shipped.length, i)}
                   y={0}
                   color={GREEN}
                   r={6.5}
@@ -800,7 +449,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                     if (j >= 0 && j < state.shipped.length) {
                       greys.push({
                         id: state.shipped[j].build,
-                        act: () => setProd(j),
+                        act: () => dispatch({ type: "setProd", index: j }),
                         hint: j < state.prodIndex ? `Roll PROD back to build ${state.shipped[j].build}` : `Move PROD forward to build ${state.shipped[j].build}`,
                       });
                     }
@@ -808,7 +457,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                 } else if (env !== "DEV" && state.prevEnv[i - 1] !== null) {
                   greys.push({
                     id: state.prevEnv[i - 1]!,
-                    act: () => redeploy(i - 1),
+                    act: () => dispatch({ type: "redeploy", slot: i - 1 }),
                     hint: `Redeploy build ${state.prevEnv[i - 1]} to ${env}`,
                   });
                 }
@@ -923,7 +572,7 @@ export default function ReleaseTrain({ description }: { description?: string }) 
             <span className="mt-1 flex w-full flex-wrap gap-1.5">
               <Button
                 variant="outline"
-                onClick={resetDev}
+                onClick={() => dispatch({ type: "resetDev" })}
                 disabled={state.devBase >= state.shipped.length - 1}
                 title="Delete dev and branch it fresh from main. The open feature branches merge back in."
                 className="whitespace-nowrap !px-2.5 !py-1 !text-xs"
@@ -933,16 +582,13 @@ export default function ReleaseTrain({ description }: { description?: string }) 
             </span>
           </Bucket>
           {state.releases.map((release) => {
-            const tickets = state.features.filter((f) => f.releases.includes(release.id));
+            const tickets = ticketsIn(state, release.id);
             const carrier = release.riding !== null ? state.releases.find((r) => r.id === release.riding) : undefined;
-            const qaHolder = state.releases.find((r) => r.id !== release.id && r.riding !== release.id && r.build !== null && r.env === 1);
-            const uatHolder = state.releases.find((r) => r.id !== release.id && r.riding !== release.id && r.build !== null && r.env === 2);
+            const qaHolder = stageHolder(state, release.id, 1);
+            const uatHolder = stageHolder(state, release.id, 2);
             const qaBusy = release.build !== null && release.env === 0 && Boolean(qaHolder);
             const uatBusy = release.build !== null && release.env === 1 && Boolean(uatHolder);
-            const mergeTarget = state.releases.find(
-              (r) => r.id !== release.id && r.riding === null && r.build !== null && (r.env === 1 || r.env === 2),
-            );
-            const canMerge = !carrier && Boolean(mergeTarget) && release.env <= 1 && !release.needsRetrofit;
+            const mergeDest = mergeTarget(state, release);
             const riders = state.releases.filter((r) => r.riding === release.id);
             return (
               <Bucket
@@ -965,23 +611,23 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                 active={carrying !== null}
                 onDrop={drop(release.id)}
                 onPick={() => dropCarried(release.id)}
-                onAbandon={() => abandon(release.id)}
+                onAbandon={() => dispatch({ type: "abandon", release: release.id })}
               >
                 {tickets.map((f) => (
                   <Ticket key={f.id} id={f.id} carrying={carrying === f.id} onPick={() => pickOrMove(f.id)} onGrab={grab} onRelease={release_} />
                 ))}
                 <span className="mt-1 flex flex-wrap gap-1.5">
                   {release.needsRetrofit ? (
-                    <Button variant="outline" onClick={() => retrofit(release.id)} className="whitespace-nowrap !px-2.5 !py-1 !text-xs">
+                    <Button variant="outline" onClick={() => dispatch({ type: "retrofit", release: release.id })} className="whitespace-nowrap !px-2.5 !py-1 !text-xs">
                       Merge main
                     </Button>
                   ) : release.build === null ? (
-                    <Button variant="outline-strong" disabled={tickets.length === 0} onClick={() => build(release.id)} className="whitespace-nowrap !px-2.5 !py-1 !text-xs">
+                    <Button variant="outline-strong" disabled={tickets.length === 0} onClick={() => dispatch({ type: "build", release: release.id })} className="whitespace-nowrap !px-2.5 !py-1 !text-xs">
                       Build
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => promote(release.id)}
+                      onClick={() => dispatch({ type: "promote", release: release.id })}
                       title={
                         uatBusy
                           ? `UAT holds only what ships next. Overwriting sends ${uatHolder!.name} back; build ${uatHolder!.build} will need UAT again.`
@@ -998,14 +644,14 @@ export default function ReleaseTrain({ description }: { description?: string }) 
                           : `Promote to ${ENVS[release.env]}`}
                     </Button>
                   )}
-                  {canMerge ? (
+                  {mergeDest ? (
                     <Button
                       variant="outline"
-                      onClick={() => mergeInto(release.id, mergeTarget!.id)}
-                      title={`Merge ${release.name} into ${mergeTarget!.name}: the combined release rebuilds and re-approves from QA, and ${mergeTarget!.name}'s old build stays deployed until the new one replaces it. ${release.name} stays open.`}
+                      onClick={() => dispatch({ type: "merge", source: release.id, dest: mergeDest.id })}
+                      title={`Merge ${release.name} into ${mergeDest.name}: the combined release rebuilds and re-approves from QA, and ${mergeDest.name}'s old build stays deployed until the new one replaces it. ${release.name} stays open.`}
                       className="whitespace-nowrap !px-2.5 !py-1 !text-xs"
                     >
-                      Merge into {mergeTarget!.name}
+                      Merge into {mergeDest.name}
                     </Button>
                   ) : null}
                 </span>
