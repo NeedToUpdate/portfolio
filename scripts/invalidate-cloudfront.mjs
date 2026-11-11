@@ -20,7 +20,6 @@ import {
   SKIP_MARKER,
   classifyChange,
   discoverRoots,
-  fullPathList,
   newPagePaths,
   parseNameStatus,
   slugsFromDisk,
@@ -58,17 +57,18 @@ function makeContext() {
   return { slugs: slugsFromDisk(), fileToPaths: new Map() };
 }
 
+// Without a diff there is no way to know what changed, and guessing means
+// a blanket purge that evicts every cached image. Fail the step instead;
+// the deploy itself has already gone out.
 async function computeInvalidation() {
   const ctx = makeContext();
 
   if (!tagExists(TAG)) {
-    return {
-      paths: fullPathList(ctx),
-      matches: [],
-      warnings: [],
-      reason: `bootstrap: no ${TAG} tag found yet`,
-      commitRange: [],
-    };
+    throw new Error(
+      `No ${TAG} tag, so there is no diff to invalidate from. Nothing was invalidated. ` +
+        `Tag the commit whose deploy was last invalidated, then rerun: ` +
+        `git tag ${TAG} <sha> && git push origin refs/tags/${TAG}`,
+    );
   }
 
   const commitRange = (() => {
@@ -83,17 +83,11 @@ async function computeInvalidation() {
   try {
     changed = parseNameStatus(git(["diff", "--name-status", TAG, "HEAD"]));
   } catch (err) {
-    return {
-      paths: fullPathList(ctx),
-      matches: [],
-      warnings: [],
-      reason: `git diff ${TAG}..HEAD failed: ${err.message}`,
-      commitRange,
-    };
+    throw new Error(`git diff ${TAG}..HEAD failed, so nothing was invalidated: ${err.message}`);
   }
 
   if (changed.length === 0) {
-    return { paths: [], matches: [], warnings: [], reason: null, commitRange };
+    return { paths: [], matches: [], warnings: [], commitRange };
   }
 
   // The import graph is only needed when source files changed.
@@ -119,7 +113,7 @@ async function computeInvalidation() {
   // A changed shared component reaches new pages too; they were never cached.
   for (const p of newPagePaths(changed, ctx)) paths.delete(p);
 
-  return { paths: [...paths].sort(), matches, warnings, reason: null, commitRange };
+  return { paths: [...paths].sort(), matches, warnings, commitRange };
 }
 
 async function findSkipMarker(shas) {
@@ -183,7 +177,7 @@ function report(lines) {
 }
 
 async function main() {
-  const { paths, matches, warnings, reason, commitRange } = await computeInvalidation();
+  const { paths, matches, warnings, commitRange } = await computeInvalidation();
 
   const lines = [`## CloudFront invalidation — ${STAGE}${DRY_RUN ? " (dry run)" : ""}`, ""];
 
@@ -196,9 +190,6 @@ async function main() {
     lines.push("**Warnings:**");
     for (const w of warnings) lines.push(`- ⚠️ ${w}`);
     lines.push("");
-  }
-  if (reason) {
-    lines.push(`**Note:** ${reason}`, "");
   }
 
   if (paths.length === 0) {

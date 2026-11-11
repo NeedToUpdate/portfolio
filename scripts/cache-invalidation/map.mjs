@@ -37,11 +37,6 @@ export const TEXT_FIXED_PATHS = [
   "/.well-known/agent-skills/using-this-site/SKILL.md",
 ];
 
-// Only used by the bootstrap (no tag yet) and diff-failure fallbacks,
-// where nothing is known about what changed. A mapped image change
-// invalidates its own variants instead — see optimizerVariantPaths().
-export const IMAGE_WILDCARD_PATHS = ["/images/*", "/_next/image*"];
-
 // previewImage/diagram source files get copied to a sha256-hashed twin
 // by scripts/build-image-assets.mjs (see lib/images.ts). The hashed
 // file is the only one ever linked to, so a new hash is a brand new
@@ -177,15 +172,10 @@ function withTwins(paths) {
   return paths.flatMap((p) => [p, mdTwin(p)]);
 }
 
-// Enumerates every current collection slug from the checked-out content
-// directories, rather than relying on a "/insights/*"-style wildcard — so
-// the fallback always matches what's actually on the site right now.
-export function fullPathList(ctx) {
-  return [...fullTextPathList(ctx), ...IMAGE_WILDCARD_PATHS];
-}
-
-// Same as above but without the image wildcards — this is what a
-// "global" text-only change (layout, broad config, ...) touches.
+// Every text route, with each collection slug enumerated from the
+// checked-out content directories rather than an "/insights/*"-style
+// wildcard. This is what a "global" change (layout, broad config, ...)
+// touches. Images are never in it.
 export function fullTextPathList(ctx) {
   return [
     ...TEXT_FIXED_PATHS,
