@@ -1,7 +1,7 @@
 ---
 title: "icandoathing.com"
 description: "A project-based social media site."
-thumbnail: "/images/icandoathing.webp"
+thumbnail: "/images/legacy/icandoathing/home.webp"
 brightImage: true
 techs: ["django", "vuejs", "sass"]
 url: "https://icandoathing.com"
