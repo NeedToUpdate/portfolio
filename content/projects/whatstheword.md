@@ -5,6 +5,6 @@ description: "An ESL SaaS game site."
 thumbnail: "/images/whatstheword.webp"
 brightImage: true
 techs: ["react", "django", "tailwind"]
-url: "https://whatstheword.io"
+url: "/legacy/whatstheword"
 priority: 10
 ---

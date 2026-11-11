@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getCaseStudies, getInsights } from "@/lib/content";
+import { getCaseStudies, getInsights, getLegacyArticles } from "@/lib/content";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -22,5 +22,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...workRoutes, ...insightRoutes];
+  // Legacy articles are reachable from project cards only, so the
+  // sitemap is how crawlers find them. Lower priority than current work.
+  const legacyRoutes = getLegacyArticles().map(({ slug }) => ({
+    url: `${site.url}/legacy/${slug}`,
+    changeFrequency: "yearly" as const,
+    priority: 0.4,
+  }));
+
+  const legacyIndex = {
+    url: `${site.url}/legacy`,
+    changeFrequency: "yearly" as const,
+    priority: 0.4,
+  };
+
+  return [...staticRoutes, ...workRoutes, ...insightRoutes, legacyIndex, ...legacyRoutes];
 }

@@ -1,0 +1,101 @@
+---
+title: "I made a case for my server"
+description: "An old rack server from work, rebuilt into a smaller, quieter 3D-printed case designed in Fusion 360 and printed in pieces on a Bambu Lab P1S."
+deck: "I designed, modelled and 3D printed a case for my server!"
+date: "2024-09-19"
+originalUrl: "https://icandoathing.com/thing/SlhPxf/i-made-a-case-for-my-server"
+screenshot: "/images/legacy/server-case/original.webp"
+tags: ["fusion360", "3dprinting", "server"]
+---
+
+<MediaRow
+  src="/images/legacy/server-case/01.webp"
+  width={900}
+  height={1200}
+  alt="A long rack-mount server sitting open on a desk, with its drives, fans and cables exposed"
+  side="left"
+  size="third"
+  wrap
+>
+
+I got an old server from work that they were throwing out (cloud migration). It was too big and loud to use in my small apartment, so I had to do something about it. I definitely wanted to use it, but I needed to make it quieter and smaller.
+
+First I bought some [Noctua fans](https://noctua.at/en/products/fan/nf-f12-pwm), which helped, as those are *super* quiet. But the case was simply too big to be useful.
+
+Thankfully, I had bought a [Bambu Lab P1S 3D printer](https://ca.store.bambulab.com/products/p1s), and had the perfect use case for it!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/server-case/02.webp"
+  width={1200}
+  height={969}
+  alt="Fusion 360 model of the new case: a slanted honeycomb shell over a low base with drive bays"
+  side="right"
+>
+
+I used Fusion 360 to model out a case, with the 8 hard drives at the bottom, the motherboard standing upright, and the PSU in the back.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/server-case/03.webp"
+  width={1200}
+  height={591}
+  alt="The case model split into about twenty separate pieces, laid out on print plates"
+  side="left"
+>
+
+I then split it into pieces, as the whole thing is too big for the printing plate, and figured I could superglue the pieces together later.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/server-case/04.webp"
+  width={900}
+  height={1200}
+  alt="The black bottom plate of the case, assembled from several printed sections on a workbench"
+  side="right"
+  size="third"
+>
+
+This is the bottom plate. I used a few pieces of filament like IKEA pegs, and then superglued the sections. Once it was dry, I added a layer of pressed hot glue to really seal it all in. It seems to be stronger than the plastic itself now.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/server-case/05.webp"
+  width={1200}
+  height={900}
+  alt="The finished case on the floor, a blue and white honeycomb shell with a router resting on top"
+  side="left"
+  wrap
+>
+
+And voila!
+
+I had a much nicer, smaller and more manageable case for my server. The router is there because the server doesn't have a WiFi card, but I did have a spare router lying around which can be used as a WiFi receiver.
+
+Over this process I learned that I should leave case designs to the pros. There were so many things I didn't consider or forgot. Tolerances for joins, which had me sanding some sections down. Access points for ports and cables, which had me cutting some pieces off. Structural supports, which had me gluing extra pieces into certain areas.
+
+But nonetheless, it works well! Now I can use my server for whatever I like.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/server-case/06.webp"
+  width={1200}
+  height={844}
+  alt="A browser dashboard at my.home listing the self-hosted photo, file, and media apps running on the server"
+  side="right"
+>
+
+And what I chose to use it for is my own personal Google Photos, Google Drive, and my own personal Netflix!
+
+_Also notice the `my.home` top level domain. I have my own DNS server, VPN and root CA set up to get my own top level domain with SSL :P_
+
+</MediaRow>
+
+<Note>
+This server later became one of the control-plane nodes in [my k3s homelab](/insights/k3s-homelab).
+</Note>

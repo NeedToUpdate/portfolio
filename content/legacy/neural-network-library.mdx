@@ -1,0 +1,93 @@
+---
+title: "I made a Neural Network library from scratch"
+description: "A JavaScript neural network library written from scratch to learn the language: dense networks, RNNs, LSTMs and CNNs, down to the matrix math."
+deck: "I wanted to learn the basics of JavaScript, and I did that by tackling an area I found extremely fascinating: machine learning. I started simple, but after getting really deep into the learning, I managed to make a full Neural Network library, including Dense NNs, RNNs, LSTMs, and CNNs! Everything here is written from scratch, no libraries or copy pastes. Even the base vector and matrix libraries used by the code are self-written."
+date: "2022-04-18"
+originalUrl: "https://icandoathing.com/thing/QRkgsb/i-made-a-neural-network-library-from-scr"
+screenshot: "/images/legacy/neural-network-library/original.webp"
+tags: ["nn", "ml", "javascript", "mnist"]
+---
+
+For those who just want to check it out and don't want to read, here it is:
+
+<ProjectLink
+  mode="external"
+  href="https://needtoupdate.github.io/neuralnetworktests/"
+  title="Neural network tests"
+  note="Every demo from this post, running in the browser."
+  image="/images/legacy/neural-network-library/02.webp"
+/>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/01.webp"
+  width={658}
+  height={876}
+  alt="A black canvas with small white circles, the creatures, moving among coloured dots of food"
+  side="left"
+  size="third"
+>
+
+It began after watching [The Coding Train](https://www.youtube.com/watch?v=9zfeTw-uFCw). I really wanted to try it out, and made a simple simulator. These little dudes have a dense NN brain, with sigmoid activation functions. Their brains get selected and mutated based on how much food they ate. Over a few generations, they get pretty good at finding all the food.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/02.webp"
+  width={970}
+  height={718}
+  alt="A digit recognition page: a training image of a 5 on the left, a hand-drawn 5 on the right, and the network's guess of 5"
+  side="right"
+>
+
+After wanting to expand their brains, I decided to just continue with pure ML. I found the MNIST dataset. It is a collection of handwritten digits, 0-9. I had to write a full backpropagation method, and add training methods, new activations like argmax, and a few other functions. But that allowed a 70% accuracy after just a couple thousand trainings!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/03.webp"
+  width={513}
+  height={277}
+  alt="A text box holding 'predic', with the network predicting the next letter 't', at 100% accuracy after 3750 trainings"
+  side="left"
+>
+
+That led me to RNNs, or Recurrent Neural Networks. They essentially cycle back the last piece of data they gave out, and so they can 'remember' data. Here it can learn a simple word, and can predict the next letter that comes after.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/04.webp"
+  width={601}
+  height={372}
+  alt="The LSTM demo trained on the sentence 'i have spaces', predicting the next letter 's' after 'i have'"
+  side="right"
+>
+
+I thought RNNs were neat, but not neat enough. They couldn't remember branching paths, like any words that had double letters. So I tried out LSTMs! Or Long Short-Term Memory cells. They're more complicated than RNNs, but doable. I wrote the code, the backpropagation code, and the required activations and other functions. Now it can remember the entire alphabet, or a simple sentence! Amazing!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/05.webp"
+  width={938}
+  height={712}
+  alt="The digit recognition page again, now with the convolutional network guessing a hand-drawn 8 with 0.98 confidence"
+  side="left"
+  wrap
+>
+
+I wanted to get a better score on the MNIST dataset, so I set out to learn how CNNs work. They're quite complicated, but after a while, and after finding [this paper](https://www.semanticscholar.org/paper/Derivation-of-Backpropagation-in-Convolutional-(-)-Qi/5d7911c93ddcb34cac088d99bd0cae9124e5dcd1) which put all the equations in simple terms, I managed to write all the backpropagation code, maxpool layers, dropout layers, and all the matrix math behind it. Now I get a 92% accuracy after just half an epoch! (Side note: I was using a rather slow laptop at the time, and this isn't a speedy library by any means, so training is really slow. I couldn't be bothered to train for more than that.)
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/neural-network-library/06.webp"
+  width={794}
+  height={718}
+  alt="The same page trained on Quick, Draw! sketches, labelling a hand-drawn car as 'car'"
+  side="right"
+>
+
+It can also do Google's Quick, Draw! Amazing what this simple library can do. There are a few more projects I made with the library, and they can all be found, along with the code, on my GitHub, specifically [this GitHub Pages site](https://needtoupdate.github.io/neuralnetworktests/). It has more instructions if you want to try out some of the examples.
+
+</MediaRow>

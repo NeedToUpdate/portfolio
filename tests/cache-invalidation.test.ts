@@ -64,6 +64,37 @@ describe("content classification", () => {
     );
     expect(addedContentDetailPath("content/work/existing.md", "M")).toBeNull();
     expect(addedContentDetailPath("content/projects/new.md", "A")).toBeNull();
+    expect(addedContentDetailPath("content/legacy/server-case.mdx", "A")).toBe(
+      "/legacy/server-case",
+    );
+  });
+
+  it("maps a legacy article to its page, its twin, the sitemap, and llms.txt", () => {
+    const edited = classifyChange("content/legacy/server-case.mdx", "M", ctx);
+    expect(edited.bucket).toBe("legacy");
+    expect(edited.paths).toEqual([
+      "/legacy/server-case",
+      "/md/legacy/server-case",
+      "/legacy",
+      "/md/legacy",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
+    expect(classifyChange("content/legacy/brand-new.mdx", "A", ctx).paths).toEqual([
+      "/legacy",
+      "/md/legacy",
+      "/sitemap.xml",
+      "/llms.txt",
+    ]);
+  });
+
+  it("includes legacy pages in a full text refresh when the context lists them", () => {
+    const paths = fullTextPathList({ ...ctx, legacySlugs: ["server-case"] });
+    expect(paths).toContain("/legacy/server-case");
+    expect(paths).toContain("/md/legacy/server-case");
+    expect(mdMirrorPathList({ ...ctx, legacySlugs: ["server-case"] })).toContain(
+      "/md/legacy/server-case",
+    );
   });
 
   it("maps an edited case study to its slug, the indexes, their twins, and llms.txt", () => {

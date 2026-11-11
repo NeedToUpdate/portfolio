@@ -67,8 +67,8 @@ function tagExists(tag) {
 // marketing routes and the per-insight / per-case-study pages. Everything
 // else the invalidator tracks is either an agent/asset surface or a
 // wildcard, none of which are submittable page URLs.
-const FIXED_PAGE_RE = /^\/(?:about|contact|insights|projects|work)$/;
-const DETAIL_PAGE_RE = /^\/(?:insights|work)\/[a-z0-9-]+$/;
+const FIXED_PAGE_RE = /^\/(?:about|contact|insights|legacy|projects|work)$/;
+const DETAIL_PAGE_RE = /^\/(?:insights|work|legacy)\/[a-z0-9-]+$/;
 function isIndexablePage(path) {
   if (path.includes("*") || path.includes("?")) return false;
   return path === "/" || FIXED_PAGE_RE.test(path) || DETAIL_PAGE_RE.test(path);
@@ -78,6 +78,7 @@ function makeContext() {
   return {
     insightSlugs: listSlugs("content/insights"),
     workSlugs: listSlugs("content/work"),
+    legacySlugs: listSlugs("content/legacy"),
     fileToPaths: new Map(),
   };
 }

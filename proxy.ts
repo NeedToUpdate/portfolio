@@ -14,7 +14,7 @@ import { NextResponse } from "next/server";
  * to join the cache key.
  */
 const AGENT_PAGE_PATTERN =
-  /^\/(?:(?:work|insights)\/[^/]+|work|insights|projects|about|contact)?$/;
+  /^\/(?:(?:work|insights|legacy)\/[^/]+|work|insights|legacy|projects|about|contact)?$/;
 
 /**
  * Discovery headers for AI agents (RFC 8288). Every page response

@@ -6,4 +6,5 @@ thumbnail: "/images/invoice.webp"
 techs: ["nextjs", "tailwind", "mongodb"]
 url: "https://invoice.artnikitin.dev"
 priority: 3
+legacySlug: "invoice-app"
 ---

@@ -1,0 +1,44 @@
+---
+title: "I made a tool that uses AI to remove backgrounds"
+description: "A Python desktop tool with an Eel GUI that removes image backgrounds with a PyTorch model, and also converts, compresses, resizes and strips EXIF data."
+deck: "There are too many sites out there that just want to charge you money for the simple task of removing backgrounds. I wanted to remove the backgrounds of 3 images, but all the sites charged money for high res or for processing more than one image! So I decided to just make my own."
+date: "2022-09-11"
+originalUrl: "https://icandoathing.com/thing/sQotUe/i-made-a-tool-that-uses-ai-to-remove-bac"
+screenshot: "/images/legacy/image-tools/original.webp"
+tags: ["python", "AI", "pytorch"]
+---
+
+<MediaRow
+  src="/images/legacy/image-tools/01.webp"
+  width={916}
+  height={1040}
+  alt="The tool's window: sliders for max resolution and compression, checkboxes to remove EXIF data and backgrounds, and a filetype picker"
+  side="left"
+>
+
+This Python tool uses [Eel](https://pypi.org/project/Eel/) to render a GUI for the script. The GUI is made with Handlebars templates + SCSS, and uses gulp and Babel to compile them down to basic HTML/CSS. It uses a model I found online to remove the backgrounds.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/image-tools/02.webp"
+  width={1200}
+  height={528}
+  alt="Two folders side by side: three input photos on the left, and the same three with their backgrounds removed on the right"
+  side="right"
+>
+
+It's quite fast, can use both CPU and GPU depending on the machine you're on, and is able to convert files between PNG, JPG and WebP, compress, resize, and remove EXIF data.
+
+Check it out on my GitHub. There's even a compiled Windows binary in the releases tab!
+
+</MediaRow>
+
+<ProjectLink
+  mode="external"
+  href="https://github.com/NeedToUpdate/Image-Tools"
+  title="Image-Tools"
+  note="The code, plus a compiled Windows binary under Releases."
+  image="/images/legacy/image-tools/01.webp"
+  label="View the code"
+/>

@@ -11,7 +11,7 @@
 // synthetic adjacency; only buildAdjacency touches dependency-cruiser,
 // via a dynamic import so importing this module stays cheap.
 
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
 /** Normalize to a POSIX, repo-relative path so keys match `git diff` output. */
@@ -121,6 +121,9 @@ export function scopeMdxComponents(
   {
     registryFile = "components/composites/mdx-components.tsx",
     contentDir = "content/insights",
+    // Other MDX collections rendered through the same registry, as
+    // [directory, route prefix] pairs.
+    extraContentDirs = [["content/legacy", "/legacy"]],
   } = {},
 ) {
   const scopedAdjacency = Object.fromEntries(
@@ -152,12 +155,15 @@ export function scopeMdxComponents(
   );
 
   const roots = [];
-  for (const filename of readdirSync(contentDir).filter((file) => /\.mdx$/.test(file))) {
-    const source = readFileSync(path.join(contentDir, filename), "utf8");
-    const slug = filename.replace(/\.mdx$/, "");
-    for (const name of registered) {
-      if (new RegExp(`<${name}(?:\\s|/|>)`).test(source)) {
-        roots.push({ file: imports.get(name), paths: [`/insights/${slug}`] });
+  for (const [dir, prefix] of [[contentDir, "/insights"], ...extraContentDirs]) {
+    if (!existsSync(dir)) continue;
+    for (const filename of readdirSync(dir).filter((file) => /\.mdx$/.test(file))) {
+      const source = readFileSync(path.join(dir, filename), "utf8");
+      const slug = filename.replace(/\.mdx$/, "");
+      for (const name of registered) {
+        if (new RegExp(`<${name}(?:\\s|/|>)`).test(source)) {
+          roots.push({ file: imports.get(name), paths: [`${prefix}/${slug}`] });
+        }
       }
     }
   }

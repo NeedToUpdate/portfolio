@@ -26,6 +26,7 @@ const HASH_LENGTH = 8;
 const contentDirs = [
   { dir: path.join(root, "content", "insights"), field: "previewImage" },
   { dir: path.join(root, "content", "work"), field: "diagram" },
+  { dir: path.join(root, "content", "legacy"), field: "screenshot" },
 ];
 
 function hashOf(absPath) {
@@ -79,18 +80,21 @@ async function processOne(relSrc, keep) {
 // unrelated hashed-looking files are never at risk.
 function cleanupOrphans(sources, keep) {
   const bases = new Set([...sources].map((rel) => rel.slice(0, -path.extname(rel).length)));
-  const imagesDir = path.join(publicDir, "images");
+  // Sources can sit in subfolders (images/legacy/<slug>/), so sweep
+  // every folder that holds one.
+  const dirs = new Set([...sources].map((rel) => path.posix.dirname(rel)));
 
-  for (const file of fs.readdirSync(imagesDir)) {
-    const match = file.match(/^(.+)\.[0-9a-f]{8}(\.og)?\.[a-z0-9]+$/i);
-    if (!match) continue;
-    const base = `images/${match[1]}`;
-    if (!bases.has(base)) continue;
+  for (const dir of dirs) {
+    for (const file of fs.readdirSync(path.join(publicDir, dir))) {
+      const match = file.match(/^(.+)\.[0-9a-f]{8}(\.og)?\.[a-z0-9]+$/i);
+      if (!match) continue;
+      if (!bases.has(`${dir}/${match[1]}`)) continue;
 
-    const relFile = `images/${file}`;
-    if (!keep.has(relFile)) {
-      fs.unlinkSync(path.join(imagesDir, file));
-      console.log(`removed ${relFile} (stale)`);
+      const relFile = `${dir}/${file}`;
+      if (!keep.has(relFile)) {
+        fs.unlinkSync(path.join(publicDir, relFile));
+        console.log(`removed ${relFile} (stale)`);
+      }
     }
   }
 }

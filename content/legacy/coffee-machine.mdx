@@ -1,0 +1,104 @@
+---
+title: "I automated my coffee machine"
+description: "A 3D-printed bracket, an ESP32, and a servo that push the two buttons on a DeLonghi coffee maker, so a fresh cup is ready at 6:00 am."
+deck: "I was too lazy to push 2 buttons, so I made a robot to do it for me."
+date: "2024-09-19"
+originalUrl: "https://icandoathing.com/thing/sUzDsn/i-automated-my-coffee-machine"
+screenshot: "/images/legacy/coffee-machine/original.webp"
+tags: ["fusion360", "3dprinting", "coffee"]
+---
+
+I have a [DeLonghi coffee maker](https://www.delonghi.com/en-us/magnifica-s-smart-cappuccino-maker-ecam23270s/p/ECAM23270S), which I bought refurbished for $400. It requires you to push 2 buttons: the "on" button, and the "brew" button about 40 seconds after.
+
+Now, why spend 40 seconds doing a task when you can spend 2 weeks automating it?
+
+<MediaRow
+  src="/images/legacy/coffee-machine/02.webp"
+  width={1200}
+  height={748}
+  alt="Fusion 360 model of the coffee machine with a bracket and a button-pushing arm mounted on its front"
+  side="left"
+>
+
+First we measure the coffee machine, and create the model.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/coffee-machine/03.webp"
+  width={1200}
+  height={771}
+  alt="The bracket in the slicer, with supports and the estimated print time"
+  side="right"
+>
+
+Then we 3D print it!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/coffee-machine/04.webp"
+  width={1200}
+  height={900}
+  alt="Two printed versions of the grey bracket side by side on a cutting mat"
+  side="left"
+>
+
+Then we realize it doesn't work and fix the issues.
+
+Then do that one more time.
+
+(The first time the buttons were off and the arm was too thin. The second time the arm attachment was loose, so I had to make it one piece.)
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/coffee-machine/05.webp"
+  width={900}
+  height={1200}
+  alt="An ESP32 on a protoboard with a small OLED screen, wired to a blue hobby servo"
+  side="right"
+  size="third"
+>
+
+Then we create a small device using an ESP32 that powers a servo.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/coffee-machine/06.webp"
+  width={1200}
+  height={967}
+  alt="A drawCoffeeCup function that draws a coffee cup on the OLED screen with line and pixel calls"
+  side="left"
+>
+
+We then write some code to draw a coffee cup pixel by pixel!
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/coffee-machine/07.webp"
+  width={1200}
+  height={900}
+  alt="The finished bracket mounted on the coffee machine, with the screen showing the time and the next brew"
+  side="right"
+>
+
+And now we have a fresh cup ready to drink at 6:00 am without having to spend 40 seconds pushing buttons. So much extra time to sleep!
+
+</MediaRow>
+
+## Update
+
+<MediaRow
+  src="/images/legacy/coffee-machine/08.webp"
+  width={1200}
+  height={900}
+  alt="The same bracket with new two-colour printed buttons"
+  side="left"
+>
+
+We then upgrade the buttons with multicolor prints so they look nicer!
+
+</MediaRow>

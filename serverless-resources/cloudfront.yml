@@ -143,7 +143,7 @@ Resources:
         function handler(event) {
           var request = event.request;
           var accept = request.headers.accept ? request.headers.accept.value : "";
-          var pages = /^\/(?:(?:work|insights)\/[^\/]+|work|insights|projects|about|contact)?$/;
+          var pages = /^\/(?:(?:work|insights|legacy)\/[^\/]+|work|insights|legacy|projects|about|contact)?$/;
           if (accept.indexOf("text/markdown") !== -1 && pages.test(request.uri)) {
             request.uri = request.uri === "/" ? "/md" : "/md" + request.uri;
           }

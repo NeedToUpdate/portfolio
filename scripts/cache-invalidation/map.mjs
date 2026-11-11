@@ -17,6 +17,7 @@ export const TEXT_FIXED_PATHS = [
   "/about",
   "/contact",
   "/insights",
+  "/legacy",
   "/projects",
   "/work",
   "/robots.txt",
@@ -30,6 +31,7 @@ export const TEXT_FIXED_PATHS = [
   "/md/capabilities",
   "/md/contact",
   "/md/insights",
+  "/md/legacy",
   "/md/projects",
   "/md/work",
   "/.well-known/api-catalog",
@@ -117,7 +119,7 @@ export function listSlugs(dir) {
  */
 export function addedContentDetailPath(file, status) {
   if (status !== "A") return null;
-  const match = file.match(/^content\/(insights|work)\/([^/]+)\.mdx?$/);
+  const match = file.match(/^content\/(insights|work|legacy)\/([^/]+)\.mdx?$/);
   return match ? `/${match[1]}/${match[2]}` : null;
 }
 
@@ -135,6 +137,7 @@ export function fullTextPathList(ctx) {
     ...TEXT_FIXED_PATHS,
     ...ctx.insightSlugs.flatMap((s) => [`/insights/${s}`, `/md/insights/${s}`]),
     ...ctx.workSlugs.flatMap((s) => [`/work/${s}`, `/md/work/${s}`]),
+    ...(ctx.legacySlugs ?? []).flatMap((s) => [`/legacy/${s}`, `/md/legacy/${s}`]),
   ];
 }
 
@@ -147,10 +150,12 @@ export function mdMirrorPathList(ctx) {
     "/md/capabilities",
     "/md/contact",
     "/md/insights",
+    "/md/legacy",
     "/md/projects",
     "/md/work",
     ...ctx.insightSlugs.map((s) => `/md/insights/${s}`),
     ...ctx.workSlugs.map((s) => `/md/work/${s}`),
+    ...(ctx.legacySlugs ?? []).map((s) => `/md/legacy/${s}`),
   ];
 }
 
@@ -229,6 +234,15 @@ export function discoverRoots(ctx, appDir = "app") {
             "/sitemap.xml",
           ],
         });
+      } else if (file === `${appDir}/legacy/[slug]/page.tsx`) {
+        roots.push({
+          file,
+          paths: [
+            ...(ctx.legacySlugs ?? []).map((s) => `/legacy/${s}`),
+            "/legacy",
+            "/sitemap.xml",
+          ],
+        });
       } else if (file === `${appDir}/work/[slug]/page.tsx`) {
         roots.push({
           file,
@@ -301,6 +315,21 @@ export function classifyChange(file, status, ctx) {
         "/",
         "/md",
         "/md/capabilities",
+        "/sitemap.xml",
+        "/llms.txt",
+      ],
+    };
+  }
+  // Legacy articles sit behind the /legacy index (itself reached only
+  // through the projects-page easter egg), with twins and llms.txt entries.
+  if ((m = file.match(/^content\/legacy\/([^/]+)\.mdx?$/))) {
+    return {
+      bucket: "legacy",
+      slug: m[1],
+      paths: [
+        ...(status === "A" ? [] : [`/legacy/${m[1]}`, `/md/legacy/${m[1]}`]),
+        "/legacy",
+        "/md/legacy",
         "/sitemap.xml",
         "/llms.txt",
       ],

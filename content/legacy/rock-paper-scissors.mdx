@@ -1,0 +1,55 @@
+---
+title: "I created the Rock Paper Scissors Battle Royale"
+description: "A customizable rock paper scissors simulator in JavaScript, where emoji teams built on boids chase each other until one is left standing."
+deck: "A fun customizable rock paper scissors simulator where the last one standing wins!"
+date: "2024-01-06"
+originalUrl: "https://icandoathing.com/thing/QrT26K/i-created-the-rock-paper-scissors-battle"
+screenshot: "/images/legacy/rock-paper-scissors/original.webp"
+tags: ["games", "javascript"]
+---
+
+I stumbled upon [this tweet](https://twitter.com/i/status/1600155605112496129) one day, and got mesmerized.
+
+Decided to make my own.
+
+<MediaRow
+  src="/images/legacy/rock-paper-scissors/02.webp"
+  width={1200}
+  height={1005}
+  alt="A black canvas with clusters of rock, paper and scissors emojis mid-battle, and a count of each team at the top"
+  side="left"
+>
+
+Introducing the [rock paper scissors battle royale](https://rps-battle.artnikitin.dev/)!
+
+The rules are as follows: if you (an emoji) beat another emoji, then on collision that emoji joins your team. Simple and easy.
+
+</MediaRow>
+
+<MediaRow
+  src="/images/legacy/rock-paper-scissors/03.webp"
+  width={830}
+  height={1200}
+  alt="The settings panel, with a tab per emoji and sliders for max force, minimum separation, separation strength and alignment strength"
+  side="right"
+  size="third"
+  wrap
+>
+
+It allows customization of the emojis (or text) you'd like to add. You can change their personality, e.g. make them braver, make them slower, make them group up, etc.
+
+There are some limitations. If you add an even number of emojis, there is no good way to allow a cyclical win system. Rock beats scissors, scissors beat paper, paper beats rock, in a cycle. With 4, you either have 2 sets of neutral allies, or 2 sets of teams that beat each other. With 5, we can have a cycle, similar to rock-paper-scissors-lizard-Spock. The same goes for 7, 9, and any odd number. The game will update the cycles as more emojis get added.
+
+For technical details, the emojis are simply [boids](https://en.wikipedia.org/wiki/Boids). The difference is that by adjusting the 3 boid forces (separation, alignment and cohesion) you can get interesting and unique behaviours. I added 2 more forces: a repulsion from enemies and an attraction to prey. This combination of 5 forces gives each team a unique way of fighting. It becomes mesmerizing to see the teams fight.
+
+Play around with it, mess with the settings, and enjoy!
+
+</MediaRow>
+
+<ProjectLink
+  mode="external"
+  href="https://rps-battle.artnikitin.dev/"
+  title="Rock Paper Scissors Battle Royale"
+  note="Runs in the browser. Add your own emojis."
+  image="/images/legacy/rock-paper-scissors/02.webp"
+/>
