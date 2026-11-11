@@ -14,6 +14,7 @@ import {
   getSkillDomains,
   getWorkIntro,
 } from "@/lib/content";
+import { HASHED_IMAGE_RE } from "@/lib/fingerprint.mjs";
 import { articleSchema, caseStudySeo, insightSeo, personSchema, websiteSchema } from "@/lib/seo";
 
 describe("content loaders", () => {
@@ -115,11 +116,13 @@ describe("legacy articles", () => {
   const slugs = new Set(articles.map((a) => a.slug));
   const publicFile = (p: string) => path.join(process.cwd(), "public", p.replace(/^\//, ""));
 
-  it("loads every legacy article with an original url and a screenshot on disk", () => {
+  it("loads every legacy article with an original url and a fingerprinted screenshot", () => {
+    // Fingerprinting reads the source file, so loading proves it exists;
+    // the hashed copy itself is build output (npm run images).
     expect(articles.length).toBeGreaterThan(0);
     for (const article of articles) {
       expect(article.originalUrl).toMatch(/^https:\/\/icandoathing\.com/);
-      expect(fs.existsSync(publicFile(article.screenshot))).toBe(true);
+      expect(article.screenshot).toMatch(HASHED_IMAGE_RE);
     }
   });
 

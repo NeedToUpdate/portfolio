@@ -3,6 +3,7 @@
   "version": "1.2.0",
   "private": true,
   "scripts": {
+    "predev": "npm run images",
     "dev": "next dev",
     "build": "npm run images && next build",
     "test": "jest",
