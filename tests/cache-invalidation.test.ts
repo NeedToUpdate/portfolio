@@ -240,10 +240,10 @@ describe("image and asset classification", () => {
 
   it("keeps every invalidation request within 15 wildcard paths", () => {
     const wild = Array.from({ length: 36 }, (_, i) => `/page-${i}?*`);
-    const batches = batchInvalidationPaths(["/a", ...wild, "/b"]);
+    const batches: string[][] = batchInvalidationPaths(["/a", ...wild, "/b"]);
     expect(batches).toHaveLength(3);
     expect(batches.map((b) => b.filter((p) => p.endsWith("*")).length)).toEqual([15, 15, 6]);
-    expect(batches[0].slice(0, 2)).toEqual(["/a", "/b"]);
+    expect(batches[0]?.slice(0, 2)).toEqual(["/a", "/b"]);
     expect(batches.flat().sort()).toEqual(["/a", "/b", ...wild].sort());
   });
 
