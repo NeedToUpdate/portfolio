@@ -1,13 +1,26 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import type { z } from "zod";
 import { fingerprintedPath } from "./images";
+import { collection } from "./collections.mjs";
+import {
+  agentGuideSchema,
+  careerSchema,
+  caseStudySchema,
+  insightSchema,
+  legacySchema,
+  pageCopySchema,
+  parseFrontmatter,
+  type PageCopy,
+  projectSchema,
+  skillDomainSchema,
+  workIntroSchema,
+} from "./content-schema";
 import {
   AgentGuide,
-  AgentNudge,
   CareerEntry,
   CaseStudy,
-  Engagement,
   Insight,
   InsightMeta,
   LegacyArticle,
@@ -15,77 +28,33 @@ import {
   Project,
   RelatedContent,
   SkillDomain,
-  StreamView,
   WorkIntro,
 } from "./types";
 
 /**
  * Content loaders. Every page reads content through these functions,
- * never from the filesystem directly. Server-side only.
+ * never from the filesystem directly. Server-side only. Frontmatter is
+ * validated against lib/content-schema.ts, so a bad file fails the
+ * build with its name and the offending field.
  */
 
 const CONTENT_ROOT = path.join(process.cwd(), "content");
 
 const WORDS_PER_MINUTE = 200;
 
-interface ContentEntry {
+interface ContentEntry<T> {
   slug: string;
-  /** "work/payment-rebuild", for error messages. */
-  source: string;
-  data: Record<string, unknown>;
+  data: T;
   content: string;
-}
-
-/**
- * Missing frontmatter fails the build with the file name, instead of
- * rendering "undefined" on the page.
- */
-function requireString(entry: ContentEntry, field: string): string {
-  const value = entry.data[field];
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`content/${entry.source}: missing required frontmatter field "${field}"`);
-  }
-  return value;
-}
-
-function requireCaseComments(entry: ContentEntry): CaseStudy["comments"] {
-  const comments = entry.data.comments as Partial<CaseStudy["comments"][number]>[] | undefined;
-  if (!Array.isArray(comments) || comments.length < 1) {
-    throw new Error(`content/${entry.source}: "comments" must contain at least one entry`);
-  }
-  for (const comment of comments) {
-    if (!comment.question?.trim() || !comment.answer?.trim()) {
-      throw new Error(
-        `content/${entry.source}: every comment needs a question and answer`
-      );
-    }
-  }
-  return comments as CaseStudy["comments"];
-}
-
-/** Validates a nested { title, org, points } block, e.g. career.merged. */
-function requireStreamView(entry: ContentEntry, field: string): StreamView {
-  const value = entry.data[field] as Partial<StreamView> | undefined;
-  if (!value || typeof value.title !== "string" || typeof value.org !== "string") {
-    throw new Error(
-      `content/${entry.source}: "${field}" must have a "title" and "org" string`
-    );
-  }
-  return { title: value.title, org: value.org, points: value.points ?? [] };
-}
-
-/** Same shape, but the field is optional (career's tech/lead streams). */
-function optionalStreamView(entry: ContentEntry, field: string): StreamView | undefined {
-  return entry.data[field] ? requireStreamView(entry, field) : undefined;
 }
 
 // Collections are immutable at runtime in production; in dev they are
 // re-read every call so content edits show without a restart.
-const collectionCache = new Map<string, ContentEntry[]>();
+const collectionCache = new Map<string, ContentEntry<unknown>[]>();
 
-function readCollection(dir: string): ContentEntry[] {
+function readCollection<S extends z.ZodType>(dir: string, schema: S): ContentEntry<z.output<S>>[] {
   const cached = collectionCache.get(dir);
-  if (cached) return cached;
+  if (cached) return cached as ContentEntry<z.output<S>>[];
 
   const fullDir = path.join(CONTENT_ROOT, dir);
   if (!fs.existsSync(fullDir)) return [];
@@ -95,11 +64,9 @@ function readCollection(dir: string): ContentEntry[] {
     .map((fileName) => {
       const raw = fs.readFileSync(path.join(fullDir, fileName), "utf-8");
       const { data, content } = matter(raw);
-      const slug = fileName.replace(/\.mdx?$/, "");
       return {
-        slug,
-        source: `${dir}/${fileName}`,
-        data,
+        slug: fileName.replace(/\.mdx?$/, ""),
+        data: parseFrontmatter(schema, data, `${dir}/${fileName}`),
         content,
       };
     });
@@ -108,28 +75,19 @@ function readCollection(dir: string): ContentEntry[] {
   return entries;
 }
 
+/** A single-file document such as content/home.md. */
+function readDocument<S extends z.ZodType>(fileName: string, schema: S): z.output<S> {
+  const raw = fs.readFileSync(path.join(CONTENT_ROOT, fileName), "utf-8");
+  return parseFrontmatter(schema, matter(raw).data, fileName);
+}
+
 export function getCaseStudies(): CaseStudy[] {
-  return readCollection("work")
-    .map((entry) => ({
-      slug: entry.slug,
-      title: requireString(entry, "title"),
-      date: requireString(entry, "date"),
-      impact: requireString(entry, "impact"),
-      seoDescription:
-        typeof entry.data.seoDescription === "string" ? entry.data.seoDescription : undefined,
-      techs: (entry.data.techs as string[]) ?? [],
-      keywords: (entry.data.keywords as string[]) ?? [],
-      category: (entry.data.category as string) ?? "systems",
-      priority: (entry.data.priority as number) ?? 99,
-      role: entry.data.role as string | undefined,
-      context: entry.data.context as CaseStudy["context"],
-      diagram: entry.data.diagram
-        ? fingerprintedPath(entry.data.diagram as string)
-        : undefined,
-      diagramAlt: entry.data.diagramAlt as string | undefined,
-      related: (entry.data.related as string[]) ?? [],
-      comments: requireCaseComments(entry),
-      body: entry.content.trim(),
+  return readCollection(collection("work").key, caseStudySchema)
+    .map(({ slug, data, content }) => ({
+      ...data,
+      slug,
+      diagram: data.diagram ? fingerprintedPath(data.diagram) : undefined,
+      body: content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);
 }
@@ -143,44 +101,37 @@ export function getFeaturedCaseStudies(count = 3): CaseStudy[] {
 }
 
 export function getProjects(): Project[] {
-  return readCollection("projects")
-    .map((entry) => ({
-      slug: entry.slug,
-      title: requireString(entry, "title"),
-      description: requireString(entry, "description"),
-      thumbnail: entry.data.thumbnail as string | undefined,
-      techs: (entry.data.techs as string[]) ?? [],
-      url: requireString(entry, "url"),
-      priority: (entry.data.priority as number) ?? 0,
-      brightImage: Boolean(entry.data.brightImage),
-      // Existing archive files carry no era field; they all predate AI tooling.
-      era: (entry.data.era as Project["era"]) ?? "pre-ai",
-      nebulaShape: entry.data.nebulaShape as string | undefined,
-      insightSlug: entry.data.insightSlug as string | undefined,
-      legacySlug: entry.data.legacySlug as string | undefined,
-    }))
-    .sort((a, b) => b.priority - a.priority);
+  const projects = readCollection("projects", projectSchema).map(({ slug, data }) => ({
+    ...data,
+    slug,
+  }));
+
+  // Ties would sort by whatever order the filesystem returns.
+  const seen = new Map<number, string>();
+  for (const project of projects) {
+    const clash = seen.get(project.order);
+    if (clash) {
+      throw new Error(
+        `content/projects: ${clash} and ${project.slug} share order ${project.order}; give each a distinct value`,
+      );
+    }
+    seen.set(project.order, project.slug);
+  }
+
+  return projects.sort((a, b) => a.order - b.order);
 }
 
 export function getProjectsByEra(era: Project["era"]): Project[] {
   return getProjects().filter((p) => p.era === era);
 }
 
-function toInsightMeta(entry: ContentEntry): InsightMeta {
-  const words = entry.content.split(/\s+/).filter(Boolean).length;
+function toInsightMeta({ slug, data, content }: ContentEntry<z.output<typeof insightSchema>>): InsightMeta {
+  const words = content.split(/\s+/).filter(Boolean).length;
   return {
-    slug: entry.slug,
-    title: requireString(entry, "title"),
-    seoTitle: typeof entry.data.seoTitle === "string" ? entry.data.seoTitle : undefined,
-    deck: typeof entry.data.deck === "string" ? entry.data.deck : undefined,
-    description: requireString(entry, "description"),
-    previewImage: entry.data.previewImage
-      ? fingerprintedPath(entry.data.previewImage as string)
-      : undefined,
-    date: requireString(entry, "date"),
-    tags: (entry.data.tags as string[]) ?? [],
+    ...data,
+    slug,
+    previewImage: data.previewImage ? fingerprintedPath(data.previewImage) : undefined,
     readingTimeMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
-    related: (entry.data.related as string[]) ?? [],
   };
 }
 
@@ -241,10 +192,10 @@ export function buildRecommendations<T>(options: {
   const index = ordered.findIndex((item) => slugOf(item) === currentSlug);
   if (index === -1 || count <= 1) return [];
 
-  const selfHref = toRelated(ordered[index]).href;
+  const selfHref = toRelated(ordered[index]!).href;
   // The tour: next entry first, wrapping once, current entry excluded.
   const tour = Array.from({ length: count - 1 }, (_, offset) =>
-    toRelated(ordered[(index + offset + 1) % count])
+    toRelated(ordered[(index + offset + 1) % count]!)
   );
 
   // Curated links lead; the sequential next (tour[0]) follows as a loop-free
@@ -262,98 +213,62 @@ export function buildRecommendations<T>(options: {
 }
 
 export function getInsights(): InsightMeta[] {
-  return readCollection("insights")
+  return readCollection(collection("insights").key, insightSchema)
     .map(toInsightMeta)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getInsight(slug: string): Insight | undefined {
-  const entry = readCollection("insights").find((e) => e.slug === slug);
+  const entry = readCollection(collection("insights").key, insightSchema).find((e) => e.slug === slug);
   if (!entry) return undefined;
-  return {
-    ...toInsightMeta(entry),
-    body: entry.content,
-  };
+  return { ...toInsightMeta(entry), body: entry.content };
 }
 
-function toLegacyMeta(entry: ContentEntry): LegacyArticleMeta {
-  return {
-    slug: entry.slug,
-    title: requireString(entry, "title"),
-    description: requireString(entry, "description"),
-    deck: typeof entry.data.deck === "string" ? entry.data.deck : undefined,
-    date: requireString(entry, "date"),
-    originalUrl: requireString(entry, "originalUrl"),
-    screenshot: fingerprintedPath(requireString(entry, "screenshot")),
-    tags: (entry.data.tags as string[]) ?? [],
-    kind: entry.data.kind === "site" ? "site" : "post",
-  };
+function toLegacyMeta({ slug, data }: ContentEntry<z.output<typeof legacySchema>>): LegacyArticleMeta {
+  return { ...data, slug, screenshot: fingerprintedPath(data.screenshot) };
 }
 
 /** Legacy articles, newest original first. */
 export function getLegacyArticles(): LegacyArticleMeta[] {
-  return readCollection("legacy")
+  return readCollection(collection("legacy").key, legacySchema)
     .map(toLegacyMeta)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getLegacyArticle(slug: string): LegacyArticle | undefined {
-  const entry = readCollection("legacy").find((e) => e.slug === slug);
+  const entry = readCollection(collection("legacy").key, legacySchema).find((e) => e.slug === slug);
   if (!entry) return undefined;
   return { ...toLegacyMeta(entry), body: entry.content };
 }
 
 export function getCareerEntries(): CareerEntry[] {
-  return readCollection("career")
-    .map((entry) => ({
-      slug: entry.slug,
-      order: (entry.data.order as number) ?? 99,
-      period: requireString(entry, "period"),
-      merged: requireStreamView(entry, "merged"),
-      tech: optionalStreamView(entry, "tech"),
-      lead: optionalStreamView(entry, "lead"),
-    }))
+  return readCollection("career", careerSchema)
+    .map(({ slug, data }) => ({ ...data, slug }))
     .sort((a, b) => a.order - b.order);
 }
 
 export function getSkillDomains(): SkillDomain[] {
-  return readCollection("skills")
-    .map((entry) => ({
-      slug: entry.slug,
-      order: (entry.data.order as number) ?? 99,
-      title: requireString(entry, "title"),
-      summary: requireString(entry, "summary"),
-      nebulaShape: requireString(entry, "nebulaShape"),
-      skills: (entry.data.skills as SkillDomain["skills"]) ?? [],
-    }))
+  return readCollection("skills", skillDomainSchema)
+    .map(({ slug, data }) => ({ ...data, slug }))
     .sort((a, b) => a.order - b.order);
 }
 
 export function getAgentGuide(): AgentGuide {
-  const raw = fs.readFileSync(path.join(CONTENT_ROOT, "agent.md"), "utf-8");
-  const { data } = matter(raw);
-  const entry: ContentEntry = { slug: "agent", source: "agent.md", data, content: "" };
-  return {
-    intro: requireString(entry, "intro"),
-    team: requireString(entry, "team"),
-    engagementsTitle: requireString(entry, "engagementsTitle"),
-    engagementsIntro: requireString(entry, "engagementsIntro"),
-    nudges: (data.nudges as AgentNudge[]) ?? [],
-    engagements: (data.engagements as Engagement[]) ?? [],
-  };
+  return readDocument("agent.md", agentGuideSchema);
 }
 
 export function getWorkIntro(): WorkIntro {
-  const raw = fs.readFileSync(path.join(CONTENT_ROOT, "home.md"), "utf-8");
-  const { data, content } = matter(raw);
-  const entry: ContentEntry = { slug: "home", source: "home.md", data, content };
-  return {
-    title: requireString(entry, "title"),
-    sentence: requireString(entry, "sentence"),
-    description: requireString(entry, "description"),
-    caseStudiesHint: requireString(entry, "caseStudiesHint"),
-    caseStudyCta: requireString(entry, "caseStudyCta"),
-    capabilitiesTitle: requireString(entry, "capabilitiesTitle"),
-    capabilities: data.capabilities ?? [],
-  };
+  return readDocument("home.md", workIntroSchema);
+}
+
+/** Heading copy for an index page, from content/pages/<page>.md. */
+export function getPageCopy(page: "projects" | "insights" | "legacy"): PageCopy {
+  return readDocument(`pages/${page}.md`, pageCopySchema);
+}
+
+/** One named section of a page's copy; throws when the file lacks it. */
+export function sectionCopy(copy: PageCopy, name: string): PageCopy["sections"][string] {
+  const section = copy.sections[name];
+  if (!section) throw new Error(`Page copy has no "${name}" section`);
+  return section;
 }

@@ -30,10 +30,11 @@ import {
   classifyChange,
   discoverRoots,
   fullTextPathList,
-  listSlugs,
   parseNameStatus,
+  slugsFromDisk,
 } from "./cache-invalidation/map.mjs";
 import { buildAdjacency, invertGraph } from "./cache-invalidation/graph.mjs";
+import { ARTICLE_COLLECTIONS, FIXED_PAGES } from "../lib/collections.mjs";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
@@ -67,20 +68,16 @@ function tagExists(tag) {
 // marketing routes and the per-insight / per-case-study pages. Everything
 // else the invalidator tracks is either an agent/asset surface or a
 // wildcard, none of which are submittable page URLs.
-const FIXED_PAGE_RE = /^\/(?:about|contact|insights|legacy|projects|work)$/;
-const DETAIL_PAGE_RE = /^\/(?:insights|work|legacy)\/[a-z0-9-]+$/;
+const DETAIL_PAGE_RE = new RegExp(
+  `^/(?:${ARTICLE_COLLECTIONS.map((c) => c.route.slice(1)).join("|")})/[a-z0-9-]+$`,
+);
 function isIndexablePage(path) {
   if (path.includes("*") || path.includes("?")) return false;
-  return path === "/" || FIXED_PAGE_RE.test(path) || DETAIL_PAGE_RE.test(path);
+  return FIXED_PAGES.includes(path) || DETAIL_PAGE_RE.test(path);
 }
 
 function makeContext() {
-  return {
-    insightSlugs: listSlugs("content/insights"),
-    workSlugs: listSlugs("content/work"),
-    legacySlugs: listSlugs("content/legacy"),
-    fileToPaths: new Map(),
-  };
+  return { slugs: slugsFromDisk(), fileToPaths: new Map() };
 }
 
 async function computePaths() {

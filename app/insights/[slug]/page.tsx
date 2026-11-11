@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PageShell from "@/components/composites/PageShell";
 import NebulaBackground from "@/components/composites/NebulaBackground";
-import Breadcrumbs from "@/components/composites/Breadcrumbs";
+import ArticleLayout from "@/components/composites/ArticleLayout";
+import ArticleHeader from "@/components/composites/ArticleHeader";
 import MdxContent from "@/components/composites/MdxContent";
 import ShareButton from "@/components/composites/ShareButton";
 import AdjacentNav from "@/components/composites/AdjacentNav";
-import ArticleByline from "@/components/composites/ArticleByline";
-import TagList from "@/components/composites/TagList";
-import Heading from "@/components/ui/Heading";
-import JsonLd from "@/components/ui/JsonLd";
 import { buildRecommendations, getInsight, getInsights, getRelatedContent } from "@/lib/content";
-import { articleSchema, breadcrumbSchema, ogImagePath } from "@/lib/seo";
+import { articleMetadata, insightSeo } from "@/lib/seo";
 import { formatDate } from "@/lib/format";
 
 interface PageProps {
@@ -25,30 +21,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const insight = getInsight(slug);
-  if (!insight) return {};
-  return {
-    // seoTitle keeps the <title> tag under the length search engines
-    // truncate; the punchy headline stays as the OG/on-page title.
-    title: insight.seoTitle ?? insight.title,
-    description: insight.description,
-    keywords: insight.tags,
-    alternates: { canonical: `/insights/${slug}` },
-    openGraph: {
-      title: insight.title,
-      description: insight.description,
-      url: `/insights/${slug}`,
-      type: "article",
-      publishedTime: new Date(insight.date).toISOString(),
-      images: insight.previewImage ? [ogImagePath(insight.previewImage)] : undefined,
-      locale: "en_CA",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: insight.title,
-      description: insight.description,
-      images: insight.previewImage ? [ogImagePath(insight.previewImage)] : undefined,
-    },
-  };
+  // seoTitle keeps the <title> tag under the length search engines
+  // truncate; the punchy headline stays as the OG/on-page title.
+  return insight ? articleMetadata(insightSeo(insight)) : {};
 }
 
 export default async function InsightPage({ params }: PageProps) {
@@ -75,57 +50,40 @@ export default async function InsightPage({ params }: PageProps) {
   });
 
   return (
-    <PageShell narrow>
-      {/* Narrow centered article: the lower-left margin is open. On phones
-          the column is full-bleed and scrolls through the gas, so the
-          cloud runs at the phone footprint of the case-study pages and
-          carries a scrim to keep the body copy readable. */}
-      <NebulaBackground
-        variant="mini"
-        corner="bottom-left"
-        miniShape="orion"
-        color="aurora"
-        size="phone-xl"
-        scrim
+    <ArticleLayout
+      seo={insightSeo(insight)}
+      trail={[
+        { label: "Home", href: "/" },
+        { label: "Insights", href: "/insights" },
+      ]}
+      narrow
+      nebula={
+        // Narrow centered article: the lower-left margin is open. On phones
+        // the column is full-bleed and scrolls through the gas, so the
+        // cloud runs at the phone footprint of the case-study pages and
+        // carries a scrim to keep the body copy readable.
+        <NebulaBackground
+          variant="mini"
+          corner="bottom-left"
+          miniShape="orion"
+          color="aurora"
+          size="phone-xl"
+          scrim
+        />
+      }
+    >
+      <ArticleHeader
+        title={insight.title}
+        deck={insight.deck}
+        tags={insight.tags}
+        meta={
+          <>
+            <time dateTime={insight.date}>{formatDate(insight.date)}</time>
+            <span aria-hidden>·</span>
+            <span>{insight.readingTimeMinutes} min read</span>
+          </>
+        }
       />
-      <JsonLd data={articleSchema(insight)} />
-      <JsonLd
-        data={breadcrumbSchema([
-          { name: "Home", path: "/" },
-          { name: "Insights", path: "/insights" },
-          { name: insight.title, path: `/insights/${slug}` },
-        ])}
-      />
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Insights", href: "/insights" },
-          { label: insight.title },
-        ]}
-      />
-
-      <header>
-        <Heading size="page">{insight.title}</Heading>
-        {insight.deck ? (
-          <p className="mt-3 max-w-prose text-sm italic leading-relaxed text-muted/80">
-            {insight.deck}
-          </p>
-        ) : null}
-        <div className="mt-5">
-          <ArticleByline />
-        </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted">
-          <time dateTime={insight.date}>{formatDate(insight.date)}</time>
-          <span aria-hidden>·</span>
-          <span>{insight.readingTimeMinutes} min read</span>
-          {insight.tags.length > 0 && (
-            <>
-              <span aria-hidden>·</span>
-              <TagList tags={insight.tags} />
-            </>
-          )}
-        </div>
-      </header>
 
       <article className="mt-10">
         <MdxContent source={insight.body} />
@@ -143,6 +101,6 @@ export default async function InsightPage({ params }: PageProps) {
         }
         recommendations={recommendations}
       />
-    </PageShell>
+    </ArticleLayout>
   );
 }

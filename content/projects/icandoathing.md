@@ -1,12 +1,11 @@
 ---
 title: "icandoathing.com"
-description: "A project based social media site."
+description: "A project-based social media site."
 thumbnail: "/images/icandoathing.webp"
-brightImage: true,
+brightImage: true
 techs: ["django", "vuejs", "sass"]
 url: "https://icandoathing.com"
-priority: 9
+order: 3
+nebulaShape: link
 legacySlug: "icandoathing"
 ---
-
-# The main content

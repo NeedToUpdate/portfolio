@@ -75,7 +75,7 @@ export function gaussian(rng: Rng): number {
 
 /** Random palette color with a small per-particle brightness jitter. */
 export function tint(rng: Rng, colors: RGB[], jitter = 0.16): RGB {
-  const c = colors[Math.floor(rng() * colors.length)];
+  const c = colors[Math.floor(rng() * colors.length)]!;
   const m = 1 - jitter + rng() * jitter * 2;
   return [Math.min(1, c[0] * m), Math.min(1, c[1] * m), Math.min(1, c[2] * m)];
 }
@@ -91,7 +91,7 @@ export function periodicNoise(rng: Rng, cells: number): (ang: number) => number 
     const i = Math.floor(x);
     const f = x - i;
     const s = f * f * (3 - 2 * f);
-    return v[i % cells] * (1 - s) + v[(i + 1) % cells] * s;
+    return v[i % cells]! * (1 - s) + v[(i + 1) % cells]! * s;
   };
 }
 
@@ -124,15 +124,17 @@ export function lobeCluster(
   const out: RawParticle[] = [];
   const weights = opts.lobes.map((l) => l.w ?? l.r * l.r);
   const totalW = weights.reduce((s, w) => s + w, 0);
+  const firstLobe = opts.lobes[0];
+  if (!firstLobe) return out;
   let guard = opts.count * 6;
 
   while (out.length < opts.count && guard-- > 0) {
     let pick = rng() * totalW;
-    let lobe = opts.lobes[0];
+    let lobe = firstLobe;
     for (let i = 0; i < opts.lobes.length; i++) {
-      pick -= weights[i];
+      pick -= weights[i]!;
       if (pick <= 0) {
-        lobe = opts.lobes[i];
+        lobe = opts.lobes[i]!;
         break;
       }
     }
@@ -153,7 +155,7 @@ export function lobeCluster(
     } else if (opts.gradient) {
       // Radial ramp with a little dither so the bands blend.
       const t = Math.min(0.999, Math.max(0, 1 - d + (rng() - 0.5) * 0.3));
-      color = tint(rng, [opts.colors[Math.floor(t * opts.colors.length)]]);
+      color = tint(rng, [opts.colors[Math.floor(t * opts.colors.length)]!]);
     } else {
       color = tint(rng, opts.colors);
     }
@@ -325,7 +327,7 @@ export function filamentWeb(
   }
 
   while (walkers.length > 0 && out.length < opts.count) {
-    const wk = walkers[walkers.length - 1];
+    const wk = walkers[walkers.length - 1]!;
     const dist = Math.hypot(wk.x, wk.y);
     if (wk.life <= 0 || dist > opts.reach) {
       walkers.pop();
@@ -442,13 +444,15 @@ export function glowSpots(
   const out: RawParticle[] = [];
   const weights = opts.spots.map((sp) => sp.w ?? 1);
   const totalW = weights.reduce((s, w) => s + w, 0);
+  const firstSpot = opts.spots[0];
+  if (!firstSpot) return out;
   for (let i = 0; i < opts.count; i++) {
     let pick = rng() * totalW;
-    let spot = opts.spots[0];
+    let spot = firstSpot;
     for (let k = 0; k < opts.spots.length; k++) {
-      pick -= weights[k];
+      pick -= weights[k]!;
       if (pick <= 0) {
-        spot = opts.spots[k];
+        spot = opts.spots[k]!;
         break;
       }
     }
@@ -529,19 +533,21 @@ export function wispStreaks(
 ): RawParticle[] {
   const out: RawParticle[] = [];
   const spans = opts.arcs.map((a) => (a.a1 ?? Math.PI * 2) - (a.a0 ?? 0));
-  const weights = opts.arcs.map((a, i) => a.r * Math.abs(spans[i]));
+  const weights = opts.arcs.map((a, i) => a.r * Math.abs(spans[i]!));
   const totalW = weights.reduce((s, w) => s + w, 0);
+  const firstArc = opts.arcs[0];
+  if (!firstArc) return out;
   let guard = opts.count * 3;
 
   while (out.length < opts.count && guard-- > 0) {
     let pick = rng() * totalW;
-    let arc = opts.arcs[0];
-    let span = spans[0];
+    let arc = firstArc;
+    let span = spans[0]!;
     for (let i = 0; i < opts.arcs.length; i++) {
-      pick -= weights[i];
+      pick -= weights[i]!;
       if (pick <= 0) {
-        arc = opts.arcs[i];
-        span = spans[i];
+        arc = opts.arcs[i]!;
+        span = spans[i]!;
         break;
       }
     }
@@ -635,7 +641,7 @@ export function starSprinkle(
     let x: number;
     let y: number;
     if (rng() < scatter) {
-      const blob = opts.blobs![Math.floor(rng() * opts.blobs!.length)];
+      const blob = opts.blobs![Math.floor(rng() * opts.blobs!.length)]!;
       // Uniform across the disc, not gaussian: gaussian sampling piles
       // the stars onto the centre, and stacked with the bright core
       // gas they read as one clump instead of peppering the cloud.
@@ -644,7 +650,7 @@ export function starSprinkle(
       x = blob.cx + Math.cos(ang) * d * blob.r;
       y = blob.cy + Math.sin(ang) * d * blob.r;
     } else {
-      const arc = opts.arcs[Math.floor(rng() * opts.arcs.length)];
+      const arc = opts.arcs[Math.floor(rng() * opts.arcs.length)]!;
       const a0 = arc.a0 ?? 0;
       const ang = a0 + rng() * ((arc.a1 ?? Math.PI * 2) - a0);
       const pt = arcPoint(arc, ang, gaussian(rng) * (arc.width ?? 0.08));

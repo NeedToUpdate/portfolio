@@ -13,13 +13,17 @@ export type IconName =
   | "pointer"
   | "link"
   | "check"
-  | "share";
+  | "share"
+  | "sparkle"
+  | "trash";
 
 interface IconProps {
   name: IconName;
   className?: string;
   /** Pixel size; icons are square. */
   size?: number;
+  /** Line weight for outline icons, in viewBox units. */
+  strokeWidth?: number;
 }
 
 /** Category names map to icons; anything unknown falls back to "systems". */
@@ -109,6 +113,21 @@ const icons: Record<IconName, ReactNode> = {
       d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.57 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.7 0 0 .84-.28 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.8-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.05 10.05 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"
     />
   ),
+  // Two four-point stars: the "Now with AI" mark.
+  sparkle: (
+    <g fill="currentColor" stroke="none">
+      <path d="M12 2l1.9 5.6a3 3 0 0 0 1.9 1.9L21.4 11.4 15.8 13.3a3 3 0 0 0-1.9 1.9L12 20.8l-1.9-5.6a3 3 0 0 0-1.9-1.9L2.6 11.4l5.6-1.9a3 3 0 0 0 1.9-1.9z" />
+      <path d="M19 15l.7 2.1a1.5 1.5 0 0 0 .9.9l2.1.7-2.1.7a1.5 1.5 0 0 0-.9.9L19 22.4l-.7-2.1a1.5 1.5 0 0 0-.9-.9l-2.1-.7 2.1-.7a1.5 1.5 0 0 0 .9-.9z" />
+    </g>
+  ),
+  trash: (
+    <>
+      <path d="M3 6h18" />
+      <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+    </>
+  ),
   linkedin: (
     <path
       fill="currentColor"
@@ -119,7 +138,7 @@ const icons: Record<IconName, ReactNode> = {
 };
 
 /** Inline SVG icon. Inherits currentColor; pair with .icon-glow for hover shadow. */
-export default function Icon({ name, className = "", size = 18 }: IconProps) {
+export default function Icon({ name, className = "", size = 18, strokeWidth = 1.5 }: IconProps) {
   return (
     <svg
       role="img"
@@ -129,7 +148,7 @@ export default function Icon({ name, className = "", size = 18 }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={`shrink-0 ${className}`}

@@ -1,10 +1,10 @@
 ---
 nebulaShape: card
 title: "Invoice Manager"
-description: "A custom cloud invoice pdf generator."
+description: "A cloud invoice PDF generator."
 thumbnail: "/images/invoice.webp"
 techs: ["nextjs", "tailwind", "mongodb"]
 url: "https://invoice.artnikitin.dev"
-priority: 3
+order: 15
 legacySlug: "invoice-app"
 ---

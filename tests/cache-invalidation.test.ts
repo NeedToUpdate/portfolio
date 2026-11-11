@@ -19,8 +19,10 @@ import {
 /** A minimal context; code files are pre-mapped where a test needs them. */
 function makeContext(fileToPaths = new Map<string, Set<string>>()) {
   return {
-    insightSlugs: ["ziggy", "groundnet"],
-    workSlugs: ["payment_rebuild", "tableau"],
+    slugs: {
+      insights: ["ziggy", "groundnet"],
+      work: ["payment_rebuild", "tableau"],
+    } as Record<string, string[]>,
     fileToPaths,
   };
 }
@@ -89,10 +91,10 @@ describe("content classification", () => {
   });
 
   it("includes legacy pages in a full text refresh when the context lists them", () => {
-    const paths = fullTextPathList({ ...ctx, legacySlugs: ["server-case"] });
+    const paths = fullTextPathList({ ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } });
     expect(paths).toContain("/legacy/server-case");
     expect(paths).toContain("/md/legacy/server-case");
-    expect(mdMirrorPathList({ ...ctx, legacySlugs: ["server-case"] })).toContain(
+    expect(mdMirrorPathList({ ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } })).toContain(
       "/md/legacy/server-case",
     );
   });
@@ -113,6 +115,13 @@ describe("content classification", () => {
     ]);
   });
 
+
+  it("maps index-page copy to its page and markdown twin", () => {
+    expect(classifyChange("content/pages/insights.md", "M", ctx).paths).toEqual([
+      "/insights",
+      "/md/insights",
+    ]);
+  });
   it("maps projects, career, skills, and home content to their pages and twins", () => {
     expect(classifyChange("content/projects/ziggy.md", "M", ctx).paths).toEqual([
       "/projects",

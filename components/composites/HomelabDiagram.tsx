@@ -120,7 +120,7 @@ function NodeRow({
 
 /** Interactive node details for both request and deployment paths. */
 export default function HomelabDiagram() {
-  const [active, setActive] = useState<DiagramNode>(INGRESS[1]);
+  const [active, setActive] = useState<DiagramNode>(INGRESS[1]!);
 
   return (
     <InteractiveFigure prompt="click a node" caption="Click a node in either path. Ingress on top: how a request reaches an app. Deployment on the bottom: how a change reaches the cluster.">

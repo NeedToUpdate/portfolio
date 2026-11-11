@@ -4,6 +4,7 @@ import Heading from "@/components/ui/Heading";
 import Text from "@/components/ui/Text";
 import TagList from "./TagList";
 import { Project } from "@/lib/types";
+import { isOffsite } from "@/lib/links";
 
 interface ProjectCardProps {
   project: Project;
@@ -21,7 +22,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       ? `/legacy/${project.legacySlug}`
       : undefined;
   const hasWriteup = Boolean(writeupHref);
-  const external = project.url.startsWith("http");
+  const external = isOffsite(project.url);
   const isGithub = project.url.includes("github.com");
 
   const content = (

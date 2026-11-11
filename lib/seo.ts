@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ogTwinName } from "./fingerprint.mjs";
 import { site } from "./site";
 import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
 
@@ -11,8 +12,7 @@ import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
  * just resolves the name (`src` here is already fingerprinted).
  */
 export function ogImagePath(src: string): string {
-  const ext = src.slice(src.lastIndexOf("."));
-  return `${src.slice(0, -ext.length)}.og.jpg`;
+  return ogTwinName(src);
 }
 
 export function pageMetadata({
@@ -52,9 +52,9 @@ export function pageMetadata({
  * <script type="application/ld+json">.
  */
 
-export function personSchema() {
+/** The Person entity, without @context, for nesting inside other schemas. */
+function personEntity() {
   return {
-    "@context": "https://schema.org",
     "@type": "Person",
     "@id": `${site.url}/#person`,
     name: site.name,
@@ -82,6 +82,10 @@ export function personSchema() {
   };
 }
 
+export function personSchema() {
+  return { "@context": "https://schema.org", ...personEntity() };
+}
+
 /**
  * Google's documented markup for an "about the person" page: the
  * Person wrapped as the main entity of a ProfilePage. This is what
@@ -89,11 +93,10 @@ export function personSchema() {
  * visible badge.
  */
 export function profilePageSchema() {
-  const { ["@context"]: _context, ...person } = personSchema();
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    mainEntity: person,
+    mainEntity: personEntity(),
   };
 }
 
@@ -114,87 +117,116 @@ export function websiteSchema() {
   };
 }
 
-export function articleSchema(insight: InsightMeta) {
+/** What an article page tells search engines and social cards. */
+export interface ArticleSeo {
+  title: string;
+  /** Shorter <title> when the headline runs long; OG keeps the headline. */
+  seoTitle?: string;
+  description: string;
+  /** Site path of the page, e.g. "/insights/branching-strategy". */
+  path: string;
+  /** YYYY-MM-DD. Insights: published; case studies: delivered; legacy: first posted. */
+  date: string;
+  /** Fingerprinted preview image; its JPEG twin becomes the social card. */
+  image?: string;
+  keywords: string[];
+}
+
+/** Metadata for an article page: canonical, Open Graph, and Twitter card. */
+export function articleMetadata(article: ArticleSeo): Metadata {
+  const images = article.image ? [ogImagePath(article.image)] : undefined;
+  return {
+    title: article.seoTitle ?? article.title,
+    description: article.description,
+    keywords: article.keywords,
+    alternates: { canonical: article.path },
+    openGraph: {
+      type: "article",
+      title: article.title,
+      description: article.description,
+      url: article.path,
+      siteName: site.name,
+      publishedTime: new Date(article.date).toISOString(),
+      images,
+      locale: "en_CA",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.description,
+      images,
+    },
+  };
+}
+
+/**
+ * Article JSON-LD for insights, case studies, and legacy articles.
+ * Article rather than CreativeWork: it is the type Google's rich results
+ * detect, and all three are long-form write-ups.
+ */
+export function articleSchema(article: ArticleSeo) {
   // Frontmatter stores date-only strings; Google wants a full ISO 8601
   // datetime with a timezone. Date-only input parses as UTC midnight.
-  const published = new Date(insight.date).toISOString();
+  const published = new Date(article.date).toISOString();
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     // Same string as headline. Article's own rich-result eligibility
     // reads headline, but Search Console's generic item listing reads
     // the schema.org base "name" property and shows "N/A" without it.
-    name: insight.title,
-    headline: insight.title,
-    description: insight.description,
-    datePublished: published,
-    dateModified: published,
-    inLanguage: "en-CA",
-    image: insight.previewImage
-      ? new URL(ogImagePath(insight.previewImage), site.url).toString()
-      : `${site.url}/opengraph-image`,
-    author: {
-      "@type": "Person",
-      "@id": `${site.url}/#person`,
-      name: site.name,
-      url: site.url,
-    },
-    mainEntityOfPage: `${site.url}/insights/${insight.slug}`,
-    keywords: insight.tags.join(", "),
-  };
-}
-
-/**
- * Article rather than CreativeWork: case studies are long-form
- * write-ups, and Article is the type Google's rich results detect.
- * The date is the project's delivery date from frontmatter.
- */
-export function caseStudySchema(caseStudy: CaseStudy) {
-  const published = new Date(caseStudy.date).toISOString();
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    name: caseStudy.title,
-    headline: caseStudy.title,
-    description: caseStudy.seoDescription ?? caseStudy.impact,
-    datePublished: published,
-    dateModified: published,
-    inLanguage: "en-CA",
-    image: caseStudy.diagram
-      ? new URL(ogImagePath(caseStudy.diagram), site.url).toString()
-      : `${site.url}/opengraph-image`,
-    author: {
-      "@type": "Person",
-      "@id": `${site.url}/#person`,
-      name: site.name,
-      url: site.url,
-    },
-    mainEntityOfPage: `${site.url}/work/${caseStudy.slug}`,
-    keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs].join(", "),
-  };
-}
-
-/** A legacy article keeps its original publication date. */
-export function legacyArticleSchema(article: LegacyArticleMeta) {
-  const published = new Date(article.date).toISOString();
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
     name: article.title,
     headline: article.title,
     description: article.description,
     datePublished: published,
     dateModified: published,
     inLanguage: "en-CA",
-    image: new URL(ogImagePath(article.screenshot), site.url).toString(),
+    image: article.image
+      ? new URL(ogImagePath(article.image), site.url).toString()
+      : `${site.url}/opengraph-image`,
     author: {
       "@type": "Person",
       "@id": `${site.url}/#person`,
       name: site.name,
       url: site.url,
     },
-    mainEntityOfPage: `${site.url}/legacy/${article.slug}`,
-    keywords: article.tags.join(", "),
+    mainEntityOfPage: `${site.url}${article.path}`,
+    keywords: article.keywords.join(", "),
+  };
+}
+
+export function insightSeo(insight: InsightMeta): ArticleSeo {
+  return {
+    title: insight.title,
+    seoTitle: insight.seoTitle,
+    description: insight.description,
+    path: `/insights/${insight.slug}`,
+    date: insight.date,
+    image: insight.previewImage,
+    keywords: insight.tags,
+  };
+}
+
+/** The meta description falls back to the impact line when no override exists. */
+export function caseStudySeo(caseStudy: CaseStudy): ArticleSeo {
+  return {
+    title: caseStudy.title,
+    description: caseStudy.seoDescription ?? caseStudy.impact,
+    path: `/work/${caseStudy.slug}`,
+    date: caseStudy.date,
+    image: caseStudy.diagram,
+    keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs],
+  };
+}
+
+/** A legacy article keeps its original publication date. */
+export function legacySeo(article: LegacyArticleMeta): ArticleSeo {
+  return {
+    title: article.title,
+    description: article.description,
+    path: `/legacy/${article.slug}`,
+    date: article.date,
+    image: article.screenshot,
+    keywords: article.tags,
   };
 }
 

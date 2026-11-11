@@ -19,7 +19,7 @@
  * crossings brighten naturally.
  */
 
-import type { ProfileName, ProfilePalette, RGB } from "./palettes";
+import type { ProfileName, ProfilePalette } from "./palettes";
 import { profilePalettes } from "./palettes";
 import {
   arcShell,
@@ -428,7 +428,6 @@ function helixProfile(rng: Rng, count: number, pal: ProfilePalette): ProfileOutp
   // out. Every band is anchored to ringR so they scale together.
   const ringR = 0.3;
   const tilt = rng() * Math.PI * 2;
-  const mask = cavityMask([{ x: 0, y: 0, r: 0.44, depth: 0.85 }]);
 
   const dust: RawParticle[] = [];
   const emission: RawParticle[] = [];
@@ -1067,7 +1066,7 @@ export function sampleShapeTargets(shapeKey: string, poolSize: number): ShapePoo
       const at = stratified
         ? Math.min(pool.length - 1, Math.floor(((p + Math.random()) / n) * pool.length))
         : Math.floor(Math.random() * pool.length);
-      const i = pool[at];
+      const i = pool[at]!;
       out[p * 2] = ((i % size) / size) * 2 - 1;
       out[p * 2 + 1] = (Math.floor(i / size) / size) * 2 - 1;
     }

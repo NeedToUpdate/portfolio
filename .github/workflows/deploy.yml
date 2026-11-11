@@ -1,0 +1,79 @@
+name: Deploy
+
+# Reusable deploy, called by deploy-dev.yml and deploy-prod.yml. The
+# callers own the trigger branch and concurrency; everything else lives
+# here once. Stage-specific secrets are picked by the stage's prefix
+# (DEV_ or PROD_), so serverless.<stage>.yml reads the same names it
+# always has.
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: "Serverless stage: dev or prod."
+        required: true
+        type: string
+      host:
+        description: "Public host the stage serves, e.g. dev.artnikitin.dev."
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PREFIX: ${{ inputs.stage == 'prod' && 'PROD' || 'DEV' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: ${{ secrets[format('{0}_POSTHOG_PROJECT_TOKEN', env.PREFIX)] }}
+          NEXT_PUBLIC_POSTHOG_HOST: https://${{ inputs.host }}/relay
+
+      - name: Package standalone build
+        run: python scripts/zip_standalone.py
+
+      - name: Deploy
+        run: npx serverless deploy --stage ${{ inputs.stage }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DEV_CERTIFICATE_ARN: ${{ inputs.stage == 'dev' && secrets.DEV_CERTIFICATE_ARN || '' }}
+          DEV_BASIC_AUTH_USERNAME: ${{ inputs.stage == 'dev' && secrets.DEV_BASIC_AUTH_USERNAME || '' }}
+          DEV_BASIC_AUTH_PASSWORD: ${{ inputs.stage == 'dev' && secrets.DEV_BASIC_AUTH_PASSWORD || '' }}
+          PROD_CERTIFICATE_ARN: ${{ inputs.stage == 'prod' && secrets.PROD_CERTIFICATE_ARN || '' }}
+
+      - name: Invalidate CloudFront
+        run: node scripts/invalidate-cloudfront.mjs ${{ inputs.stage }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # Best-effort ping to IndexNow (Bing et al.) with the pages that
+      # changed this deploy. Keyed off its own git tag, so it pushes a tag
+      # via the checkout's persisted credentials — no extra secrets needed.
+      - name: Submit to IndexNow
+        if: inputs.stage == 'prod'
+        run: node scripts/notify-indexnow.mjs

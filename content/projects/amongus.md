@@ -5,5 +5,5 @@ description: "Finding 42,476 hidden Among Us impostors in 106 million rows of pi
 thumbnail: "/images/amongus.webp"
 techs: ["python", "numpy", "pandas"]
 url: "/legacy/among-us-impostors"
-priority: 5
+order: 10
 ---

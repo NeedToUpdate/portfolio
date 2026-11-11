@@ -6,32 +6,28 @@
 // changes its served URL and busts the browser/CloudFront/S3 caches
 // on its own — nothing to invalidate by hand.
 //
-// The hash here must agree with lib/images.ts's fingerprintedPath(),
-// which resolves the same canonical path to the same hashed URL at
-// render time: same algorithm (sha256 of file bytes), same length.
+// lib/images.ts resolves the same canonical path to the same hashed URL
+// at render time; both name files through lib/fingerprint.mjs. Which
+// frontmatter field holds each collection's image comes from the
+// registry in lib/collections.mjs.
 //
 // Re-run via `npm run images` (or automatically on `npm run build`)
-// after adding or changing a previewImage/diagram field.
+// after adding or changing a previewImage/diagram/screenshot field.
 
 import fs from "fs";
 import path from "path";
-import crypto from "crypto";
 import matter from "gray-matter";
 import sharp from "sharp";
+import { ARTICLE_COLLECTIONS } from "../lib/collections.mjs";
+import { HASHED_IMAGE_RE, contentHash, hashedName, ogTwinName } from "../lib/fingerprint.mjs";
 
 const root = process.cwd();
 const publicDir = path.join(root, "public");
-const HASH_LENGTH = 8;
 
-const contentDirs = [
-  { dir: path.join(root, "content", "insights"), field: "previewImage" },
-  { dir: path.join(root, "content", "work"), field: "diagram" },
-  { dir: path.join(root, "content", "legacy"), field: "screenshot" },
-];
-
-function hashOf(absPath) {
-  return crypto.createHash("sha256").update(fs.readFileSync(absPath)).digest("hex").slice(0, HASH_LENGTH);
-}
+const contentDirs = ARTICLE_COLLECTIONS.map((c) => ({
+  dir: path.join(root, "content", c.key),
+  field: c.imageField,
+}));
 
 function discoverSources() {
   const sources = new Set();
@@ -48,12 +44,8 @@ function discoverSources() {
 
 async function processOne(relSrc, keep) {
   const absSrc = path.join(publicDir, relSrc);
-  const ext = path.extname(relSrc);
-  const base = relSrc.slice(0, -ext.length);
-  const hash = hashOf(absSrc);
-
-  const hashedRel = `${base}.${hash}${ext}`;
-  const ogRel = `${base}.${hash}.og.jpg`;
+  const hashedRel = hashedName(relSrc, contentHash(absSrc));
+  const ogRel = ogTwinName(hashedRel);
   keep.add(hashedRel);
   keep.add(ogRel);
 
@@ -86,9 +78,9 @@ function cleanupOrphans(sources, keep) {
 
   for (const dir of dirs) {
     for (const file of fs.readdirSync(path.join(publicDir, dir))) {
-      const match = file.match(/^(.+)\.[0-9a-f]{8}(\.og)?\.[a-z0-9]+$/i);
+      const match = file.match(HASHED_IMAGE_RE);
       if (!match) continue;
-      if (!bases.has(`${dir}/${match[1]}`)) continue;
+      if (!bases.has(`${dir}/${file.slice(0, match.index)}`)) continue;
 
       const relFile = `${dir}/${file}`;
       if (!keep.has(relFile)) {

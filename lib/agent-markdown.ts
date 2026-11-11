@@ -7,11 +7,14 @@ import {
   getInsights,
   getLegacyArticle,
   getLegacyArticles,
+  getPageCopy,
   getProjects,
   getSkillDomains,
   getWorkIntro,
 } from "./content";
+import { ARTICLE_COLLECTIONS, type ArticleCollection } from "./collections.mjs";
 import { site, socialChannels } from "./site";
+import type { MdxComponentName } from "@/components/composites/mdx-components";
 import type { AgentGuide, CaseStudy, InsightMeta } from "./types";
 
 /**
@@ -32,86 +35,132 @@ function abs(path: string): string {
   return `${site.url}${path}`;
 }
 
+/** Reads one string prop from a component's raw attribute source. */
+type Props = (name: string) => string | undefined;
+
 /**
- * Insights are MDX with interactive components. Agents get plain
- * markdown: images keep their alt text and caption, notes become
- * blockquotes, and demo components (which only make sense running
- * in a browser) are dropped.
+ * How each MDX component reads in the agent markdown:
+ * - a function returns the markdown it becomes (`inner` is its children);
+ * - "interactive" is browser-only: its description prop stands in for
+ *   it when it has one, otherwise it is dropped;
+ * - "unwrap" keeps its children and drops the wrapper.
+ * The Record type requires an entry for every registered component, so
+ * a new one can't silently vanish from the markdown twin.
+ */
+type MarkdownForm = ((props: Props, inner: string) => string) | "interactive" | "unwrap";
+
+/** Site-relative links become absolute; others pass through. */
+function link(href: string): string {
+  return href.startsWith("/") ? abs(href) : href;
+}
+
+export const markdownForms: Record<MdxComponentName, MarkdownForm> = {
+  // An image with its caption, then any text that belongs to it.
+  MediaRow: (props, inner) => {
+    const src = props("src");
+    const caption = props("caption");
+    return [
+      src ? `![${props("alt") ?? ""}](${abs(src)})` : "",
+      caption ? `*${caption}*` : "",
+      inner.trim(),
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+  },
+  // Clips become a labelled link to the file.
+  VideoFigure: (props) => {
+    const src = props("src");
+    if (!src) return "";
+    const caption = props("caption");
+    const video = `[Video: ${props("label") ?? "Video"}](${abs(src)})`;
+    return caption ? `${video}\n\n*${caption}*` : video;
+  },
+  // Note panels read as asides; blockquotes carry that in markdown.
+  Note: (_, inner) =>
+    inner
+      .trim()
+      .split("\n")
+      .map((line) => `> ${line.trim()}`.trimEnd())
+      .join("\n"),
+  Card: "unwrap",
+  // The "now with AI" panel becomes a headed section: image, text, link.
+  NowWithAI: (props, inner) => {
+    const image = props("image");
+    const href = props("href");
+    return [
+      `## ${props("title") ?? "Update"} (now with AI)`,
+      image ? `![${props("imageAlt") ?? ""}](${abs(image)})` : "",
+      inner.trim(),
+      href ? `[${props("cta") ?? "Read the write-up"}](${link(href)})` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+  },
+  // A project link card becomes a plain link, or a status line when offline.
+  ProjectLink: (props) => {
+    const href = props("href");
+    const title = props("title") ?? "Project";
+    const note = props("note");
+    const tail = note ? ` ${note}` : "";
+    if (!href || props("mode") === "offline") return `> ${title} is no longer online.${tail}`;
+    return `> Try it: [${title}](${link(href)}).${tail}`;
+  },
+  RequestPathExplorer: "interactive",
+  StarfieldDemo: "interactive",
+  MinWidthDemo: "interactive",
+  BrainRouterDemo: "interactive",
+  HomelabDiagram: "interactive",
+  ShapeMorphButtons: "interactive",
+  AIWorkflowTimeline: "interactive",
+  HumanReviewLab: "interactive",
+  TeamGame: "interactive",
+  ReleaseTrain: "interactive",
+};
+
+/** Attribute source: quoted strings and {expressions} may hold > or /. */
+const ATTRS = String.raw`((?:"[^"]*"|\{[^{}]*\}|[^"{}>])*)`;
+
+function propsOf(attrs: string): Props {
+  return (name) => attrs.match(new RegExp(String.raw`(?:^|\s)${name}="([^"]*)"`))?.[1];
+}
+
+function render(form: MarkdownForm, attrs: string, inner: string): string {
+  const props = propsOf(attrs);
+  if (form === "unwrap") return inner;
+  if (form === "interactive") {
+    const description = props("description");
+    return description ? `> Interactive figure: ${description}` : "";
+  }
+  return form(props, inner);
+}
+
+/**
+ * Insights and legacy articles are MDX with components. Agents get
+ * plain markdown, each component converted by its entry in
+ * markdownForms. Paired components convert innermost first, so a Note
+ * holding a MediaRow sees the converted image, not the raw tag.
  */
 export function mdxToMarkdown(body: string): string {
+  const forms = Object.entries(markdownForms) as [MdxComponentName, MarkdownForm][];
+  let out = body;
+  for (let pass = 0; pass < 10; pass += 1) {
+    const before = out;
+    for (const [name, form] of forms) {
+      out = out
+        .replace(new RegExp(`<${name}${ATTRS}/>`, "g"), (_, attrs: string) => render(form, attrs, ""))
+        .replace(
+          new RegExp(String.raw`<${name}${ATTRS}>([\s\S]*?)</${name}>`, "g"),
+          (full, attrs: string, inner: string) =>
+            /<[A-Z]/.test(inner) ? full : render(form, attrs, inner),
+        );
+    }
+    if (out === before) break;
+  }
   return (
-    body
-      // <FloatImage … /> carries the image and its caption as props.
-      .replace(/<FloatImage([\s\S]*?)\/>/g, (_, attrs: string) => {
-        const src = attrs.match(/src="([^"]*)"/)?.[1];
-        const alt = attrs.match(/alt="([^"]*)"/)?.[1] ?? "";
-        const caption = attrs.match(/caption="([^"]*)"/)?.[1];
-        if (!src) return "";
-        const image = `![${alt}](${abs(src)})`;
-        return caption ? `${image}\n\n*${caption}*` : image;
-      })
-      // <Note> panels read as asides; blockquotes carry that in markdown.
-      .replace(/<Note>([\s\S]*?)<\/Note>/g, (_, inner: string) =>
-        inner
-          .trim()
-          .split("\n")
-          .map((line) => `> ${line.trim()}`.trimEnd())
-          .join("\n"),
-      )
-      // A media row is an image with its text: image first, text after.
-      .replace(
-        /<MediaRow([\s\S]*?)\n>([\s\S]*?)<\/MediaRow>/g,
-        (_, attrs: string, inner: string) => {
-          const src = attrs.match(/src="([^"]*)"/)?.[1];
-          const alt = attrs.match(/alt="([^"]*)"/)?.[1] ?? "";
-          return `${src ? `![${alt}](${abs(src)})\n\n` : ""}${inner.trim()}`;
-        },
-      )
-      // The "now with AI" panel becomes a headed section: image, text, link.
-      .replace(
-        /<NowWithAI([\s\S]*?)\n>([\s\S]*?)<\/NowWithAI>/g,
-        (_, attrs: string, inner: string) => {
-          const get = (name: string) => attrs.match(new RegExp(`${name}="([^"]*)"`))?.[1];
-          const image = get("image");
-          const href = get("href");
-          return [
-            `## ${get("title") ?? "Update"} (now with AI)`,
-            image ? `![${get("imageAlt") ?? ""}](${abs(image)})` : "",
-            inner.trim(),
-            href ? `[${get("cta") ?? "Read the write-up"}](${href.startsWith("/") ? abs(href) : href})` : "",
-          ]
-            .filter(Boolean)
-            .join("\n\n");
-        },
-      )
-      // A project link card becomes a plain link, or a status line when offline.
-      .replace(/<ProjectLink([\s\S]*?)\/>/g, (_, attrs: string) => {
-        const href = attrs.match(/href="([^"]*)"/)?.[1];
-        const title = attrs.match(/title="([^"]*)"/)?.[1] ?? "Project";
-        const note = attrs.match(/note="([^"]*)"/)?.[1];
-        const tail = note ? ` ${note}` : "";
-        if (!href || /mode="offline"/.test(attrs)) return `> ${title} is no longer online.${tail}`;
-        return `> Try it: [${title}](${href.startsWith("/") ? abs(href) : href}).${tail}`;
-      })
-      // Clips in legacy articles become a labelled link to the file.
-      .replace(/<LegacyVideo([\s\S]*?)\/>/g, (_, attrs: string) => {
-        const src = attrs.match(/src="([^"]*)"/)?.[1];
-        const label = attrs.match(/label="([^"]*)"/)?.[1] ?? "Video";
-        const caption = attrs.match(/caption="([^"]*)"/)?.[1];
-        if (!src) return "";
-        const link = `[Video: ${label}](${abs(src)})`;
-        return caption ? `${link}\n\n*${caption}*` : link;
-      })
-      // Interactive figures expose their nonvisual description to the
-      // agent-facing Markdown in place of the browser-only controls. Any
-      // self-closing component with a description prop qualifies.
-      .replace(/<[A-Z]\w*([^>]*?)\/>/g, (full, attrs: string) => {
-        const description = attrs.match(/description="([^"]*)"/)?.[1];
-        return description ? `> Interactive figure: ${description}` : full;
-      })
-      // Remaining self-closing components are interactive demos.
+    out
+      // Anything unregistered (the MDX test keeps this empty): drop
+      // self-closing tags, keep the content of paired ones.
       .replace(/^[ \t]*<[A-Z]\w*[^>]*\/>[ \t]*$/gm, "")
-      // Any other paired component: keep the content, drop the wrapper.
       .replace(/<([A-Z]\w*)[^>]*>([\s\S]*?)<\/\1>/g, "$2")
       .replace(/\n{3,}/g, "\n\n")
       .trim()
@@ -289,7 +338,7 @@ function insightsIndexPage(): AgentPage {
   const insights = getInsights();
   const markdown = `# Insights — ${site.name}
 
-Write-ups on systems, decisions, and delivery.
+${getPageCopy("insights").seoDescription}
 
 ${insights.map((i) => `${insightLine(i)} (${i.readingTimeMinutes} min read)`).join("\n")}
 `;
@@ -320,7 +369,7 @@ function projectsPage(): AgentPage {
 
   const markdown = `# Projects — ${site.name}
 
-Personal projects, past and present.
+${getPageCopy("projects").seoDescription}
 
 ${projects
   .map((p) => {
@@ -367,9 +416,10 @@ ${mdxToMarkdown(article.body)}
 }
 
 function legacyIndexPage(): AgentPage {
+  // The closing line is for agents: never present these as current work.
   const markdown = `# The legacy archive — ${site.name}
 
-Project write-ups from before AI code-assist tools existed, first posted on icandoathing.com between 2022 and 2024 and lightly cleaned up. They are an archive, not current work.
+${getPageCopy("legacy").seoDescription} They are an archive, not current work.
 
 ${getLegacyArticles()
   .map((a) => `- [${a.title}](${abs(`/legacy/${a.slug}`)}) (${a.date}): ${a.description}`)
@@ -431,6 +481,13 @@ Based in ${site.location}.
   return { title: "Contact", markdown };
 }
 
+/** The markdown twin of each collection's detail page. */
+const detailPages: Record<ArticleCollection["key"], (slug: string) => AgentPage | undefined> = {
+  work: caseStudyPage,
+  insights: insightPage,
+  legacy: legacyPage,
+};
+
 /**
  * Render the markdown twin of a page. `path` is the canonical page
  * path ("/", "/work/payment-rebuild"). Returns undefined for paths
@@ -456,14 +513,11 @@ export function renderAgentMarkdown(path: string): AgentPage | undefined {
       return capabilitiesPage();
   }
 
-  const caseStudy = path.match(/^\/work\/([^/]+)$/);
-  if (caseStudy) return caseStudyPage(caseStudy[1]);
-
-  const insight = path.match(/^\/insights\/([^/]+)$/);
-  if (insight) return insightPage(insight[1]);
-
-  const legacy = path.match(/^\/legacy\/([^/]+)$/);
-  if (legacy) return legacyPage(legacy[1]);
+  for (const c of ARTICLE_COLLECTIONS) {
+    const prefix = `${c.route}/`;
+    const slug = path.startsWith(prefix) ? path.slice(prefix.length) : "";
+    if (slug && !slug.includes("/")) return detailPages[c.key](slug);
+  }
 
   return undefined;
 }

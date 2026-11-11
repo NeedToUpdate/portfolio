@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import posthog from "posthog-js";
 import Icon from "@/components/ui/Icon";
 import Button from "@/components/ui/Button";
@@ -30,12 +30,15 @@ function makeShareId(length = 10): string {
   crypto.getRandomValues(bytes);
   let id = "";
   for (let i = 0; i < length; i += 1) {
-    id += ID_ALPHABET[bytes[i] % ID_ALPHABET.length];
+    id += ID_ALPHABET[bytes[i]! % ID_ALPHABET.length];
   }
   return id;
 }
 
 type Channel = "native" | "copy" | "linkedin" | "email";
+
+/** Native share support never changes during a page's life. */
+const subscribeNever = () => () => {};
 
 export default function ShareButton({
   title,
@@ -44,13 +47,19 @@ export default function ShareButton({
   className = "mt-12",
 }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
-  const [canNativeShare, setCanNativeShare] = useState(false);
+  const copiedTimer = useRef<number | undefined>(undefined);
 
-  // navigator.share is undefined on the server and on most desktops, so
-  // decide after mount to keep the server and first client render equal.
-  useEffect(() => {
-    setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
-  }, []);
+  // navigator.share is undefined on the server and on most desktops. The
+  // server snapshot is false, so the server and first client render agree
+  // and the native button appears after hydration where it exists.
+  const canNativeShare = useSyncExternalStore(
+    subscribeNever,
+    () => typeof navigator.share === "function",
+    () => false,
+  );
+
+  // The "copied" reset must not fire after the button unmounts.
+  useEffect(() => () => window.clearTimeout(copiedTimer.current), []);
 
   // A fresh id per click: every share is its own attributable event. The
   // origin comes from the live page, so dev and staging shares point at
@@ -97,7 +106,8 @@ export default function ShareButton({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      window.clearTimeout(copiedTimer.current);
+      copiedTimer.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard blocked (insecure context or denied permission); the
       // event still fired, so attribution holds even when the copy fails.

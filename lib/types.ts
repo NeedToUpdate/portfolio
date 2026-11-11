@@ -55,7 +55,8 @@ export interface Project {
   thumbnail?: string;
   techs: string[];
   url: string;
-  priority: number;
+  /** Position on the projects page; lower comes first. Unique. */
+  order: number;
   brightImage?: boolean;
   /** Whether the project was built before or with AI in the toolchain. */
   era: ProjectEra;
