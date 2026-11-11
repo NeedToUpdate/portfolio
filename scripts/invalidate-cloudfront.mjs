@@ -21,6 +21,7 @@ import {
   classifyChange,
   discoverRoots,
   fullPathList,
+  newPagePaths,
   parseNameStatus,
   slugsFromDisk,
 } from "./cache-invalidation/map.mjs";
@@ -114,6 +115,9 @@ async function computeInvalidation() {
     for (const p of entry.paths) paths.add(p);
     if (entry.warn) warnings.push(`\`${file}\` (${entry.bucket}) matched no rule — invalidating nothing for it`);
   }
+
+  // A changed shared component reaches new pages too; they were never cached.
+  for (const p of newPagePaths(changed, ctx)) paths.delete(p);
 
   return { paths: [...paths].sort(), matches, warnings, reason: null, commitRange };
 }

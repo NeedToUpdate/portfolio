@@ -5,6 +5,7 @@ import {
   fullPathList,
   fullTextPathList,
   mdMirrorPathList,
+  newPagePaths,
   optimizerVariantPaths,
   parseNameStatus,
   staticRoutePath,
@@ -193,6 +194,20 @@ describe("image and asset classification", () => {
 
   it("invalidates a plain public asset at its own path", () => {
     expect(classifyChange("public/favicon.ico", "M", ctx).paths).toEqual(["/favicon.ico"]);
+  });
+
+  it("invalidates nothing for a new image", () => {
+    expect(classifyChange("public/images/legacy/new/01.webp", "A", ctx)).toEqual({
+      bucket: "image-added",
+      paths: [],
+    });
+  });
+
+  it("purges a deleted image without its optimizer wildcards", () => {
+    expect(classifyChange("public/images/old.webp", "D", ctx)).toEqual({
+      bucket: "image-deleted",
+      paths: ["/images/old.webp"],
+    });
   });
 
   it("scopes optimizer variants to the encoded source path", () => {
@@ -450,6 +465,42 @@ describe("path lists and diff parsing", () => {
 
   it("includes image wildcards only in the bootstrap list", () => {
     expect(fullPathList(ctx)).toEqual([...fullTextPathList(ctx), "/images/*", "/_next/image*"]);
+  });
+
+  it("lists pages that did not exist before the diff", () => {
+    const withLegacy = { ...ctx, slugs: { ...ctx.slugs, legacy: ["server-case"] } };
+    expect(
+      newPagePaths(
+        [
+          { file: "content/insights/fresh.mdx", status: "A" },
+          { file: "app/legacy/page.tsx", status: "A" },
+          { file: "app/legacy/[slug]/page.tsx", status: "A" },
+          { file: "content/insights/ziggy.mdx", status: "M" },
+        ],
+        withLegacy,
+      ).sort(),
+    ).toEqual(
+      [
+        "/insights/fresh",
+        "/md/insights/fresh",
+        "/legacy",
+        "/md/legacy",
+        "/legacy/server-case",
+        "/md/legacy/server-case",
+      ].sort(),
+    );
+  });
+
+  it("keeps a URL that a deleted route used to serve", () => {
+    expect(
+      newPagePaths(
+        [
+          { file: "app/about/page.tsx", status: "D" },
+          { file: "app/about/page.jsx", status: "A" },
+        ],
+        ctx,
+      ),
+    ).toEqual([]);
   });
 
   it("expands renames into a delete plus an add", () => {
