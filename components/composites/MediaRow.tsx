@@ -40,7 +40,7 @@ interface MediaRowProps {
  * side="none", or floated left/right so the paragraphs after it wrap:
  *   <MediaRow src="..." alt="..." side="none" caption="..." />
  */
-export default async function MediaRow({
+export default function MediaRow({
   src,
   alt,
   width,
@@ -53,7 +53,7 @@ export default async function MediaRow({
   enlargeHint = false,
   widthClass,
 }: MediaRowProps) {
-  const intrinsic = width && height ? { width, height } : await imageSize(src);
+  const intrinsic = width && height ? { width, height } : imageSize(src);
   // The optimizer rejects SVG by default; vector diagrams ship as-is.
   const unoptimized = src.endsWith(".svg");
 

@@ -30,7 +30,7 @@ interface NowWithAIProps {
  *   text
  * </NowWithAI>
  */
-export default async function NowWithAI({
+export default function NowWithAI({
   title,
   children,
   image,
@@ -40,7 +40,7 @@ export default async function NowWithAI({
   href,
   cta = "Read the write-up",
 }: NowWithAIProps) {
-  const size = image ? (width && height ? { width, height } : await imageSize(image)) : undefined;
+  const size = image ? (width && height ? { width, height } : imageSize(image)) : undefined;
   return (
     <section className="relative my-10 overflow-hidden rounded-2xl border border-accent/30 bg-surface shadow-[0_18px_55px_rgba(0,0,0,0.25)]">
       {/* Flair wash: plasma from the top-left, nebula from the right. */}
