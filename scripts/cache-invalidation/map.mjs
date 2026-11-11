@@ -121,6 +121,35 @@ export function addedContentDetailPath(file, status) {
   return match ? `${match.collection.route}/${match.slug}` : null;
 }
 
+/**
+ * Pages that did not exist before this diff: new content detail pages, new
+ * static routes, and every slug under a new collection route. Nothing was
+ * cached at these URLs, so a changed shared component that reaches them
+ * through the import graph must not put them in the invalidation. A path
+ * a deleted file used to serve (a route replaced by a new file at the same
+ * URL) was cached, so it stays.
+ */
+export function newPagePaths(changed, ctx) {
+  const added = new Set();
+  const servedBefore = new Set();
+  for (const { file, status } of changed) {
+    if (status === "D") {
+      withTwins(classifyChange(file, status, ctx).paths).forEach((p) => servedBefore.add(p));
+      continue;
+    }
+    if (status !== "A") continue;
+    const detail = addedContentDetailPath(file, status);
+    if (detail) withTwins([detail]).forEach((p) => added.add(p));
+    if (!isPageFile(file)) continue;
+    const served = staticRoutePath(file);
+    if (served !== null) withTwins([served]).forEach((p) => added.add(p));
+    const dynamic = file.match(/^app\/(.+)\/\[slug\]\/page\.(tsx?|jsx?)$/);
+    const c = dynamic && ARTICLE_COLLECTIONS.find((c) => c.route === `/${dynamic[1]}`);
+    if (c) withTwins(slugsOf(ctx, c.key).map((s) => `${c.route}/${s}`)).forEach((p) => added.add(p));
+  }
+  return [...added].filter((p) => !servedBefore.has(p));
+}
+
 /** The collection and slug of a content file with its own detail page. */
 function matchCollectionFile(file) {
   for (const collection of ARTICLE_COLLECTIONS) {
@@ -349,6 +378,14 @@ export function classifyChange(file, status, ctx) {
       return { bucket: "image-hashed", paths: [] }; // self-busting twin
     }
     const urlPath = `/${file.slice("public/".length)}`;
+    // A new image has never been served, so nothing is cached under its
+    // URL. A deleted one is no longer linked, so its optimizer variants
+    // are never requested again; only the file itself needs purging.
+    // Only an image edited in place needs its variant wildcards, which
+    // keeps a deploy that adds many images under CloudFront's limit on
+    // in-flight wildcard invalidations.
+    if (status === "A") return { bucket: "image-added", paths: [] };
+    if (status === "D") return { bucket: "image-deleted", paths: [urlPath] };
     return {
       bucket: "image-direct",
       paths: [urlPath, ...optimizerVariantPaths(urlPath)],
