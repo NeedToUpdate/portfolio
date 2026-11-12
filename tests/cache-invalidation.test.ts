@@ -6,7 +6,9 @@ import {
   mdMirrorPathList,
   newPagePaths,
   optimizerVariantPaths,
+  batchInvalidationPaths,
   parseNameStatus,
+  rscPrefetchPaths,
   staticRoutePath,
   listSlugs,
 } from "@/scripts/cache-invalidation/map.mjs";
@@ -207,6 +209,47 @@ describe("image and asset classification", () => {
       bucket: "image-deleted",
       paths: ["/images/old.webp"],
     });
+  });
+
+  it("adds a prefetch payload wildcard for pages only", () => {
+    expect(
+      rscPrefetchPaths([
+        "/",
+        "/work",
+        "/work/tableau",
+        "/legacy/server-case",
+        "/projects",
+        "/md/work/tableau",
+        "/md",
+        "/llms.txt",
+        "/sitemap.xml",
+        "/opengraph-image",
+        "/.well-known/api-catalog",
+        "/images/portrait.webp",
+        "/_next/image?url=%2Fimages%2Fportrait.webp*",
+        "/work/tableau?*",
+      ]),
+    ).toEqual(["/?*", "/work?*", "/work/tableau?*", "/legacy/server-case?*", "/projects?*"]);
+  });
+
+  it("covers every page in a full refresh with one prefetch wildcard each", () => {
+    const text = fullTextPathList(makeContext());
+    const pages = text.filter((p) => !p.startsWith("/md") && !p.startsWith("/.well-known") && !/\.\w+$/.test(p) && p !== "/opengraph-image");
+    expect(rscPrefetchPaths(text).sort()).toEqual(pages.map((p) => `${p}?*`).sort());
+  });
+
+  it("keeps every invalidation request within 15 wildcard paths", () => {
+    const wild = Array.from({ length: 36 }, (_, i) => `/page-${i}?*`);
+    const batches: string[][] = batchInvalidationPaths(["/a", ...wild, "/b"]);
+    expect(batches).toHaveLength(3);
+    expect(batches.map((b) => b.filter((p) => p.endsWith("*")).length)).toEqual([15, 15, 6]);
+    expect(batches[0]?.slice(0, 2)).toEqual(["/a", "/b"]);
+    expect(batches.flat().sort()).toEqual(["/a", "/b", ...wild].sort());
+  });
+
+  it("sends plain paths alone in one request", () => {
+    expect(batchInvalidationPaths(["/a", "/b"])).toEqual([["/a", "/b"]]);
+    expect(batchInvalidationPaths([])).toEqual([]);
   });
 
   it("scopes optimizer variants to the encoded source path", () => {

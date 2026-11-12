@@ -6,6 +6,9 @@ on:
 
 jobs:
   test:
+    # The check name main's branch protection requires; renaming it means
+    # updating the required checks too.
+    name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -33,6 +36,7 @@ jobs:
 
   # Shows what the deploy after this merge will invalidate in CloudFront:
   # in the run summary, and in one PR comment that each push updates.
+  # Also a required check on main.
   cache-preview:
     name: Cache invalidation preview
     runs-on: ubuntu-latest

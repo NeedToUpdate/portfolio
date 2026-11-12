@@ -213,6 +213,44 @@ export function optimizerVariantPaths(urlPath) {
   ];
 }
 
+/**
+ * The prefetch payload paths for the HTML pages in a path list. The App
+ * Router fetches a linked page's data as "<page>?_rsc=<hash>", and the
+ * app cache policy keys on every query string, so CloudFront caches those
+ * apart from "<page>". AWS purges a query-string variant only when the
+ * invalidation path covers it, so each page also gets "<page>?*": the
+ * trailing wildcard matches that page's query strings and nothing else.
+ * Without it, a deploy leaves the old build's payloads in the cache, and
+ * prefetched links preload fonts the new build no longer has.
+ * Markdown twins, text files, and images have no prefetch payloads.
+ */
+export function rscPrefetchPaths(paths) {
+  const isArticle = (p) =>
+    ARTICLE_COLLECTIONS.some(({ route }) => {
+      const slug = p.startsWith(`${route}/`) ? p.slice(route.length + 1) : "";
+      return slug !== "" && !/[/?*]/.test(slug);
+    });
+  return paths.filter((p) => FIXED_PAGES.includes(p) || isArticle(p)).map((p) => `${p}?*`);
+}
+
+/**
+ * CloudFront rejects an invalidation that would put more than 15
+ * wildcard paths in progress at once (TooManyInvalidationsInProgress),
+ * and a full-site deploy carries one "<page>?*" per page. Splits the
+ * paths into requests of at most `maxWildcards` wildcard paths each,
+ * meant to run one after another, each waiting for the last to finish.
+ * Plain paths ride in the first request.
+ */
+export function batchInvalidationPaths(paths, maxWildcards = 15) {
+  const plain = paths.filter((p) => !p.endsWith("*"));
+  const wild = paths.filter((p) => p.endsWith("*"));
+  const batches = [];
+  for (let i = 0; i < wild.length; i += maxWildcards) batches.push(wild.slice(i, i + maxWildcards));
+  if (batches.length === 0) batches.push([]);
+  batches[0] = [...plain, ...batches[0]];
+  return batches.filter((b) => b.length > 0);
+}
+
 // Parses `git diff --name-status`, expanding renames/copies (R100/C100)
 // into a synthetic delete of the old path plus an add of the new one so
 // each path gets classified under its own status.

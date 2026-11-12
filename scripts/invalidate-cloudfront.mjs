@@ -25,7 +25,9 @@ import {
   classifyChange,
   discoverRoots,
   newPagePaths,
+  batchInvalidationPaths,
   parseNameStatus,
+  rscPrefetchPaths,
   slugsFromDisk,
 } from "./cache-invalidation/map.mjs";
 import { buildAdjacency, invertGraph, scopeMdxComponents } from "./cache-invalidation/graph.mjs";
@@ -119,6 +121,10 @@ async function computeInvalidation() {
 
   // A changed shared component reaches new pages too; they were never cached.
   for (const p of newPagePaths(changed, ctx)) paths.delete(p);
+
+  // Each purged page's prefetch payloads ("<page>?_rsc=...") are cached
+  // under their own keys; "<page>?*" purges them with the page.
+  for (const p of rscPrefetchPaths([...paths])) paths.add(p);
 
   return { paths: [...paths].sort(), matches, warnings, commitRange };
 }
@@ -220,18 +226,29 @@ async function main() {
   }
 
   const distId = DRY_RUN ? "<distribution-id>" : getDistributionId(STACK_NAME);
-  const command = `aws cloudfront create-invalidation --distribution-id ${distId} --paths ${paths
-    .map((p) => `"${p}"`)
-    .join(" ")}`;
+  const batches = batchInvalidationPaths(paths);
+  const commands = batches.map(
+    (batch) =>
+      `aws cloudfront create-invalidation --distribution-id ${distId} --paths ${batch.map((p) => `"${p}"`).join(" ")}`,
+  );
 
   lines.push("**Paths:**");
   for (const p of paths) lines.push(`- \`${p}\``);
-  lines.push("", "**Command:**", "```", command, "```", "");
+  lines.push(
+    "",
+    batches.length === 1
+      ? "**Command:**"
+      : `**Commands** (${batches.length} requests, each waiting for the last to finish: CloudFront allows 15 wildcard paths in progress at once):`,
+    "```",
+    ...commands,
+    "```",
+    "",
+  );
 
   const skip = await findSkipMarker(commitRange);
   if (skip) {
     lines.push(
-      `**Skipped** — PR #${skip.prNumber} ("${skip.prTitle}") in this range is marked \`${SKIP_MARKER}\`. Not running the command above; the tag stays put so these paths roll into the next invalidation that does run.`
+      `**Skipped** — PR #${skip.prNumber} ("${skip.prTitle}") in this range is marked \`${SKIP_MARKER}\`. Not running the commands above; the tag stays put so these paths roll into the next invalidation that does run.`
     );
     report(lines);
     return;
@@ -245,13 +262,28 @@ async function main() {
 
   report(lines);
 
-  try {
-    execFileSync("aws", ["cloudfront", "create-invalidation", "--distribution-id", distId, "--paths", ...paths], {
-      stdio: "inherit",
-    });
-  } catch (err) {
-    report(["", "**Invalidation call failed.** Copy the command above into a terminal to run it manually."]);
-    throw err;
+  for (const [i, batch] of batches.entries()) {
+    try {
+      const id = execFileSync(
+        "aws",
+        ["cloudfront", "create-invalidation", "--distribution-id", distId, "--paths", ...batch,
+          "--query", "Invalidation.Id", "--output", "text"],
+        { encoding: "utf8" },
+      ).trim();
+      report([`Request ${i + 1} of ${batches.length}: ${batch.length} paths, invalidation \`${id}\`.`]);
+      // The next request's wildcards only fit once this one is done.
+      if (i < batches.length - 1) {
+        execFileSync("aws", ["cloudfront", "wait", "invalidation-completed", "--distribution-id", distId, "--id", id], {
+          stdio: "inherit",
+        });
+      }
+    } catch (err) {
+      report([
+        "",
+        `**Invalidation request ${i + 1} of ${batches.length} failed.** Run the remaining commands above by hand, in order, each after the last completes. The tag stays put, so the next deploy invalidates these paths again.`,
+      ]);
+      throw err;
+    }
   }
 
   moveTag();
