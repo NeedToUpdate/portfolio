@@ -52,7 +52,7 @@ export default async function CaseStudyPage({ params }: PageProps) {
       href: `/work/${c.slug}`,
       title: c.title,
       description: c.impact,
-      image: c.diagram,
+      image: c.previewImage,
       kind: "Case study" as const,
       category: c.category,
     }),
@@ -118,11 +118,11 @@ export default async function CaseStudyPage({ params }: PageProps) {
           <Markdown>{problemAndSolution}</Markdown>
 
           <Exhibit
-            src={caseStudy.diagram}
-            alt={caseStudy.diagramAlt ?? `Solution architecture — ${caseStudy.title}`}
+            src={caseStudy.previewImage}
+            alt={caseStudy.previewImageAlt ?? `Solution architecture — ${caseStudy.title}`}
             label={`Architecture diagram — ${caseStudy.title}`}
             icon={categoryIcon(caseStudy.category)}
-            caption={caseStudy.diagram ? "Exhibit: solution architecture." : undefined}
+            caption={caseStudy.previewImage ? "Exhibit: solution architecture." : undefined}
           />
 
           {result && (

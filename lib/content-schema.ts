@@ -42,8 +42,8 @@ export const caseStudySchema = z.strictObject({
   priority: z.number().int().default(99),
   role: text.optional(),
   context: z.array(z.strictObject({ term: text, value: text })).optional(),
-  diagram: imagePath.optional(),
-  diagramAlt: text.optional(),
+  previewImage: imagePath.optional(),
+  previewImageAlt: text.optional(),
   related: textList,
   comments: z
     .array(z.strictObject({ question: text, answer: text }))

@@ -8,8 +8,8 @@ seoDescription: "How a governed Tableau platform on AWS gave business teams dire
 priority: 8
 category: reporting
 role: "Led platform design and automation"
-diagram: "/images/tableau-integration.svg"
-diagramAlt: "Business users access Tableau through governed identity controls inside a private AWS environment connected to Redshift and managed as infrastructure as code."
+previewImage: "/images/tableau-integration.svg"
+previewImageAlt: "Business users access Tableau through governed identity controls inside a private AWS environment connected to Redshift and managed as infrastructure as code."
 context:
   - term: "Client"
     value: "Large insurer"

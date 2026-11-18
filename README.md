@@ -52,7 +52,7 @@ Everything renders from files in `content/`. No CMS. Frontmatter is validated by
 
 ### Images
 
-Preview images (`previewImage`, `diagram`) are served under a content hash, so editing one changes its URL. `npm run images` writes the hashed copies and a JPEG social card beside each source; it runs before `dev` and `build`. The hashed files are build output and are not committed.
+Preview images (`previewImage`) are served under a content hash, so editing one changes its URL. `npm run images` writes the hashed copies and a JPEG social card beside each source; it runs before `dev` and `build`. The hashed files are build output and are not committed.
 
 ### The legacy archive
 

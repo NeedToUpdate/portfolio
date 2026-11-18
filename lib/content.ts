@@ -86,7 +86,7 @@ export function getCaseStudies(): CaseStudy[] {
     .map(({ slug, data, content }) => ({
       ...data,
       slug,
-      diagram: data.diagram ? fingerprintedPath(data.diagram) : undefined,
+      previewImage: data.previewImage ? fingerprintedPath(data.previewImage) : undefined,
       body: content.trim(),
     }))
     .sort((a, b) => a.priority - b.priority);
@@ -155,7 +155,7 @@ export function getRelatedContent(paths: string[] = []): RelatedContent[] {
       href,
       title: study.title,
       description: study.impact,
-      image: study.diagram,
+      image: study.previewImage,
       kind: "Case study" as const,
       category: study.category,
     };

@@ -14,8 +14,8 @@ impact: "Built an AWS data warehouse that gave a major insurer control over its 
 priority: 1
 category: data
 role: "Spearheaded architecture and multi-year delivery"
-diagram: "/images/data-warehouse-architecture.svg"
-diagramAlt: "Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and gold-layer data marts serving internal teams, clients, and partners."
+previewImage: "/images/data-warehouse-architecture.svg"
+previewImageAlt: "Source files flow through data ingestion, a landing zone, ETL systems, a layered data lake, metadata monitoring, reporting, and gold-layer data marts serving internal teams, clients, and partners."
 context:
   - term: "Client"
     value: "Major insurance client"

@@ -320,7 +320,7 @@ function caseStudyPage(slug: string): AgentPage | undefined {
   ].filter(Boolean);
 
   const diagram =
-    c.diagram && c.diagramAlt ? `\n![${c.diagramAlt}](${abs(c.diagram)})\n` : "";
+    c.previewImage && c.previewImageAlt ? `\n![${c.previewImageAlt}](${abs(c.previewImage)})\n` : "";
 
   const comments = `\n## Art's Comments\n\nQuestions that came out of the work.\n\n${c.comments
     .map(

@@ -34,10 +34,11 @@ export interface CaseStudy {
   role?: string;
   /** Context scorecard rows: client, scale, environment. Facts only. */
   context?: ScorecardEntry[];
-  /** Path to an architecture diagram image, once one exists. */
-  diagram?: string;
+  /** Architecture diagram image: the exhibit on the page and the social
+   *  preview. Same field name as insights and legacy articles. */
+  previewImage?: string;
   /** Equivalent text for the architecture diagram's important flow and components. */
-  diagramAlt?: string;
+  previewImageAlt?: string;
   /** Manually selected canonical paths to genuinely related local content. */
   related?: string[];
   /** Transferable decisions grounded in this project's evidence. */

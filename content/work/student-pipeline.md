@@ -8,8 +8,8 @@ seoDescription: "How a monthly enrollment pipeline for 1M+ students replaced a w
 priority: 6
 category: infrastructure
 role: "Led architecture and delivery"
-diagram: "/images/enrollment-processing-system.svg"
-diagramAlt: "Monthly SFTP enrollment files flow through state reconciliation, controlled manual changes, nightly delta generation, TPA delivery, and monitoring."
+previewImage: "/images/enrollment-processing-system.svg"
+previewImageAlt: "Monthly SFTP enrollment files flow through state reconciliation, controlled manual changes, nightly delta generation, TPA delivery, and monitoring."
 context:
   - term: "Client"
     value: "Insurance provider"
