@@ -48,15 +48,21 @@ function EntryCard({ view, period }: { view: StreamView; period: string }) {
  * One timeline, two careers. Merged, it reads as a single track.
  * Split (hover on desktop, button everywhere), it separates into an
  * engineering stream and a teaching-and-leadership stream, with the
- * psychology degree rooting the leadership side.
+ * psychology degree rooting the leadership side. Pressing the button
+ * locks the layout it picks and turns the hover behaviour off.
  */
 export default function CareerTimeline({ entries }: CareerTimelineProps) {
   const [split, setSplit] = useState(false);
+  // Once the button is pressed, its choice sticks: hover stops splitting
+  // and merging, so reading the split tracks doesn't undo itself when
+  // the pointer wanders off the timeline.
+  const [locked, setLocked] = useState(false);
   const reducedMotion = useReducedMotion();
   // Hover splitting only applies where hover exists; the button covers touch.
   const canHover = useRef<boolean | null>(null);
 
   const hoverAllowed = () => {
+    if (locked) return false;
     if (canHover.current === null) {
       canHover.current =
         typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches;
@@ -70,7 +76,10 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
         <Heading size="sub" id="history">
           Where I have worked
         </Heading>
-        <Button variant="outline" shape="pill" onClick={() => setSplit((s) => !s)} aria-pressed={split}>
+        <Button variant="outline" shape="pill" onClick={() => {
+            setLocked(true);
+            setSplit((s) => !s);
+          }} aria-pressed={split}>
           {split ? "Merge into one timeline" : "Split into two tracks"}
         </Button>
       </div>
@@ -80,11 +89,12 @@ export default function CareerTimeline({ entries }: CareerTimelineProps) {
         ) : (
           <>
             Two careers share this timeline: engineering, and teaching that became leadership.{" "}
-            {/* Hover only exists on hover devices; phones get button-only copy. */}
-            <span className="hidden [@media(hover:hover)]:inline">
+            {/* Hover only exists on hover devices; phones get button-only copy.
+                After the button locks the layout, hover no longer splits it. */}
+            <span className={locked ? "hidden" : "hidden [@media(hover:hover)]:inline"}>
               Hover the timeline or press the button to see them side by side.
             </span>
-            <span className="[@media(hover:hover)]:hidden">
+            <span className={locked ? undefined : "[@media(hover:hover)]:hidden"}>
               Press the button to see them separately.
             </span>
           </>
