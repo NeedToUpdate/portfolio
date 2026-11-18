@@ -85,7 +85,7 @@ export const legacySchema = z.strictObject({
   // When the project was built, which is often years before the post.
   built: yearMonth.optional(),
   originalUrl: z.url(),
-  screenshot: imagePath,
+  previewImage: imagePath,
   tags: textList,
   kind: z.enum(["post", "site"]).default("post"),
 });

@@ -225,7 +225,7 @@ export function legacySeo(article: LegacyArticleMeta): ArticleSeo {
     description: article.description,
     path: `/legacy/${article.slug}`,
     date: article.date,
-    image: article.screenshot,
+    image: article.previewImage,
     keywords: article.tags,
   };
 }

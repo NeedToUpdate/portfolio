@@ -116,13 +116,13 @@ describe("legacy articles", () => {
   const slugs = new Set(articles.map((a) => a.slug));
   const publicFile = (p: string) => path.join(process.cwd(), "public", p.replace(/^\//, ""));
 
-  it("loads every legacy article with an original url and a fingerprinted screenshot", () => {
+  it("loads every legacy article with an original url and a fingerprinted preview image", () => {
     // Fingerprinting reads the source file, so loading proves it exists;
     // the hashed copy itself is build output (npm run images).
     expect(articles.length).toBeGreaterThan(0);
     for (const article of articles) {
       expect(article.originalUrl).toMatch(/^https:\/\/icandoathing\.com/);
-      expect(article.screenshot).toMatch(HASHED_IMAGE_RE);
+      expect(article.previewImage).toMatch(HASHED_IMAGE_RE);
     }
   });
 

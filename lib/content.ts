@@ -229,7 +229,7 @@ function toLegacyMeta({ slug, data }: ContentEntry<z.output<typeof legacySchema>
     ...data,
     slug,
     built: data.built ?? data.date.slice(0, 7),
-    screenshot: fingerprintedPath(data.screenshot),
+    previewImage: fingerprintedPath(data.previewImage),
   };
 }
 

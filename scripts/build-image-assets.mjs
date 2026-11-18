@@ -12,7 +12,7 @@
 // registry in lib/collections.mjs.
 //
 // Re-run via `npm run images` (or automatically on `npm run build`)
-// after adding or changing a previewImage/diagram/screenshot field.
+// after adding or changing a previewImage/diagram field.
 
 import fs from "fs";
 import path from "path";

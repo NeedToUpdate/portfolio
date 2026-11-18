@@ -91,8 +91,9 @@ export interface LegacyArticleMeta {
   /** Where the original lived. */
   originalUrl: string;
   /** Screenshot of the original page: the origin card thumbnail and the
-   *  social preview. Fingerprinted by the loader, like previewImage. */
-  screenshot: string;
+   *  social preview. Fingerprinted by the loader. Same field name as
+   *  insights use, so every collection reads the same frontmatter. */
+  previewImage: string;
   tags: string[];
   /** "post" is a rewrite of an icandoathing.com post; "site" is the
    *  write-up of icandoathing.com itself. */
