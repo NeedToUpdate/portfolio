@@ -34,10 +34,11 @@ export interface CaseStudy {
   role?: string;
   /** Context scorecard rows: client, scale, environment. Facts only. */
   context?: ScorecardEntry[];
-  /** Path to an architecture diagram image, once one exists. */
-  diagram?: string;
+  /** Architecture diagram image: the exhibit on the page and the social
+   *  preview. Same field name as insights and legacy articles. */
+  previewImage?: string;
   /** Equivalent text for the architecture diagram's important flow and components. */
-  diagramAlt?: string;
+  previewImageAlt?: string;
   /** Manually selected canonical paths to genuinely related local content. */
   related?: string[];
   /** Transferable decisions grounded in this project's evidence. */
@@ -91,8 +92,9 @@ export interface LegacyArticleMeta {
   /** Where the original lived. */
   originalUrl: string;
   /** Screenshot of the original page: the origin card thumbnail and the
-   *  social preview. Fingerprinted by the loader, like previewImage. */
-  screenshot: string;
+   *  social preview. Fingerprinted by the loader. Same field name as
+   *  insights use, so every collection reads the same frontmatter. */
+  previewImage: string;
   tags: string[];
   /** "post" is a rewrite of an icandoathing.com post; "site" is the
    *  write-up of icandoathing.com itself. */

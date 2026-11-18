@@ -37,7 +37,7 @@ export const TEXT_FIXED_PATHS = [
   "/.well-known/agent-skills/using-this-site/SKILL.md",
 ];
 
-// previewImage/diagram source files get copied to a sha256-hashed twin
+// previewImage source files get copied to a sha256-hashed twin
 // by scripts/build-image-assets.mjs (see lib/images.ts). The hashed
 // file is the only one ever linked to, so a new hash is a brand new
 // URL — nothing to invalidate. This matches that naming scheme.

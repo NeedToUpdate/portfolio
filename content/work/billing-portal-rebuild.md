@@ -14,8 +14,8 @@ impact: "Rebuilt a per-login licensed billing portal in-house in three months. P
 priority: 1
 category: payments
 role: "Led engineering, architecture, and delivery"
-diagram: "/images/billing-portal-rebuild.svg"
-diagramAlt: "A customer uses a containerized Next.js portal on Azure App Service with billing and service sections. A thin owned integration layer connects it to the unchanged legacy CRM and billing system. A dashed boundary marks end-to-end tracing flowing into App Insights."
+previewImage: "/images/billing-portal-rebuild.svg"
+previewImageAlt: "A customer uses a containerized Next.js portal on Azure App Service with billing and service sections. A thin owned integration layer connects it to the unchanged legacy CRM and billing system. A dashed boundary marks end-to-end tracing flowing into App Insights."
 context:
   - term: "Client"
     value: "Large Canadian home services company"

@@ -7,9 +7,9 @@ impact: "Turned an expensive SaaS purchase into board approval for an eight-pers
 priority: 3
 category: infrastructure
 role: "Built the target architecture and board case"
-diagram: "/images/unified-cloud-architecture.svg"
+previewImage: "/images/unified-cloud-architecture.svg"
 related: ["/insights/k3s-homelab"]
-diagramAlt: "A reusable Azure delivery platform combines a shared communication layer and cloud-native compute with infrastructure as code, security, logging, monitoring, and compliance standards."
+previewImageAlt: "A reusable Azure delivery platform combines a shared communication layer and cloud-native compute with infrastructure as code, security, logging, monitoring, and compliance standards."
 context:
   - term: "Client"
     value: "Enterprise client"
