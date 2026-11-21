@@ -1,4 +1,4 @@
-// Fingerprints every previewImage/diagram referenced from content
+// Fingerprints every previewImage referenced from content
 // frontmatter, and generates a JPEG twin of each for use as
 // og:image/twitter:image (webp and svg are both unreliable across
 // social crawlers, even though browsers and Googlebot handle them
@@ -12,7 +12,7 @@
 // registry in lib/collections.mjs.
 //
 // Re-run via `npm run images` (or automatically on `npm run build`)
-// after adding or changing a previewImage/diagram/screenshot field.
+// after adding or changing a previewImage field.
 
 import fs from "fs";
 import path from "path";

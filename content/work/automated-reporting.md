@@ -7,8 +7,8 @@ impact: "Built an automated reporting pipeline that reduced month-close IFRS 17 
 priority: 4
 category: reporting
 role: "Led planning, architecture, delivery, and handoff"
-diagram: "/images/automated-financial-reporting.svg"
-diagramAlt: "Five source systems flow through a controlled reporting pipeline, warehouse, finance month-close posting, IFRS 17 handoff, and a quarantine repair path."
+previewImage: "/images/automated-financial-reporting.svg"
+previewImageAlt: "Five source systems flow through a controlled reporting pipeline, warehouse, finance month-close posting, IFRS 17 handoff, and a quarantine repair path."
 context:
   - term: "Client"
     value: "Large Canadian insurer"

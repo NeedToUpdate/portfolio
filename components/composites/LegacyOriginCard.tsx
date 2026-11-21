@@ -23,7 +23,7 @@ export default function LegacyOriginCard({ article }: LegacyOriginCardProps) {
     <aside aria-label="About this legacy article" data-nosnippet className="mt-8">
       {isSite ? (
         <TaperCard
-          image={article.screenshot}
+          image={article.previewImage}
           eyebrow="Legacy project"
           cta="Visit icandoathing.com"
           href={article.originalUrl}
@@ -33,7 +33,7 @@ export default function LegacyOriginCard({ article }: LegacyOriginCardProps) {
         </TaperCard>
       ) : (
         <TaperCard
-          image={article.screenshot}
+          image={article.previewImage}
           eyebrow="Legacy article"
           cta="Read about icandoathing.com"
           href={SITE_WRITEUP}

@@ -42,8 +42,8 @@ export const caseStudySchema = z.strictObject({
   priority: z.number().int().default(99),
   role: text.optional(),
   context: z.array(z.strictObject({ term: text, value: text })).optional(),
-  diagram: imagePath.optional(),
-  diagramAlt: text.optional(),
+  previewImage: imagePath.optional(),
+  previewImageAlt: text.optional(),
   related: textList,
   comments: z
     .array(z.strictObject({ question: text, answer: text }))
@@ -85,7 +85,7 @@ export const legacySchema = z.strictObject({
   // When the project was built, which is often years before the post.
   built: yearMonth.optional(),
   originalUrl: z.url(),
-  screenshot: imagePath,
+  previewImage: imagePath,
   tags: textList,
   kind: z.enum(["post", "site"]).default("post"),
 });

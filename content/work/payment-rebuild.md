@@ -7,8 +7,8 @@ impact: "Rebuilt a high-risk claims payment workflow that had been failing month
 priority: 5
 category: payments
 role: "Led architecture, controls, and delivery"
-diagram: "/images/enterprise-payment-integration.svg"
-diagramAlt: "Multiple payment sources flow through normalization, payment controls, bank processing, receipt handling, and reconciliation."
+previewImage: "/images/enterprise-payment-integration.svg"
+previewImageAlt: "Multiple payment sources flow through normalization, payment controls, bank processing, receipt handling, and reconciliation."
 context:
   - term: "Client"
     value: "Large insurer"

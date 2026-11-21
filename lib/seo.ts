@@ -4,7 +4,7 @@ import { site } from "./site";
 import { CaseStudy, InsightMeta, LegacyArticleMeta } from "./types";
 
 /**
- * previewImage/diagram fields point at webp or svg source files —
+ * previewImage fields point at webp or svg source files —
  * neither is reliable as an og:image/twitter:image across social
  * crawlers (Facebook, Twitter, and LinkedIn have long-standing bugs
  * or outright non-support for both). `scripts/build-image-assets.mjs`
@@ -213,7 +213,7 @@ export function caseStudySeo(caseStudy: CaseStudy): ArticleSeo {
     description: caseStudy.seoDescription ?? caseStudy.impact,
     path: `/work/${caseStudy.slug}`,
     date: caseStudy.date,
-    image: caseStudy.diagram,
+    image: caseStudy.previewImage,
     keywords: [...(caseStudy.keywords ?? []), ...caseStudy.techs],
   };
 }
@@ -225,7 +225,7 @@ export function legacySeo(article: LegacyArticleMeta): ArticleSeo {
     description: article.description,
     path: `/legacy/${article.slug}`,
     date: article.date,
-    image: article.screenshot,
+    image: article.previewImage,
     keywords: article.tags,
   };
 }
